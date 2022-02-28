@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <GeologicalLandforms.Settings.Description>Override default config and customize landforms (advanced)</GeologicalLandforms.Settings.Description>
+  <GeologicalLandforms.Settings.SelectLandform>Select landform to edit: </GeologicalLandforms.Settings.SelectLandform>
+  <GeologicalLandforms.Settings.Reset>Reset config for this landform to default</GeologicalLandforms.Settings.Reset>
+  <GeologicalLandforms.Settings.Copy>Create a new custom landform (with selected one as template)</GeologicalLandforms.Settings.Copy>
+  <GeologicalLandforms.Settings.Delete>Delete selected custom landform</GeologicalLandforms.Settings.Delete>
+  <GeologicalLandforms.Settings.ResetAll>Reset configs for ALL landforms to default</GeologicalLandforms.Settings.ResetAll>
+  <GeologicalLandforms.Rot4.0>northern</GeologicalLandforms.Rot4.0>
+  <GeologicalLandforms.Rot4.1>eastern</GeologicalLandforms.Rot4.1>
+  <GeologicalLandforms.Rot4.2>southern</GeologicalLandforms.Rot4.2>
+  <GeologicalLandforms.Rot4.3>western</GeologicalLandforms.Rot4.3>
+  <GeologicalLandforms.Rot4.Double.0>northeastern</GeologicalLandforms.Rot4.Double.0>
+  <GeologicalLandforms.Rot4.Double.1>southeastern</GeologicalLandforms.Rot4.Double.1>
+  <GeologicalLandforms.Rot4.Double.2>southwestern</GeologicalLandforms.Rot4.Double.2>
+  <GeologicalLandforms.Rot4.Double.3>northwestern</GeologicalLandforms.Rot4.Double.3>
+  <GeologicalLandforms.Landform.CornerCoast>coast</GeologicalLandforms.Landform.CornerCoast>
+  <GeologicalLandforms.Landform.Cove>cove</GeologicalLandforms.Landform.Cove>
+  <GeologicalLandforms.Landform.CoveWithIsland>cove with island</GeologicalLandforms.Landform.CoveWithIsland>
+  <GeologicalLandforms.Landform.Peninsula>peninsula</GeologicalLandforms.Landform.Peninsula>
+  <GeologicalLandforms.Landform.Landbridge>landbridge</GeologicalLandforms.Landform.Landbridge>
+  <GeologicalLandforms.Landform.Tombolo>tombolo</GeologicalLandforms.Landform.Tombolo>
+  <GeologicalLandforms.Landform.CoastalIsland>coastal island</GeologicalLandforms.Landform.CoastalIsland>
+  <GeologicalLandforms.Landform.Island>island</GeologicalLandforms.Landform.Island>
+  <GeologicalLandforms.Landform.Lagoon>lagoon</GeologicalLandforms.Landform.Lagoon>
+  <GeologicalLandforms.Landform.Atoll>atoll</GeologicalLandforms.Landform.Atoll>
+  <GeologicalLandforms.Landform.Archipelago>archipelago</GeologicalLandforms.Landform.Archipelago>
+  <GeologicalLandforms.Landform.Lake>lake</GeologicalLandforms.Landform.Lake>
+  <GeologicalLandforms.Landform.LakeWithIsland>lake with island</GeologicalLandforms.Landform.LakeWithIsland>
+  <GeologicalLandforms.Landform.Oasis>oasis</GeologicalLandforms.Landform.Oasis>
+  <GeologicalLandforms.Landform.SwampIsland>swamp island</GeologicalLandforms.Landform.SwampIsland>
+  <GeologicalLandforms.Landform.IceIsland>frozen island</GeologicalLandforms.Landform.IceIsland>
+</LanguageData>
