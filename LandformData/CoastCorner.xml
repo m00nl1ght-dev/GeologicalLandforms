@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<CustomLandformData>
+	<Landform>
+		<Id>CoastCorner</Id>
+		<IsCustom>True</IsCustom>
+		<DisplayName />
+		<DisplayNameHasDirection>True</DisplayNameHasDirection>
+		<Topology>CoastTwoSides</Topology>
+		<GenConfig>
+			<NoiseStacks>
+				<keys>
+					<li>Coast</li>
+					<li>Elevation</li>
+					<li>Fertility</li>
+				</keys>
+				<values>
+					<li>
+						<Entries>
+							<keys>
+								<li>Add</li>
+								<li>Multiply</li>
+							</keys>
+							<values>
+								<li>
+									<Layers>
+										<li>
+											<MapSides>
+												<li>Seaside</li>
+												<li>Right</li>
+											</MapSides>
+											<SpanPositiveX>27.33599~65.85487</SpanPositiveX>
+											<SpanNegativeX>27.33599~65.85487</SpanNegativeX>
+											<CenterZ>0.5~0.5</CenterZ>
+											<Bias>-1~-1</Bias>
+											<Clamp>-1~2.5</Clamp>
+											<InvertX>True</InvertX>
+										</li>
+										<li>
+											<MapSides>
+												<li>Seaside</li>
+											</MapSides>
+											<SpanPositiveX>26.09344~45.97416</SpanPositiveX>
+											<SpanNegativeX>1000~1000</SpanNegativeX>
+											<CenterX>0.09070577~0.09070577</CenterX>
+											<CenterZ>0.5~0.5</CenterZ>
+											<RotationOffset>-50.72564~-40.43737</RotationOffset>
+											<Bias>-1~-1</Bias>
+											<Clamp>-1~2.5</Clamp>
+											<InvertX>True</InvertX>
+											<SyncPosNeg>False</SyncPosNeg>
+										</li>
+									</Layers>
+								</li>
+								<li>
+									<Layers />
+								</li>
+							</values>
+						</Entries>
+						<BaseScale>0.402324438095093</BaseScale>
+						<BaseBias>0.548961460590363</BaseBias>
+					</li>
+					<li>
+						<Entries>
+							<keys>
+								<li>Add</li>
+								<li>Multiply</li>
+							</keys>
+							<values>
+								<li>
+									<Layers />
+								</li>
+								<li>
+									<Layers>
+										<li>
+											<MapSides>
+												<li>Seaside</li>
+												<li>Right</li>
+											</MapSides>
+											<SideCombineMethod>Multiply</SideCombineMethod>
+											<LayerCombineMethod>Multiply</LayerCombineMethod>
+											<SpanPositiveX>101.8887~101.8887</SpanPositiveX>
+											<SpanNegativeX>101.8887~101.8887</SpanNegativeX>
+											<Bias>0.2025348~0.2025348</Bias>
+											<Clamp>0.1963221~0.9977635</Clamp>
+											<InvertX>True</InvertX>
+										</li>
+									</Layers>
+								</li>
+							</values>
+						</Entries>
+						<PerlinFrequency>0.0209999997168779</PerlinFrequency>
+						<PerlinOctaves>6</PerlinOctaves>
+					</li>
+					<li>
+						<Entries>
+							<keys>
+								<li>Multiply</li>
+							</keys>
+							<values>
+								<li>
+									<Layers />
+								</li>
+							</values>
+						</Entries>
+						<PerlinFrequency>0.0209999997168779</PerlinFrequency>
+						<PerlinOctaves>6</PerlinOctaves>
+					</li>
+				</values>
+			</NoiseStacks>
+			<TerrainDeep />
+			<TerrainShallow />
+			<TerrainBeach />
+		</GenConfig>
+	</Landform>
+</CustomLandformData>

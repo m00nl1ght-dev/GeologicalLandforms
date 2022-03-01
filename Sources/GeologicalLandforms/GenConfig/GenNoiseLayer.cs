@@ -32,6 +32,7 @@ public class GenNoiseLayer : IExposable
     
     public bool AlignWithRiver;
     public bool AlignWithMainRoad;
+    public bool ScaleSpanWithMapSize;
 
     public void ExposeData()
     {
@@ -54,6 +55,7 @@ public class GenNoiseLayer : IExposable
         Scribe_Values.Look(ref SyncPosNeg, "SyncPosNeg", true);
         Scribe_Values.Look(ref AlignWithRiver, "AlignWithRiver");
         Scribe_Values.Look(ref AlignWithMainRoad, "AlignWithMainRoad");
+        Scribe_Values.Look(ref ScaleSpanWithMapSize, "ScaleSpanWithMapSize");
     }
     
     public GenNoiseLayer() {}
@@ -67,11 +69,13 @@ public class GenNoiseLayer : IExposable
     {
         var spanPX = SpanPositiveX.RandomInRange;
         var spanPZ = SpanPositiveZ.RandomInRange;
+        var scaleX = ScaleSpanWithMapSize ? map.Size.x / 250f : 1f;
+        var scaleZ = ScaleSpanWithMapSize ? map.Size.z / 250f : 1f;
         ModuleBase dist = new BiasedDistFromXZ(
-            (InvertX ? 1f : -1f) * spanPX, 
-            (InvertX ? 1f : -1f) * (SyncPosNeg ? spanPX : SpanNegativeX.RandomInRange), 
-            (InvertZ ? 1f : -1f) * spanPZ, 
-            (InvertZ ? 1f : -1f) * (SyncPosNeg ? spanPZ : SpanNegativeZ.RandomInRange), 
+            (InvertX ? 1f : -1f) * spanPX * scaleX, 
+            (InvertX ? 1f : -1f) * (SyncPosNeg ? spanPX : SpanNegativeX.RandomInRange) * scaleX, 
+            (InvertZ ? 1f : -1f) * spanPZ * scaleZ, 
+            (InvertZ ? 1f : -1f) * (SyncPosNeg ? spanPZ : SpanNegativeZ.RandomInRange) * scaleZ, 
             CenterX.RandomInRange * map.Size.x, 
             CenterZ.RandomInRange * map.Size.z, 
             Bias.RandomInRange, Radial);
@@ -135,13 +139,14 @@ public class GenNoiseLayer : IExposable
         Radial = options1[2];
         SyncPosNeg = options1[3];
         
-        bool[] options2 = { AlignWithRiver, AlignWithMainRoad };
+        bool[] options2 = { AlignWithRiver, AlignWithMainRoad, ScaleSpanWithMapSize };
         
         listingStandard.Gap();
-        Settings.Checkboxes(listingStandard, "Align Options: ", 100f, 200f, ref options2, "AlignRiver", "AlignRoad");
+        Settings.Checkboxes(listingStandard, "Align Options: ", 100f, 200f, ref options2, "AlignRiver", "AlignRoad", "MapAdjSpan");
 
         AlignWithRiver = options2[0];
-        AlignWithMainRoad= options2[1];
+        AlignWithMainRoad = options2[1];
+        ScaleSpanWithMapSize = options2[2];
         
         listingStandard.Gap();
         Settings.CenteredLabel(listingStandard, "ApplyChance", Math.Round(ApplyChance, 2).ToString(CultureInfo.InvariantCulture));

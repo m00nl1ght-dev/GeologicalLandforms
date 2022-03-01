@@ -2,6 +2,7 @@
 <CustomLandformData>
 	<Landform>
 		<Id>CoastalIsland</Id>
+		<Topology>CoastThreeSides</Topology>
 		<GenConfig>
 			<NoiseStacks>
 				<keys>
@@ -33,6 +34,7 @@
 											<Bias>-1~-1</Bias>
 											<Clamp>-1~2.5</Clamp>
 											<InvertX>True</InvertX>
+											<Radial>True</Radial>
 										</li>
 										<li>
 											<MapSides>
@@ -44,6 +46,7 @@
 											<CenterZ>0.5~0.5</CenterZ>
 											<Bias>1.2~1.2</Bias>
 											<Clamp>-1~2.5</Clamp>
+											<Radial>True</Radial>
 										</li>
 										<li>
 											<MapSides>
@@ -56,6 +59,7 @@
 											<SpanNegativeZ>500~500</SpanNegativeZ>
 											<CenterZ>0.5~0.5</CenterZ>
 											<Clamp>-2.5~2.5</Clamp>
+											<Radial>True</Radial>
 										</li>
 									</Layers>
 								</li>
@@ -73,6 +77,7 @@
 											<Bias>0.13~0.13</Bias>
 											<Clamp>0~1</Clamp>
 											<InvertX>True</InvertX>
+											<Radial>True</Radial>
 										</li>
 									</Layers>
 								</li>
@@ -115,6 +120,7 @@
 			<TerrainDeep />
 			<TerrainShallow />
 			<TerrainBeach />
+			<HillModifierEffectiveness>2</HillModifierEffectiveness>
 		</GenConfig>
 	</Landform>
 </CustomLandformData>
