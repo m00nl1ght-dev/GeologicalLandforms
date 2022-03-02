@@ -64,6 +64,8 @@
         <Compile Include="GenConfig\GenNoiseLayer.cs" />
         <Compile Include="GenConfig\GenNoiseStack.cs" />
         <Compile Include="Landform.cs" />
+        <Compile Include="Util\SmoothMax.cs" />
+        <Compile Include="Util\SmoothMin.cs" />
         <Compile Include="WorldTileInfo.cs" />
         <Compile Include="Topology.cs" />
         <Compile Include="Main.cs" />

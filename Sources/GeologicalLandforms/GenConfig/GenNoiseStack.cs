@@ -35,6 +35,9 @@ public class GenNoiseStack : IExposable
     public double BaseScale = 0.5f;
     public double BaseBias = 0.5f;
     
+    public double MinSmoothness;
+    public double MaxSmoothness;
+    
     public void ExposeData()
     {
         Scribe_Collections.Look(ref Entries, "Entries", LookMode.Value, LookMode.Deep);
@@ -45,6 +48,8 @@ public class GenNoiseStack : IExposable
         Scribe_Values.Look(ref PerlinSeed, "PerlinSeed");
         Scribe_Values.Look(ref BaseScale, "BaseScale", 0.5f);
         Scribe_Values.Look(ref BaseBias, "BaseBias", 0.5f);
+        Scribe_Values.Look(ref MinSmoothness, "MinSmoothness");
+        Scribe_Values.Look(ref MaxSmoothness, "MaxSmoothness");
     }
 
     public GenNoiseStack() {}
@@ -70,10 +75,10 @@ public class GenNoiseStack : IExposable
         if (moduleAdd != null) module = new Add(module, moduleAdd);
         
         ModuleBase moduleMin = BuildModule(tile, map, CombineMethod.Min);
-        if (moduleMin != null) module = new Min(module, moduleMin);
+        if (moduleMin != null) module = new SmoothMin(module, moduleMin, MinSmoothness);
         
         ModuleBase moduleMax = BuildModule(tile, map, CombineMethod.Max);
-        if (moduleMax != null) module = new Max(module, moduleMax);
+        if (moduleMax != null) module = new SmoothMax(module, moduleMax, MaxSmoothness);
 
         NoiseDebugUI.StoreNoiseRender(module, name + " combined", new IntVec2(map.Size.x, map.Size.z));
         return module;
@@ -102,6 +107,8 @@ public class GenNoiseStack : IExposable
                     .Where(_ => layer.ApplyChance >= 1f || Rand.Chance(layer.ApplyChance))
                     .Select(side => Rotate(layer.BuildModule(map), side, map))
                     .Aggregate<ModuleBase, ModuleBase>(null, (a, b) => Combine(layer.SideCombineMethod, a, b));
+                
+                if (layerModule == null) continue;
 
                 float rotationOffset = layer.RotationOffset.RandomInRange;
                 if (rotationOffset != 0f)
@@ -167,6 +174,19 @@ public class GenNoiseStack : IExposable
         listingStandard.Gap(18f);
         Settings.Dropdown(listingStandard, "Edit for ApplyMethod: ", Settings.SelectedApplyMethod, m => Settings.SelectedApplyMethod = m);
 
+        if (Settings.SelectedApplyMethod == CombineMethod.Min)
+        {
+            listingStandard.Gap();
+            Settings.CenteredLabel(listingStandard, "MinSmoothness", Math.Round(MinSmoothness, 2).ToString(CultureInfo.InvariantCulture));
+            MinSmoothness = listingStandard.Slider((float) MinSmoothness, 0f, 10f);
+        } 
+        else if (Settings.SelectedApplyMethod == CombineMethod.Max)
+        {
+            listingStandard.Gap();
+            Settings.CenteredLabel(listingStandard, "MaxSmoothness", Math.Round(MaxSmoothness, 2).ToString(CultureInfo.InvariantCulture));
+            MaxSmoothness = listingStandard.Slider((float) MaxSmoothness, 0f, 10f);
+        }
+
         listingStandard.Gap();
         Entries.TryGetValue(Settings.SelectedApplyMethod, out Entry entry);
         if (entry == null) Entries.Add(Settings.SelectedApplyMethod, entry = new Entry());
@@ -212,14 +232,16 @@ public class GenNoiseStack : IExposable
 
     public static ModuleBase Combine(CombineMethod combineMethod, params ModuleBase[] modules)
     {
-        return combineMethod switch
-        {
-            CombineMethod.Min => modules.Aggregate<ModuleBase, ModuleBase>(null, (a, b) => a == null ? b : b == null ? a : new Min(a, b)),
-            CombineMethod.Max => modules.Aggregate<ModuleBase, ModuleBase>(null, (a, b) => a == null ? b : b == null ? a : new Max(a, b)),
-            CombineMethod.Add => modules.Aggregate<ModuleBase, ModuleBase>(null, (a, b) => a == null ? b : b == null ? a : new Add(a, b)),
-            CombineMethod.Multiply => modules.Aggregate<ModuleBase, ModuleBase>(null, (a, b) => a == null ? b : b == null ? a : new Multiply(a, b)),
-            _ => throw new ArgumentOutOfRangeException(nameof(combineMethod), combineMethod, null)
-        };
+        return modules.Aggregate<ModuleBase, ModuleBase>(null, 
+            (a, b) => a == null ? b : b == null ? a :
+            combineMethod switch
+            {
+                CombineMethod.Min => new Min(a, b),
+                CombineMethod.Max => new Max(a, b),
+                CombineMethod.Add => new Add(a, b),
+                CombineMethod.Multiply => new Multiply(a, b),
+                _ => throw new ArgumentOutOfRangeException(nameof(combineMethod), combineMethod, null)
+            });
     }
     
     public static ModuleBase Rotate(ModuleBase input, Rot4 rot4, Map map)
