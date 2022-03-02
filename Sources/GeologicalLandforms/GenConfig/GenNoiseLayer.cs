@@ -68,7 +68,9 @@ public class GenNoiseLayer : IExposable
     public ModuleBase BuildModule(Map map)
     {
         var spanPX = SpanPositiveX.RandomInRange;
+        if (spanPX >= 1000f) spanPX = 1000000f;
         var spanPZ = SpanPositiveZ.RandomInRange;
+        if (spanPZ >= 1000f) spanPZ = 1000000f;
         var scaleX = ScaleSpanWithMapSize ? map.Size.x / 250f : 1f;
         var scaleZ = ScaleSpanWithMapSize ? map.Size.z / 250f : 1f;
         ModuleBase dist = new BiasedDistFromXZ(

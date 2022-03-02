@@ -38,7 +38,7 @@
           <HintPath>..\..\..\2009463077\Current\Assemblies\0Harmony.dll</HintPath>
           <Private>False</Private>
         </Reference>
-        <Reference Include="Assembly-CSharp, Version=1.3.8005.21596, Culture=neutral, PublicKeyToken=null">
+        <Reference Include="Assembly-CSharp, Version=1.3.8092.41392, Culture=neutral, PublicKeyToken=null">
           <HintPath>..\..\..\..\RimWorldWin64_Data\Managed\Assembly-CSharp.dll</HintPath>
           <Private>False</Private>
         </Reference>
