@@ -1,7 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <CustomLandformData>
 	<Landform>
-		<Id>CoastalIsland</Id>
+		<Id>Tombolo</Id>
+		<IsCustom>True</IsCustom>
+		<DisplayName />
+		<DisplayNameHasDirection>True</DisplayNameHasDirection>
 		<Topology>CoastThreeSides</Topology>
 		<Commonness>0.9953017</Commonness>
 		<HillinessRequirement>1~3.50497</HillinessRequirement>
@@ -50,18 +53,51 @@
 											<Clamp>-1~2.5</Clamp>
 											<Radial>True</Radial>
 										</li>
+										<li>
+											<MapSides>
+												<li>Landside</li>
+											</MapSides>
+											<SideCombineMethod>Max</SideCombineMethod>
+											<LayerCombineMethod>Max</LayerCombineMethod>
+											<SpanPositiveX>33.54871~33.54871</SpanPositiveX>
+											<SpanNegativeX>33.54871~33.54871</SpanNegativeX>
+											<SpanPositiveZ>19.88072~19.88072</SpanPositiveZ>
+											<SpanNegativeZ>19.88072~19.88072</SpanNegativeZ>
+											<CenterZ>0.5~0.5</CenterZ>
+											<RotationOffset>-3.757452~2.952289</RotationOffset>
+											<Bias>2.5~2.5</Bias>
+											<Clamp>-2.5~2.5</Clamp>
+										</li>
+										<li>
+											<MapSides>
+												<li>Landside</li>
+											</MapSides>
+											<SideCombineMethod>Max</SideCombineMethod>
+											<LayerCombineMethod>Max</LayerCombineMethod>
+											<SpanPositiveX>44.73161~44.73161</SpanPositiveX>
+											<SpanNegativeX>44.73161~44.73161</SpanNegativeX>
+											<SpanPositiveZ>16.15308~16.15308</SpanPositiveZ>
+											<SpanNegativeZ>16.15308~16.15308</SpanNegativeZ>
+											<CenterX>0.4137674~0.4137674</CenterX>
+											<CenterZ>0.5~0.5</CenterZ>
+											<RotationOffset>-3.757452~2.952289</RotationOffset>
+											<Bias>2.5~2.5</Bias>
+											<Clamp>-1~2.5</Clamp>
+										</li>
 									</Layers>
 								</li>
 								<li>
 									<Layers>
 										<li>
-											<MapSides />
+											<MapSides>
+												<li>Landside</li>
+											</MapSides>
 											<SideCombineMethod>Multiply</SideCombineMethod>
 											<LayerCombineMethod>Multiply</LayerCombineMethod>
 											<SpanPositiveX>60~60</SpanPositiveX>
 											<SpanNegativeX>60~60</SpanNegativeX>
-											<CenterX>0.15~0.15</CenterX>
-											<Bias>0.13~0.13</Bias>
+											<CenterX>0.1155567~0.1155567</CenterX>
+											<Bias>0.5007456~0.5007456</Bias>
 											<Clamp>0~1</Clamp>
 											<InvertX>True</InvertX>
 											<InvertZ>True</InvertZ>
@@ -87,10 +123,25 @@
 									</Layers>
 								</li>
 								<li>
-									<Layers />
+									<Layers>
+										<li>
+											<MapSides>
+												<li>Landside</li>
+											</MapSides>
+											<SpanPositiveX>14.91054~14.91054</SpanPositiveX>
+											<SpanNegativeX>14.91054~14.91054</SpanNegativeX>
+											<CenterX>0.1975646~0.1975646</CenterX>
+											<Bias>-0.5989065~-0.5989065</Bias>
+											<Clamp>0.8113818~2.5</Clamp>
+											<InvertX>True</InvertX>
+										</li>
+									</Layers>
 								</li>
 							</values>
 						</Entries>
+						<BaseScale>0.495796263217926</BaseScale>
+						<BaseBias>0.497032642364502</BaseBias>
+						<MinSmoothness>2.52225518226624</MinSmoothness>
 						<MaxSmoothness>1.44658756256104</MaxSmoothness>
 					</li>
 					<li>
@@ -135,7 +186,7 @@
 			<TerrainDeep />
 			<TerrainShallow />
 			<TerrainBeach />
-			<HillModifierEffectiveness>1.001484</HillModifierEffectiveness>
+			<HillModifierEffectiveness>0.9990109</HillModifierEffectiveness>
 		</GenConfig>
 	</Landform>
 </CustomLandformData>
