@@ -1,12 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <CustomLandformData>
 	<Landform>
-		<Id>CliffCorner</Id>
+		<Id>Cirque</Id>
 		<IsCustom>True</IsCustom>
 		<DisplayName />
 		<DisplayNameHasDirection>True</DisplayNameHasDirection>
-		<Topology>CliffTwoSides</Topology>
-		<HillinessRequirement>1.501988~5</HillinessRequirement>
+		<Topology>CliffThreeSides</Topology>
 		<GenConfig>
 			<NoiseStacks>
 				<keys>
@@ -24,7 +23,34 @@
 							</keys>
 							<values>
 								<li>
-									<Layers />
+									<Layers>
+										<li>
+											<MapSides>
+												<li>Front</li>
+											</MapSides>
+											<CenterX>0.4982604~0.4982604</CenterX>
+											<CenterZ>0.5~0.5</CenterZ>
+											<Bias>2.5~2.5</Bias>
+											<Clamp>2.5~2.5</Clamp>
+										</li>
+										<li>
+											<MapSides>
+												<li>Front</li>
+											</MapSides>
+											<SpanPositiveX>27.33599~43.48907</SpanPositiveX>
+											<SpanNegativeX>27.33599~43.48907</SpanNegativeX>
+											<SpanPositiveZ>27.33599~44.73161</SpanPositiveZ>
+											<SpanNegativeZ>27.33599~44.73161</SpanNegativeZ>
+											<CenterX>0.6026342~0.6026342</CenterX>
+											<CenterZ>0.5~0.5</CenterZ>
+											<Bias>-1~-1</Bias>
+											<Clamp>-1~2.5</Clamp>
+											<ApplyChance>0.5019783</ApplyChance>
+											<InvertX>True</InvertX>
+											<InvertZ>True</InvertZ>
+											<Radial>True</Radial>
+										</li>
+									</Layers>
 								</li>
 								<li>
 									<Layers />
@@ -34,8 +60,8 @@
 								</li>
 							</values>
 						</Entries>
-						<BaseScale>0</BaseScale>
-						<BaseBias>1</BaseBias>
+						<BaseScale>0.495796263217926</BaseScale>
+						<BaseBias>0.4982690513134</BaseBias>
 					</li>
 					<li>
 						<Entries>
@@ -50,10 +76,11 @@
 											<MapSides>
 												<li>Front</li>
 												<li>Right</li>
+												<li>Left</li>
 											</MapSides>
 											<SideCombineMethod>Max</SideCombineMethod>
-											<SpanPositiveX>42.24652~72.0676</SpanPositiveX>
-											<CenterX>0.04473161~0.09691849</CenterX>
+											<SpanPositiveX>26.09344~58.3996</SpanPositiveX>
+											<CenterX>0.02857853~0.05591451</CenterX>
 											<CenterZ>0.4957753~0.4957753</CenterZ>
 											<Bias>1~1</Bias>
 											<Clamp>0~1</Clamp>
@@ -62,16 +89,34 @@
 										<li>
 											<MapSides>
 												<li>Front</li>
+												<li>Left</li>
 											</MapSides>
 											<SideCombineMethod>Max</SideCombineMethod>
 											<LayerCombineMethod>Max</LayerCombineMethod>
-											<SpanPositiveX>29.82107~29.82107</SpanPositiveX>
-											<CenterX>0.1950795~0.1950795</CenterX>
+											<SpanPositiveX>26.09344~37.27634</SpanPositiveX>
+											<CenterX>0.07828032~0.1006461</CenterX>
 											<CenterZ>0.5~0.5</CenterZ>
 											<RotationOffset>-46.6998~-46.6998</RotationOffset>
 											<Bias>1~1</Bias>
 											<Clamp>0~1</Clamp>
 											<SyncPosNeg>False</SyncPosNeg>
+										</li>
+										<li>
+											<MapSides>
+												<li>Front</li>
+											</MapSides>
+											<LayerCombineMethod>Add</LayerCombineMethod>
+											<SpanPositiveX>52.18688~52.18688</SpanPositiveX>
+											<SpanNegativeX>52.18688~52.18688</SpanNegativeX>
+											<SpanPositiveZ>52.18688~52.18688</SpanPositiveZ>
+											<SpanNegativeZ>52.18688~52.18688</SpanNegativeZ>
+											<CenterX>0.5964215~0.5964215</CenterX>
+											<CenterZ>0.5~0.5</CenterZ>
+											<Bias>-1.338221~-1.338221</Bias>
+											<Clamp>-1.002734~-0.002485052</Clamp>
+											<InvertX>True</InvertX>
+											<InvertZ>True</InvertZ>
+											<Radial>True</Radial>
 										</li>
 									</Layers>
 								</li>
@@ -95,6 +140,8 @@
 						</Entries>
 						<PerlinFrequency>0.0209999997168779</PerlinFrequency>
 						<PerlinOctaves>6</PerlinOctaves>
+						<BaseScale>0.499505430459976</BaseScale>
+						<BaseBias>0.500741839408875</BaseBias>
 					</li>
 					<li>
 						<Entries>
@@ -116,9 +163,12 @@
 					</li>
 				</values>
 			</NoiseStacks>
+			<ThresholdShallow>-0.1543027</ThresholdShallow>
+			<ThresholdBeach>0.4969832</ThresholdBeach>
 			<TerrainDeep />
 			<TerrainShallow />
 			<TerrainBeach />
+			<HillModifierEffectiveness>0.5004945</HillModifierEffectiveness>
 		</GenConfig>
 	</Landform>
 </CustomLandformData>

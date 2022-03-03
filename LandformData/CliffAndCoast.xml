@@ -1,12 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <CustomLandformData>
 	<Landform>
-		<Id>Cliff</Id>
+		<Id>CliffAndCoast</Id>
 		<IsCustom>True</IsCustom>
 		<DisplayName />
 		<DisplayNameHasDirection>True</DisplayNameHasDirection>
-		<Topology>CliffOneSide</Topology>
-		<HillinessRequirement>1.501988~5</HillinessRequirement>
+		<Topology>CliffAndCoast</Topology>
 		<GenConfig>
 			<NoiseStacks>
 				<keys>
@@ -24,7 +23,19 @@
 							</keys>
 							<values>
 								<li>
-									<Layers />
+									<Layers>
+										<li>
+											<MapSides>
+												<li>Front</li>
+											</MapSides>
+											<SpanPositiveX>21.12326~60.88469</SpanPositiveX>
+											<SpanNegativeX>21.12326~60.88469</SpanNegativeX>
+											<RotationOffset>-10.46719~10.10935</RotationOffset>
+											<Bias>-1~-1</Bias>
+											<Clamp>-1~2.5</Clamp>
+											<InvertX>True</InvertX>
+										</li>
+									</Layers>
 								</li>
 								<li>
 									<Layers />
@@ -34,8 +45,6 @@
 								</li>
 							</values>
 						</Entries>
-						<BaseScale>0</BaseScale>
-						<BaseBias>1</BaseBias>
 					</li>
 					<li>
 						<Entries>
@@ -48,10 +57,10 @@
 									<Layers>
 										<li>
 											<MapSides>
-												<li>Front</li>
+												<li>Back</li>
 											</MapSides>
-											<SpanPositiveX>39.76143~67.09742</SpanPositiveX>
-											<CenterX>0.1043738~0.1043738</CenterX>
+											<SpanPositiveX>45.97416~79.52287</SpanPositiveX>
+											<CenterX>0.05591451~0.1093439</CenterX>
 											<CenterZ>0.5~0.5</CenterZ>
 											<Bias>1~1</Bias>
 											<Clamp>0~1</Clamp>
@@ -84,12 +93,8 @@
 						<Entries>
 							<keys>
 								<li>Multiply</li>
-								<li>Add</li>
 							</keys>
 							<values>
-								<li>
-									<Layers />
-								</li>
 								<li>
 									<Layers />
 								</li>

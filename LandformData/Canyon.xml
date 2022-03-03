@@ -5,7 +5,9 @@
 		<IsCustom>True</IsCustom>
 		<DisplayName />
 		<DisplayNameHasDirection>True</DisplayNameHasDirection>
-		<RoadRequirement>0.1478628~1</RoadRequirement>
+		<Topology>CliffValley</Topology>
+		<RoadRequirement>0~0</RoadRequirement>
+		<RiverRequirement>0~0</RiverRequirement>
 		<GenConfig>
 			<NoiseStacks>
 				<keys>
@@ -41,6 +43,8 @@
 							<keys>
 								<li>Add</li>
 								<li>Multiply</li>
+								<li>Min</li>
+								<li>Max</li>
 							</keys>
 							<values>
 								<li>
@@ -51,18 +55,22 @@
 												<li>Left</li>
 											</MapSides>
 											<SideCombineMethod>Max</SideCombineMethod>
-											<SpanPositiveX>79.52287~79.52287</SpanPositiveX>
-											<SpanNegativeX>1000~1000</SpanNegativeX>
+											<SpanPositiveX>24.85089~24.85089</SpanPositiveX>
+											<CenterX>0.3305169~0.3503976</CenterX>
 											<CenterZ>0.5~0.5</CenterZ>
-											<RotationOffset>-10.91451~10.10935</RotationOffset>
+											<RotationOffset>-24.78131~23.08151</RotationOffset>
 											<Bias>0.9977635~0.9977635</Bias>
 											<Clamp>0~1</Clamp>
-											<Radial>True</Radial>
 											<SyncPosNeg>False</SyncPosNeg>
-											<AlignWithRiver>True</AlignWithRiver>
-											<AlignWithMainRoad>True</AlignWithMainRoad>
+											<ScaleSpanWithMapSize>True</ScaleSpanWithMapSize>
 										</li>
 									</Layers>
+								</li>
+								<li>
+									<Layers />
+								</li>
+								<li>
+									<Layers />
 								</li>
 								<li>
 									<Layers />
@@ -89,10 +97,3 @@
 						<PerlinOctaves>6</PerlinOctaves>
 					</li>
 				</values>
-			</NoiseStacks>
-			<TerrainDeep />
-			<TerrainShallow />
-			<TerrainBeach />
-		</GenConfig>
-	</Landform>
-</CustomLandformData>

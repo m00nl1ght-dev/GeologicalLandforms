@@ -1,12 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <CustomLandformData>
 	<Landform>
-		<Id>Cliff</Id>
+		<Id>Valley</Id>
 		<IsCustom>True</IsCustom>
 		<DisplayName />
-		<DisplayNameHasDirection>True</DisplayNameHasDirection>
-		<Topology>CliffOneSide</Topology>
-		<HillinessRequirement>1.501988~5</HillinessRequirement>
+		<Topology>CliffValley</Topology>
+		<Commonness>0</Commonness>
 		<GenConfig>
 			<NoiseStacks>
 				<keys>
@@ -48,48 +47,38 @@
 									<Layers>
 										<li>
 											<MapSides>
-												<li>Front</li>
+												<li>Right</li>
+												<li>Left</li>
 											</MapSides>
-											<SpanPositiveX>39.76143~67.09742</SpanPositiveX>
-											<CenterX>0.1043738~0.1043738</CenterX>
+											<SideCombineMethod>Max</SideCombineMethod>
+											<SpanPositiveX>21.12326~38.51889</SpanPositiveX>
+											<CenterX>0.09816103~0.09816103</CenterX>
 											<CenterZ>0.5~0.5</CenterZ>
-											<Bias>1~1</Bias>
+											<RotationOffset>-7.335981~6.978134</RotationOffset>
+											<Bias>1.202783~1.202783</Bias>
 											<Clamp>0~1</Clamp>
 											<SyncPosNeg>False</SyncPosNeg>
+											<AlignWithRiver>True</AlignWithRiver>
+											<AlignWithMainRoad>True</AlignWithMainRoad>
 										</li>
 									</Layers>
 								</li>
 								<li>
-									<Layers>
-										<li>
-											<MapSides>
-												<li>Front</li>
-											</MapSides>
-											<SideCombineMethod>Multiply</SideCombineMethod>
-											<LayerCombineMethod>Multiply</LayerCombineMethod>
-											<SpanPositiveX>101.8887~101.8887</SpanPositiveX>
-											<SpanNegativeX>101.8887~101.8887</SpanNegativeX>
-											<Bias>0.2025348~0.2025348</Bias>
-											<Clamp>0.1963221~0.9977635</Clamp>
-											<InvertX>True</InvertX>
-										</li>
-									</Layers>
+									<Layers />
 								</li>
 							</values>
 						</Entries>
 						<PerlinFrequency>0.0209999997168779</PerlinFrequency>
 						<PerlinOctaves>6</PerlinOctaves>
+						<BaseScale>0.503214657306671</BaseScale>
+						<BaseBias>0.503214657306671</BaseBias>
 					</li>
 					<li>
 						<Entries>
 							<keys>
 								<li>Multiply</li>
-								<li>Add</li>
 							</keys>
 							<values>
-								<li>
-									<Layers />
-								</li>
 								<li>
 									<Layers />
 								</li>
