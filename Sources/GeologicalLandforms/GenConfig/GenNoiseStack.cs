@@ -11,7 +11,7 @@ public class GenNoiseStack : IExposable
 {
     public static HashSet<MapSide> MapSidesAll => new HashSet<MapSide>
     {
-        MapSide.Landside, MapSide.Seaside, MapSide.Left, MapSide.Right
+        MapSide.Back, MapSide.Front, MapSide.Left, MapSide.Right
     };
 
     public Dictionary<CombineMethod, Entry> Entries = new();
@@ -133,8 +133,8 @@ public class GenNoiseStack : IExposable
     {
         return mapSides.Any(mapSide => mapSide switch
         {
-            MapSide.Seaside => side == coastDirection,
-            MapSide.Landside => side == coastDirection.Opposite,
+            MapSide.Front => side == coastDirection,
+            MapSide.Back => side == coastDirection.Opposite,
             MapSide.Left => side == coastDirection.Rotated(RotationDirection.Counterclockwise),
             MapSide.Right => side == coastDirection.Rotated(RotationDirection.Clockwise),
             _ => throw new ArgumentOutOfRangeException(nameof(mapSide), mapSide, null)
@@ -143,7 +143,7 @@ public class GenNoiseStack : IExposable
 
     public enum MapSide
     {
-        Seaside, Landside, Left, Right
+        Front, Back, Left, Right
     }
 
     public enum CombineMethod

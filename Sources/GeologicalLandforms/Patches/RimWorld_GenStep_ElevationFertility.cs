@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Reflection.Emit;
 using HarmonyLib;
 using RimWorld;
 using RimWorld.Planet;
@@ -6,13 +8,12 @@ using Verse.Noise;
 
 namespace GeologicalLandforms.Patches;
 
-[HarmonyPatch(typeof (GenStep_ElevationFertility))]
+[HarmonyPatch(typeof (GenStep_ElevationFertility), nameof(GenStep_ElevationFertility.Generate))]
 internal static class RimWorld_GenStep_ElevationFertility
 {
     private static WorldTileInfo _worldTileInfo;
     private static GenNoiseConfig _noiseConfig;
-
-    [HarmonyPatch(nameof(GenStep_ElevationFertility.Generate))]
+    
     private static bool Prefix(Map map, GenStepParams parms)
     {
         _worldTileInfo = WorldTileInfo.GetWorldTileInfo(map.Tile);
@@ -45,6 +46,29 @@ internal static class RimWorld_GenStep_ElevationFertility
         
         return false;
     }
+    
+    private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            OpCode lastOpCode = OpCodes.Nop;
+            var patched = false;
+    
+            foreach (CodeInstruction instruction in instructions)
+            {
+                if (!patched && lastOpCode == OpCodes.Ldfld && instruction.opcode == OpCodes.Ldc_I4_4)
+                {
+                    patched = true;
+                    lastOpCode = OpCodes.Ldc_I4_5;
+                    yield return new CodeInstruction(lastOpCode);
+                    continue;
+                }
+
+                lastOpCode = instruction.opcode;
+                yield return instruction;
+            }
+            
+            if (patched == false)
+                Log.Error("Failed to patch RimWorld_GenStep_ElevationFertility");
+        }
 
     public static float GetHillinessFactor(Map map)
     {

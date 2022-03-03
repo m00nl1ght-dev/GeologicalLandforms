@@ -64,7 +64,7 @@ internal static class RimWorld_WITab_Terrain
             
             if (worldTileInfo.Landform.DisplayNameHasDirection)
             {
-                if (worldTileInfo.Topology == Topology.CoastTwoSides)
+                if (worldTileInfo.Topology is Topology.CoastTwoSides or Topology.CliffTwoSides)
                 {
                     append = TranslateDoubleRot4(worldTileInfo.LandformDirection) + " " + append;
                 }

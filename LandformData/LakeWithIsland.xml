@@ -32,7 +32,7 @@
 									<Layers>
 										<li>
 											<MapSides>
-												<li>Seaside</li>
+												<li>Front</li>
 											</MapSides>
 											<SpanPositiveX>28.57853~37.27634</SpanPositiveX>
 											<SpanNegativeX>28.57853~37.27634</SpanNegativeX>
@@ -49,7 +49,7 @@
 										</li>
 										<li>
 											<MapSides>
-												<li>Seaside</li>
+												<li>Front</li>
 											</MapSides>
 											<SideCombineMethod>Max</SideCombineMethod>
 											<LayerCombineMethod>Max</LayerCombineMethod>
@@ -94,7 +94,7 @@
 									<Layers>
 										<li>
 											<MapSides>
-												<li>Seaside</li>
+												<li>Front</li>
 											</MapSides>
 											<SideCombineMethod>Multiply</SideCombineMethod>
 											<LayerCombineMethod>Multiply</LayerCombineMethod>

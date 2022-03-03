@@ -29,7 +29,7 @@
 									<Layers>
 										<li>
 											<MapSides>
-												<li>Seaside</li>
+												<li>Front</li>
 											</MapSides>
 											<SpanPositiveX>29.82107~29.82107</SpanPositiveX>
 											<SpanNegativeX>29.82107~29.82107</SpanNegativeX>
@@ -43,7 +43,7 @@
 										</li>
 										<li>
 											<MapSides>
-												<li>Landside</li>
+												<li>Back</li>
 											</MapSides>
 											<LayerCombineMethod>Max</LayerCombineMethod>
 											<SpanPositiveX>20~20</SpanPositiveX>
@@ -55,7 +55,7 @@
 										</li>
 										<li>
 											<MapSides>
-												<li>Landside</li>
+												<li>Back</li>
 											</MapSides>
 											<SideCombineMethod>Max</SideCombineMethod>
 											<LayerCombineMethod>Max</LayerCombineMethod>
@@ -70,7 +70,7 @@
 										</li>
 										<li>
 											<MapSides>
-												<li>Landside</li>
+												<li>Back</li>
 											</MapSides>
 											<SideCombineMethod>Max</SideCombineMethod>
 											<LayerCombineMethod>Max</LayerCombineMethod>
@@ -90,7 +90,7 @@
 									<Layers>
 										<li>
 											<MapSides>
-												<li>Landside</li>
+												<li>Back</li>
 											</MapSides>
 											<SideCombineMethod>Multiply</SideCombineMethod>
 											<LayerCombineMethod>Multiply</LayerCombineMethod>
@@ -109,7 +109,7 @@
 									<Layers>
 										<li>
 											<MapSides>
-												<li>Landside</li>
+												<li>Back</li>
 											</MapSides>
 											<LayerCombineMethod>Max</LayerCombineMethod>
 											<SpanPositiveX>28.57853~28.57853</SpanPositiveX>
@@ -126,7 +126,7 @@
 									<Layers>
 										<li>
 											<MapSides>
-												<li>Landside</li>
+												<li>Back</li>
 											</MapSides>
 											<SpanPositiveX>14.91054~14.91054</SpanPositiveX>
 											<SpanNegativeX>14.91054~14.91054</SpanNegativeX>
@@ -155,8 +155,8 @@
 									<Layers>
 										<li>
 											<MapSides>
-												<li>Landside</li>
-												<li>Seaside</li>
+												<li>Back</li>
+												<li>Front</li>
 												<li>Left</li>
 												<li>Right</li>
 											</MapSides>

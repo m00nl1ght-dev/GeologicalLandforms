@@ -186,7 +186,7 @@ public class GenNoiseLayer : IExposable
 
         if (noiseType == GenNoiseConfig.NoiseType.Coast)
         {
-            MapSides = new HashSet<GenNoiseStack.MapSide> { GenNoiseStack.MapSide.Seaside };
+            MapSides = new HashSet<GenNoiseStack.MapSide> { GenNoiseStack.MapSide.Front };
             SpanPositiveX = new (20f, 60f);
             SpanNegativeX = new (20f, 60f);
             CenterZ = new (0.5f, 0.5f);
@@ -198,7 +198,7 @@ public class GenNoiseLayer : IExposable
         
         if (noiseType == GenNoiseConfig.NoiseType.Elevation)
         {
-            MapSides = new HashSet<GenNoiseStack.MapSide> { GenNoiseStack.MapSide.Landside };
+            MapSides = new HashSet<GenNoiseStack.MapSide> { GenNoiseStack.MapSide.Back };
             SpanPositiveX = new (120f, 120f);
             SpanNegativeX = new (120f, 120f);
             CenterZ = new (0.5f, 0.5f);

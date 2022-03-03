@@ -30,7 +30,7 @@
 									<Layers>
 										<li>
 											<MapSides>
-												<li>Seaside</li>
+												<li>Front</li>
 											</MapSides>
 											<SpanPositiveX>28.57853~64.61233</SpanPositiveX>
 											<SpanNegativeX>28.57853~64.61233</SpanNegativeX>
@@ -76,7 +76,7 @@
 									<Layers>
 										<li>
 											<MapSides>
-												<li>Seaside</li>
+												<li>Front</li>
 											</MapSides>
 											<SideCombineMethod>Multiply</SideCombineMethod>
 											<LayerCombineMethod>Multiply</LayerCombineMethod>

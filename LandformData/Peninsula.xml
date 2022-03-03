@@ -42,7 +42,7 @@
 										</li>
 										<li>
 											<MapSides>
-												<li>Seaside</li>
+												<li>Front</li>
 											</MapSides>
 											<SpanPositiveX>34.79125~60</SpanPositiveX>
 											<SpanNegativeX>34.79125~60</SpanNegativeX>
@@ -80,7 +80,7 @@
 									<Layers>
 										<li>
 											<MapSides>
-												<li>Seaside</li>
+												<li>Front</li>
 												<li>Left</li>
 												<li>Right</li>
 											</MapSides>
