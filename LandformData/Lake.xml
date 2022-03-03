@@ -1,11 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <CustomLandformData>
 	<Landform>
-		<Id>Coast</Id>
+		<Id>Lake</Id>
 		<IsCustom>True</IsCustom>
 		<DisplayName />
-		<DisplayNameHasDirection>True</DisplayNameHasDirection>
-		<Topology>CoastOneSide</Topology>
+		<Commonness>0.1978239</Commonness>
+		<AvgTemperatureRequirement>-20.47714~100</AvgTemperatureRequirement>
+		<RainfallRequirement>509.4434~5000</RainfallRequirement>
 		<GenConfig>
 			<NoiseStacks>
 				<keys>
@@ -20,6 +21,7 @@
 								<li>Add</li>
 								<li>Multiply</li>
 								<li>Max</li>
+								<li>Min</li>
 							</keys>
 							<values>
 								<li>
@@ -28,12 +30,18 @@
 											<MapSides>
 												<li>Seaside</li>
 											</MapSides>
-											<SpanPositiveX>21.12326~60.88469</SpanPositiveX>
-											<SpanNegativeX>21.12326~60.88469</SpanNegativeX>
-											<RotationOffset>-10.46719~10.10935</RotationOffset>
+											<SpanPositiveX>29.82107~55.91451</SpanPositiveX>
+											<SpanNegativeX>29.82107~55.91451</SpanNegativeX>
+											<SpanPositiveZ>31.06362~57.15706</SpanPositiveZ>
+											<SpanNegativeZ>31.06362~57.15706</SpanNegativeZ>
+											<CenterX>0.3864314~0.6088469</CenterX>
+											<CenterZ>0.3851889~0.6125746</CenterZ>
+											<RotationOffset>-30.59642~30.23857</RotationOffset>
 											<Bias>-1~-1</Bias>
 											<Clamp>-1~2.5</Clamp>
 											<InvertX>True</InvertX>
+											<InvertZ>True</InvertZ>
+											<Radial>True</Radial>
 										</li>
 									</Layers>
 								</li>
@@ -43,8 +51,14 @@
 								<li>
 									<Layers />
 								</li>
+								<li>
+									<Layers />
+								</li>
 							</values>
 						</Entries>
+						<BaseScale>0.497032642364502</BaseScale>
+						<BaseBias>0.499505430459976</BaseBias>
+						<MaxSmoothness>3.51137518882751</MaxSmoothness>
 					</li>
 					<li>
 						<Entries>
@@ -93,6 +107,7 @@
 					</li>
 				</values>
 			</NoiseStacks>
+			<ThresholdBeach>0.6478239</ThresholdBeach>
 			<TerrainDeep />
 			<TerrainShallow />
 			<TerrainBeach />

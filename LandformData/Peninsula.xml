@@ -6,7 +6,7 @@
 		<DisplayName />
 		<DisplayNameHasDirection>True</DisplayNameHasDirection>
 		<Topology>CoastThreeSides</Topology>
-		<Commonness>0</Commonness>
+		<Commonness>1.001484</Commonness>
 		<RoadRequirement>0~0</RoadRequirement>
 		<GenConfig>
 			<NoiseStacks>

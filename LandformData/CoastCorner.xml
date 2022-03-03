@@ -19,6 +19,7 @@
 							<keys>
 								<li>Add</li>
 								<li>Multiply</li>
+								<li>Max</li>
 							</keys>
 							<values>
 								<li>
@@ -50,6 +51,9 @@
 											<SyncPosNeg>False</SyncPosNeg>
 										</li>
 									</Layers>
+								</li>
+								<li>
+									<Layers />
 								</li>
 								<li>
 									<Layers />

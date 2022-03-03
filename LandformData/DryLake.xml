@@ -1,11 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <CustomLandformData>
 	<Landform>
-		<Id>Coast</Id>
+		<Id>DryLake</Id>
 		<IsCustom>True</IsCustom>
 		<DisplayName />
-		<DisplayNameHasDirection>True</DisplayNameHasDirection>
-		<Topology>CoastOneSide</Topology>
+		<Commonness>0.1978239</Commonness>
+		<HillinessRequirement>1~3.5</HillinessRequirement>
+		<RiverRequirement>0~0</RiverRequirement>
+		<AvgTemperatureRequirement>-50.29821~100</AvgTemperatureRequirement>
+		<RainfallRequirement>0~410.0398</RainfallRequirement>
 		<GenConfig>
 			<NoiseStacks>
 				<keys>
@@ -20,6 +23,7 @@
 								<li>Add</li>
 								<li>Multiply</li>
 								<li>Max</li>
+								<li>Min</li>
 							</keys>
 							<values>
 								<li>
@@ -28,12 +32,18 @@
 											<MapSides>
 												<li>Seaside</li>
 											</MapSides>
-											<SpanPositiveX>21.12326~60.88469</SpanPositiveX>
-											<SpanNegativeX>21.12326~60.88469</SpanNegativeX>
-											<RotationOffset>-10.46719~10.10935</RotationOffset>
-											<Bias>-1~-1</Bias>
+											<SpanPositiveX>28.57853~64.61233</SpanPositiveX>
+											<SpanNegativeX>28.57853~64.61233</SpanNegativeX>
+											<SpanPositiveZ>31.06362~70.82505</SpanPositiveZ>
+											<SpanNegativeZ>31.06362~70.82505</SpanNegativeZ>
+											<CenterX>0.3864314~0.6088469</CenterX>
+											<CenterZ>0.3851889~0.6125746</CenterZ>
+											<RotationOffset>-30.59642~30.23857</RotationOffset>
+											<Bias>-1.58673~-1.38171</Bias>
 											<Clamp>-1~2.5</Clamp>
 											<InvertX>True</InvertX>
+											<InvertZ>True</InvertZ>
+											<Radial>True</Radial>
 										</li>
 									</Layers>
 								</li>
@@ -43,8 +53,14 @@
 								<li>
 									<Layers />
 								</li>
+								<li>
+									<Layers />
+								</li>
 							</values>
 						</Entries>
+						<BaseScale>0.497032642364502</BaseScale>
+						<BaseBias>0.499505430459976</BaseBias>
+						<MaxSmoothness>3.51137518882751</MaxSmoothness>
 					</li>
 					<li>
 						<Entries>
@@ -93,8 +109,10 @@
 					</li>
 				</values>
 			</NoiseStacks>
+			<ThresholdShallow>-1</ThresholdShallow>
+			<ThresholdBeach>0.4515332</ThresholdBeach>
 			<TerrainDeep />
-			<TerrainShallow />
+			<TerrainShallow>SoftSand</TerrainShallow>
 			<TerrainBeach />
 		</GenConfig>
 	</Landform>
