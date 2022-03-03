@@ -1,13 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <CustomLandformData>
 	<Landform>
-		<Id>Canyon</Id>
+		<Id>LoneMountain</Id>
 		<IsCustom>True</IsCustom>
 		<DisplayName />
-		<DisplayNameHasDirection>True</DisplayNameHasDirection>
-		<Topology>CliffValley</Topology>
-		<RoadRequirement>0~0</RoadRequirement>
-		<RiverRequirement>0~0</RiverRequirement>
+		<Commonness>0.09742825</Commonness>
+		<HillinessRequirement>1~1.497018</HillinessRequirement>
 		<GenConfig>
 			<NoiseStacks>
 				<keys>
@@ -43,51 +41,58 @@
 							<keys>
 								<li>Add</li>
 								<li>Multiply</li>
-								<li>Min</li>
-								<li>Max</li>
 							</keys>
 							<values>
 								<li>
 									<Layers>
 										<li>
 											<MapSides>
-												<li>Right</li>
-												<li>Left</li>
+												<li>Front</li>
 											</MapSides>
-											<SideCombineMethod>Max</SideCombineMethod>
-											<SpanPositiveX>24.85089~24.85089</SpanPositiveX>
-											<CenterX>0.3305169~0.3503976</CenterX>
-											<CenterZ>0.5~0.5</CenterZ>
-											<RotationOffset>-24.78131~23.08151</RotationOffset>
-											<Bias>0.9977635~0.9977635</Bias>
+											<SpanPositiveX>28.57853~44.73161</SpanPositiveX>
+											<SpanNegativeX>28.57853~44.73161</SpanNegativeX>
+											<SpanPositiveZ>31.06362~42.24652</SpanPositiveZ>
+											<SpanNegativeZ>31.06362~42.24652</SpanNegativeZ>
+											<CenterX>0.3963718~0.597664</CenterX>
+											<CenterZ>0.3963718~0.5964215</CenterZ>
+											<Bias>2.010437~2.010437</Bias>
 											<Clamp>0~1</Clamp>
-											<SyncPosNeg>False</SyncPosNeg>
+											<Radial>True</Radial>
 											<ScaleSpanWithMapSize>True</ScaleSpanWithMapSize>
 										</li>
 									</Layers>
 								</li>
 								<li>
-									<Layers />
-								</li>
-								<li>
-									<Layers />
-								</li>
-								<li>
-									<Layers />
+									<Layers>
+										<li>
+											<MapSides>
+												<li>Front</li>
+											</MapSides>
+											<SideCombineMethod>Multiply</SideCombineMethod>
+											<LayerCombineMethod>Multiply</LayerCombineMethod>
+											<SpanPositiveX>101.8887~101.8887</SpanPositiveX>
+											<SpanNegativeX>101.8887~101.8887</SpanNegativeX>
+											<Bias>0.2025348~0.2025348</Bias>
+											<Clamp>0.1963221~0.9977635</Clamp>
+											<InvertX>True</InvertX>
+										</li>
+									</Layers>
 								</li>
 							</values>
 						</Entries>
 						<PerlinFrequency>0.0209999997168779</PerlinFrequency>
 						<PerlinOctaves>6</PerlinOctaves>
-						<BaseScale>0.499505430459976</BaseScale>
-						<BaseBias>0.498269081115723</BaseBias>
 					</li>
 					<li>
 						<Entries>
 							<keys>
 								<li>Multiply</li>
+								<li>Add</li>
 							</keys>
 							<values>
+								<li>
+									<Layers />
+								</li>
 								<li>
 									<Layers />
 								</li>
