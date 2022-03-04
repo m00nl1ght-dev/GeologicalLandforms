@@ -1,3 +1,4 @@
+using System;
 using HarmonyLib;
 using RimWorld;
 using Verse;
@@ -24,10 +25,14 @@ internal static class RimWorld_BeachMaker
         
         Log.Message("Initiating BeachMaker config for landform " + _worldTileInfo.Topology);
         
-        _terrainDeep = _noiseConfig.TerrainDeep?.Length > 0 ? DefDatabase<TerrainDef>.GetNamed(_noiseConfig.TerrainDeep, false) : null;
-        _terrainShallow = _noiseConfig.TerrainShallow?.Length > 0 ? DefDatabase<TerrainDef>.GetNamed(_noiseConfig.TerrainShallow, false) : null;
-        _terrainBeach = _noiseConfig.TerrainBeach?.Length > 0 ? DefDatabase<TerrainDef>.GetNamed(_noiseConfig.TerrainBeach, false) : null;
-            
+        _terrainDeep = _worldTileInfo.HasOcean ? TerrainDefOf.WaterOceanDeep : TerrainDefOf.WaterDeep;
+        _terrainShallow = _worldTileInfo.HasOcean ? TerrainDefOf.WaterOceanShallow : TerrainDefOf.WaterShallow;
+        _terrainBeach = _worldTileInfo.Biome != BiomeDefOf.SeaIce ? TerrainDefOf.Sand : TerrainDefOf.Ice;
+        
+        _terrainDeep = ParseTerrain(_noiseConfig.TerrainDeep, _terrainDeep);
+        _terrainShallow = ParseTerrain(_noiseConfig.TerrainShallow, _terrainShallow);
+        _terrainBeach = ParseTerrain(_noiseConfig.TerrainBeach, _terrainBeach);
+        
         GenNoiseStack noiseStack = _noiseConfig.NoiseStacks.TryGetValue(GenNoiseConfig.NoiseType.Coast);
         ___beachNoise = noiseStack != null && (!(noiseStack.BaseBias >= 1f) || !(noiseStack.BaseScale <= 0f))
             ? noiseStack.BuildModule(_worldTileInfo, map, "BeachMaker", QualityMode.Medium)
@@ -52,5 +57,31 @@ internal static class RimWorld_BeachMaker
             __result = null;
 
         return false;
+    }
+
+    private static TerrainDef ParseTerrain(string str, TerrainDef fallback)
+    {
+        if (string.IsNullOrEmpty(str)) return fallback;
+        
+        if (str.Equals("$water=deep"))
+        {
+            return _worldTileInfo.HasOcean ? TerrainDefOf.WaterOceanDeep : TerrainDefOf.WaterDeep;
+        }
+        
+        if (str.Equals("$water=shallow"))
+        {
+            return _worldTileInfo.HasOcean ? TerrainDefOf.WaterOceanShallow : TerrainDefOf.WaterShallow;
+        }
+
+        if (str.StartsWith("$fert=") && float.TryParse(str.Substring(6), out float fert))
+        {
+            TerrainDef fertTerrain = TerrainThreshold.TerrainAtValue(_worldTileInfo.Biome.terrainsByFertility, fert);
+            if (fertTerrain == null) return fallback;
+            return fertTerrain;
+        }
+
+        TerrainDef terrainDef = DefDatabase<TerrainDef>.GetNamed(_noiseConfig.TerrainDeep, false);
+        if (terrainDef == null) return fallback;
+        return terrainDef;
     }
 }
