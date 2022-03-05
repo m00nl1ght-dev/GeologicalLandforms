@@ -23,8 +23,6 @@ internal static class RimWorld_BeachMaker
         _noiseConfig = _worldTileInfo.Landform?.GenConfig;
         if (_noiseConfig == null) return true;
         
-        Log.Message("Initiating BeachMaker config for landform " + _worldTileInfo.Topology);
-        
         _terrainDeep = _worldTileInfo.HasOcean ? TerrainDefOf.WaterOceanDeep : TerrainDefOf.WaterDeep;
         _terrainShallow = _worldTileInfo.HasOcean ? TerrainDefOf.WaterOceanShallow : TerrainDefOf.WaterShallow;
         _terrainBeach = _worldTileInfo.Biome != BiomeDefOf.SeaIce ? TerrainDefOf.Sand : TerrainDefOf.Ice;
@@ -80,7 +78,7 @@ internal static class RimWorld_BeachMaker
             return fertTerrain;
         }
 
-        TerrainDef terrainDef = DefDatabase<TerrainDef>.GetNamed(_noiseConfig.TerrainDeep, false);
+        TerrainDef terrainDef = DefDatabase<TerrainDef>.GetNamed(str, false);
         if (terrainDef == null) return fallback;
         return terrainDef;
     }

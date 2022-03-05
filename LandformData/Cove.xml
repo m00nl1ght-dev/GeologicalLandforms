@@ -2,11 +2,10 @@
 <CustomLandformData>
 	<Landform>
 		<Id>Cove</Id>
-		<IsCustom>True</IsCustom>
 		<DisplayName />
 		<DisplayNameHasDirection>True</DisplayNameHasDirection>
 		<Topology>CoastOneSide</Topology>
-		<Commonness>0.9953017</Commonness>
+		<Commonness>0.3956479</Commonness>
 		<HillinessRequirement>1~1.501988</HillinessRequirement>
 		<RoadRequirement>0~0</RoadRequirement>
 		<AllowCaves>False</AllowCaves>

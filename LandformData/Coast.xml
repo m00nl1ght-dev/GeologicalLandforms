@@ -2,7 +2,6 @@
 <CustomLandformData>
 	<Landform>
 		<Id>Coast</Id>
-		<IsCustom>True</IsCustom>
 		<DisplayName />
 		<DisplayNameHasDirection>True</DisplayNameHasDirection>
 		<Topology>CoastOneSide</Topology>
@@ -20,6 +19,7 @@
 								<li>Add</li>
 								<li>Multiply</li>
 								<li>Max</li>
+								<li>Min</li>
 							</keys>
 							<values>
 								<li>
@@ -30,12 +30,15 @@
 											</MapSides>
 											<SpanPositiveX>21.12326~60.88469</SpanPositiveX>
 											<SpanNegativeX>21.12326~60.88469</SpanNegativeX>
-											<RotationOffset>-10.46719~10.10935</RotationOffset>
+											<RotationOffset>-5.546717~6.530818</RotationOffset>
 											<Bias>-1~-1</Bias>
 											<Clamp>-1~2.5</Clamp>
 											<InvertX>True</InvertX>
 										</li>
 									</Layers>
+								</li>
+								<li>
+									<Layers />
 								</li>
 								<li>
 									<Layers />
@@ -51,6 +54,8 @@
 							<keys>
 								<li>Add</li>
 								<li>Multiply</li>
+								<li>Max</li>
+								<li>Min</li>
 							</keys>
 							<values>
 								<li>
@@ -71,6 +76,12 @@
 											<InvertX>True</InvertX>
 										</li>
 									</Layers>
+								</li>
+								<li>
+									<Layers />
+								</li>
+								<li>
+									<Layers />
 								</li>
 							</values>
 						</Entries>

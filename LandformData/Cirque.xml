@@ -2,7 +2,6 @@
 <CustomLandformData>
 	<Landform>
 		<Id>Cirque</Id>
-		<IsCustom>True</IsCustom>
 		<DisplayName />
 		<DisplayNameHasDirection>True</DisplayNameHasDirection>
 		<Topology>CliffThreeSides</Topology>

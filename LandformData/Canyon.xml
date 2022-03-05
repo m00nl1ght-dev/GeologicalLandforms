@@ -2,9 +2,7 @@
 <CustomLandformData>
 	<Landform>
 		<Id>Canyon</Id>
-		<IsCustom>True</IsCustom>
 		<DisplayName />
-		<DisplayNameHasDirection>True</DisplayNameHasDirection>
 		<Topology>CliffValley</Topology>
 		<RoadRequirement>0~0</RoadRequirement>
 		<RiverRequirement>0~0</RiverRequirement>

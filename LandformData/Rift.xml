@@ -2,9 +2,8 @@
 <CustomLandformData>
 	<Landform>
 		<Id>Rift</Id>
-		<IsCustom>True</IsCustom>
 		<DisplayName />
-		<Commonness>0.1468842</Commonness>
+		<Commonness>0.148368</Commonness>
 		<HillinessRequirement>3.49503~5</HillinessRequirement>
 		<RoadRequirement>0~0</RoadRequirement>
 		<RiverRequirement>0~0</RiverRequirement>

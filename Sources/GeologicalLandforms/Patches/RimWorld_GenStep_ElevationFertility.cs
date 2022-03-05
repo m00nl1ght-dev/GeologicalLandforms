@@ -20,8 +20,6 @@ internal static class RimWorld_GenStep_ElevationFertility
         _noiseConfig = _worldTileInfo.Landform?.GenConfig;
         if (_noiseConfig == null) return true;
         
-        Log.Message("Initiating Elevation and Fertility configs for landform " + _worldTileInfo.Topology);
-
         GenNoiseStack noiseStackElevation = _noiseConfig.NoiseStacks.TryGetValue(GenNoiseConfig.NoiseType.Elevation);
         noiseStackElevation ??= new GenNoiseStack(GenNoiseConfig.NoiseType.Elevation);
         

@@ -2,9 +2,8 @@
 <CustomLandformData>
 	<Landform>
 		<Id>Crater</Id>
-		<IsCustom>True</IsCustom>
 		<DisplayName />
-		<Commonness>0.0479722</Commonness>
+		<Commonness>0.05415419</Commonness>
 		<HillinessRequirement>3.49503~5</HillinessRequirement>
 		<RoadRequirement>0~0</RoadRequirement>
 		<RiverRequirement>0~0</RiverRequirement>

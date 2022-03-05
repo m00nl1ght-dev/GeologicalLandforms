@@ -2,7 +2,6 @@
 <CustomLandformData>
 	<Landform>
 		<Id>Island</Id>
-		<IsCustom>True</IsCustom>
 		<DisplayName />
 		<Topology>CoastAllSides</Topology>
 		<Commonness>0.9953018</Commonness>
@@ -38,6 +37,7 @@
 											<Bias>2.5~2.5</Bias>
 											<Clamp>-1.002734~0.9977635</Clamp>
 											<Radial>True</Radial>
+											<ScaleSpanWithMapSize>True</ScaleSpanWithMapSize>
 										</li>
 									</Layers>
 								</li>

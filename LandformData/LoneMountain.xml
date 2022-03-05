@@ -2,7 +2,6 @@
 <CustomLandformData>
 	<Landform>
 		<Id>LoneMountain</Id>
-		<IsCustom>True</IsCustom>
 		<DisplayName />
 		<Commonness>0.09742825</Commonness>
 		<HillinessRequirement>1~1.497018</HillinessRequirement>

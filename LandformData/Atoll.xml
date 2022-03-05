@@ -2,7 +2,6 @@
 <CustomLandformData>
 	<Landform>
 		<Id>Atoll</Id>
-		<IsCustom>True</IsCustom>
 		<DisplayName />
 		<Topology>CoastAllSides</Topology>
 		<Commonness>0.9953017</Commonness>

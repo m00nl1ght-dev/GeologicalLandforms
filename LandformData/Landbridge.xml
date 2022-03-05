@@ -2,7 +2,6 @@
 <CustomLandformData>
 	<Landform>
 		<Id>Landbridge</Id>
-		<IsCustom>True</IsCustom>
 		<DisplayName />
 		<Topology>CoastLandbridge</Topology>
 		<GenConfig>

@@ -2,11 +2,9 @@
 <CustomLandformData>
 	<Landform>
 		<Id>CliffCorner</Id>
-		<IsCustom>True</IsCustom>
 		<DisplayName />
 		<DisplayNameHasDirection>True</DisplayNameHasDirection>
 		<Topology>CliffTwoSides</Topology>
-		<HillinessRequirement>1.501988~5</HillinessRequirement>
 		<GenConfig>
 			<NoiseStacks>
 				<keys>

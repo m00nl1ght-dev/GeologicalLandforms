@@ -36,6 +36,18 @@ public class Settings : ModSettings
         listingStandard.CheckboxLabeled("GeologicalLandforms.Settings.Description".Translate(), ref UseCustomConfig);
         if (UseCustomConfig)
         {
+            listingStandard.Gap();
+            if (listingStandard.ButtonText("GeologicalLandforms.Settings.ResetAll".Translate()))
+            {
+                Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation("GeologicalLandforms.Settings.ConfirmResetAll".Translate(), ResetAll));
+            }
+
+            if (listingStandard.ButtonText("GeologicalLandforms.Settings.OpenDataDir".Translate()))
+            {
+                SaveLandformsToDirectory(ModInstance.CustomLandformsDir, Main.Settings.CustomLandforms);
+                Application.OpenURL(ModInstance.CustomLandformsDir);
+            }
+
             listingStandard.Gap(24f);
             Dropdown(listingStandard, "GeologicalLandforms.Settings.SelectLandform".Translate(), 
                 SelectedLandform?.Id ?? "None", CustomLandforms.Keys.ToList(), e => SelectedLandform = CustomLandforms[e]);
@@ -43,23 +55,19 @@ public class Settings : ModSettings
             if (SelectedLandform != null)
             {
                 listingStandard.Gap();
-                SelectedLandform.DoSettingsWindowContents(listingStandard);
-                CustomDataModified = true;
-            
-                listingStandard.Gap();
                 if (listingStandard.ButtonText("GeologicalLandforms.Settings.Copy".Translate()))
                     Copy();
-                
+
                 if (!SelectedLandform.IsCustom && listingStandard.ButtonText("GeologicalLandforms.Settings.Reset".Translate()))
-                    Reset();
+                    Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation("GeologicalLandforms.Settings.ConfirmReset".Translate(), Reset));
                 
                 if (SelectedLandform is { IsCustom: true } && listingStandard.ButtonText("GeologicalLandforms.Settings.Delete".Translate()))
-                    Delete();
+                    Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation("GeologicalLandforms.Settings.ConfirmDelete".Translate(), Delete));
+                
+                listingStandard.Gap(24f);
+                SelectedLandform.DoSettingsWindowContents(listingStandard);
+                CustomDataModified = true;
             }
-
-            listingStandard.Gap();
-            if (listingStandard.ButtonText("GeologicalLandforms.Settings.ResetAll".Translate()))
-                ResetAll();
         }
 
         Widgets.EndScrollView();
@@ -261,7 +269,7 @@ public class Settings : ModSettings
                 {
                     if (landforms.ContainsKey(landform.Id)) landforms[landform.Id] = landform;
                     else landforms.Add(landform.Id, landform);
-                    Log.Message($"Loaded landform {landform.Id} from file {file}.");
+                    // Log.Message($"Loaded landform {landform.Id} from file {file}.");
                 }
             }
             catch (Exception ex)

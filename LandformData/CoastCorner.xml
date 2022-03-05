@@ -2,7 +2,6 @@
 <CustomLandformData>
 	<Landform>
 		<Id>CoastCorner</Id>
-		<IsCustom>True</IsCustom>
 		<DisplayName />
 		<DisplayNameHasDirection>True</DisplayNameHasDirection>
 		<Topology>CoastTwoSides</Topology>

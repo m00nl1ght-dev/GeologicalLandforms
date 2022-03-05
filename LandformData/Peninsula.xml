@@ -2,7 +2,6 @@
 <CustomLandformData>
 	<Landform>
 		<Id>Peninsula</Id>
-		<IsCustom>True</IsCustom>
 		<DisplayName />
 		<DisplayNameHasDirection>True</DisplayNameHasDirection>
 		<Topology>CoastThreeSides</Topology>

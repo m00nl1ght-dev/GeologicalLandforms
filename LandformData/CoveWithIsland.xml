@@ -2,10 +2,10 @@
 <CustomLandformData>
 	<Landform>
 		<Id>CoveWithIsland</Id>
-		<IsCustom>True</IsCustom>
 		<DisplayName />
 		<DisplayNameHasDirection>True</DisplayNameHasDirection>
 		<Topology>CoastOneSide</Topology>
+		<Commonness>0.2472799</Commonness>
 		<HillinessRequirement>1~1.501988</HillinessRequirement>
 		<RoadRequirement>0~0</RoadRequirement>
 		<AllowCaves>False</AllowCaves>
@@ -62,12 +62,12 @@
 												<li>Front</li>
 											</MapSides>
 											<LayerCombineMethod>Max</LayerCombineMethod>
-											<SpanPositiveX>19.88072~19.88072</SpanPositiveX>
-											<SpanNegativeX>19.88072~19.88072</SpanNegativeX>
-											<SpanPositiveZ>14.91054~14.91054</SpanPositiveZ>
-											<SpanNegativeZ>14.91054~14.91054</SpanNegativeZ>
-											<CenterX>0.3976143~0.3976143</CenterX>
-											<CenterZ>0.5~0.5</CenterZ>
+											<SpanPositiveX>18.63817~23.60835</SpanPositiveX>
+											<SpanNegativeX>18.63817~23.60835</SpanNegativeX>
+											<SpanPositiveZ>16.15308~19.88072</SpanPositiveZ>
+											<SpanNegativeZ>16.15308~19.88072</SpanNegativeZ>
+											<CenterX>0.3727634~0.4212227</CenterX>
+											<CenterZ>0.4808648~0.5206262</CenterZ>
 											<Bias>1.985587~1.985587</Bias>
 											<Clamp>-1~2.5</Clamp>
 											<Radial>True</Radial>

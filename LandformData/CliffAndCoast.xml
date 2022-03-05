@@ -2,7 +2,6 @@
 <CustomLandformData>
 	<Landform>
 		<Id>CliffAndCoast</Id>
-		<IsCustom>True</IsCustom>
 		<DisplayName />
 		<DisplayNameHasDirection>True</DisplayNameHasDirection>
 		<Topology>CliffAndCoast</Topology>

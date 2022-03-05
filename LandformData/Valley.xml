@@ -2,10 +2,9 @@
 <CustomLandformData>
 	<Landform>
 		<Id>Valley</Id>
-		<IsCustom>True</IsCustom>
 		<DisplayName />
 		<Topology>CliffValley</Topology>
-		<Commonness>0</Commonness>
+		<Commonness>1.001484</Commonness>
 		<GenConfig>
 			<NoiseStacks>
 				<keys>

@@ -2,7 +2,6 @@
 <CustomLandformData>
 	<Landform>
 		<Id>DryLake</Id>
-		<IsCustom>True</IsCustom>
 		<DisplayName />
 		<Commonness>0.1978239</Commonness>
 		<HillinessRequirement>1~3.5</HillinessRequirement>
@@ -32,10 +31,10 @@
 											<MapSides>
 												<li>Front</li>
 											</MapSides>
-											<SpanPositiveX>28.57853~64.61233</SpanPositiveX>
-											<SpanNegativeX>28.57853~64.61233</SpanNegativeX>
-											<SpanPositiveZ>31.06362~70.82505</SpanPositiveZ>
-											<SpanNegativeZ>31.06362~70.82505</SpanNegativeZ>
+											<SpanPositiveX>28.57853~57.15706</SpanPositiveX>
+											<SpanNegativeX>28.57853~57.15706</SpanNegativeX>
+											<SpanPositiveZ>31.06362~62.12724</SpanPositiveZ>
+											<SpanNegativeZ>31.06362~62.12724</SpanNegativeZ>
 											<CenterX>0.3864314~0.6088469</CenterX>
 											<CenterZ>0.3851889~0.6125746</CenterZ>
 											<RotationOffset>-30.59642~30.23857</RotationOffset>
@@ -111,7 +110,7 @@
 			</NoiseStacks>
 			<ThresholdShallow>-1</ThresholdShallow>
 			<ThresholdBeach>0.4515332</ThresholdBeach>
-			<TerrainDeep />
+			<TerrainDeep>SoftSand</TerrainDeep>
 			<TerrainShallow>SoftSand</TerrainShallow>
 			<TerrainBeach />
 		</GenConfig>

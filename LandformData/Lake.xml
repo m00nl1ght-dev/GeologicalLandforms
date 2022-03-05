@@ -2,7 +2,6 @@
 <CustomLandformData>
 	<Landform>
 		<Id>Lake</Id>
-		<IsCustom>True</IsCustom>
 		<DisplayName />
 		<Commonness>0.1978239</Commonness>
 		<AvgTemperatureRequirement>-20.47714~100</AvgTemperatureRequirement>
@@ -42,6 +41,7 @@
 											<InvertX>True</InvertX>
 											<InvertZ>True</InvertZ>
 											<Radial>True</Radial>
+											<ScaleSpanWithMapSize>True</ScaleSpanWithMapSize>
 										</li>
 									</Layers>
 								</li>

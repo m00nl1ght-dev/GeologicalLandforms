@@ -6,6 +6,10 @@
   <GeologicalLandforms.Settings.Copy>Create a new custom landform (with selected one as template)</GeologicalLandforms.Settings.Copy>
   <GeologicalLandforms.Settings.Delete>Delete selected custom landform</GeologicalLandforms.Settings.Delete>
   <GeologicalLandforms.Settings.ResetAll>Reset configs for ALL landforms to default</GeologicalLandforms.Settings.ResetAll>
+  <GeologicalLandforms.Settings.OpenDataDir>Open custom landform data directory</GeologicalLandforms.Settings.OpenDataDir>
+  <GeologicalLandforms.Settings.ConfirmReset>Are you sure you want to reset the config for the selected landform to default?</GeologicalLandforms.Settings.ConfirmReset>
+  <GeologicalLandforms.Settings.ConfirmDelete>Are you sure you want to delete the selected custom landform? It will be gone forever!</GeologicalLandforms.Settings.ConfirmDelete>
+  <GeologicalLandforms.Settings.ConfirmResetAll>Are you sure you want to fully reset the settings for this mod, including all landform configs? This will also unrecoverably delete ALL custom landforms you created!</GeologicalLandforms.Settings.ConfirmResetAll>
   <GeologicalLandforms.Rot4.0>northern</GeologicalLandforms.Rot4.0>
   <GeologicalLandforms.Rot4.1>eastern</GeologicalLandforms.Rot4.1>
   <GeologicalLandforms.Rot4.2>southern</GeologicalLandforms.Rot4.2>

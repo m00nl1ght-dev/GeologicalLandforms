@@ -33,9 +33,7 @@ public class WorldTileInfo
         if (_cache != null && _cache.TileId == tileId && _cache.World == world) return _cache;
         _cache = new WorldTileInfo { TileId = tileId, World = world, Tile = world.grid[tileId] };
         DetermineTopology(_cache);
-        Log.Message("Topology for tile " + tileId + ": " + _cache.Topology);
         DetermineLandform(_cache);
-        Log.Message("Landform for tile " + tileId + ": " + _cache.Landform?.Id);
         return _cache;
     }
 

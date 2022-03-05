@@ -2,7 +2,6 @@
 <CustomLandformData>
 	<Landform>
 		<Id>LakeWithIsland</Id>
-		<IsCustom>True</IsCustom>
 		<DisplayName />
 		<Commonness>0.1978239</Commonness>
 		<HillinessRequirement>1~2.500994</HillinessRequirement>
