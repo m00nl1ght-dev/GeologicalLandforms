@@ -3,7 +3,7 @@
 	<Landform>
 		<Id>Lake</Id>
 		<DisplayName />
-		<Commonness>0.1978239</Commonness>
+		<Commonness>0.05316514</Commonness>
 		<AvgTemperatureRequirement>-20.47714~100</AvgTemperatureRequirement>
 		<RainfallRequirement>509.4434~5000</RainfallRequirement>
 		<GenConfig>

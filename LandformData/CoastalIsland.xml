@@ -3,7 +3,7 @@
 	<Landform>
 		<Id>CoastalIsland</Id>
 		<Topology>CoastThreeSides</Topology>
-		<Commonness>0.9953017</Commonness>
+		<Commonness>0.3461919</Commonness>
 		<HillinessRequirement>1~3.50497</HillinessRequirement>
 		<AllowCaves>False</AllowCaves>
 		<GenConfig>

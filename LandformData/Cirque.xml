@@ -5,6 +5,7 @@
 		<DisplayName />
 		<DisplayNameHasDirection>True</DisplayNameHasDirection>
 		<Topology>CliffThreeSides</Topology>
+		<Commonness>0.4512859</Commonness>
 		<GenConfig>
 			<NoiseStacks>
 				<keys>

@@ -5,7 +5,7 @@
 		<DisplayName />
 		<DisplayNameHasDirection>True</DisplayNameHasDirection>
 		<Topology>CoastOneSide</Topology>
-		<Commonness>0.2472799</Commonness>
+		<Commonness>0.1236399</Commonness>
 		<HillinessRequirement>1~1.501988</HillinessRequirement>
 		<RoadRequirement>0~0</RoadRequirement>
 		<AllowCaves>False</AllowCaves>

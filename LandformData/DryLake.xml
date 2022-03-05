@@ -3,7 +3,7 @@
 	<Landform>
 		<Id>DryLake</Id>
 		<DisplayName />
-		<Commonness>0.1978239</Commonness>
+		<Commonness>0.07294753</Commonness>
 		<HillinessRequirement>1~3.5</HillinessRequirement>
 		<RiverRequirement>0~0</RiverRequirement>
 		<AvgTemperatureRequirement>-50.29821~100</AvgTemperatureRequirement>

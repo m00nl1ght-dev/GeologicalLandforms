@@ -54,8 +54,6 @@ public class Landform : IExposable
     {
         if (Topology != Topology.Any && worldTile.Topology != Topology) return false;
         if (!HillinessRequirement.Includes((float) worldTile.Tile.hilliness)) return false;
-        if (!RoadRequirement.Includes(1f - worldTile.MainRoadMultiplier)) return false;
-        if (!RiverRequirement.Includes(worldTile.RiverWidth)) return false;
         if (!ElevationRequirement.Includes(worldTile.Tile.elevation)) return false;
         if (!AvgTemperatureRequirement.Includes(worldTile.Tile.temperature)) return false;
         if (!RainfallRequirement.Includes(worldTile.Tile.rainfall)) return false;
@@ -63,6 +61,12 @@ public class Landform : IExposable
         if (!AllowCaves && worldTile.World.HasCaves(worldTile.TileId)) return false;
         if (RequireCaves && !worldTile.World.HasCaves(worldTile.TileId)) return false;
 
+        if (RoadRequirement.max <= 0f && worldTile.MainRoadMultiplier < 1f) return false;
+        if (RiverRequirement.max <= 0f && worldTile.RiverWidth > 0f) return false;
+        
+        if (!RoadRequirement.Includes(1f - worldTile.MainRoadMultiplier) && 
+            !RiverRequirement.Includes(worldTile.RiverWidth)) return false;
+        
         return true;
     }
 
@@ -93,7 +97,7 @@ public class Landform : IExposable
 
         Settings.Dropdown(listing, "Topology", Topology, e => Topology = e);
         Settings.CenteredLabel(listing, "Commonness", Math.Round(Commonness, 2).ToString(CultureInfo.InvariantCulture));
-        Commonness = listing.Slider(Commonness, 0f, 5f);
+        Commonness = listing.Slider(Commonness, 0f, 1f);
         listing.Gap(18f);
         
         Settings.FloatRangeSlider(listing, ref HillinessRequirement, "HillinessRequirement", 1f, 5f);

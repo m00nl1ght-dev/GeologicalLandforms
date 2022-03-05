@@ -4,7 +4,7 @@
 		<Id>Atoll</Id>
 		<DisplayName />
 		<Topology>CoastAllSides</Topology>
-		<Commonness>0.9953017</Commonness>
+		<Commonness>0.197824</Commonness>
 		<HillinessRequirement>1~1.497018</HillinessRequirement>
 		<RoadRequirement>0~0</RoadRequirement>
 		<RiverRequirement>0~0</RiverRequirement>

@@ -3,8 +3,10 @@
 	<Landform>
 		<Id>Valley</Id>
 		<DisplayName />
-		<Topology>CliffValley</Topology>
 		<Commonness>1.001484</Commonness>
+		<HillinessRequirement>2.500994~5</HillinessRequirement>
+		<RoadRequirement>0.1515905~1</RoadRequirement>
+		<RiverRequirement>0.152833~1</RiverRequirement>
 		<GenConfig>
 			<NoiseStacks>
 				<keys>

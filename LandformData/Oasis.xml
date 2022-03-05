@@ -2,9 +2,8 @@
 <CustomLandformData>
 	<Landform>
 		<Id>Oasis</Id>
-		<IsCustom>True</IsCustom>
 		<DisplayName />
-		<Commonness>0.09891193</Commonness>
+		<Commonness>0.07789314</Commonness>
 		<HillinessRequirement>1~3.49503</HillinessRequirement>
 		<RiverRequirement>0~0</RiverRequirement>
 		<AvgTemperatureRequirement>2.882705~100</AvgTemperatureRequirement>

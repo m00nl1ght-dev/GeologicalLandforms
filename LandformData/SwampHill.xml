@@ -2,9 +2,8 @@
 <CustomLandformData>
 	<Landform>
 		<Id>SwampHill</Id>
-		<IsCustom>True</IsCustom>
 		<DisplayName />
-		<Commonness>0.09891193</Commonness>
+		<Commonness>0.1001483</Commonness>
 		<HillinessRequirement>1~2.491054</HillinessRequirement>
 		<RiverRequirement>0~0</RiverRequirement>
 		<AvgTemperatureRequirement>-15.00994~100</AvgTemperatureRequirement>

@@ -3,7 +3,7 @@
 	<Landform>
 		<Id>Caldera</Id>
 		<DisplayName />
-		<Commonness>0.09742825</Commonness>
+		<Commonness>0.02200787</Commonness>
 		<HillinessRequirement>1~1.497018</HillinessRequirement>
 		<GenConfig>
 			<NoiseStacks>
