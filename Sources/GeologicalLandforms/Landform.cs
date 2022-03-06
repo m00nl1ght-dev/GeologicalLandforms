@@ -18,7 +18,7 @@ public class Landform : IExposable
     public FloatRange HillinessRequirement = new(1f, 5f);
     public FloatRange RoadRequirement = new(0f, 1f);
     public FloatRange RiverRequirement = new(0f, 1f);
-    public FloatRange ElevationRequirement = new(-1000f, 5000f);
+    public FloatRange ElevationRequirement = new(0f, 5000f);
     public FloatRange AvgTemperatureRequirement = new(-100f, 100f);
     public FloatRange RainfallRequirement = new(0f, 5000f);
     public FloatRange SwampinessRequirement = new(0f, 1f);
@@ -41,7 +41,7 @@ public class Landform : IExposable
         Scribe_Values.Look(ref HillinessRequirement, "HillinessRequirement", new(1f, 5f));
         Scribe_Values.Look(ref RoadRequirement, "RoadRequirement", new(0f, 1f));
         Scribe_Values.Look(ref RiverRequirement, "RiverRequirement", new(0f, 1f));
-        Scribe_Values.Look(ref ElevationRequirement, "ElevationRequirement", new(-1000f, 5000f));
+        Scribe_Values.Look(ref ElevationRequirement, "ElevationRequirement", new(0f, 5000f));
         Scribe_Values.Look(ref AvgTemperatureRequirement, "AvgTemperatureRequirement", new(-100f, 100f));
         Scribe_Values.Look(ref RainfallRequirement, "RainfallRequirement", new(0f, 5000f));
         Scribe_Values.Look(ref SwampinessRequirement, "SwampinessRequirement", new(0f, 1f));
