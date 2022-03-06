@@ -73,7 +73,7 @@ This mod should be compatible with pretty much everything, including mods that a
 
 # Credit
 
-This mod is inspired by multiple great mods from earlier versions which unfortunately seem to be abondoned. [i]Geological Coastlines[/i] does not use any content or code from these mods though.
+This mod is inspired by multiple great mods from earlier versions which unfortunately seem to be abondoned. Geological Coastlines does not use any content or code from these mods though.
 
 - Coastlines by Jaxe
 - Terra Project by Lanilor
