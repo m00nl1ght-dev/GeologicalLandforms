@@ -57,12 +57,14 @@ internal static class RimWorld_WITab_Terrain
         
         int tileId = Find.WorldSelector.selectedTile;
         WorldTileInfo worldTileInfo = WorldTileInfo.GetWorldTileInfo(tileId);
+
+        Landform landform = Main.Settings.Landforms.TryGetValue(worldTileInfo.LandformId);
         
-        if (worldTileInfo.Landform != null)
+        if (landform != null)
         {
-            string append = worldTileInfo.Landform.TranslatedName;
+            string append = landform.TranslatedName;
             
-            if (worldTileInfo.Landform.DisplayNameHasDirection)
+            if (landform.DisplayNameHasDirection)
             {
                 if (worldTileInfo.Topology is Topology.CoastTwoSides or Topology.CliffTwoSides)
                 {

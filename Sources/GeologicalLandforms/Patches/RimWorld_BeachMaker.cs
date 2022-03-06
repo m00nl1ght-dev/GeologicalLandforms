@@ -20,11 +20,12 @@ internal static class RimWorld_BeachMaker
     private static bool Prefix(ref ModuleBase ___beachNoise, Map map)
     {
         _worldTileInfo = WorldTileInfo.GetWorldTileInfo(map.Tile);
-        _noiseConfig = _worldTileInfo.Landform?.GenConfig;
+        Landform landform = Main.Settings.Landforms.TryGetValue(_worldTileInfo.LandformId);
+        _noiseConfig = landform?.GenConfig;
         if (_noiseConfig == null) return true;
         
         int mapSizeInt = Math.Min(map.Size.x, map.Size.z);
-        if (_worldTileInfo.Landform != null && !_worldTileInfo.Landform.MapSizeRequirement.Includes(mapSizeInt)) return true;
+        if (landform != null && !landform.MapSizeRequirement.Includes(mapSizeInt)) return true;
         
         _terrainDeep = _worldTileInfo.HasOcean ? TerrainDefOf.WaterOceanDeep : TerrainDefOf.WaterDeep;
         _terrainShallow = _worldTileInfo.HasOcean ? TerrainDefOf.WaterOceanShallow : TerrainDefOf.WaterShallow;

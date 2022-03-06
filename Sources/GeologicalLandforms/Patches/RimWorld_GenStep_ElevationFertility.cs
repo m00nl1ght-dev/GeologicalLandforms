@@ -18,11 +18,12 @@ internal static class RimWorld_GenStep_ElevationFertility
     private static bool Prefix(Map map, GenStepParams parms)
     {
         _worldTileInfo = WorldTileInfo.GetWorldTileInfo(map.Tile);
-        _noiseConfig = _worldTileInfo.Landform?.GenConfig;
+        Landform landform = Main.Settings.Landforms.TryGetValue(_worldTileInfo.LandformId);
+        _noiseConfig = landform?.GenConfig;
         if (_noiseConfig == null) return true;
         
         int mapSizeInt = Math.Min(map.Size.x, map.Size.z);
-        if (_worldTileInfo.Landform != null && !_worldTileInfo.Landform.MapSizeRequirement.Includes(mapSizeInt)) return true;
+        if (landform != null && !landform.MapSizeRequirement.Includes(mapSizeInt)) return true;
         
         GenNoiseStack noiseStackElevation = _noiseConfig.NoiseStacks.TryGetValue(GenNoiseConfig.NoiseType.Elevation);
         noiseStackElevation ??= new GenNoiseStack(GenNoiseConfig.NoiseType.Elevation);

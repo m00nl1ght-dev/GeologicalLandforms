@@ -122,7 +122,7 @@ public class Landform : IExposable
         Settings.FloatRangeSlider(listing, ref AvgTemperatureRequirement, "AvgTemperatureRequirement", -100f, 100f);
         Settings.FloatRangeSlider(listing, ref RainfallRequirement, "RainfallRequirement", 0f, 5000f);
         Settings.FloatRangeSlider(listing, ref SwampinessRequirement, "SwampinessRequirement", 0f, 1f);
-        Settings.FloatRangeSlider(listing, ref MapSizeRequirement, "MapSizeRequirement", 100f, 1000f);
+        Settings.FloatRangeSlider(listing, ref MapSizeRequirement, "MapSizeRequirement", 50f, 1000f);
         listing.Gap(18f);
         
         listing.CheckboxLabeled("AllowSettlements", ref AllowSettlements);

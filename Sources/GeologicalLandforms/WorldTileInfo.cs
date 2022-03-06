@@ -12,7 +12,7 @@ public class WorldTileInfo
     public int TileId;
     public Tile Tile;
     public World World;
-    public Landform Landform;
+    public string LandformId = "";
     public Topology Topology = Topology.Any;
     public Rot4 LandformDirection = Rot4.Random;
     public RiverDef River;
@@ -50,7 +50,7 @@ public class WorldTileInfo
         {
             if (rand < landform.Commonness)
             {
-                info.Landform = landform;
+                info.LandformId = landform.Id;
                 return;
             }
 
