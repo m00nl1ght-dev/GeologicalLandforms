@@ -9,7 +9,10 @@
 		<AvgTemperatureRequirement>-15.00994~100</AvgTemperatureRequirement>
 		<RainfallRequirement>260.9344~5000</RainfallRequirement>
 		<SwampinessRequirement>0.4982604~1</SwampinessRequirement>
+		<MapSizeRequirement>146.9682~1000</MapSizeRequirement>
 		<AllowCaves>False</AllowCaves>
+		<AllowBuildings>True</AllowBuildings>
+		<AllowSites>True</AllowSites>
 		<GenConfig>
 			<NoiseStacks>
 				<keys>

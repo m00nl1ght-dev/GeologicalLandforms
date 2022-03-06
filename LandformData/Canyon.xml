@@ -6,6 +6,7 @@
 		<Topology>CliffValley</Topology>
 		<RoadRequirement>0~0</RoadRequirement>
 		<RiverRequirement>0~0</RiverRequirement>
+		<MapSizeRequirement>149.2048~1000</MapSizeRequirement>
 		<GenConfig>
 			<NoiseStacks>
 				<keys>

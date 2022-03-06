@@ -5,6 +5,9 @@
 		<DisplayName />
 		<DisplayNameHasDirection>True</DisplayNameHasDirection>
 		<Topology>CliffOneSide</Topology>
+		<MapSizeRequirement>100~1000</MapSizeRequirement>
+		<AllowBuildings>True</AllowBuildings>
+		<AllowSites>True</AllowSites>
 		<GenConfig>
 			<NoiseStacks>
 				<keys>

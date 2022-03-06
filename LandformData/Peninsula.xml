@@ -7,6 +7,9 @@
 		<Topology>CoastThreeSides</Topology>
 		<Commonness>1.001484</Commonness>
 		<RoadRequirement>0~0</RoadRequirement>
+		<MapSizeRequirement>149.2048~1000</MapSizeRequirement>
+		<AllowBuildings>True</AllowBuildings>
+		<AllowSites>True</AllowSites>
 		<GenConfig>
 			<NoiseStacks>
 				<keys>

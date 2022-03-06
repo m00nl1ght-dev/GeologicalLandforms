@@ -5,6 +5,9 @@
 		<DisplayName />
 		<DisplayNameHasDirection>True</DisplayNameHasDirection>
 		<Topology>CliffTwoSides</Topology>
+		<MapSizeRequirement>100~1000</MapSizeRequirement>
+		<AllowBuildings>True</AllowBuildings>
+		<AllowSites>True</AllowSites>
 		<GenConfig>
 			<NoiseStacks>
 				<keys>
@@ -56,6 +59,7 @@
 											<Bias>1~1</Bias>
 											<Clamp>0~1</Clamp>
 											<SyncPosNeg>False</SyncPosNeg>
+											<ScaleSpanWithMapSize>True</ScaleSpanWithMapSize>
 										</li>
 										<li>
 											<MapSides>
@@ -70,6 +74,7 @@
 											<Bias>1~1</Bias>
 											<Clamp>0~1</Clamp>
 											<SyncPosNeg>False</SyncPosNeg>
+											<ScaleSpanWithMapSize>True</ScaleSpanWithMapSize>
 										</li>
 									</Layers>
 								</li>

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Reflection.Emit;
 using HarmonyLib;
@@ -19,6 +20,9 @@ internal static class RimWorld_GenStep_ElevationFertility
         _worldTileInfo = WorldTileInfo.GetWorldTileInfo(map.Tile);
         _noiseConfig = _worldTileInfo.Landform?.GenConfig;
         if (_noiseConfig == null) return true;
+        
+        int mapSizeInt = Math.Min(map.Size.x, map.Size.z);
+        if (_worldTileInfo.Landform != null && !_worldTileInfo.Landform.MapSizeRequirement.Includes(mapSizeInt)) return true;
         
         GenNoiseStack noiseStackElevation = _noiseConfig.NoiseStacks.TryGetValue(GenNoiseConfig.NoiseType.Elevation);
         noiseStackElevation ??= new GenNoiseStack(GenNoiseConfig.NoiseType.Elevation);

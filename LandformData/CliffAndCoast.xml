@@ -5,6 +5,9 @@
 		<DisplayName />
 		<DisplayNameHasDirection>True</DisplayNameHasDirection>
 		<Topology>CliffAndCoast</Topology>
+		<MapSizeRequirement>100~1000</MapSizeRequirement>
+		<AllowBuildings>True</AllowBuildings>
+		<AllowSites>True</AllowSites>
 		<GenConfig>
 			<NoiseStacks>
 				<keys>
@@ -64,6 +67,7 @@
 											<Bias>1~1</Bias>
 											<Clamp>0~1</Clamp>
 											<SyncPosNeg>False</SyncPosNeg>
+											<ScaleSpanWithMapSize>True</ScaleSpanWithMapSize>
 										</li>
 									</Layers>
 								</li>

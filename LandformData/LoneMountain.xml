@@ -5,6 +5,7 @@
 		<DisplayName />
 		<Commonness>0.02942626</Commonness>
 		<HillinessRequirement>1~1.497018</HillinessRequirement>
+		<MapSizeRequirement>191.6998~1000</MapSizeRequirement>
 		<GenConfig>
 			<NoiseStacks>
 				<keys>

@@ -4,6 +4,9 @@
 		<Id>Landbridge</Id>
 		<DisplayName />
 		<Topology>CoastLandbridge</Topology>
+		<MapSizeRequirement>124.6024~1000</MapSizeRequirement>
+		<AllowBuildings>True</AllowBuildings>
+		<AllowSites>True</AllowSites>
 		<GenConfig>
 			<NoiseStacks>
 				<keys>

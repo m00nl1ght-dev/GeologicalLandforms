@@ -23,6 +23,9 @@ internal static class RimWorld_BeachMaker
         _noiseConfig = _worldTileInfo.Landform?.GenConfig;
         if (_noiseConfig == null) return true;
         
+        int mapSizeInt = Math.Min(map.Size.x, map.Size.z);
+        if (_worldTileInfo.Landform != null && !_worldTileInfo.Landform.MapSizeRequirement.Includes(mapSizeInt)) return true;
+        
         _terrainDeep = _worldTileInfo.HasOcean ? TerrainDefOf.WaterOceanDeep : TerrainDefOf.WaterDeep;
         _terrainShallow = _worldTileInfo.HasOcean ? TerrainDefOf.WaterOceanShallow : TerrainDefOf.WaterShallow;
         _terrainBeach = _worldTileInfo.Biome != BiomeDefOf.SeaIce ? TerrainDefOf.Sand : TerrainDefOf.Ice;

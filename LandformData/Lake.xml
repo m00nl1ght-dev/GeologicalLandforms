@@ -6,6 +6,7 @@
 		<Commonness>0.05316514</Commonness>
 		<AvgTemperatureRequirement>-20.47714~100</AvgTemperatureRequirement>
 		<RainfallRequirement>509.4434~5000</RainfallRequirement>
+		<MapSizeRequirement>198.4095~1000</MapSizeRequirement>
 		<GenConfig>
 			<NoiseStacks>
 				<keys>

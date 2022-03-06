@@ -7,6 +7,9 @@
 		<HillinessRequirement>2.500994~5</HillinessRequirement>
 		<RoadRequirement>0.1515905~1</RoadRequirement>
 		<RiverRequirement>0.152833~1</RiverRequirement>
+		<MapSizeRequirement>195.0547~1000</MapSizeRequirement>
+		<AllowBuildings>True</AllowBuildings>
+		<AllowSites>True</AllowSites>
 		<GenConfig>
 			<NoiseStacks>
 				<keys>

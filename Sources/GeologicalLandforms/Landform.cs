@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using RimWorld.Planet;
 using Verse;
 
 namespace GeologicalLandforms;
@@ -22,9 +23,12 @@ public class Landform : IExposable
     public FloatRange AvgTemperatureRequirement = new(-100f, 100f);
     public FloatRange RainfallRequirement = new(0f, 5000f);
     public FloatRange SwampinessRequirement = new(0f, 1f);
+    public FloatRange MapSizeRequirement = new(250f, 1000f);
     
     public bool AllowCaves = true;
     public bool RequireCaves;
+    public bool AllowSettlements;
+    public bool AllowSites;
 
     public GenNoiseConfig GenConfig = new();
     
@@ -45,8 +49,11 @@ public class Landform : IExposable
         Scribe_Values.Look(ref AvgTemperatureRequirement, "AvgTemperatureRequirement", new(-100f, 100f));
         Scribe_Values.Look(ref RainfallRequirement, "RainfallRequirement", new(0f, 5000f));
         Scribe_Values.Look(ref SwampinessRequirement, "SwampinessRequirement", new(0f, 1f));
+        Scribe_Values.Look(ref MapSizeRequirement, "MapSizeRequirement", new(250f, 1000f));
         Scribe_Values.Look(ref AllowCaves, "AllowCaves", true);
         Scribe_Values.Look(ref RequireCaves, "RequireCaves");
+        Scribe_Values.Look(ref AllowSettlements, "AllowBuildings");
+        Scribe_Values.Look(ref AllowSites, "AllowSites");
         Scribe_Deep.Look(ref GenConfig, "GenConfig");
     }
 
@@ -60,6 +67,14 @@ public class Landform : IExposable
         if (!SwampinessRequirement.Includes(worldTile.Tile.swampiness)) return false;
         if (!AllowCaves && worldTile.World.HasCaves(worldTile.TileId)) return false;
         if (RequireCaves && !worldTile.World.HasCaves(worldTile.TileId)) return false;
+
+        MapParent mapParent = Find.WorldObjects.MapParentAt(worldTile.TileId);
+        if (!AllowSettlements && mapParent is Settlement) return false;
+        if (!AllowSites && mapParent is Site) return false;
+
+        IntVec3 expectedMapSize = mapParent is Site site ? site.PreferredMapSize : Find.World.info.initialMapSize;
+        int expectedMapSizeInt = Math.Min(expectedMapSize.x, expectedMapSize.z);
+        if (!MapSizeRequirement.Includes(expectedMapSizeInt)) return false;
 
         if (RoadRequirement.max <= 0f && worldTile.MainRoadMultiplier < 1f) return false;
         if (RiverRequirement.max <= 0f && worldTile.RiverWidth > 0f) return false;
@@ -107,7 +122,12 @@ public class Landform : IExposable
         Settings.FloatRangeSlider(listing, ref AvgTemperatureRequirement, "AvgTemperatureRequirement", -100f, 100f);
         Settings.FloatRangeSlider(listing, ref RainfallRequirement, "RainfallRequirement", 0f, 5000f);
         Settings.FloatRangeSlider(listing, ref SwampinessRequirement, "SwampinessRequirement", 0f, 1f);
+        Settings.FloatRangeSlider(listing, ref MapSizeRequirement, "MapSizeRequirement", 100f, 1000f);
         listing.Gap(18f);
+        
+        listing.CheckboxLabeled("AllowSettlements", ref AllowSettlements);
+        listing.CheckboxLabeled("AllowSites", ref AllowSites);
+        listing.Gap();
         
         listing.CheckboxLabeled("AllowCaves", ref AllowCaves);
         if (AllowCaves) listing.CheckboxLabeled("RequireCaves", ref RequireCaves);

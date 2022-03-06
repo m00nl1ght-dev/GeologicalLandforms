@@ -8,6 +8,7 @@
 		<Commonness>0.3029179</Commonness>
 		<HillinessRequirement>1~1.501988</HillinessRequirement>
 		<RoadRequirement>0~0</RoadRequirement>
+		<MapSizeRequirement>198.4095~1000</MapSizeRequirement>
 		<AllowCaves>False</AllowCaves>
 		<GenConfig>
 			<NoiseStacks>

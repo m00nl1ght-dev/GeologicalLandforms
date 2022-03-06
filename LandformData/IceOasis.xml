@@ -7,7 +7,10 @@
 		<HillinessRequirement>1~2.491054</HillinessRequirement>
 		<RiverRequirement>0~0</RiverRequirement>
 		<AvgTemperatureRequirement>-19.98012~3.379723</AvgTemperatureRequirement>
+		<MapSizeRequirement>100~1000</MapSizeRequirement>
 		<AllowCaves>False</AllowCaves>
+		<AllowBuildings>True</AllowBuildings>
+		<AllowSites>True</AllowSites>
 		<GenConfig>
 			<NoiseStacks>
 				<keys>
