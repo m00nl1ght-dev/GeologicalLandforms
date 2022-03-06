@@ -8,7 +8,7 @@
 		<Commonness>0.1236399</Commonness>
 		<HillinessRequirement>1~1.501988</HillinessRequirement>
 		<RoadRequirement>0~0</RoadRequirement>
-		<MapSizeRequirement>198.4095~1000</MapSizeRequirement>
+		<MapSizeRequirement>118.4642~1000</MapSizeRequirement>
 		<AllowCaves>False</AllowCaves>
 		<AllowBuildings>True</AllowBuildings>
 		<AllowSites>True</AllowSites>
@@ -58,7 +58,6 @@
 											<InvertZ>True</InvertZ>
 											<Radial>True</Radial>
 											<SyncPosNeg>False</SyncPosNeg>
-											<ScaleSpanWithMapSize>True</ScaleSpanWithMapSize>
 										</li>
 										<li>
 											<MapSides>
@@ -74,7 +73,6 @@
 											<Bias>1.985587~1.985587</Bias>
 											<Clamp>-1~2.5</Clamp>
 											<Radial>True</Radial>
-											<ScaleSpanWithMapSize>True</ScaleSpanWithMapSize>
 										</li>
 									</Layers>
 								</li>

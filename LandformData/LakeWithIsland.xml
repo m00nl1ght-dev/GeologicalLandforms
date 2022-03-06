@@ -3,13 +3,13 @@
 	<Landform>
 		<Id>LakeWithIsland</Id>
 		<DisplayName />
-		<Commonness>0.01483675</Commonness>
+		<Commonness>0.02472795</Commonness>
 		<HillinessRequirement>1~2.500994</HillinessRequirement>
 		<RoadRequirement>0~0</RoadRequirement>
 		<RiverRequirement>0~0</RiverRequirement>
 		<AvgTemperatureRequirement>-19.73161~100</AvgTemperatureRequirement>
 		<RainfallRequirement>708.2505~5000</RainfallRequirement>
-		<MapSizeRequirement>199.5278~1000</MapSizeRequirement>
+		<MapSizeRequirement>99.57754~1000</MapSizeRequirement>
 		<AllowCaves>False</AllowCaves>
 		<AllowBuildings>True</AllowBuildings>
 		<AllowSites>True</AllowSites>

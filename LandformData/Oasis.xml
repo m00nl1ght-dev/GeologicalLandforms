@@ -3,12 +3,12 @@
 	<Landform>
 		<Id>Oasis</Id>
 		<DisplayName />
-		<Commonness>0.07789314</Commonness>
+		<Commonness>0.09767553</Commonness>
 		<HillinessRequirement>1~3.49503</HillinessRequirement>
 		<RiverRequirement>0~0</RiverRequirement>
 		<AvgTemperatureRequirement>2.882705~100</AvgTemperatureRequirement>
 		<RainfallRequirement>0~503.2306</RainfallRequirement>
-		<MapSizeRequirement>100~1000</MapSizeRequirement>
+		<MapSizeRequirement>50~1000</MapSizeRequirement>
 		<AllowCaves>False</AllowCaves>
 		<AllowBuildings>True</AllowBuildings>
 		<AllowSites>True</AllowSites>

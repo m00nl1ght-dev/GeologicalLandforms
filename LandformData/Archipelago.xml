@@ -8,7 +8,7 @@
 		<HillinessRequirement>1~2.496024</HillinessRequirement>
 		<RoadRequirement>0~0</RoadRequirement>
 		<RiverRequirement>0~0</RiverRequirement>
-		<MapSizeRequirement>199.5278~1000</MapSizeRequirement>
+		<MapSizeRequirement>119.6446~1000</MapSizeRequirement>
 		<AllowCaves>False</AllowCaves>
 		<GenConfig>
 			<NoiseStacks>

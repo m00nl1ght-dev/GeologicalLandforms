@@ -3,8 +3,9 @@
 	<Landform>
 		<Id>Caldera</Id>
 		<DisplayName />
-		<Commonness>0.02200787</Commonness>
+		<Commonness>0.03560827</Commonness>
 		<HillinessRequirement>1~1.497018</HillinessRequirement>
+		<MapSizeRequirement>119.6446~1000</MapSizeRequirement>
 		<GenConfig>
 			<NoiseStacks>
 				<keys>
@@ -83,7 +84,6 @@
 											<Bias>2.5~2.5</Bias>
 											<Clamp>0~1</Clamp>
 											<Radial>True</Radial>
-											<ScaleSpanWithMapSize>True</ScaleSpanWithMapSize>
 										</li>
 										<li>
 											<MapSides>

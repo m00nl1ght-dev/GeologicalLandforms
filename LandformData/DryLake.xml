@@ -8,7 +8,7 @@
 		<RiverRequirement>0~0</RiverRequirement>
 		<AvgTemperatureRequirement>-50.29821~100</AvgTemperatureRequirement>
 		<RainfallRequirement>0~410.0398</RainfallRequirement>
-		<MapSizeRequirement>100~1000</MapSizeRequirement>
+		<MapSizeRequirement>50~1000</MapSizeRequirement>
 		<AllowBuildings>True</AllowBuildings>
 		<AllowSites>True</AllowSites>
 		<GenConfig>

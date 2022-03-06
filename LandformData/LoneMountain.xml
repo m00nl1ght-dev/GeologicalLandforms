@@ -3,9 +3,9 @@
 	<Landform>
 		<Id>LoneMountain</Id>
 		<DisplayName />
-		<Commonness>0.02942626</Commonness>
+		<Commonness>0.03931746</Commonness>
 		<HillinessRequirement>1~1.497018</HillinessRequirement>
-		<MapSizeRequirement>191.6998~1000</MapSizeRequirement>
+		<MapSizeRequirement>50~1000</MapSizeRequirement>
 		<GenConfig>
 			<NoiseStacks>
 				<keys>
@@ -58,7 +58,6 @@
 											<Bias>2.010437~2.010437</Bias>
 											<Clamp>0~1</Clamp>
 											<Radial>True</Radial>
-											<ScaleSpanWithMapSize>True</ScaleSpanWithMapSize>
 										</li>
 									</Layers>
 								</li>

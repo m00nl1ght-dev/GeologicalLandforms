@@ -6,7 +6,7 @@
 		<Topology>CoastAllSides</Topology>
 		<Commonness>0.9953018</Commonness>
 		<RoadRequirement>0~0</RoadRequirement>
-		<MapSizeRequirement>195.0547~1000</MapSizeRequirement>
+		<MapSizeRequirement>50~1000</MapSizeRequirement>
 		<AllowBuildings>True</AllowBuildings>
 		<AllowSites>True</AllowSites>
 		<GenConfig>
@@ -40,7 +40,6 @@
 											<Bias>2.5~2.5</Bias>
 											<Clamp>-1.002734~0.9977635</Clamp>
 											<Radial>True</Radial>
-											<ScaleSpanWithMapSize>True</ScaleSpanWithMapSize>
 										</li>
 									</Layers>
 								</li>

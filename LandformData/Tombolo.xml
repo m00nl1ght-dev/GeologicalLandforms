@@ -7,7 +7,7 @@
 		<Topology>CoastThreeSides</Topology>
 		<Commonness>0.5501978</Commonness>
 		<HillinessRequirement>1~3.50497</HillinessRequirement>
-		<MapSizeRequirement>198.4095~1000</MapSizeRequirement>
+		<MapSizeRequirement>50~1000</MapSizeRequirement>
 		<AllowCaves>False</AllowCaves>
 		<AllowBuildings>True</AllowBuildings>
 		<AllowSites>True</AllowSites>

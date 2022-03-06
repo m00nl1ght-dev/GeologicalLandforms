@@ -5,7 +5,7 @@
 		<DisplayName />
 		<DisplayNameHasDirection>True</DisplayNameHasDirection>
 		<Topology>CoastOneSide</Topology>
-		<MapSizeRequirement>100~1000</MapSizeRequirement>
+		<MapSizeRequirement>50~1000</MapSizeRequirement>
 		<AllowBuildings>True</AllowBuildings>
 		<AllowSites>True</AllowSites>
 		<GenConfig>

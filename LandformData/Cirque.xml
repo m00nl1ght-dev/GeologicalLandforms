@@ -6,7 +6,7 @@
 		<DisplayNameHasDirection>True</DisplayNameHasDirection>
 		<Topology>CliffThreeSides</Topology>
 		<Commonness>0.4512859</Commonness>
-		<MapSizeRequirement>199.5278~1000</MapSizeRequirement>
+		<MapSizeRequirement>118.4642~1000</MapSizeRequirement>
 		<GenConfig>
 			<NoiseStacks>
 				<keys>

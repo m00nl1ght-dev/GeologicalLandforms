@@ -9,7 +9,7 @@
 		<AvgTemperatureRequirement>-15.00994~100</AvgTemperatureRequirement>
 		<RainfallRequirement>260.9344~5000</RainfallRequirement>
 		<SwampinessRequirement>0.4982604~1</SwampinessRequirement>
-		<MapSizeRequirement>146.9682~1000</MapSizeRequirement>
+		<MapSizeRequirement>50~1000</MapSizeRequirement>
 		<AllowCaves>False</AllowCaves>
 		<AllowBuildings>True</AllowBuildings>
 		<AllowSites>True</AllowSites>
@@ -46,7 +46,6 @@
 											<Bias>1.643887~1.643887</Bias>
 											<Clamp>-0.3069085~2.5</Clamp>
 											<Radial>True</Radial>
-											<ScaleSpanWithMapSize>True</ScaleSpanWithMapSize>
 										</li>
 									</Layers>
 								</li>
@@ -87,7 +86,6 @@
 											<Bias>0.513171~0.513171</Bias>
 											<Clamp>-0.499503~2.5</Clamp>
 											<Radial>True</Radial>
-											<ScaleSpanWithMapSize>True</ScaleSpanWithMapSize>
 										</li>
 									</Layers>
 								</li>

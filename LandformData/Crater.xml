@@ -7,7 +7,7 @@
 		<HillinessRequirement>3.49503~5</HillinessRequirement>
 		<RoadRequirement>0~0</RoadRequirement>
 		<RiverRequirement>0~0</RiverRequirement>
-		<MapSizeRequirement>148.0865~1000</MapSizeRequirement>
+		<MapSizeRequirement>118.4642~1000</MapSizeRequirement>
 		<RequireCaves>True</RequireCaves>
 		<AllowBuildings>True</AllowBuildings>
 		<AllowSites>True</AllowSites>

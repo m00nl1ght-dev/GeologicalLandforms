@@ -32,7 +32,7 @@ public class GenNoiseLayer : IExposable
     
     public bool AlignWithRiver;
     public bool AlignWithMainRoad;
-    public bool ScaleSpanWithMapSize;
+    public bool FixedSpan;
 
     public void ExposeData()
     {
@@ -55,7 +55,7 @@ public class GenNoiseLayer : IExposable
         Scribe_Values.Look(ref SyncPosNeg, "SyncPosNeg", true);
         Scribe_Values.Look(ref AlignWithRiver, "AlignWithRiver");
         Scribe_Values.Look(ref AlignWithMainRoad, "AlignWithMainRoad");
-        Scribe_Values.Look(ref ScaleSpanWithMapSize, "ScaleSpanWithMapSize");
+        Scribe_Values.Look(ref FixedSpan, "FixedSpan");
     }
     
     public GenNoiseLayer() {}
@@ -71,8 +71,8 @@ public class GenNoiseLayer : IExposable
         if (spanPX >= 1000f) spanPX = 1000000f;
         var spanPZ = SpanPositiveZ.RandomInRange;
         if (spanPZ >= 1000f) spanPZ = 1000000f;
-        var scaleX = ScaleSpanWithMapSize ? map.Size.x / 250f : 1f;
-        var scaleZ = ScaleSpanWithMapSize ? map.Size.z / 250f : 1f;
+        var scaleX = FixedSpan ? 1f : map.Size.x / 250f;
+        var scaleZ = FixedSpan ? 1f : map.Size.z / 250f;
         ModuleBase dist = new BiasedDistFromXZ(
             (InvertX ? 1f : -1f) * spanPX * scaleX, 
             (InvertX ? 1f : -1f) * (SyncPosNeg ? spanPX : SpanNegativeX.RandomInRange) * scaleX, 
@@ -141,14 +141,14 @@ public class GenNoiseLayer : IExposable
         Radial = options1[2];
         SyncPosNeg = options1[3];
         
-        bool[] options2 = { AlignWithRiver, AlignWithMainRoad, ScaleSpanWithMapSize };
+        bool[] options2 = { AlignWithRiver, AlignWithMainRoad, FixedSpan };
         
         listingStandard.Gap();
-        Settings.Checkboxes(listingStandard, "Align Options: ", 100f, 200f, ref options2, "AlignRiver", "AlignRoad", "MapAdjSpan");
+        Settings.Checkboxes(listingStandard, "Align Options: ", 100f, 200f, ref options2, "AlignRiver", "AlignRoad", "FixedSpan");
 
         AlignWithRiver = options2[0];
         AlignWithMainRoad = options2[1];
-        ScaleSpanWithMapSize = options2[2];
+        FixedSpan = options2[2];
         
         listingStandard.Gap();
         Settings.CenteredLabel(listingStandard, "ApplyChance", Math.Round(ApplyChance, 2).ToString(CultureInfo.InvariantCulture));

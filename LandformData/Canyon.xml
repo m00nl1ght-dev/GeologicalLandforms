@@ -6,7 +6,7 @@
 		<Topology>CliffValley</Topology>
 		<RoadRequirement>0~0</RoadRequirement>
 		<RiverRequirement>0~0</RiverRequirement>
-		<MapSizeRequirement>149.2048~1000</MapSizeRequirement>
+		<MapSizeRequirement>50~1000</MapSizeRequirement>
 		<GenConfig>
 			<NoiseStacks>
 				<keys>
@@ -61,7 +61,6 @@
 											<Bias>0.9977635~0.9977635</Bias>
 											<Clamp>0~1</Clamp>
 											<SyncPosNeg>False</SyncPosNeg>
-											<ScaleSpanWithMapSize>True</ScaleSpanWithMapSize>
 										</li>
 									</Layers>
 								</li>

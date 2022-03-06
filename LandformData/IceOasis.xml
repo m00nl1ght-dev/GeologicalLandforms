@@ -3,11 +3,11 @@
 	<Landform>
 		<Id>IceOasis</Id>
 		<DisplayName />
-		<Commonness>0.06181994</Commonness>
+		<Commonness>0.07912953</Commonness>
 		<HillinessRequirement>1~2.491054</HillinessRequirement>
 		<RiverRequirement>0~0</RiverRequirement>
 		<AvgTemperatureRequirement>-19.98012~3.379723</AvgTemperatureRequirement>
-		<MapSizeRequirement>100~1000</MapSizeRequirement>
+		<MapSizeRequirement>50~1000</MapSizeRequirement>
 		<AllowCaves>False</AllowCaves>
 		<AllowBuildings>True</AllowBuildings>
 		<AllowSites>True</AllowSites>
@@ -44,7 +44,6 @@
 											<Bias>1.146869~1.146869</Bias>
 											<Clamp>-0.3069085~2.5</Clamp>
 											<Radial>True</Radial>
-											<ScaleSpanWithMapSize>True</ScaleSpanWithMapSize>
 										</li>
 									</Layers>
 								</li>
@@ -85,7 +84,6 @@
 											<Bias>0.4510438~0.4510438</Bias>
 											<Clamp>-0.499503~2.5</Clamp>
 											<Radial>True</Radial>
-											<ScaleSpanWithMapSize>True</ScaleSpanWithMapSize>
 										</li>
 									</Layers>
 								</li>
