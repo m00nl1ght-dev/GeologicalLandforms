@@ -19,7 +19,5 @@
   </modDependencies>
   <loadAfter>
     <li>brrainz.harmony</li>
-    <li>configurablemaps.kv.rw</li>
-    <li>zylle.mapdesigner</li>
   </loadAfter>
 </ModMetaData>
