@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using UnityEngine;
 using Verse;
+using static GeologicalLandforms.Settings;
 
 namespace GeologicalLandforms;
 
@@ -11,6 +14,8 @@ public class Settings : ModSettings
 {
     public Dictionary<string, Landform> DefaultLandforms;
     public Dictionary<string, Landform> CustomLandforms;
+
+    public int MaxLandformSearchRadius = 50;
     
     public bool UseCustomConfig;
     public bool CustomDataModified;
@@ -32,6 +37,9 @@ public class Settings : ModSettings
         listingStandard.Begin(rect);
         GUI.EndGroup();
         Widgets.BeginScrollView(inRect, ref _scrollPos, rect);
+        
+        CenteredLabel(listingStandard, "GeologicalLandforms.Settings.MaxLandformSearchRadius".Translate(), MaxLandformSearchRadius.ToString(CultureInfo.InvariantCulture));
+        MaxLandformSearchRadius = (int) listingStandard.Slider(MaxLandformSearchRadius, 10f, 500f);
 
         listingStandard.CheckboxLabeled("GeologicalLandforms.Settings.Description".Translate(), ref UseCustomConfig);
         if (UseCustomConfig)
@@ -50,7 +58,8 @@ public class Settings : ModSettings
 
             listingStandard.Gap(24f);
             Dropdown(listingStandard, "GeologicalLandforms.Settings.SelectLandform".Translate(), 
-                SelectedLandform?.Id ?? "None", CustomLandforms.Keys.ToList(), e => SelectedLandform = CustomLandforms[e]);
+                SelectedLandform, CustomLandforms.Values.ToList(), e => SelectedLandform = e, 200f,
+                e => e?.TranslatedName.CapitalizeFirst() ?? "GeologicalLandforms.Settings.SelectedNone".Translate());
 
             if (SelectedLandform != null)
             {
@@ -97,16 +106,18 @@ public class Settings : ModSettings
         return value;
     }
     
-    public static void Dropdown<T>(Listing_Standard listingStandard, string name, T value, List<T> potentialValues, Action<T> action, float labelWidth = 200f)
+    public static void Dropdown<T>(Listing_Standard listingStandard, string name, T value, List<T> potentialValues, 
+        Action<T> action, float labelWidth = 200f, Func<T, string> textFunc = null)
     {
         Rect rect = listingStandard.GetRect(28f);
         if (!listingStandard.BoundingRectCached.HasValue || rect.Overlaps(listingStandard.BoundingRectCached.Value))
         {
             Widgets.Label(rect.LeftPartPixels(labelWidth), name);
             Rect right = rect.RightPartPixels(rect.width - labelWidth);
-            if (Widgets.ButtonText(right, value.ToString()))
+            if (Widgets.ButtonText(right, textFunc != null ? textFunc.Invoke(value) : value.ToString()))
             {
-                List<FloatMenuOption> options = potentialValues.Select(e => new FloatMenuOption(e.ToString(), () => action(e))).ToList();
+                List<FloatMenuOption> options = potentialValues.Select(e => 
+                    new FloatMenuOption(textFunc != null ? textFunc.Invoke(e) : e.ToString(), () => action(e))).ToList();
                 Find.WindowStack.Add(new FloatMenu(options));
             }
         }
@@ -114,9 +125,10 @@ public class Settings : ModSettings
         listingStandard.Gap();
     }
     
-    public static void Dropdown<T>(Listing_Standard listingStandard, string name, T value, Action<T> action, float labelWidth = 200f) where T : Enum
+    public static void Dropdown<T>(Listing_Standard listingStandard, string name, T value, Action<T> action, float labelWidth = 200f, string translationKeyPrefix = null) where T : Enum
     {
-        Dropdown(listingStandard, name, value, typeof(T).GetEnumValues().Cast<T>().ToList(), action, labelWidth);
+        Dropdown(listingStandard, name, value, typeof(T).GetEnumValues().Cast<T>().ToList(), action, labelWidth, 
+            translationKeyPrefix == null ? null : e => (translationKeyPrefix + "." + e).Translate());
     }
 
     public static void CenteredLabel(Listing_Standard listingStandard, string left, string center)
@@ -129,7 +141,9 @@ public class Settings : ModSettings
         Widgets.Label(rect, left);
     }
 
-    public static void Checkboxes<T>(Listing_Standard listingStandard, string label, ref HashSet<T> values, float rectSize, float labelWidth) where T : Enum
+    [SuppressMessage("ReSharper", "RedundantCast")]
+    public static void Checkboxes<T>(Listing_Standard listingStandard, string label, ref HashSet<T> values, 
+        float rectSize, float labelWidth, string translationKeyPrefix = null) where T : Enum
     {
         Rect rect = listingStandard.GetRect(28f);
         
@@ -142,7 +156,7 @@ public class Settings : ModSettings
                 bool selected = values.Contains(value);
                 Widgets.Checkbox(rect.min, ref selected);
                 rect.xMin += 35f;
-                Widgets.Label(rect, value.ToString());
+                Widgets.Label(rect, translationKeyPrefix == null ? value.ToString() : (string)(translationKeyPrefix + "." + value).Translate());
                 if (selected) values.Add(value); else values.Remove(value);
                 rect.xMin += rectSize;
             }
@@ -173,7 +187,9 @@ public class Settings : ModSettings
         listingStandard.Gap(listingStandard.verticalSpacing);
     }
     
-    public static void RadioButtons<T>(Listing_Standard listingStandard, string label, ref T currentValue, float rectSize, float labelWidth) where T : Enum
+    [SuppressMessage("ReSharper", "RedundantCast")]
+    public static void RadioButtons<T>(Listing_Standard listingStandard, string label, ref T currentValue, 
+        float rectSize, float labelWidth, string translationKeyPrefix = null) where T : Enum
     {
         Rect rect = listingStandard.GetRect(28f);
         
@@ -185,7 +201,7 @@ public class Settings : ModSettings
             {
                 if (Widgets.RadioButton(rect.xMin, rect.yMin, value.Equals(currentValue))) currentValue = value;
                 rect.xMin += 35f;
-                Widgets.Label(rect, value.ToString());
+                Widgets.Label(rect, translationKeyPrefix == null ? value.ToString() : (string)(translationKeyPrefix + "." + value).Translate());
                 rect.xMin += rectSize;
             }
         }
@@ -196,6 +212,7 @@ public class Settings : ModSettings
     public override void ExposeData()
     {
         Scribe_Values.Look(ref UseCustomConfig, "UseCustomConfig");
+        Scribe_Values.Look(ref MaxLandformSearchRadius, "MaxLandformSearchRadius", 50);
         base.ExposeData();
     }
     
@@ -240,6 +257,7 @@ public class Settings : ModSettings
         SelectedNoiseType = GenNoiseConfig.NoiseType.Coast;
         SelectedApplyMethod = GenNoiseStack.CombineMethod.Add;
         UseCustomConfig = false;
+        MaxLandformSearchRadius = 50;
     }
     
     public static Dictionary<string, Landform> LoadLandformsFromDirectory(string directory, Dictionary<string, Landform> fallback)

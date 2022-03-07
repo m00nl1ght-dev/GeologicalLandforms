@@ -1,10 +1,13 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 using HarmonyLib;
 using RimWorld.Planet;
+using UnityEngine;
 using Verse;
 
 namespace GeologicalLandforms.Patches;
@@ -83,20 +86,75 @@ internal static class RimWorld_WITab_Terrain
         {
             sb.AppendWithComma("HasCaves".Translate());
         }
-        
-        if (Prefs.DevMode)
-        {
-            listingStandard.LabelDouble("Topology", worldTileInfo.Topology.ToString());
-            listingStandard.LabelDouble("TopologyDirection", worldTileInfo.LandformDirection.ToStringHuman());
-            listingStandard.LabelDouble("Swampiness", worldTileInfo.Tile.swampiness.ToString(CultureInfo.InvariantCulture));
-            listingStandard.LabelDouble("RiverWidth", worldTileInfo.RiverWidth.ToString(CultureInfo.InvariantCulture));
-            listingStandard.LabelDouble("RiverAngle", worldTileInfo.RiverAngle.ToString(CultureInfo.InvariantCulture));
-            listingStandard.LabelDouble("MainRoadMultiplier", worldTileInfo.MainRoadMultiplier.ToString(CultureInfo.InvariantCulture));
-            listingStandard.LabelDouble("MainRoadAngle", worldTileInfo.MainRoadAngle.ToString(CultureInfo.InvariantCulture));
-        }
 
         if (sb.Length > 0)
             listingStandard.LabelDouble("SpecialFeatures".Translate(), sb.ToString().CapitalizeFirst());
+
+        listingStandard.Gap();
+        Rect rect = listingStandard.GetRect(28f);
+        if (!listingStandard.BoundingRectCached.HasValue || rect.Overlaps(listingStandard.BoundingRectCached.Value))
+        {
+            if (Widgets.ButtonText(rect, "GeologicalLandforms.WorldMap.FindLandform".Translate()))
+            {
+                List<FloatMenuOption> options = Main.Settings.Landforms.Values.Select(e => 
+                    new FloatMenuOption(e.TranslatedName.CapitalizeFirst(), () => FindLandform(e))).ToList();
+                Find.WindowStack.Add(new FloatMenu(options));
+            }
+        }
+        
+        listingStandard.Gap();
+        if (Prefs.DevMode)
+        {
+            listingStandard.LabelDouble("GeologicalLandforms.WorldMap.Topology".Translate(), worldTileInfo.Topology.ToString());
+            listingStandard.LabelDouble("GeologicalLandforms.WorldMap.TopologyDirection".Translate(), worldTileInfo.LandformDirection.ToStringHuman());
+            listingStandard.LabelDouble("GeologicalLandforms.WorldMap.Swampiness".Translate(), worldTileInfo.Tile.swampiness.ToString(CultureInfo.InvariantCulture));
+            listingStandard.LabelDouble("GeologicalLandforms.WorldMap.RiverWidth".Translate(), worldTileInfo.RiverWidth.ToString(CultureInfo.InvariantCulture));
+            listingStandard.LabelDouble("GeologicalLandforms.WorldMap.RiverAngle".Translate(), worldTileInfo.RiverAngle.ToString(CultureInfo.InvariantCulture));
+            listingStandard.LabelDouble("GeologicalLandforms.WorldMap.MainRoadMultiplier".Translate(), worldTileInfo.MainRoadMultiplier.ToString(CultureInfo.InvariantCulture));
+            listingStandard.LabelDouble("GeologicalLandforms.WorldMap.MainRoadAngle".Translate(), worldTileInfo.MainRoadAngle.ToString(CultureInfo.InvariantCulture));
+        }
+    }
+
+    private static void FindLandform(Landform landform)
+    {
+        int tileId = Find.WorldSelector.selectedTile;
+        WorldGrid grid = Find.WorldGrid;
+
+        HashSet<int> tested = new();
+        HashSet<int> pending = new() {tileId};
+        List<int> nb = new();
+
+        for (int i = 0; i < Main.Settings.MaxLandformSearchRadius; i++)
+        {
+            List<int> copy = pending.ToList();
+            pending.Clear();
+            foreach (var p in copy)
+            {
+                WorldTileInfo tileInfo = WorldTileInfo.GetWorldTileInfo(p);
+                if (tileInfo.LandformId == landform.Id)
+                {
+                    CameraJumper.TryJumpAndSelect(new GlobalTargetInfo(p));
+                    Find.WorldSelector.selectedTile = p;
+                    float dist = grid.ApproxDistanceInTiles(tileId, p);
+                    Find.WindowStack.Add(new Dialog_MessageBox(
+                        "GeologicalLandforms.WorldMap.FindLandformSuccess".Translate() + Math.Round(dist, 2)));
+                    return;
+                }
+
+                tested.Add(p);
+                
+                nb.Clear();
+                grid.GetTileNeighbors(p, nb);
+                foreach (var nTile in nb)
+                {
+                    if (tested.Contains(nTile)) continue;
+                    pending.Add(nTile);
+                }
+            }
+        }
+        
+        Find.WindowStack.Add(new Dialog_MessageBox(
+            "GeologicalLandforms.WorldMap.FindLandformFail".Translate() + Main.Settings.MaxLandformSearchRadius));
     }
 
     private static string TranslateRot4(Rot4 rot4)

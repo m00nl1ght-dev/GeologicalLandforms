@@ -35,28 +35,29 @@ public class GenNoiseConfig : IExposable
 
     public void DoSettingsWindowContents(Listing_Standard listingStandard)
     {
-        Settings.Dropdown(listingStandard, "Edit settings for NoiseType: ", Settings.SelectedNoiseType, e => Settings.SelectedNoiseType = e, 200f);
+        Settings.Dropdown(listingStandard, "GeologicalLandforms.Settings.GenNoiseConfig.SelectNoiseType".Translate(), 
+            Settings.SelectedNoiseType, e => Settings.SelectedNoiseType = e, 200f, "GeologicalLandforms.Settings.GenNoiseConfig.NoiseType");
+        
         listingStandard.Gap(18f);
-
         if (Settings.SelectedNoiseType == NoiseType.Coast)
         {
-            Settings.CenteredLabel(listingStandard, "ThresholdShallow", Math.Round(ThresholdShallow, 2).ToString(CultureInfo.InvariantCulture));
+            Settings.CenteredLabel(listingStandard, "GeologicalLandforms.Settings.GenNoiseConfig.ThresholdShallow".Translate(), Math.Round(ThresholdShallow, 2).ToString(CultureInfo.InvariantCulture));
             ThresholdShallow = listingStandard.Slider(ThresholdShallow, -1f, 1f);
-            Settings.CenteredLabel(listingStandard, "ThresholdBeach", Math.Round(ThresholdBeach, 2).ToString(CultureInfo.InvariantCulture));
+            Settings.CenteredLabel(listingStandard, "GeologicalLandforms.Settings.GenNoiseConfig.ThresholdBeach".Translate(), Math.Round(ThresholdBeach, 2).ToString(CultureInfo.InvariantCulture));
             ThresholdBeach = listingStandard.Slider(ThresholdBeach, -1f, 1f);
             listingStandard.Gap();
             
-            TerrainDeep = Settings.TextEntry(listingStandard, "TerrainDeep", TerrainDeep, 200f);
-            TerrainShallow = Settings.TextEntry(listingStandard, "TerrainShallow", TerrainShallow, 200f);
-            TerrainBeach = Settings.TextEntry(listingStandard, "TerrainBeach", TerrainBeach, 200f);
+            TerrainDeep = Settings.TextEntry(listingStandard, "GeologicalLandforms.Settings.GenNoiseConfig.TerrainDeep".Translate(), TerrainDeep, 200f);
+            TerrainShallow = Settings.TextEntry(listingStandard, "GeologicalLandforms.Settings.GenNoiseConfig.TerrainShallow".Translate(), TerrainShallow, 200f);
+            TerrainBeach = Settings.TextEntry(listingStandard, "GeologicalLandforms.Settings.GenNoiseConfig.TerrainBeach".Translate(), TerrainBeach, 200f);
             listingStandard.Gap(18f);
         }
 
         if (Settings.SelectedNoiseType == NoiseType.Elevation)
         {
-            Settings.CenteredLabel(listingStandard, "HillModifierEffectiveness", Math.Round(HillModifierEffectiveness, 2).ToString(CultureInfo.InvariantCulture));
+            Settings.CenteredLabel(listingStandard, "GeologicalLandforms.Settings.GenNoiseConfig.HillModifierEffectiveness".Translate(), Math.Round(HillModifierEffectiveness, 2).ToString(CultureInfo.InvariantCulture));
             HillModifierEffectiveness = listingStandard.Slider(HillModifierEffectiveness, 0f, 2f);
-            Settings.CenteredLabel(listingStandard, "MaxElevationIfWaterCovered", Math.Round(MaxElevationIfWaterCovered, 2).ToString(CultureInfo.InvariantCulture));
+            Settings.CenteredLabel(listingStandard, "GeologicalLandforms.Settings.GenNoiseConfig.MaxElevationIfWaterCovered".Translate(), Math.Round(MaxElevationIfWaterCovered, 2).ToString(CultureInfo.InvariantCulture));
             MaxElevationIfWaterCovered = listingStandard.Slider(MaxElevationIfWaterCovered, 0f, 2f);
             listingStandard.Gap(18f);
         }

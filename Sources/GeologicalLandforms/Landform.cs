@@ -91,9 +91,9 @@ public class Landform : IExposable
         {
             string oldId = Id;
             
-            Id = Settings.TextEntry(listing, "Id", Id);
-            DisplayName = Settings.TextEntry(listing, "DisplayName", DisplayName);
-            listing.CheckboxLabeled("DisplayNameHasDirection", ref DisplayNameHasDirection);
+            Id = Settings.TextEntry(listing, "GeologicalLandforms.Settings.Landform.Id".Translate(), Id);
+            DisplayName = Settings.TextEntry(listing, "GeologicalLandforms.Settings.Landform.DisplayName".Translate(), DisplayName);
+            listing.CheckboxLabeled("GeologicalLandforms.Settings.Landform.DisplayNameHasDirection".Translate(), ref DisplayNameHasDirection);
             listing.Gap();
 
             if (Id != oldId)
@@ -110,27 +110,27 @@ public class Landform : IExposable
             }
         }
 
-        Settings.Dropdown(listing, "Topology", Topology, e => Topology = e);
-        Settings.CenteredLabel(listing, "Commonness", Math.Round(Commonness, 2).ToString(CultureInfo.InvariantCulture));
+        Settings.Dropdown(listing, "GeologicalLandforms.Settings.Landform.Topology".Translate(), Topology, e => Topology = e, 200f, "GeologicalLandforms.Settings.Landform.Topology");
+        Settings.CenteredLabel(listing, "GeologicalLandforms.Settings.Landform.Commonness".Translate(), Math.Round(Commonness, 2).ToString(CultureInfo.InvariantCulture));
         Commonness = listing.Slider(Commonness, 0f, 1f);
         listing.Gap(18f);
         
-        Settings.FloatRangeSlider(listing, ref HillinessRequirement, "HillinessRequirement", 1f, 5f);
-        Settings.FloatRangeSlider(listing, ref RoadRequirement, "RoadRequirement", 0f, 1f);
-        Settings.FloatRangeSlider(listing, ref RiverRequirement, "RiverRequirement", 0f, 1f);
-        Settings.FloatRangeSlider(listing, ref ElevationRequirement, "ElevationRequirement", -1000f, 5000f);
-        Settings.FloatRangeSlider(listing, ref AvgTemperatureRequirement, "AvgTemperatureRequirement", -100f, 100f);
-        Settings.FloatRangeSlider(listing, ref RainfallRequirement, "RainfallRequirement", 0f, 5000f);
-        Settings.FloatRangeSlider(listing, ref SwampinessRequirement, "SwampinessRequirement", 0f, 1f);
-        Settings.FloatRangeSlider(listing, ref MapSizeRequirement, "MapSizeRequirement", 50f, 1000f);
+        Settings.FloatRangeSlider(listing, ref HillinessRequirement, "GeologicalLandforms.Settings.Landform.HillinessRequirement".Translate(), 1f, 5f);
+        Settings.FloatRangeSlider(listing, ref RoadRequirement, "GeologicalLandforms.Settings.Landform.RoadRequirement".Translate(), 0f, 1f);
+        Settings.FloatRangeSlider(listing, ref RiverRequirement, "GeologicalLandforms.Settings.Landform.RiverRequirement".Translate(), 0f, 1f);
+        Settings.FloatRangeSlider(listing, ref ElevationRequirement, "GeologicalLandforms.Settings.Landform.ElevationRequirement".Translate(), -1000f, 5000f);
+        Settings.FloatRangeSlider(listing, ref AvgTemperatureRequirement, "GeologicalLandforms.Settings.Landform.AvgTemperatureRequirement".Translate(), -100f, 100f);
+        Settings.FloatRangeSlider(listing, ref RainfallRequirement, "GeologicalLandforms.Settings.Landform.RainfallRequirement".Translate(), 0f, 5000f);
+        Settings.FloatRangeSlider(listing, ref SwampinessRequirement, "GeologicalLandforms.Settings.Landform.SwampinessRequirement".Translate(), 0f, 1f);
+        Settings.FloatRangeSlider(listing, ref MapSizeRequirement, "GeologicalLandforms.Settings.Landform.MapSizeRequirement".Translate(), 50f, 1000f);
         listing.Gap(18f);
         
-        listing.CheckboxLabeled("AllowSettlements", ref AllowSettlements);
-        listing.CheckboxLabeled("AllowSites", ref AllowSites);
+        listing.CheckboxLabeled("GeologicalLandforms.Settings.Landform.AllowSettlements".Translate(), ref AllowSettlements);
+        listing.CheckboxLabeled("GeologicalLandforms.Settings.Landform.AllowSites".Translate(), ref AllowSites);
         listing.Gap();
         
-        listing.CheckboxLabeled("AllowCaves", ref AllowCaves);
-        if (AllowCaves) listing.CheckboxLabeled("RequireCaves", ref RequireCaves);
+        listing.CheckboxLabeled("GeologicalLandforms.Settings.Landform.AllowCaves".Translate(), ref AllowCaves);
+        if (AllowCaves) listing.CheckboxLabeled("GeologicalLandforms.Settings.Landform.RequireCaves".Translate(), ref RequireCaves);
         listing.Gap(24f);
         
         GenConfig.DoSettingsWindowContents(listing);
