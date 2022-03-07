@@ -19,6 +19,7 @@ internal static class RimWorld_WITab_Terrain
     private static readonly MethodInfo Method_LabelDouble = AccessTools.Method(typeof(Listing_Standard), "LabelDouble");
     private static readonly MethodInfo Method_GetSpecialFeatures = AccessTools.Method(typeof(RimWorld_WITab_Terrain), "GetSpecialFeatures");
     
+    [HarmonyPriority(Priority.Low)]
     private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
     {
         var foundAWC = false;

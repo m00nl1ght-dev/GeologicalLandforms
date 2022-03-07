@@ -15,6 +15,8 @@ internal static class RimWorld_GenStep_ElevationFertility
     private static WorldTileInfo _worldTileInfo;
     private static GenNoiseConfig _noiseConfig;
     
+    [HarmonyPriority(Priority.VeryHigh)]
+    [HarmonyBefore("com.configurablemaps.rimworld.mod")]
     private static bool Prefix(Map map, GenStepParams parms)
     {
         _worldTileInfo = WorldTileInfo.GetWorldTileInfo(map.Tile);
@@ -50,6 +52,7 @@ internal static class RimWorld_GenStep_ElevationFertility
         return false;
     }
     
+    [HarmonyPriority(Priority.First)]
     private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             OpCode lastOpCode = OpCodes.Nop;

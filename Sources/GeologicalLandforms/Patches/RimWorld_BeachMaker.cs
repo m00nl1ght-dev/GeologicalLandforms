@@ -17,6 +17,7 @@ internal static class RimWorld_BeachMaker
     private static TerrainDef _terrainBeach;
     
     [HarmonyPatch(nameof(BeachMaker.Init))]
+    [HarmonyPriority(Priority.VeryHigh)]
     private static bool Prefix(ref ModuleBase ___beachNoise, Map map)
     {
         _worldTileInfo = WorldTileInfo.GetWorldTileInfo(map.Tile);
@@ -44,6 +45,7 @@ internal static class RimWorld_BeachMaker
     }
     
     [HarmonyPatch(nameof(BeachMaker.BeachTerrainAt))]
+    [HarmonyPriority(Priority.VeryHigh)]
     private static bool Prefix(ref TerrainDef __result, ref ModuleBase ___beachNoise, IntVec3 loc, BiomeDef biome)
     {
         if (_noiseConfig == null || ___beachNoise == null) return true;
