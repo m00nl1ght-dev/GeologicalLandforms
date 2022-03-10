@@ -20,4 +20,7 @@
   <loadAfter>
     <li>brrainz.harmony</li>
   </loadAfter>
+  <incompatibleWith>
+    <!-- <li>configurablemaps.kv.rw</li> -->
+  </incompatibleWith>
 </ModMetaData>

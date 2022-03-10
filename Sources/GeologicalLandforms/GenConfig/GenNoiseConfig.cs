@@ -19,7 +19,7 @@ public class GenNoiseConfig : IExposable
     public float HillModifierEffectiveness = 1f;
     public float MaxElevationIfWaterCovered;
     
-    public GenNoiseConfig() {}
+    private static NoiseType SelectedNoiseType;
     
     public void ExposeData()
     {
@@ -35,36 +35,36 @@ public class GenNoiseConfig : IExposable
 
     public void DoSettingsWindowContents(Listing_Standard listingStandard)
     {
-        Settings.Dropdown(listingStandard, "GeologicalLandforms.Settings.GenNoiseConfig.SelectNoiseType".Translate(), 
-            Settings.SelectedNoiseType, e => Settings.SelectedNoiseType = e, 200f, "GeologicalLandforms.Settings.GenNoiseConfig.NoiseType");
+        GuiUtils.Dropdown(listingStandard, "GeologicalLandforms.Settings.GenNoiseConfig.SelectNoiseType".Translate(), 
+            SelectedNoiseType, e => SelectedNoiseType = e, 200f, "GeologicalLandforms.Settings.GenNoiseConfig.NoiseType");
         
         listingStandard.Gap(18f);
-        if (Settings.SelectedNoiseType == NoiseType.Coast)
+        if (SelectedNoiseType == NoiseType.Coast)
         {
-            Settings.CenteredLabel(listingStandard, "GeologicalLandforms.Settings.GenNoiseConfig.ThresholdShallow".Translate(), Math.Round(ThresholdShallow, 2).ToString(CultureInfo.InvariantCulture));
+            GuiUtils.CenteredLabel(listingStandard, "GeologicalLandforms.Settings.GenNoiseConfig.ThresholdShallow".Translate(), Math.Round(ThresholdShallow, 2).ToString(CultureInfo.InvariantCulture));
             ThresholdShallow = listingStandard.Slider(ThresholdShallow, -1f, 1f);
-            Settings.CenteredLabel(listingStandard, "GeologicalLandforms.Settings.GenNoiseConfig.ThresholdBeach".Translate(), Math.Round(ThresholdBeach, 2).ToString(CultureInfo.InvariantCulture));
+            GuiUtils.CenteredLabel(listingStandard, "GeologicalLandforms.Settings.GenNoiseConfig.ThresholdBeach".Translate(), Math.Round(ThresholdBeach, 2).ToString(CultureInfo.InvariantCulture));
             ThresholdBeach = listingStandard.Slider(ThresholdBeach, -1f, 1f);
             listingStandard.Gap();
             
-            TerrainDeep = Settings.TextEntry(listingStandard, "GeologicalLandforms.Settings.GenNoiseConfig.TerrainDeep".Translate(), TerrainDeep, 200f);
-            TerrainShallow = Settings.TextEntry(listingStandard, "GeologicalLandforms.Settings.GenNoiseConfig.TerrainShallow".Translate(), TerrainShallow, 200f);
-            TerrainBeach = Settings.TextEntry(listingStandard, "GeologicalLandforms.Settings.GenNoiseConfig.TerrainBeach".Translate(), TerrainBeach, 200f);
+            TerrainDeep = GuiUtils.TextEntry(listingStandard, "GeologicalLandforms.Settings.GenNoiseConfig.TerrainDeep".Translate(), TerrainDeep);
+            TerrainShallow = GuiUtils.TextEntry(listingStandard, "GeologicalLandforms.Settings.GenNoiseConfig.TerrainShallow".Translate(), TerrainShallow);
+            TerrainBeach = GuiUtils.TextEntry(listingStandard, "GeologicalLandforms.Settings.GenNoiseConfig.TerrainBeach".Translate(), TerrainBeach);
             listingStandard.Gap(18f);
         }
 
-        if (Settings.SelectedNoiseType == NoiseType.Elevation)
+        if (SelectedNoiseType == NoiseType.Elevation)
         {
-            Settings.CenteredLabel(listingStandard, "GeologicalLandforms.Settings.GenNoiseConfig.HillModifierEffectiveness".Translate(), Math.Round(HillModifierEffectiveness, 2).ToString(CultureInfo.InvariantCulture));
+            GuiUtils.CenteredLabel(listingStandard, "GeologicalLandforms.Settings.GenNoiseConfig.HillModifierEffectiveness".Translate(), Math.Round(HillModifierEffectiveness, 2).ToString(CultureInfo.InvariantCulture));
             HillModifierEffectiveness = listingStandard.Slider(HillModifierEffectiveness, 0f, 2f);
-            Settings.CenteredLabel(listingStandard, "GeologicalLandforms.Settings.GenNoiseConfig.MaxElevationIfWaterCovered".Translate(), Math.Round(MaxElevationIfWaterCovered, 2).ToString(CultureInfo.InvariantCulture));
+            GuiUtils.CenteredLabel(listingStandard, "GeologicalLandforms.Settings.GenNoiseConfig.MaxElevationIfWaterCovered".Translate(), Math.Round(MaxElevationIfWaterCovered, 2).ToString(CultureInfo.InvariantCulture));
             MaxElevationIfWaterCovered = listingStandard.Slider(MaxElevationIfWaterCovered, 0f, 2f);
             listingStandard.Gap(18f);
         }
         
-        NoiseStacks.TryGetValue(Settings.SelectedNoiseType, out GenNoiseStack noiseStack);
-        if (noiseStack == null) NoiseStacks.Add(Settings.SelectedNoiseType, noiseStack = new GenNoiseStack(Settings.SelectedNoiseType));
-        noiseStack.DoSettingsWindowContents(listingStandard, Settings.SelectedNoiseType);
+        NoiseStacks.TryGetValue(SelectedNoiseType, out GenNoiseStack noiseStack);
+        if (noiseStack == null) NoiseStacks.Add(SelectedNoiseType, noiseStack = new GenNoiseStack(SelectedNoiseType));
+        noiseStack.DoSettingsWindowContents(listingStandard, SelectedNoiseType);
     }
 
     public enum NoiseType

@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using GeologicalLandforms.TerrainGraph;
 using HarmonyLib;
+using NodeEditorFramework;
 using Verse;
 
 namespace GeologicalLandforms;
@@ -13,10 +15,13 @@ public static class Main
         "BMT_FungalForest"
     };
 
-    public static Settings Settings;
+    static Main()
+    {
+        new Harmony("Geological Landforms").PatchAll();
+        NodeEditor.ReInit(false);
+        LandformManager.InitialLoad();
+    }
 
-    static Main() => new Harmony("Geological Landforms").PatchAll();
-    
     public static Rot6 Random(this List<Rot6> rotList, int tileId)
     {
         if (rotList.Count == 0) return Rot6.Invalid;

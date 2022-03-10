@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
+using GeologicalLandforms.TerrainGraph;
 using HarmonyLib;
 using RimWorld.Planet;
 using UnityEngine;
@@ -62,7 +63,7 @@ internal static class RimWorld_WITab_Terrain
         int tileId = Find.WorldSelector.selectedTile;
         WorldTileInfo worldTileInfo = WorldTileInfo.GetWorldTileInfo(tileId);
 
-        Landform landform = Main.Settings.Landforms.TryGetValue(worldTileInfo.LandformId);
+        LandformManager.Landforms.TryGetValue(worldTileInfo.LandformId, out Landform landform);
         
         if (landform != null)
         {
@@ -70,7 +71,7 @@ internal static class RimWorld_WITab_Terrain
             
             if (landform.DisplayNameHasDirection)
             {
-                if (worldTileInfo.Topology is Topology.CoastTwoSides or Topology.CliffTwoSides)
+                if (landform.IsCornerVariant)
                 {
                     append = TranslateDoubleRot4(worldTileInfo.LandformDirection) + " " + append;
                 }
@@ -97,7 +98,7 @@ internal static class RimWorld_WITab_Terrain
         {
             if (Widgets.ButtonText(rect, "GeologicalLandforms.WorldMap.FindLandform".Translate()))
             {
-                List<FloatMenuOption> options = Main.Settings.Landforms.Values.Select(e => 
+                List<FloatMenuOption> options = LandformManager.Landforms.Values.Select(e => 
                     new FloatMenuOption(e.TranslatedName.CapitalizeFirst(), () => FindLandform(e))).ToList();
                 Find.WindowStack.Add(new FloatMenu(options));
             }
@@ -125,7 +126,7 @@ internal static class RimWorld_WITab_Terrain
         HashSet<int> pending = new() {tileId};
         List<int> nb = new();
 
-        for (int i = 0; i < Main.Settings.MaxLandformSearchRadius; i++)
+        for (int i = 0; i < ModInstance.Settings.MaxLandformSearchRadius; i++)
         {
             List<int> copy = pending.ToList();
             pending.Clear();
@@ -155,7 +156,7 @@ internal static class RimWorld_WITab_Terrain
         }
         
         Find.WindowStack.Add(new Dialog_MessageBox(
-            "GeologicalLandforms.WorldMap.FindLandformFail".Translate() + Main.Settings.MaxLandformSearchRadius));
+            "GeologicalLandforms.WorldMap.FindLandformFail".Translate() + ModInstance.Settings.MaxLandformSearchRadius));
     }
 
     private static string TranslateRot4(Rot4 rot4)

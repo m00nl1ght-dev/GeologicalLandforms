@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection.Emit;
+using GeologicalLandforms.TerrainGraph;
 using HarmonyLib;
 using RimWorld;
 using RimWorld.Planet;
@@ -20,12 +21,12 @@ internal static class RimWorld_GenStep_ElevationFertility
     private static bool Prefix(Map map, GenStepParams parms)
     {
         _worldTileInfo = WorldTileInfo.GetWorldTileInfo(map.Tile);
-        Landform landform = Main.Settings.Landforms.TryGetValue(_worldTileInfo.LandformId);
-        _noiseConfig = landform?.GenConfig;
+        LandformManager.Landforms.TryGetValue(_worldTileInfo.LandformId, out Landform landform);
+        // _noiseConfig = landform?.GenConfig; TODO
         if (_noiseConfig == null) return true;
         
         int mapSizeInt = Math.Min(map.Size.x, map.Size.z);
-        if (landform != null && !landform.MapSizeRequirement.Includes(mapSizeInt)) return true;
+        if (landform != null && !landform.WorldTileReq.MapSizeRequirement.Includes(mapSizeInt)) return true;
         
         GenNoiseStack noiseStackElevation = _noiseConfig.NoiseStacks.TryGetValue(GenNoiseConfig.NoiseType.Elevation);
         noiseStackElevation ??= new GenNoiseStack(GenNoiseConfig.NoiseType.Elevation);

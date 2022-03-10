@@ -38,6 +38,8 @@ public class GenNoiseStack : IExposable
     public double MinSmoothness;
     public double MaxSmoothness;
     
+    private static CombineMethod SelectedApplyMethod;
+
     public void ExposeData()
     {
         Scribe_Collections.Look(ref Entries, "Entries", LookMode.Value, LookMode.Deep);
@@ -153,49 +155,49 @@ public class GenNoiseStack : IExposable
 
     public void DoSettingsWindowContents(Listing_Standard listingStandard, GenNoiseConfig.NoiseType pullDefaultsFrom)
     {
-        Settings.CenteredLabel(listingStandard, "GeologicalLandforms.Settings.GenNoiseStack.PerlinFrequency".Translate(), Math.Round(PerlinFrequency, 2).ToString(CultureInfo.InvariantCulture));
+        GuiUtils.CenteredLabel(listingStandard, "GeologicalLandforms.Settings.GenNoiseStack.PerlinFrequency".Translate(), Math.Round(PerlinFrequency, 2).ToString(CultureInfo.InvariantCulture));
         PerlinFrequency = listingStandard.Slider((float) PerlinFrequency, 0.01f, 0.1f);
-        Settings.CenteredLabel(listingStandard, "GeologicalLandforms.Settings.GenNoiseStack.PerlinLacunarity".Translate(), Math.Round(PerlinLacunarity, 2).ToString(CultureInfo.InvariantCulture));
+        GuiUtils.CenteredLabel(listingStandard, "GeologicalLandforms.Settings.GenNoiseStack.PerlinLacunarity".Translate(), Math.Round(PerlinLacunarity, 2).ToString(CultureInfo.InvariantCulture));
         PerlinLacunarity = listingStandard.Slider((float) PerlinLacunarity, 0f, 5f);
-        Settings.CenteredLabel(listingStandard, "GeologicalLandforms.Settings.GenNoiseStack.PerlinPersistence".Translate(), Math.Round(PerlinPersistence, 2).ToString(CultureInfo.InvariantCulture));
+        GuiUtils.CenteredLabel(listingStandard, "GeologicalLandforms.Settings.GenNoiseStack.PerlinPersistence".Translate(), Math.Round(PerlinPersistence, 2).ToString(CultureInfo.InvariantCulture));
         PerlinPersistence = listingStandard.Slider((float) PerlinPersistence, 0f, 1f);
-        Settings.CenteredLabel(listingStandard, "GeologicalLandforms.Settings.GenNoiseStack.PerlinOctaves".Translate(), PerlinOctaves.ToString(CultureInfo.InvariantCulture));
+        GuiUtils.CenteredLabel(listingStandard, "GeologicalLandforms.Settings.GenNoiseStack.PerlinOctaves".Translate(), PerlinOctaves.ToString(CultureInfo.InvariantCulture));
         PerlinOctaves = (int) listingStandard.Slider(PerlinOctaves, 1f, 10f);
         
         listingStandard.Gap();
-        int.TryParse(Settings.TextEntry(listingStandard, "GeologicalLandforms.Settings.GenNoiseStack.NoiseSeed".Translate(), PerlinSeed.ToString()), out PerlinSeed);
+        int.TryParse(GuiUtils.TextEntry(listingStandard, "GeologicalLandforms.Settings.GenNoiseStack.NoiseSeed".Translate(), PerlinSeed.ToString()), out PerlinSeed);
         
         listingStandard.Gap();
-        Settings.CenteredLabel(listingStandard, "GeologicalLandforms.Settings.GenNoiseStack.BaseScale".Translate(), Math.Round(BaseScale, 2).ToString(CultureInfo.InvariantCulture));
+        GuiUtils.CenteredLabel(listingStandard, "GeologicalLandforms.Settings.GenNoiseStack.BaseScale".Translate(), Math.Round(BaseScale, 2).ToString(CultureInfo.InvariantCulture));
         BaseScale = listingStandard.Slider((float) BaseScale, 0f, 1f);
-        Settings.CenteredLabel(listingStandard, "GeologicalLandforms.Settings.GenNoiseStack.BaseBias".Translate(), Math.Round(BaseBias, 2).ToString(CultureInfo.InvariantCulture));
+        GuiUtils.CenteredLabel(listingStandard, "GeologicalLandforms.Settings.GenNoiseStack.BaseBias".Translate(), Math.Round(BaseBias, 2).ToString(CultureInfo.InvariantCulture));
         BaseBias = listingStandard.Slider((float) BaseBias, 0f, 1f);
 
         listingStandard.Gap(18f);
-        Settings.Dropdown(listingStandard, "GeologicalLandforms.Settings.GenNoiseStack.SelectApplyMethod".Translate(),
-            Settings.SelectedApplyMethod, m => Settings.SelectedApplyMethod = m, 200f, "GeologicalLandforms.Settings.GenNoiseStack.ApplyMethod");
+        GuiUtils.Dropdown(listingStandard, "GeologicalLandforms.Settings.GenNoiseStack.SelectApplyMethod".Translate(),
+            SelectedApplyMethod, m => SelectedApplyMethod = m, 200f, "GeologicalLandforms.Settings.GenNoiseStack.ApplyMethod");
 
-        if (Settings.SelectedApplyMethod == CombineMethod.Min)
+        if (SelectedApplyMethod == CombineMethod.Min)
         {
             listingStandard.Gap();
-            Settings.CenteredLabel(listingStandard, "GeologicalLandforms.Settings.GenNoiseStack.MinSmoothness".Translate(), Math.Round(MinSmoothness, 2).ToString(CultureInfo.InvariantCulture));
+            GuiUtils.CenteredLabel(listingStandard, "GeologicalLandforms.Settings.GenNoiseStack.MinSmoothness".Translate(), Math.Round(MinSmoothness, 2).ToString(CultureInfo.InvariantCulture));
             MinSmoothness = listingStandard.Slider((float) MinSmoothness, 0f, 10f);
         } 
-        else if (Settings.SelectedApplyMethod == CombineMethod.Max)
+        else if (SelectedApplyMethod == CombineMethod.Max)
         {
             listingStandard.Gap();
-            Settings.CenteredLabel(listingStandard, "GeologicalLandforms.Settings.GenNoiseStack.MaxSmoothness".Translate(), Math.Round(MaxSmoothness, 2).ToString(CultureInfo.InvariantCulture));
+            GuiUtils.CenteredLabel(listingStandard, "GeologicalLandforms.Settings.GenNoiseStack.MaxSmoothness".Translate(), Math.Round(MaxSmoothness, 2).ToString(CultureInfo.InvariantCulture));
             MaxSmoothness = listingStandard.Slider((float) MaxSmoothness, 0f, 10f);
         }
 
         listingStandard.Gap();
-        Entries.TryGetValue(Settings.SelectedApplyMethod, out Entry entry);
-        if (entry == null) Entries.Add(Settings.SelectedApplyMethod, entry = new Entry());
+        Entries.TryGetValue(SelectedApplyMethod, out Entry entry);
+        if (entry == null) Entries.Add(SelectedApplyMethod, entry = new Entry());
         int layerCount = entry.Layers.Count;
         listingStandard.Label("GeologicalLandforms.Settings.GenNoiseStack.LayerCount".Translate() + layerCount.ToString(CultureInfo.InvariantCulture));
         listingStandard.IntAdjuster(ref layerCount, 1);
         while (entry.Layers.Count > layerCount) entry.Layers.RemoveAt(entry.Layers.Count - 1);
-        while (entry.Layers.Count < layerCount) entry.Layers.Add(new GenNoiseLayer(pullDefaultsFrom, Settings.SelectedApplyMethod));
+        while (entry.Layers.Count < layerCount) entry.Layers.Add(new GenNoiseLayer(pullDefaultsFrom, SelectedApplyMethod));
 
         listingStandard.Gap();
         for (var i = 0; i < entry.Layers.Count; i++)

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using GeologicalLandforms.TerrainGraph;
 using RimWorld;
 using RimWorld.Planet;
 using Verse;
@@ -42,19 +43,19 @@ public class WorldTileInfo
         if (!info.Biome.canBuildBase) return; 
         if (Main.ExcludedBiomePrefixes.Any(info.Biome.defName.StartsWith)) return;
 
-        List<Landform> landforms = Main.Settings.Landforms.Values.Where(e => e.CheckConditions(info)).ToList();
+        List<Landform> landforms = LandformManager.Landforms.Values.Where(e => e.WorldTileReq?.CheckRequirements(info) ?? false).ToList();
         
-        float sum = Math.Max(1f, landforms.Sum(e => e.Commonness));
+        float sum = Math.Max(1f, landforms.Sum(e => e.WorldTileReq.Commonness));
         float rand = new FloatRange(0f, sum).RandomInRangeSeeded(info.TileId + 1754);
         foreach (Landform landform in landforms)
         {
-            if (rand < landform.Commonness)
+            if (rand < landform.WorldTileReq.Commonness)
             {
                 info.LandformId = landform.Id;
                 return;
             }
 
-            rand -= landform.Commonness;
+            rand -= landform.WorldTileReq.Commonness;
         }
     }
 
