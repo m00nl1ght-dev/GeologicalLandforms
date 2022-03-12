@@ -197,7 +197,7 @@ namespace NodeEditorFramework
 				throw new ArgumentException ();
 			if (!NodeCanvasManager.CheckCanvasCompability (nodeID, hostCanvas.GetType ()))
 				throw new UnityException ("Cannot create Node with ID '" + nodeID + "' as it is not compatible with the current canavs type (" + hostCanvas.GetType ().ToString () + ")!");
-			if (!hostCanvas.CanAddNode (nodeID))
+			if (!hostCanvas.CanAddNode (nodeID, false))
 				throw new UnityException ("Cannot create Node with ID '" + nodeID + "' on the current canvas of type (" + hostCanvas.GetType ().ToString () + ")!");
 
 			// Create node from data

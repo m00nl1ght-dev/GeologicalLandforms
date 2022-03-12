@@ -121,15 +121,23 @@
         <Compile Include="NodeEditorFramework\Node_Editor_Framework\Standard\CalculationBase\CanvasCalculator.cs" />
         <Compile Include="NodeEditorFramework\Node_Editor_Framework\Standard\Interface\NodeEditorInterface.cs" />
         <Compile Include="NodeEditorFramework\Node_Editor_Framework\Standard\IOFormats\XMLImportExport.cs" />
+        <Compile Include="Patches\RimWorld_MapGenerator.cs" />
         <Compile Include="TerrainGraph\LandformManager.cs" />
-        <Compile Include="TerrainGraph\Nodes\AbstractLandformGraphNode.cs" />
-        <Compile Include="TerrainGraph\Nodes\NodeLandformManifest.cs" />
-        <Compile Include="TerrainGraph\Nodes\NodeVerseUI.cs" />
-        <Compile Include="TerrainGraph\Nodes\NodeWorldTileReq.cs" />
+        <Compile Include="TerrainGraph\Nodes\Float\ConnectionFloat.cs" />
+        <Compile Include="TerrainGraph\Nodes\Float\NodeFloatOperator.cs" />
+        <Compile Include="TerrainGraph\Nodes\Float\NodeFloatRandom.cs" />
+        <Compile Include="TerrainGraph\Nodes\Grid\NodeGridRotate.cs" />
+        <Compile Include="TerrainGraph\Nodes\NodeBase.cs" />
         <Compile Include="TerrainGraph\LandformCalculator.cs" />
         <Compile Include="TerrainGraph\Landform.cs" />
         <Compile Include="TerrainGraph\LandformGraphInterface.cs" />
         <Compile Include="TerrainGraph\LandformGraphEditor.cs" />
+        <Compile Include="TerrainGraph\Nodes\Grid\NodeGridOperator.cs" />
+        <Compile Include="TerrainGraph\Nodes\Grid\NodeGridPerlin.cs" />
+        <Compile Include="TerrainGraph\Nodes\Grid\ConnectionGridModule.cs" />
+        <Compile Include="TerrainGraph\Nodes\UI\NodeUILandformManifest.cs" />
+        <Compile Include="TerrainGraph\Nodes\UI\NodeUIBase.cs" />
+        <Compile Include="TerrainGraph\Nodes\UI\NodeUIWorldTileReq.cs" />
         <Compile Include="Util\SmoothMax.cs" />
         <Compile Include="Util\SmoothMin.cs" />
         <Compile Include="WorldTileInfo.cs" />
@@ -241,6 +249,9 @@
       <Content Include="NodeEditorFramework\Node_Editor_Framework\Standard\Seneral.NodeEditorFramework.Standard.asmdef.meta" />
       <Content Include="NodeEditorFramework\README.md" />
       <Content Include="todo.txt" />
+    </ItemGroup>
+    <ItemGroup>
+      <Folder Include="TerrainGraph\Nodes\Terrain" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -3,11 +3,11 @@ using NodeEditorFramework;
 using UnityEngine;
 using Verse;
 
-namespace GeologicalLandforms.TerrainGraph.Nodes;
+namespace GeologicalLandforms.TerrainGraph;
 
 [Serializable]
 [Node(false, "Landform Manifest")]
-public class NodeLandformManifest : NodeVerseUI
+public class NodeUILandformManifest : NodeUIBase
 {
     public const string ID = "landformManifest";
     public override string GetID => ID;
@@ -25,8 +25,8 @@ public class NodeLandformManifest : NodeVerseUI
     {
         GUI.enabled = Landform.IsCustom;
         
-        string newId = GuiUtils.TextEntry(listing, "GeologicalLandforms.Settings.Landform.Id".Translate(), Id ?? "", 120f);
-        DisplayName = GuiUtils.TextEntry(listing, "GeologicalLandforms.Settings.Landform.DisplayName".Translate(), DisplayName, 120f);
+        string newId = GuiUtils.TextEntry(listing, "GeologicalLandforms.Settings.Landform.Id".Translate(), Id ?? "", 150f);
+        DisplayName = GuiUtils.TextEntry(listing, "GeologicalLandforms.Settings.Landform.DisplayName".Translate(), DisplayName, 150f);
         listing.CheckboxLabeled("GeologicalLandforms.Settings.Landform.DisplayNameHasDirection".Translate(), ref DisplayNameHasDirection);
         listing.Gap();
 

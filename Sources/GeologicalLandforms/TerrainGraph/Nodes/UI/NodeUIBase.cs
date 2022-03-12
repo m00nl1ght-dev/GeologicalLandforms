@@ -1,9 +1,9 @@
 using UnityEngine;
 using Verse;
 
-namespace GeologicalLandforms.TerrainGraph.Nodes;
+namespace GeologicalLandforms.TerrainGraph;
 
-public abstract class NodeVerseUI : AbstractLandformGraphNode
+public abstract class NodeUIBase : NodeBase
 {
     protected virtual float Padding => 15f;
     

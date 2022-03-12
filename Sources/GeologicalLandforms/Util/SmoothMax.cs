@@ -18,12 +18,17 @@ public class SmoothMax : ModuleBase
     {
         var valA = modules[0].GetValue(x, y, z);
         var valB = modules[1].GetValue(x, y, z);
+
+        return Of(valA, valB, Smoothness);
+    }
+
+    public static double Of(double a, double b, double smoothness)
+    {
+        if (smoothness <= 0f) return Math.Max(a, b);
         
-        if (Smoothness <= 0f) return Math.Max(valA, valB);
+        double max = Math.Max(a, b) * smoothness;
+        double min = Math.Min(a, b) * smoothness;
         
-        double max = Math.Max(valA, valB) * Smoothness;
-        double min = Math.Min(valA, valB) * Smoothness;
-        
-        return (max + Math.Log(1f + Math.Exp(min - max))) / Smoothness;
+        return (max + Math.Log(1f + Math.Exp(min - max))) / smoothness;
     }
 }

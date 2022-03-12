@@ -5,11 +5,11 @@ using RimWorld.Planet;
 using UnityEngine;
 using Verse;
 
-namespace GeologicalLandforms.TerrainGraph.Nodes;
+namespace GeologicalLandforms.TerrainGraph;
 
 [Serializable]
 [Node(false, "World Tile Requirements")]
-public class NodeWorldTileReq : NodeVerseUI
+public class NodeUIWorldTileReq : NodeUIBase
 {
     public const string ID = "worldTileReq";
     public override string GetID => ID;
@@ -46,8 +46,9 @@ public class NodeWorldTileReq : NodeVerseUI
         if (RequireCaves && !worldTile.World.HasCaves(worldTile.TileId)) return false;
 
         MapParent mapParent = Find.WorldObjects.MapParentAt(worldTile.TileId);
-        if (!AllowSettlements && mapParent is Settlement) return false;
-        if (!AllowSites && mapParent is Site) return false;
+        bool isPlayer = mapParent.Faction is { IsPlayer: true };
+        if (!AllowSettlements && mapParent is Settlement && !isPlayer) return false;
+        if (!AllowSites && mapParent is Site && !isPlayer) return false;
 
         IntVec3 expectedMapSize = mapParent is Site site ? site.PreferredMapSize : Find.World.info.initialMapSize;
         int expectedMapSizeInt = Math.Min(expectedMapSize.x, expectedMapSize.z);
@@ -64,10 +65,10 @@ public class NodeWorldTileReq : NodeVerseUI
 
     protected override void DoWindowContents(Listing_Standard listing)
     {
-        GuiUtils.Dropdown(listing, "GeologicalLandforms.Settings.Landform.Topology".Translate(), Topology, e => Topology = e, 120f, "GeologicalLandforms.Settings.Landform.Topology");
+        GuiUtils.Dropdown(listing, "GeologicalLandforms.Settings.Landform.Topology".Translate(), Topology, e => Topology = e, 150f, "GeologicalLandforms.Settings.Landform.Topology");
         GuiUtils.CenteredLabel(listing, "GeologicalLandforms.Settings.Landform.Commonness".Translate(), Math.Round(Commonness, 2).ToString(CultureInfo.InvariantCulture));
         Commonness = listing.Slider(Commonness, 0f, 1f);
-        listing.Gap(18f);
+        listing.Gap();
         
         GuiUtils.FloatRangeSlider(listing, ref HillinessRequirement, "GeologicalLandforms.Settings.Landform.HillinessRequirement".Translate(), 1f, 5f);
         GuiUtils.FloatRangeSlider(listing, ref RoadRequirement, "GeologicalLandforms.Settings.Landform.RoadRequirement".Translate(), 0f, 1f);
@@ -77,7 +78,7 @@ public class NodeWorldTileReq : NodeVerseUI
         GuiUtils.FloatRangeSlider(listing, ref RainfallRequirement, "GeologicalLandforms.Settings.Landform.RainfallRequirement".Translate(), 0f, 5000f);
         GuiUtils.FloatRangeSlider(listing, ref SwampinessRequirement, "GeologicalLandforms.Settings.Landform.SwampinessRequirement".Translate(), 0f, 1f);
         GuiUtils.FloatRangeSlider(listing, ref MapSizeRequirement, "GeologicalLandforms.Settings.Landform.MapSizeRequirement".Translate(), 50f, 1000f);
-        listing.Gap(18f);
+        listing.Gap();
         
         listing.CheckboxLabeled("GeologicalLandforms.Settings.Landform.AllowSettlements".Translate(), ref AllowSettlements);
         listing.CheckboxLabeled("GeologicalLandforms.Settings.Landform.AllowSites".Translate(), ref AllowSites);

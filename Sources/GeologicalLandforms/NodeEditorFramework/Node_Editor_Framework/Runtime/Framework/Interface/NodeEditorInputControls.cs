@@ -20,7 +20,7 @@ namespace NodeEditorFramework
 			List<string> nodes = NodeTypes.getCompatibleNodes (state.connectKnob);
 			foreach (string node in nodes)
 			{ // Only add nodes to the context menu that are compatible
-				if (NodeCanvasManager.CheckCanvasCompability (node, inputInfo.editorState.canvas.GetType ()) && inputInfo.editorState.canvas.CanAddNode (node))
+				if (NodeCanvasManager.CheckCanvasCompability (node, inputInfo.editorState.canvas.GetType ()) && inputInfo.editorState.canvas.CanAddNode (node, true))
 				{
 					canvasContextMenu.AddItem (new GUIContent ("" + NodeTypes.getNodeData(node).adress), false, CreateNodeCallback, new NodeEditorInputInfo (node, state));
 				}
@@ -57,7 +57,7 @@ namespace NodeEditorFramework
 		private static void DuplicateNode (NodeEditorInputInfo inputInfo) 
 		{
 			NodeEditorState state = inputInfo.editorState;
-			if (state.focusedNode != null && state.canvas.CanAddNode (state.focusedNode.GetID)) 
+			if (state.focusedNode != null && state.canvas.CanAddNode (state.focusedNode.GetID, true)) 
 			{ // Create new node of same type
 				Node.Create (state.focusedNode.GetID, NodeEditor.ScreenToCanvasSpace (inputInfo.inputPos), state.canvas, state.connectKnob);
 				state.connectKnob = null;

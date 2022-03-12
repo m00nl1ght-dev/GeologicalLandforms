@@ -232,13 +232,15 @@ namespace NodeEditorFramework.IO
 					if (field != null)
 						field.SetValue(node, varData.refObject != null ? varData.refObject.data : varData.value);
 				}
+				
+				ConnectionPortManager.UpdateRepresentativePortLists(node);
 			}
 
 			foreach (ConnectionData conData in canvasData.connections)
 			{ // Restore all connections
 				if (conData.port1.port == null || conData.port2.port == null)
 				{ // Not all ports where saved in canvasData
-					Debug.Log("Incomplete connection " + conData.port1.name + " and " + conData.port2.name + "!");
+					Log.Error("Incomplete connection " + conData.port1.name + " and " + conData.port2.name + "!");
 					continue;
 				}
 				conData.port1.port.TryApplyConnection(conData.port2.port, true);

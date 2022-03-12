@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Reflection.Emit;
 using GeologicalLandforms.TerrainGraph;
@@ -10,40 +9,22 @@ using Verse.Noise;
 
 namespace GeologicalLandforms.Patches;
 
-[HarmonyPatch(typeof (GenStep_ElevationFertility), nameof(GenStep_ElevationFertility.Generate))]
+[HarmonyPatch(typeof(GenStep_ElevationFertility), nameof(GenStep_ElevationFertility.Generate))]
 internal static class RimWorld_GenStep_ElevationFertility
 {
-    private static WorldTileInfo _worldTileInfo;
-    private static GenNoiseConfig _noiseConfig;
-    
     [HarmonyPriority(Priority.VeryHigh)]
     [HarmonyBefore("com.configurablemaps.rimworld.mod")]
     private static bool Prefix(Map map, GenStepParams parms)
     {
-        _worldTileInfo = WorldTileInfo.GetWorldTileInfo(map.Tile);
-        LandformManager.Landforms.TryGetValue(_worldTileInfo.LandformId, out Landform landform);
-        // _noiseConfig = landform?.GenConfig; TODO
-        if (_noiseConfig == null) return true;
+        // if there is no landform on this tile, let vanilla gen or other mods handle it
+        if (Landform.GeneratingLandform == null) return true;
+
+        ModuleBase elevationModule = BuildDefaultElevationModule(map);
+        ModuleBase fertilityModule = BuildDefaultFertilityModule(map);
         
-        int mapSizeInt = Math.Min(map.Size.x, map.Size.z);
-        if (landform != null && !landform.WorldTileReq.MapSizeRequirement.Includes(mapSizeInt)) return true;
-        
-        GenNoiseStack noiseStackElevation = _noiseConfig.NoiseStacks.TryGetValue(GenNoiseConfig.NoiseType.Elevation);
-        noiseStackElevation ??= new GenNoiseStack(GenNoiseConfig.NoiseType.Elevation);
-        
-        GenNoiseStack noiseStackFertility = _noiseConfig.NoiseStacks.TryGetValue(GenNoiseConfig.NoiseType.Fertility);
-        noiseStackFertility ??= new GenNoiseStack(GenNoiseConfig.NoiseType.Fertility);
-
-        ModuleBase elevationModule = noiseStackElevation.BuildModule(_worldTileInfo, map, "Elevation", QualityMode.High);
-        ModuleBase fertilityModule = noiseStackFertility.BuildModule(_worldTileInfo, map, "Fertility", QualityMode.High);
-
-        float hillFactor = 1f + ( GetHillinessFactor(map) - 1f ) * _noiseConfig.HillModifierEffectiveness;
-        elevationModule = new Multiply(elevationModule, new Const(hillFactor));
-
-        if (map.TileInfo.WaterCovered) elevationModule = new Min(elevationModule, new Const(_noiseConfig.MaxElevationIfWaterCovered));
-
         MapGenFloatGrid elevation = MapGenerator.Elevation;
         MapGenFloatGrid fertility = MapGenerator.Fertility;
+        
         foreach (IntVec3 cell in map.AllCells)
         {
             elevation[cell] = elevationModule.GetValue(cell);
@@ -53,29 +34,45 @@ internal static class RimWorld_GenStep_ElevationFertility
         return false;
     }
     
+    /// <summary>
+    /// Disables vanilla cliff generation on mountainous tiles.
+    /// </summary>
     [HarmonyPriority(Priority.First)]
     private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
-        {
-            OpCode lastOpCode = OpCodes.Nop;
-            var patched = false;
+    {
+        OpCode lastOpCode = OpCodes.Nop;
+        var patched = false;
     
-            foreach (CodeInstruction instruction in instructions)
+        foreach (CodeInstruction instruction in instructions)
+        {
+            if (!patched && lastOpCode == OpCodes.Ldfld && instruction.opcode == OpCodes.Ldc_I4_4)
             {
-                if (!patched && lastOpCode == OpCodes.Ldfld && instruction.opcode == OpCodes.Ldc_I4_4)
-                {
-                    patched = true;
-                    lastOpCode = OpCodes.Ldc_I4_5;
-                    yield return new CodeInstruction(lastOpCode);
-                    continue;
-                }
-
-                lastOpCode = instruction.opcode;
-                yield return instruction;
+                patched = true;
+                lastOpCode = OpCodes.Ldc_I4_5;
+                yield return new CodeInstruction(lastOpCode);
+                continue;
             }
-            
-            if (patched == false)
-                Log.Error("Failed to patch RimWorld_GenStep_ElevationFertility");
+
+            lastOpCode = instruction.opcode;
+            yield return instruction;
         }
+            
+        if (patched == false)
+            Log.Error("Failed to patch RimWorld_GenStep_ElevationFertility");
+    }
+
+    public static ModuleBase BuildDefaultElevationModule(Map map)
+    {
+        ModuleBase module = new ScaleBias(0.5, 0.5, new Perlin(0.021, 2, 0.5, 6, Rand.Range(0, int.MaxValue), QualityMode.High));
+        module = new Multiply(module, new Const(GetHillinessFactor(map)));
+        if (map.TileInfo.WaterCovered) module = new Min(module, new Const(0f));
+        return module;
+    }
+    
+    public static ModuleBase BuildDefaultFertilityModule(Map map)
+    {
+        return new ScaleBias(0.5, 0.5, new Perlin(0.021, 2, 0.5, 6, Rand.Range(0, int.MaxValue), QualityMode.High));
+    }
 
     public static float GetHillinessFactor(Map map)
     {

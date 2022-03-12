@@ -32,7 +32,7 @@ namespace NodeEditorFramework.Standard
 				rootNode = Node.Create (rootNodeID, Vector2.zero, this, null, true) as RootGraphNode;
 		}
 
-		public override bool CanAddNode (string nodeID)
+		public override bool CanAddNode (string nodeID, bool isEditorAction)
 		{
 			//Debug.Log ("Check can add node " + nodeID);
 			if (nodeID == rootNodeID)

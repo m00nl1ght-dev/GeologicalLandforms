@@ -99,7 +99,7 @@ internal static class RimWorld_WITab_Terrain
             if (Widgets.ButtonText(rect, "GeologicalLandforms.WorldMap.FindLandform".Translate()))
             {
                 List<FloatMenuOption> options = LandformManager.Landforms.Values.Select(e => 
-                    new FloatMenuOption(e.TranslatedName.CapitalizeFirst(), () => FindLandform(e))).ToList();
+                    new FloatMenuOption(e.TranslatedNameForSelection.CapitalizeFirst(), () => FindLandform(e))).ToList();
                 Find.WindowStack.Add(new FloatMenu(options));
             }
         }

@@ -16,9 +16,7 @@ namespace NodeEditorFramework.Standard
 
 		public List<string> labels = new List<string>();
 		private string newLabel = "";
-
-		private ValueConnectionKnobAttribute dynaCreationAttribute = new ValueConnectionKnobAttribute("Output", Direction.Out, "System.String");
-
+		
 		public override void NodeGUI()
 		{
 			if (dynamicConnectionPorts.Count != labels.Count)
@@ -26,7 +24,7 @@ namespace NodeEditorFramework.Standard
 				while (dynamicConnectionPorts.Count > labels.Count)
 					DeleteConnectionPort(dynamicConnectionPorts.Count - 1);
 				while (dynamicConnectionPorts.Count < labels.Count)
-					CreateValueConnectionKnob(dynaCreationAttribute);
+					CreateValueConnectionKnob(new ValueConnectionKnobAttribute("Output " + labels.Count, Direction.Out, "System.String"));
 			}
 
 			GUILayout.Label("This node resizes to fit all inputs!");
@@ -37,7 +35,7 @@ namespace NodeEditorFramework.Standard
 			if (GUILayout.Button("Add", GUILayout.ExpandWidth(false)))
 			{
 				labels.Add(newLabel);
-				CreateValueConnectionKnob(dynaCreationAttribute);
+				CreateValueConnectionKnob(new ValueConnectionKnobAttribute("Output " + labels.Count, Direction.Out, "System.String"));
 			}
 			GUILayout.EndHorizontal();
 

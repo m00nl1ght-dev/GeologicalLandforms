@@ -79,7 +79,7 @@ namespace NodeEditorFramework
 
 		public virtual void OnBeforeSavingCanvas () { }
 
-		public virtual bool CanAddNode (string nodeID) { return true; }
+		public virtual bool CanAddNode (string nodeID, bool isEditorAction) { return true; }
 		
 		public virtual bool CanDeleteNode (Node node) { return true; }
 

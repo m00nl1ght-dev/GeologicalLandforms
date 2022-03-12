@@ -7,7 +7,7 @@ using Verse.Noise;
 
 namespace GeologicalLandforms.Patches;
 
-[HarmonyPatch(typeof (BeachMaker))]
+[HarmonyPatch(typeof(BeachMaker))]
 internal static class RimWorld_BeachMaker
 {
     private static WorldTileInfo _worldTileInfo;
