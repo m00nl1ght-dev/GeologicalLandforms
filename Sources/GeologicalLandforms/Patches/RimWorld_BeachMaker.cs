@@ -1,5 +1,5 @@
 using System;
-using GeologicalLandforms.TerrainGraph;
+using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using RimWorld;
 using Verse;
@@ -24,6 +24,7 @@ internal static class RimWorld_BeachMaker
         _worldTileInfo = WorldTileInfo.GetWorldTileInfo(map.Tile);
         LandformManager.Landforms.TryGetValue(_worldTileInfo.LandformId, out Landform landform);
         // _noiseConfig = landform?.GenConfig; TODO
+        _noiseConfig = null;
         if (_noiseConfig == null) return true;
         
         int mapSizeInt = Math.Min(map.Size.x, map.Size.z);

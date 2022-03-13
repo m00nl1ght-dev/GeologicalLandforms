@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Reflection.Emit;
-using GeologicalLandforms.TerrainGraph;
+using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using RimWorld;
 using RimWorld.Planet;

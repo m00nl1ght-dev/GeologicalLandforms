@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
-using GeologicalLandforms.TerrainGraph;
+using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using RimWorld.Planet;
 using UnityEngine;

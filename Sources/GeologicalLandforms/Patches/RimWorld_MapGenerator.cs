@@ -1,6 +1,5 @@
-using GeologicalLandforms.TerrainGraph;
+using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
-using RimWorld;
 using Verse;
 
 namespace GeologicalLandforms.Patches;

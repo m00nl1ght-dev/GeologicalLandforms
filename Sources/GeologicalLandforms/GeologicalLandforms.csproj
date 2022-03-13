@@ -8,14 +8,14 @@
         <OutputType>Library</OutputType>
         <AppDesignerFolder>Properties</AppDesignerFolder>
         <RootNamespace>GeologicalLandforms</RootNamespace>
-        <AssemblyName>GeologicalLandforms</AssemblyName>
+        <AssemblyName>1_GeologicalLandforms</AssemblyName>
         <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
         <FileAlignment>512</FileAlignment>
         <LangVersion>default</LangVersion>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
         <PlatformTarget>AnyCPU</PlatformTarget>
-        <DebugSymbols>true</DebugSymbols>
+        <DebugSymbols>false</DebugSymbols>
         <DebugType>full</DebugType>
         <Optimize>false</Optimize>
         <OutputPath>..\..\Assemblies</OutputPath>
@@ -31,7 +31,7 @@
         <DefineConstants>TRACE</DefineConstants>
         <ErrorReport>prompt</ErrorReport>
         <WarningLevel>4</WarningLevel>
-        <DebugSymbols>true</DebugSymbols>
+        <DebugSymbols>false</DebugSymbols>
     </PropertyGroup>
     <ItemGroup>
         <Reference Include="0Harmony, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null">
@@ -71,75 +71,17 @@
         <Compile Include="GenConfig\GenNoiseConfig.cs" />
         <Compile Include="GenConfig\GenNoiseLayer.cs" />
         <Compile Include="GenConfig\GenNoiseStack.cs" />
-        <Compile Include="GuiUtils.cs" />
-        <Compile Include="NodeEditorFramework\Examples\FloatCalculation\CalcNode.cs" />
-        <Compile Include="NodeEditorFramework\Examples\FloatCalculation\DisplayNode.cs" />
-        <Compile Include="NodeEditorFramework\Examples\FloatCalculation\FloatCalculation.cs" />
-        <Compile Include="NodeEditorFramework\Examples\FloatCalculation\InputNode.cs" />
-        <Compile Include="NodeEditorFramework\Examples\FrameworkExtends\ExtendedRTNodeEditor.cs" />
-        <Compile Include="NodeEditorFramework\Examples\FrameworkExtends\ExtendsRuntimeAssembly\ExtendNodeEditorState.cs" />
-        <Compile Include="NodeEditorFramework\Examples\GraphCanvas\GraphCanvasType.cs" />
-        <Compile Include="NodeEditorFramework\Examples\GraphCanvas\GraphTraversal.cs" />
-        <Compile Include="NodeEditorFramework\Examples\GraphCanvas\RootGraphNode.cs" />
-        <Compile Include="NodeEditorFramework\Examples\Nodes\AllAroundNode.cs" />
-        <Compile Include="NodeEditorFramework\Examples\Nodes\ExampleNode.cs" />
-        <Compile Include="NodeEditorFramework\Examples\Nodes\FlowNode.cs" />
-        <Compile Include="NodeEditorFramework\Examples\Nodes\ResizingNode.cs" />
-        <Compile Include="NodeEditorFramework\Examples\Runtime\RTCanvasCalculator.cs" />
-        <Compile Include="NodeEditorFramework\Examples\Runtime\RTNodeEditor.cs" />
-        <Compile Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\CoreExtensions\ConnectionPortStyles.cs" />
-        <Compile Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\CoreExtensions\NodeCanvasTypes.cs" />
-        <Compile Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\CoreExtensions\NodeTypes.cs" />
-        <Compile Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\Core\ConnectionKnob.cs" />
-        <Compile Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\Core\ConnectionPort.cs" />
-        <Compile Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\Core\ConnectionPortManager.cs" />
-        <Compile Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\Core\Node.cs" />
-        <Compile Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\Core\NodeCanvas.cs" />
-        <Compile Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\Core\NodeCanvasTraversal.cs" />
-        <Compile Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\Core\NodeEditorState.cs" />
-        <Compile Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\Core\NodeGroup.cs" />
-        <Compile Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\Core\ValueConnectionKnob.cs" />
-        <Compile Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\Interface\NodeEditorCallbackReceiver.cs" />
-        <Compile Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\Interface\NodeEditorGUI.cs" />
-        <Compile Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\Interface\NodeEditorInputControls.cs" />
-        <Compile Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\Interface\NodeEditorInputSystem.cs" />
-        <Compile Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\Interface\NodeEditorUndoActions.cs" />
-        <Compile Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\NodeEditor.cs" />
-        <Compile Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\SaveSystem\ImportExportFormat.cs" />
-        <Compile Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\SaveSystem\ImportExportManager.cs" />
-        <Compile Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\SaveSystem\ImportExportStructure.cs" />
-        <Compile Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\SaveSystem\NodeCanvasSceneSave.cs" />
-        <Compile Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\SaveSystem\NodeEditorSaveManager.cs" />
-        <Compile Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\SaveSystem\NodeEditorUserCache.cs" />
-        <Compile Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Utilities\EditorLoadingControl.cs" />
-        <Compile Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Utilities\GUI\GUIScaleUtility.cs" />
-        <Compile Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Utilities\GUI\OverlayGUI.cs" />
-        <Compile Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Utilities\GUI\RTEditorGUI.cs" />
-        <Compile Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Utilities\ReflectionUtility.cs" />
-        <Compile Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Utilities\ResourceManager.cs" />
-        <Compile Include="NodeEditorFramework\Node_Editor_Framework\Standard\CalculationBase\CalculationCanvasType.cs" />
-        <Compile Include="NodeEditorFramework\Node_Editor_Framework\Standard\CalculationBase\CanvasCalculator.cs" />
-        <Compile Include="NodeEditorFramework\Node_Editor_Framework\Standard\Interface\NodeEditorInterface.cs" />
-        <Compile Include="NodeEditorFramework\Node_Editor_Framework\Standard\IOFormats\XMLImportExport.cs" />
+        <Compile Include="GraphEditor\LandformGraphEditor.cs" />
+        <Compile Include="GraphEditor\LandformGraphInterface.cs" />
+        <Compile Include="GraphEditor\Nodes\Grid\NodeGridPerlin.cs" />
+        <Compile Include="GraphEditor\Nodes\UI\NodeUIBase.cs" />
+        <Compile Include="GraphEditor\Nodes\UI\NodeUILandformManifest.cs" />
+        <Compile Include="GraphEditor\Nodes\UI\NodeUIWorldTileReq.cs" />
+        <Compile Include="Landform.cs" />
+        <Compile Include="LandformManager.cs" />
         <Compile Include="Patches\RimWorld_MapGenerator.cs" />
-        <Compile Include="TerrainGraph\LandformManager.cs" />
-        <Compile Include="TerrainGraph\Nodes\Float\ConnectionFloat.cs" />
-        <Compile Include="TerrainGraph\Nodes\Float\NodeFloatOperator.cs" />
-        <Compile Include="TerrainGraph\Nodes\Float\NodeFloatRandom.cs" />
-        <Compile Include="TerrainGraph\Nodes\Grid\NodeGridRotate.cs" />
-        <Compile Include="TerrainGraph\Nodes\NodeBase.cs" />
-        <Compile Include="TerrainGraph\LandformCalculator.cs" />
-        <Compile Include="TerrainGraph\Landform.cs" />
-        <Compile Include="TerrainGraph\LandformGraphInterface.cs" />
-        <Compile Include="TerrainGraph\LandformGraphEditor.cs" />
-        <Compile Include="TerrainGraph\Nodes\Grid\NodeGridOperator.cs" />
-        <Compile Include="TerrainGraph\Nodes\Grid\NodeGridPerlin.cs" />
-        <Compile Include="TerrainGraph\Nodes\Grid\ConnectionGridModule.cs" />
-        <Compile Include="TerrainGraph\Nodes\UI\NodeUILandformManifest.cs" />
-        <Compile Include="TerrainGraph\Nodes\UI\NodeUIBase.cs" />
-        <Compile Include="TerrainGraph\Nodes\UI\NodeUIWorldTileReq.cs" />
-        <Compile Include="Util\SmoothMax.cs" />
-        <Compile Include="Util\SmoothMin.cs" />
+        <Compile Include="Util\BiasedDistFromXZ.cs" />
+        <Compile Include="Util\GuiUtils.cs" />
         <Compile Include="WorldTileInfo.cs" />
         <Compile Include="Topology.cs" />
         <Compile Include="Main.cs" />
@@ -149,109 +91,13 @@
         <Compile Include="Patches\RimWorld_WITab_Terrain.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
         <Compile Include="Settings.cs" />
-        <Compile Include="Util\BiasedDistFromXZ.cs" />
         <Compile Include="Util\Rot6.cs" />
     </ItemGroup>
     <ItemGroup>
-      <Content Include="NodeEditorFramework\Examples\FloatCalculation\CalcNode.cs.meta" />
-      <Content Include="NodeEditorFramework\Examples\FloatCalculation\DisplayNode.cs.meta" />
-      <Content Include="NodeEditorFramework\Examples\FloatCalculation\FloatCalculation.cs.meta" />
-      <Content Include="NodeEditorFramework\Examples\FloatCalculation\InputNode.cs.meta" />
-      <Content Include="NodeEditorFramework\Examples\FrameworkExtends\ExtendedRTNodeEditor.cs.meta" />
-      <Content Include="NodeEditorFramework\Examples\FrameworkExtends\ExtendsRuntimeAssembly.meta" />
-      <Content Include="NodeEditorFramework\Examples\FrameworkExtends\ExtendsRuntimeAssembly\ExtendNodeEditorState.cs.meta" />
-      <Content Include="NodeEditorFramework\Examples\FrameworkExtends\ExtendsRuntimeAssembly\NEFRuntimeAssemblyReference.asmref" />
-      <Content Include="NodeEditorFramework\Examples\FrameworkExtends\ExtendsRuntimeAssembly\NEFRuntimeAssemblyReference.asmref.meta" />
-      <Content Include="NodeEditorFramework\Examples\FrameworkExtends\ExtendsUsage.md" />
-      <Content Include="NodeEditorFramework\Examples\FrameworkExtends\ExtendsUsage.md.meta" />
-      <Content Include="NodeEditorFramework\Examples\GraphCanvas\GraphCanvasType.cs.meta" />
-      <Content Include="NodeEditorFramework\Examples\GraphCanvas\GraphTraversal.cs.meta" />
-      <Content Include="NodeEditorFramework\Examples\GraphCanvas\RootGraphNode.cs.meta" />
-      <Content Include="NodeEditorFramework\Examples\Nodes\AllAroundNode.cs.meta" />
-      <Content Include="NodeEditorFramework\Examples\Nodes\ExampleNode.cs.meta" />
-      <Content Include="NodeEditorFramework\Examples\Nodes\FlowNode.cs.meta" />
-      <Content Include="NodeEditorFramework\Examples\Nodes\ResizingNode.cs.meta" />
-      <Content Include="NodeEditorFramework\Examples\Runtime\RTCanvasCalculator.cs.meta" />
-      <Content Include="NodeEditorFramework\Examples\Runtime\RTNodeEditor.cs.meta" />
-      <Content Include="NodeEditorFramework\LICENSE" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\CoreExtensions\ConnectionPortStyles.cs.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\CoreExtensions\NodeCanvasTypes.cs.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\CoreExtensions\NodeTypes.cs.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\Core\ConnectionKnob.cs.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\Core\ConnectionPort.cs.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\Core\ConnectionPortManager.cs.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\Core\Node.cs.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\Core\NodeCanvas.cs.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\Core\NodeCanvasTraversal.cs.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\Core\NodeEditorState.cs.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\Core\NodeGroup.cs.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\Core\ValueConnectionKnob.cs.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\Interface\NodeEditorCallbackReceiver.cs.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\Interface\NodeEditorGUI.cs.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\Interface\NodeEditorInputControls.cs.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\Interface\NodeEditorInputSystem.cs.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\Interface\NodeEditorUndoActions.cs.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\NodeEditor.cs.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\SaveSystem\ImportExportFormat.cs.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\SaveSystem\ImportExportManager.cs.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\SaveSystem\ImportExportStructure.cs.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\SaveSystem\NodeCanvasSceneSave.cs.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\SaveSystem\NodeEditorSaveManager.cs.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Framework\SaveSystem\NodeEditorUserCache.cs.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Resources\Shader\LineShader.shader" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Resources\Shader\LineShader.shader.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Resources\Textures\AALine.png" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Resources\Textures\AALine.png.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Resources\Textures\background.png" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Resources\Textures\background.png.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Resources\Textures\expandRight.png" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Resources\Textures\expandRight.png.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Resources\Textures\Icon_Dark.png" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Resources\Textures\Icon_Dark.png.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Resources\Textures\Icon_Light.png" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Resources\Textures\Icon_Light.png.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Resources\Textures\In_Knob.png" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Resources\Textures\In_Knob.png.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Resources\Textures\NE_Box.png" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Resources\Textures\NE_Box.png.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Resources\Textures\NE_Button.png" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Resources\Textures\NE_Button.png.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Resources\Textures\NE_Button_Hover.png" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Resources\Textures\NE_Button_Hover.png.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Resources\Textures\NE_Button_Selected.png" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Resources\Textures\NE_Button_Selected.png.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Resources\Textures\NE_SelectedBG.png" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Resources\Textures\NE_SelectedBG.png.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Resources\Textures\NE_Toolbar.png" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Resources\Textures\NE_Toolbar.png.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Resources\Textures\NE_ToolbarButton.png" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Resources\Textures\NE_ToolbarButton.png.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Resources\Textures\NE_ToolbarLabel.png" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Resources\Textures\NE_ToolbarLabel.png.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Resources\Textures\Out_Knob.png" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Resources\Textures\Out_Knob.png.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Seneral.NodeEditorFramework.Runtime.asmdef" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Seneral.NodeEditorFramework.Runtime.asmdef.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Utilities\EditorLoadingControl.cs.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Utilities\GUI.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Utilities\GUI\GUIScaleUtility.cs.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Utilities\GUI\OverlayGUI.cs.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Utilities\GUI\RTEditorGUI.cs.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Utilities\link.xml" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Utilities\link.xml.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Utilities\ReflectionUtility.cs.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Runtime\Utilities\ResourceManager.cs.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Standard\CalculationBase\CalculationCanvasType.cs.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Standard\CalculationBase\CanvasCalculator.cs.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Standard\Interface\NodeEditorInterface.cs.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Standard\IOFormats\XMLImportExport.cs.meta" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Standard\Seneral.NodeEditorFramework.Standard.asmdef" />
-      <Content Include="NodeEditorFramework\Node_Editor_Framework\Standard\Seneral.NodeEditorFramework.Standard.asmdef.meta" />
-      <Content Include="NodeEditorFramework\README.md" />
-      <Content Include="todo.txt" />
-    </ItemGroup>
-    <ItemGroup>
-      <Folder Include="TerrainGraph\Nodes\Terrain" />
+      <ProjectReference Include="..\TerrainGraph\TerrainGraph.csproj">
+        <Project>{b6fbac5c-b4db-411a-885b-fe710846011f}</Project>
+        <Name>TerrainGraph</Name>
+      </ProjectReference>
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

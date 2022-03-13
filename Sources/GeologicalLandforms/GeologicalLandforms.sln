@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeologicalLandforms", "GeologicalLandforms.csproj", "{3D0DE44D-4410-4F16-8E49-85FE38D12051}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TerrainGraph", "..\TerrainGraph\TerrainGraph.csproj", "{B6FBAC5C-B4DB-411A-885B-FE710846011F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{3D0DE44D-4410-4F16-8E49-85FE38D12051}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3D0DE44D-4410-4F16-8E49-85FE38D12051}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3D0DE44D-4410-4F16-8E49-85FE38D12051}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6FBAC5C-B4DB-411A-885B-FE710846011F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6FBAC5C-B4DB-411A-885B-FE710846011F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6FBAC5C-B4DB-411A-885B-FE710846011F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6FBAC5C-B4DB-411A-885B-FE710846011F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

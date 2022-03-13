@@ -77,10 +77,10 @@ public class GenNoiseStack : IExposable
         if (moduleAdd != null) module = new Add(module, moduleAdd);
         
         ModuleBase moduleMin = BuildModule(tile, map, CombineMethod.Min);
-        if (moduleMin != null) module = new SmoothMin(module, moduleMin, MinSmoothness);
+        //if (moduleMin != null) module = new SmoothMin(module, moduleMin, MinSmoothness);
         
         ModuleBase moduleMax = BuildModule(tile, map, CombineMethod.Max);
-        if (moduleMax != null) module = new SmoothMax(module, moduleMax, MaxSmoothness);
+        //if (moduleMax != null) module = new SmoothMax(module, moduleMax, MaxSmoothness);
 
         NoiseDebugUI.StoreNoiseRender(module, name + " combined", new IntVec2(map.Size.x, map.Size.z));
         return module;

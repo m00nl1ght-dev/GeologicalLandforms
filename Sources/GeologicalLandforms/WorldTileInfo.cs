@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using GeologicalLandforms.TerrainGraph;
+using GeologicalLandforms.GraphEditor;
 using RimWorld;
 using RimWorld.Planet;
 using Verse;
