@@ -69,8 +69,9 @@ public class Landform : IExposable
         if (RequireCaves && !worldTile.World.HasCaves(worldTile.TileId)) return false;
 
         MapParent mapParent = Find.WorldObjects.MapParentAt(worldTile.TileId);
-        if (!AllowSettlements && mapParent is Settlement) return false;
-        if (!AllowSites && mapParent is Site) return false;
+        bool isPlayer = mapParent?.Faction is { IsPlayer: true };
+        if (!AllowSettlements && mapParent is Settlement && !isPlayer) return false;
+        if (!AllowSites && mapParent is Site && !isPlayer) return false;
 
         IntVec3 expectedMapSize = mapParent is Site site ? site.PreferredMapSize : Find.World.info.initialMapSize;
         int expectedMapSizeInt = Math.Min(expectedMapSize.x, expectedMapSize.z);
