@@ -14,6 +14,7 @@ public class NodeGridPreview : NodeBase
     public override string Title => "Preview";
     public int PreviewSize => TerrainCanvas?.GridPreviewSize ?? 100;
     public override Vector2 DefaultSize => new(PreviewSize, PreviewSize + 20);
+    public override bool AutoLayout => false;
     
     [ValueConnectionKnob("Input", Direction.In, GridFunctionConnection.Id)]
     public ValueConnectionKnob InputKnob;
@@ -25,7 +26,7 @@ public class NodeGridPreview : NodeBase
     private Texture2D _previewTexture;
 
     [NonSerialized] 
-    private GridFunction _previewFunction;
+    private IGridFunction<double> _previewFunction;
 
     public override void PrepareGUI()
     {
@@ -56,7 +57,7 @@ public class NodeGridPreview : NodeBase
                     double previewRatio = TerrainCanvas.GridPreviewRatio;
                     
                     double x = Math.Max(0, Math.Min(PreviewSize, pos.x)) * previewRatio;
-                    double y = Math.Max(0, Math.Min(PreviewSize, pos.y)) * previewRatio;
+                    double y = GridSize - Math.Max(0, Math.Min(PreviewSize, pos.y)) * previewRatio;
 
                     double value = _previewFunction?.ValueAt(x, y) ?? 0;
                     return Math.Round(value, 2) + " ( " + Math.Round(x, 0) + " | " + Math.Round(y, 0) + " )";
@@ -65,19 +66,19 @@ public class NodeGridPreview : NodeBase
         }
 
         if (GUI.changed)
-            NodeEditor.curNodeCanvas.OnNodeChange(this);
+            canvas.OnNodeChange(this);
     }
 
     public override bool Calculate()
     {
-        OutputKnob.SetValue(InputKnob.GetValue<ISupplier<GridFunction>>());
+        OutputKnob.SetValue(InputKnob.GetValue<ISupplier<IGridFunction<double>>>());
         return true;
     }
 
     public override void RefreshPreview()
     {
         var previewRatio = TerrainCanvas.GridPreviewRatio;
-        _previewFunction = InputKnob.connected() ? InputKnob.GetValue<ISupplier<GridFunction>>().ResetAndGet() : GridFunction.Zero;
+        _previewFunction = InputKnob.connected() ? InputKnob.GetValue<ISupplier<IGridFunction<double>>>().ResetAndGet() : GridFunction.Zero;
         
         for (int x = 0; x < TerrainCanvas.GridPreviewSize; x++)
         {

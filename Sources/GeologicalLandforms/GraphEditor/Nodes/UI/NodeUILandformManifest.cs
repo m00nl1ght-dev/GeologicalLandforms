@@ -43,7 +43,7 @@ public class NodeUILandformManifest : NodeUIBase
         if (Landform.Id != null && IsCustom) base.DrawNode();
     }
 
-    public override void OnCreate(bool initGUI)
+    public override void OnCreate(bool fromGUI)
     {
         if (Landform.Manifest != null && Landform.Manifest != this && canvas.nodes.Contains(Landform.Manifest)) Landform.Manifest.Delete();
         Landform.Manifest = this;

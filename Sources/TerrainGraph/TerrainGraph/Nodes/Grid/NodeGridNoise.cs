@@ -8,8 +8,6 @@ namespace TerrainGraph;
 [Serializable]
 public abstract class NodeGridNoise : NodeBase
 {
-    public override Vector2 DefaultSize => new(200, 195);
-
     protected abstract GridFunction.NoiseFunction NoiseFunction { get; }
     
     [ValueConnectionKnob("Frequency", Direction.In, ValueFunctionConnection.Id)]
@@ -54,7 +52,7 @@ public abstract class NodeGridNoise : NodeBase
         GUILayout.EndVertical();
 
         if (GUI.changed)
-            NodeEditor.curNodeCanvas.OnNodeChange(this);
+            canvas.OnNodeChange(this);
     }
     
     public override void RefreshPreview()
@@ -68,18 +66,18 @@ public abstract class NodeGridNoise : NodeBase
 
     public override bool Calculate()
     {
-        OutputKnob.SetValue<ISupplier<GridFunction>>(new Output(
-            SupplierOrFixed(FrequencyKnob, Frequency),
-            SupplierOrFixed(LacunarityKnob, Lacunarity),
-            SupplierOrFixed(PersistenceKnob, Persistence),
-            SupplierOrFixed(ScaleKnob, Scale),
-            SupplierOrFixed(BiasKnob, Bias),
+        OutputKnob.SetValue<ISupplier<IGridFunction<double>>>(new Output(
+            SupplierOrValueFixed(FrequencyKnob, Frequency),
+            SupplierOrValueFixed(LacunarityKnob, Lacunarity),
+            SupplierOrValueFixed(PersistenceKnob, Persistence),
+            SupplierOrValueFixed(ScaleKnob, Scale),
+            SupplierOrValueFixed(BiasKnob, Bias),
             Octaves, NoiseFunction, CombinedSeed
         ));
         return true;
     }
     
-    private class Output : ISupplier<GridFunction>
+    private class Output : ISupplier<IGridFunction<double>>
     {
         private readonly GridFunction.NoiseFunction _noiseFunction;
         private readonly ISupplier<double> _frequency;
@@ -105,7 +103,7 @@ public abstract class NodeGridNoise : NodeBase
             _random = new FastRandom(seed);
         }
 
-        public GridFunction Get()
+        public IGridFunction<double> Get()
         {
             return new GridFunction.ScaleWithBias(
                 new GridFunction.NoiseGenerator(

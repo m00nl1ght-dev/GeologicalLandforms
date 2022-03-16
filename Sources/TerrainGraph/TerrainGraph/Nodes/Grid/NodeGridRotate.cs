@@ -12,7 +12,6 @@ public class NodeGridRotate : NodeBase
     public override string GetID => ID;
 
     public override string Title => "Rotate";
-    public override Vector2 DefaultSize => new(200, 85);
     
     [ValueConnectionKnob("Input", Direction.In, GridFunctionConnection.Id)]
     public ValueConnectionKnob InputKnob;
@@ -33,7 +32,7 @@ public class NodeGridRotate : NodeBase
         GUILayout.BeginVertical(BoxStyle);
         
         GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Input");
+        GUILayout.Label("Input", BoxLayout);
         GUILayout.EndHorizontal();
         
         KnobValueField(AngleKnob, ref Angle);
@@ -41,7 +40,7 @@ public class NodeGridRotate : NodeBase
         GUILayout.EndVertical();
 
         if (GUI.changed)
-            NodeEditor.curNodeCanvas.OnNodeChange(this);
+            canvas.OnNodeChange(this);
     }
     
     public override void RefreshPreview()
@@ -51,22 +50,22 @@ public class NodeGridRotate : NodeBase
 
     public override bool Calculate()
     {
-        OutputKnob.SetValue<ISupplier<GridFunction>>(new Output(
-            SupplierOrFixed(InputKnob, GridFunction.Zero), 
-            SupplierOrFixed(AngleKnob, Angle),
+        OutputKnob.SetValue<ISupplier<IGridFunction<double>>>(new Output(
+            SupplierOrGridFixed(InputKnob, GridFunction.Zero), 
+            SupplierOrValueFixed(AngleKnob, Angle),
             GridSize / 2, GridSize / 2
         ));
         return true;
     }
     
-    private class Output : ISupplier<GridFunction>
+    private class Output : ISupplier<IGridFunction<double>>
     {
-        private readonly ISupplier<GridFunction> _input;
+        private readonly ISupplier<IGridFunction<double>> _input;
         private readonly ISupplier<double> _angle;
         private readonly double _pivotX;
         private readonly double _pivotY;
 
-        public Output(ISupplier<GridFunction> input, ISupplier<double> angle, double pivotX, double pivotY)
+        public Output(ISupplier<IGridFunction<double>> input, ISupplier<double> angle, double pivotX, double pivotY)
         {
             _input = input;
             _angle = angle;
@@ -74,9 +73,9 @@ public class NodeGridRotate : NodeBase
             _pivotY = pivotY;
         }
 
-        public GridFunction Get()
+        public IGridFunction<double> Get()
         {
-            return new GridFunction.Rotate(_input.Get(), _pivotX, _pivotY, _angle.Get());
+            return new GridFunction.Rotate<double>(_input.Get(), _pivotX, _pivotY, _angle.Get());
         }
 
         public void ResetState()

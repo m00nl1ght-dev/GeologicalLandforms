@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using NodeEditorFramework;
 using NodeEditorFramework.Utilities;
@@ -17,10 +16,16 @@ public abstract class NodeBase : Node
     public TerrainCanvas TerrainCanvas => (TerrainCanvas) canvas;
     public double GridSize => TerrainCanvas.GridFullSize;
     
+    public override Vector2 MinSize => new(200, 10);
+    public override Vector2 DefaultSize => new(200, 10);
+    public override bool AutoLayout => true;
+
     public int RandSeed = SeedSource.Next();
     public int CombinedSeed => RandSeed ^ TerrainCanvas.RandSeed;
 
     public const int FirstKnobPosition = 37;
+    
+    public GUILayoutOption[] BoxLayout => new[] { GUILayout.Width(DefaultSize.x / 2f - 13f), GUILayout.Height(20f) };
 
     private static GUIStyle _boxStyle;
     public static GUIStyle BoxStyle
@@ -35,10 +40,10 @@ public abstract class NodeBase : Node
         }
     }
     
-    public override void OnCreate(bool initGUI)
+    public override void OnCreate(bool fromGUI)
     {
         RefreshDynamicKnobs();
-        if (initGUI) PrepareGUI();
+        if (fromGUI) PrepareGUI();
     }
 
     public virtual void PrepareGUI() {}
@@ -53,15 +58,19 @@ public abstract class NodeBase : Node
     {
         GUILayout.BeginHorizontal(BoxStyle);
         
-        GUILayout.Label(label ?? knob.name, GUILayout.Width(DefaultSize.x / 2f));
+        GUILayout.Label(label ?? knob.name, BoxLayout);
+        
+        GUILayout.FlexibleSpace();
 
         if (knob.connected())
         {
-            GUILayout.Label(Math.Round(value, 2).ToString(CultureInfo.InvariantCulture));
+            GUI.enabled = false;
+            RTEditorGUI.FloatField(GUIContent.none, (float) Math.Round(value, 2), BoxLayout);
+            GUI.enabled = true;
         }
         else
         {
-            value = RTEditorGUI.FloatField(GUIContent.none, (float) value);
+            value = RTEditorGUI.FloatField(GUIContent.none, (float) value, BoxLayout);
         }
 
         GUILayout.EndHorizontal();
@@ -73,9 +82,11 @@ public abstract class NodeBase : Node
     {
         GUILayout.BeginHorizontal(BoxStyle);
         
-        GUILayout.Label(label, GUILayout.Width(DefaultSize.x / 2f));
+        GUILayout.Label(label, BoxLayout);
         
-        value = RTEditorGUI.FloatField(GUIContent.none, (float) value);
+        GUILayout.FlexibleSpace();
+        
+        value = RTEditorGUI.FloatField(GUIContent.none, (float) value, BoxLayout);
         
         GUILayout.EndHorizontal();
     }
@@ -84,9 +95,11 @@ public abstract class NodeBase : Node
     {
         GUILayout.BeginHorizontal(BoxStyle);
         
-        GUILayout.Label(label, GUILayout.Width(DefaultSize.x / 2f));
+        GUILayout.Label(label, BoxLayout);
         
-        value = RTEditorGUI.IntField(GUIContent.none, value);
+        GUILayout.FlexibleSpace();
+        
+        value = RTEditorGUI.IntField(GUIContent.none, value, BoxLayout);
         
         GUILayout.EndHorizontal();
     }
@@ -94,21 +107,20 @@ public abstract class NodeBase : Node
     public delegate void DropdownHandler(List<string> potentialValues, Action<int> action);
     public static DropdownHandler ActiveDropdownHandler { get; set; }
 
-    public void Dropdown<T>(List<T> potentialValues, Action<T> action, Func<T, string> textFunc = null)
+    public static void Dropdown<T>(List<T> potentialValues, Action<T> action, Func<T, string> textFunc = null)
     {
-        ActiveDropdownHandler?.Invoke(potentialValues.Select(e => textFunc != null ? textFunc.Invoke(e) : e.ToString()).ToList(), i =>
+        ActiveDropdownHandler?.Invoke(potentialValues.Select(e => textFunc != null ? textFunc.Invoke(e) : e?.ToString() ?? "None").ToList(), i =>
         {
             action(potentialValues[i]);
-            NodeEditor.curNodeCanvas.OnNodeChange(this);
         });
     }
 
-    public void Dropdown<T>(Action<T> action) where T : Enum
+    public static void Dropdown<T>(Action<T> action) where T : Enum
     {
         Dropdown(typeof(T).GetEnumValues().Cast<T>().ToList(), action, e => e.ToString().Replace('_', ' '));
     }
     
-    public void SelectionMenu<T>(GenericMenu menu, List<T> potentialValues, Action<T> action, Func<T, string> textFunc = null)
+    public static void SelectionMenu<T>(GenericMenu menu, List<T> potentialValues, Action<T> action, Func<T, string> textFunc = null)
     {
         foreach (T value in potentialValues)
         {
@@ -117,7 +129,7 @@ public abstract class NodeBase : Node
         }
     }
 
-    public void SelectionMenu<T>(GenericMenu menu, Action<T> action, string prefix = "") where T : Enum
+    public static void SelectionMenu<T>(GenericMenu menu, Action<T> action, string prefix = "") where T : Enum
     {
         SelectionMenu(menu, typeof(T).GetEnumValues().Cast<T>().ToList(), action, e => prefix + e.ToString().Replace('_', ' '));
     }
@@ -125,12 +137,12 @@ public abstract class NodeBase : Node
     public delegate void TooltipHandler(Rect rect, Func<string> textFunc, float delay);
     public static TooltipHandler ActiveTooltipHandler { get; set; }
 
-    public void Tooltip(string text, float delay = 0.3f)
+    public static void Tooltip(string text, float delay = 0.3f)
     {
         Tooltip(() => text, delay);
     }
 
-    public void Tooltip(Func<string> textFunc, float delay = 0.3f)
+    public static void Tooltip(Func<string> textFunc, float delay = 0.3f)
     {
         if (Event.current.type == EventType.Repaint)
         {
@@ -138,7 +150,7 @@ public abstract class NodeBase : Node
         }
     }
     
-    protected ISupplier<double> SupplierOrFixed(ValueConnectionKnob input, double fixedValue)
+    protected ISupplier<double> SupplierOrValueFixed(ValueConnectionKnob input, double fixedValue)
     {
         return SupplierOrFallback(input, Supplier.Of(fixedValue));
     }
@@ -147,17 +159,34 @@ public abstract class NodeBase : Node
     {
         return input != null && input.connected() ? input.GetValue<ISupplier<double>>() : fixedValue;
     }
-    
-    protected ISupplier<GridFunction> SupplierOrFixed(ValueConnectionKnob input, GridFunction fixedValue)
+
+    protected ISupplier<IGridFunction<T>> SupplierOrGridFixed<T>(ValueConnectionKnob input, IGridFunction<T> fixedValue)
     {
-        ISupplier<GridFunction> val = null;
-        if (input.connected()) val = input.GetValue<ISupplier<GridFunction>>();
-        if (input == null) val = Supplier.Of(fixedValue);
-        return val;
+        return SupplierOrFixed(input, fixedValue);
+    }
+
+    protected ISupplier<T> SupplierOrFixed<T>(ValueConnectionKnob input, T fixedValue)
+    {
+        ISupplier<T> val = null;
+        if (input.connected()) val = input.GetValue<ISupplier<T>>();
+        return val ?? Supplier.Of(fixedValue);
     }
 
     protected void RefreshIfConnected(ValueConnectionKnob input, ref double value)
     {
         if (input != null && input.connected()) value = input.GetValue<ISupplier<double>>()?.ResetAndGet() ?? 0f;
+    }
+    
+    protected T RefreshIfConnected<T>(ValueConnectionKnob input, T value)
+    {
+        if (input == null || !input.connected()) return value;
+        ISupplier<T> supplier = input.GetValue<ISupplier<T>>();
+        if (supplier == null) return value;
+        return supplier.ResetAndGet();
+    }
+    
+    protected ValueConnectionKnob FindDynamicKnob(ConnectionKnobAttribute attribute)
+    {
+        return (ValueConnectionKnob) dynamicConnectionPorts.FirstOrDefault(k => k.name.Equals(attribute.Name));
     }
 }

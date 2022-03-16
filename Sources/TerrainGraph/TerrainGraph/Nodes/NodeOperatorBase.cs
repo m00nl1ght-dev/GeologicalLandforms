@@ -11,8 +11,6 @@ namespace TerrainGraph;
 public abstract class NodeOperatorBase : NodeBase
 {
     public override string Title => OperationType.ToString().Replace('_', ' ');
-    public override Vector2 MinSize => new(200, 10);
-    public override bool AutoLayout => true;
     
     private static readonly ValueConnectionKnobAttribute ApplyChanceAttribute = new("Apply chance", Direction.In, ValueFunctionConnection.Id);
     private static readonly ValueConnectionKnobAttribute SmoothnessAttribute = new("Smoothness", Direction.In, ValueFunctionConnection.Id);
@@ -29,13 +27,14 @@ public abstract class NodeOperatorBase : NodeBase
     public double ApplyChance = 1f;
     public double Smoothness;
 
+    [NonSerialized]
     public List<ValueConnectionKnob> InputKnobs = new();
 
     public override void RefreshDynamicKnobs()
     {
         InputKnobs = dynamicConnectionPorts.Where(k => k.name.StartsWith("Input")).Cast<ValueConnectionKnob>().ToList();
-        ApplyChanceKnob = (ValueConnectionKnob) dynamicConnectionPorts.FirstOrDefault(k => k.name.Equals(ApplyChanceAttribute.Name));
-        SmoothnessKnob = (ValueConnectionKnob) dynamicConnectionPorts.FirstOrDefault(k => k.name.Equals(SmoothnessAttribute.Name));
+        ApplyChanceKnob = FindDynamicKnob(ApplyChanceAttribute);
+        SmoothnessKnob = FindDynamicKnob(SmoothnessAttribute);
     }
 
     public override void NodeGUI()
@@ -52,7 +51,7 @@ public abstract class NodeOperatorBase : NodeBase
         {
             ValueConnectionKnob knob = InputKnobs[i];
             GUILayout.BeginHorizontal(BoxStyle);
-            GUILayout.Label(i == 0 ? "Base" : ("Input " + i));
+            GUILayout.Label(i == 0 ? "Base" : ("Input " + i), BoxLayout);
             knob.SetPosition();
             GUILayout.EndHorizontal();
         }
@@ -60,7 +59,7 @@ public abstract class NodeOperatorBase : NodeBase
         GUILayout.EndVertical();
 
         if (GUI.changed)
-            NodeEditor.curNodeCanvas.OnNodeChange(this);
+            canvas.OnNodeChange(this);
     }
 
     protected abstract void CreateNewInputKnob();
@@ -79,6 +78,7 @@ public abstract class NodeOperatorBase : NodeBase
                 DeleteConnectionPort(ApplyChanceKnob);
                 RefreshDynamicKnobs();
                 ApplyChance = 1f;
+                canvas.OnNodeChange(this);
             });
         }
         else
@@ -86,6 +86,7 @@ public abstract class NodeOperatorBase : NodeBase
             menu.AddItem(new GUIContent ("Add apply chance"), false, () =>
             {
                 ApplyChanceKnob ??= (ValueConnectionKnob) CreateConnectionKnob(ApplyChanceAttribute);
+                canvas.OnNodeChange(this);
             });
         }
         
@@ -94,6 +95,7 @@ public abstract class NodeOperatorBase : NodeBase
         if (InputKnobs.Count < 20) 
         {
             menu.AddItem(new GUIContent ("Add input"), false, CreateNewInputKnob);
+            canvas.OnNodeChange(this);
         }
         
         if (InputKnobs.Count > 2) 
@@ -102,6 +104,7 @@ public abstract class NodeOperatorBase : NodeBase
             {
                 DeleteConnectionPort(InputKnobs[InputKnobs.Count - 1]);
                 RefreshDynamicKnobs();
+                canvas.OnNodeChange(this);
             });
         }
     }
@@ -109,6 +112,7 @@ public abstract class NodeOperatorBase : NodeBase
     protected void SetOperation(Operation operation)
     {
         OperationType = operation;
+        
         if (operation is Operation.Smooth_Min or Operation.Smooth_Max)
         {
             SmoothnessKnob ??= (ValueConnectionKnob) CreateConnectionKnob(SmoothnessAttribute);
@@ -119,6 +123,8 @@ public abstract class NodeOperatorBase : NodeBase
             RefreshDynamicKnobs();
             Smoothness = 0;
         }
+        
+        canvas.OnNodeChange(this);
     }
 
     public override void RefreshPreview()

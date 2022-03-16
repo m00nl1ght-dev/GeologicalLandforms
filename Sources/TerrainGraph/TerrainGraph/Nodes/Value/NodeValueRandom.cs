@@ -13,7 +13,6 @@ public class NodeValueRandom : NodeBase
     public override string GetID => ID;
 
     public override string Title => "Random Value";
-    public override Vector2 DefaultSize => new(200, 85);
     
     [ValueConnectionKnob("Average", Direction.In, ValueFunctionConnection.Id)]
     public ValueConnectionKnob AverageKnob;
@@ -39,7 +38,7 @@ public class NodeValueRandom : NodeBase
         GUILayout.EndVertical();
 
         if (GUI.changed)
-            NodeEditor.curNodeCanvas.OnNodeChange(this);
+            canvas.OnNodeChange(this);
     }
     
     public override void RefreshPreview()
@@ -51,8 +50,8 @@ public class NodeValueRandom : NodeBase
     public override bool Calculate()
     {
         OutputKnob.SetValue<ISupplier<double>>(new Output(
-            SupplierOrFixed(AverageKnob, Average), 
-            SupplierOrFixed(DeviationKnob, Deviation), 
+            SupplierOrValueFixed(AverageKnob, Average), 
+            SupplierOrValueFixed(DeviationKnob, Deviation), 
             CombinedSeed
         ));
         return true;

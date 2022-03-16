@@ -38,14 +38,14 @@ public class NodeValueOperator : NodeOperatorBase
         {
             ValueConnectionKnob knob = InputKnobs[i];
             var value = Values[i];
-            KnobValueField(knob, ref value, i == 0 ? "Base" : ("Input " + i));
+            KnobValueField(knob, ref value, i == 0 ? "Base" : "Input " + i);
             Values[i] = value;
         }
 
         GUILayout.EndVertical();
 
         if (GUI.changed)
-            NodeEditor.curNodeCanvas.OnNodeChange(this);
+            canvas.OnNodeChange(this);
     }
     
     protected override void CreateNewInputKnob()
@@ -68,13 +68,13 @@ public class NodeValueOperator : NodeOperatorBase
 
     public override bool Calculate()
     {
-        ISupplier<double> applyChance = SupplierOrFixed(ApplyChanceKnob, ApplyChance);
-        ISupplier<double> smoothness = SupplierOrFixed(SmoothnessKnob, Smoothness);
+        ISupplier<double> applyChance = SupplierOrValueFixed(ApplyChanceKnob, ApplyChance);
+        ISupplier<double> smoothness = SupplierOrValueFixed(SmoothnessKnob, Smoothness);
         
         List<ISupplier<double>> inputs = new();
         for (int i = 0; i < Math.Min(Values.Count, InputKnobs.Count); i++)
         {
-            inputs.Add(SupplierOrFixed(InputKnobs[i], Values[i]));
+            inputs.Add(SupplierOrValueFixed(InputKnobs[i], Values[i]));
         }
         
         OutputKnob.SetValue<ISupplier<double>>(new Output(applyChance, inputs, OperationType, smoothness, CombinedSeed));

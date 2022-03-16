@@ -1,5 +1,6 @@
 using System;
 using NodeEditorFramework;
+using RimWorld;
 using UnityEngine;
 using Verse;
 
@@ -11,6 +12,7 @@ public class Landform : TerrainGraph.TerrainCanvas
 {
     public static WorldTileInfo GeneratingWorldTile { get; private set; }
     public static Landform GeneratingLandform { get; private set; }
+    public static BiomeDef GeneratingBiome => GeneratingWorldTile?.Biome ?? BiomeDefOf.TemperateForest;
     
     public string Id => Manifest?.Id;
     public bool IsCustom => Manifest?.IsCustom ?? false;

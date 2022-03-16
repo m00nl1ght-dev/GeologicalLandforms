@@ -95,8 +95,8 @@ namespace NodeEditorFramework
 		/// <summary>
 		/// Initializes the node with Inputs/Outputs and other data if necessary.
 		/// </summary>
-		/// <param name="initGUI"></param>
-		public virtual void OnCreate(bool initGUI) {}
+		/// <param name="fromGUI"></param>
+		public virtual void OnCreate(bool fromGUI) {}
 		
 		/// <summary>
 		/// Draws the Node GUI including all controls and potentially Input/Output labels.
@@ -392,7 +392,7 @@ namespace NodeEditorFramework
 			
 			Rect nodeRect = rect;
 			Vector2 size = new Vector2();
-			size.y = Math.Max(nodeGUIHeight.y, MinSize.y) + 4;
+			size.y = Math.Max(nodeGUIHeight.y, MinSize.y);
 
 			// Account for potential knobs that might occupy horizontal space
 			float knobSize = 0;
@@ -639,6 +639,7 @@ namespace NodeEditorFramework
 
 		public void DeleteConnectionPort(ConnectionPort dynamicPort)
 		{
+			if (dynamicPort == null) return;
 			dynamicPort.ClearConnections ();
 			dynamicConnectionPorts.Remove(dynamicPort);
 			DestroyImmediate(dynamicPort);

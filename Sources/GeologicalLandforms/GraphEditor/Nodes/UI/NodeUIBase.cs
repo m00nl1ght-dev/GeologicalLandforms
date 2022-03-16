@@ -8,6 +8,8 @@ public abstract class NodeUIBase : NodeBase
 {
     public Landform Landform => (Landform) canvas;
     
+    public override bool AutoLayout => false;
+    
     protected virtual float Padding => 15f;
     
     public override void NodeGUI()

@@ -93,7 +93,7 @@ public class NodeUIWorldTileReq : NodeUIBase
         if (Landform.Id != null) base.DrawNode();
     }
 
-    public override void OnCreate(bool initGUI)
+    public override void OnCreate(bool fromGUI)
     {
         if (Landform.WorldTileReq != null && Landform.WorldTileReq != this && canvas.nodes.Contains(Landform.WorldTileReq)) Landform.WorldTileReq.Delete();
         Landform.WorldTileReq = this;
