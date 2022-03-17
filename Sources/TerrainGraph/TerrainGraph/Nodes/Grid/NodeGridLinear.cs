@@ -6,7 +6,7 @@ using UnityEngine;
 namespace TerrainGraph;
 
 [Serializable]
-[Node(false, "Grid/Linear Function")]
+[Node(false, "Grid/Linear Function", 220)]
 public class NodeGridLinear : NodeBase
 {
     public const string ID = "gridLinear";

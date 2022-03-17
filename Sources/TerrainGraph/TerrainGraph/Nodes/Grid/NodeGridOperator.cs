@@ -9,7 +9,7 @@ using UnityEngine;
 namespace TerrainGraph;
 
 [Serializable]
-[Node(false, "Grid/Operator")]
+[Node(false, "Grid/Operator", 211)]
 public class NodeGridOperator : NodeOperatorBase
 {
     public const string ID = "gridOperator";

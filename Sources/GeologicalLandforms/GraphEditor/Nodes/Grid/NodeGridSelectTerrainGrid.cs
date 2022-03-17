@@ -7,10 +7,10 @@ using UnityEngine;
 namespace GeologicalLandforms.GraphEditor;
 
 [Serializable]
-[Node(false, "Grid/Select/Terrain", 201)]
-public class NodeGridSelectTerrain : NodeSelectBase
+[Node(false, "Grid/Select/Terrain Grid", 202)]
+public class NodeGridSelectTerrainGrid : NodeSelectBase
 {
-    public const string ID = "gridSelectTerrain";
+    public const string ID = "gridSelectTerrainGrid";
     public override string GetID => ID;
     
     [ValueConnectionKnob("Input", Direction.In, GridFunctionConnection.Id)]
@@ -36,28 +36,24 @@ public class NodeGridSelectTerrain : NodeSelectBase
 
     protected override void DrawOption(ValueConnectionKnob knob, int i)
     {
-        TerrainData.TerrainSelector(this, Values[i], !knob.connected(), selected =>
+        if (knob.connected())
         {
-            Values[i] = TerrainData.ToString(selected);
-            canvas.OnNodeChange(this);
-        });
+            GUILayout.Label("Option " + (i + 1), BoxLayout);
+        }
+        else
+        {
+            TerrainData.TerrainSelector(this, Values[i], true, selected =>
+            {
+                Values[i] = TerrainData.ToString(selected);
+                canvas.OnNodeChange(this);
+            });
+        }
     }
 
     protected override void CreateNewOptionKnob()
     {
-        CreateValueConnectionKnob(new("Option " + OptionKnobs.Count, Direction.In, TerrainFunctionConnection.Id));
+        CreateValueConnectionKnob(new("Option " + OptionKnobs.Count, Direction.In, TerrainGridFunctionConnection.Id));
         RefreshDynamicKnobs();
-    }
-    
-    public override void RefreshPreview()
-    {
-        base.RefreshPreview();
-        for (int i = 0; i < Math.Min(Values.Count, OptionKnobs.Count); i++)
-        {
-            ValueConnectionKnob knob = OptionKnobs[i];
-            ISupplier<TerrainData> supplier = RefreshIfConnected<TerrainData>(knob);
-            if (supplier != null) Values[i] = supplier.ResetAndGet().ToString();
-        }
     }
 
     public override bool Calculate()
@@ -67,7 +63,7 @@ public class NodeGridSelectTerrain : NodeSelectBase
         List<ISupplier<IGridFunction<TerrainData>>> options = new();
         for (int i = 0; i < Math.Min(Values.Count, OptionKnobs.Count); i++)
         {
-            options.Add(new NodeTerrainGridFromValue.Output(SupplierOrFixed(OptionKnobs[i], TerrainData.FromString(Values[i]))));
+            options.Add(SupplierOrGridFixed(OptionKnobs[i], GridFunction.Of(TerrainData.FromString(Values[i]))));
         }
         
         OutputKnob.SetValue<ISupplier<IGridFunction<TerrainData>>>(new GridOutput<TerrainData>(input, options, Thresholds, PostProcess));

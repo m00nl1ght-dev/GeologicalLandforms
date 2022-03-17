@@ -6,7 +6,7 @@ using Verse;
 namespace GeologicalLandforms.GraphEditor;
 
 [Serializable]
-[Node(false, "Landform Manifest")]
+[Node(false, "Landform Manifest", 0)]
 public class NodeUILandformManifest : NodeUIBase
 {
     public const string ID = "landformManifest";

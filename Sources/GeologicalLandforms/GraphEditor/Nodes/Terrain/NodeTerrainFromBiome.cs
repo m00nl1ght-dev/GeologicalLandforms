@@ -1,14 +1,13 @@
 using System;
-using GeologicalLandforms.GraphEditor;
 using NodeEditorFramework;
 using RimWorld;
+using TerrainGraph;
 using UnityEngine;
-using Verse;
 
-namespace TerrainGraph;
+namespace GeologicalLandforms.GraphEditor;
 
 [Serializable]
-[Node(false, "Terrain/Biome")]
+[Node(false, "Terrain/Biome", 310)]
 public class NodeTerrainFromBiome : NodeBase
 {
     public const string ID = "terrainFromBiome";
@@ -45,14 +44,14 @@ public class NodeTerrainFromBiome : NodeBase
 
     public override bool Calculate()
     {
-        OutputKnob.SetValue<ISupplier<TerrainDef>>(new Output(
+        OutputKnob.SetValue<ISupplier<TerrainData>>(new Output(
             SupplierOrValueFixed(FertilityKnob, Fertility),
             Landform.GeneratingBiome
         ));
         return true;
     }
     
-    private class Output : ISupplier<TerrainDef>
+    private class Output : ISupplier<TerrainData>
     {
         private readonly ISupplier<double> _fertility;
         private readonly BiomeDef _biome;
@@ -63,9 +62,9 @@ public class NodeTerrainFromBiome : NodeBase
             _biome = biome;
         }
 
-        public TerrainDef Get()
+        public TerrainData Get()
         {
-            return TerrainThreshold.TerrainAtValue(_biome.terrainsByFertility, (float) _fertility.Get());
+            return new TerrainData(TerrainThreshold.TerrainAtValue(_biome.terrainsByFertility, (float) _fertility.Get()));
         }
 
         public void ResetState()

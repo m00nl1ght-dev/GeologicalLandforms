@@ -8,7 +8,7 @@ using UnityEngine;
 namespace TerrainGraph;
 
 [Serializable]
-[Node(false, "Value/Operator")]
+[Node(false, "Value/Operator", 110)]
 public class NodeValueOperator : NodeOperatorBase
 {
     public const string ID = "valueOperator";

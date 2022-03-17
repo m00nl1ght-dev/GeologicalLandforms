@@ -127,18 +127,21 @@ public abstract class NodeSelectBase : NodeBase
         private readonly ISupplier<IGridFunction<double>> _input;
         private readonly List<ISupplier<IGridFunction<T>>> _options;
         private readonly List<double> _thresholds;
+        private readonly Func<T, int, T> _postProcess;
 
-        public GridOutput(ISupplier<IGridFunction<double>> input, List<ISupplier<IGridFunction<T>>> options, List<double> thresholds)
+        public GridOutput(ISupplier<IGridFunction<double>> input, List<ISupplier<IGridFunction<T>>> options, 
+            List<double> thresholds, Func<T, int, T> postProcess = null)
         {
             _input = input;
             _options = options;
             _thresholds = thresholds;
+            _postProcess = postProcess;
         }
 
         public IGridFunction<T> Get()
         {
             return new GridFunction.Select<T>(
-                _input.Get(), _options.Select(o => o.Get()).ToList(), _thresholds
+                _input.Get(), _options.Select(o => o.Get()).ToList(), _thresholds, _postProcess
             );
         }
 

@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using NodeEditorFramework;
-using Verse;
+using TerrainGraph;
 
-namespace TerrainGraph;
+namespace GeologicalLandforms.GraphEditor;
 
 [Serializable]
-[Node(false, "Value/Select/Terrain")]
+[Node(false, "Value/Select/Terrain", 103)]
 public class NodeValueSelectTerrain : NodeSelectBase
 {
     public const string ID = "valueSelectTerrain";
@@ -35,9 +35,9 @@ public class NodeValueSelectTerrain : NodeSelectBase
 
     protected override void DrawOption(ValueConnectionKnob knob, int i)
     {
-        TerrainFunctionConnection.TerrainSelector(this, Values[i], !knob.connected(), selected =>
+        TerrainData.TerrainSelector(this, Values[i], !knob.connected(), selected =>
         {
-            Values[i] = TerrainFunctionConnection.ToString(selected);
+            Values[i] = TerrainData.ToString(selected);
             canvas.OnNodeChange(this);
         });
     }
@@ -54,7 +54,8 @@ public class NodeValueSelectTerrain : NodeSelectBase
         for (int i = 0; i < Math.Min(Values.Count, OptionKnobs.Count); i++)
         {
             ValueConnectionKnob knob = OptionKnobs[i];
-            Values[i] = TerrainFunctionConnection.ToString(RefreshIfConnected(knob, TerrainFunctionConnection.FromString(Values[i])));
+            ISupplier<TerrainData> supplier = RefreshIfConnected<TerrainData>(knob);
+            if (supplier != null) Values[i] = supplier.ResetAndGet().ToString();
         }
     }
     
@@ -62,13 +63,13 @@ public class NodeValueSelectTerrain : NodeSelectBase
     {
         ISupplier<double> input = SupplierOrValueFixed(InputKnob, 0d);
 
-        List<ISupplier<TerrainDef>> options = new();
+        List<ISupplier<TerrainData>> options = new();
         for (int i = 0; i < Math.Min(Values.Count, OptionKnobs.Count); i++)
         {
-            options.Add(SupplierOrFixed(OptionKnobs[i], TerrainFunctionConnection.FromString(Values[i])));
+            options.Add(SupplierOrFixed(OptionKnobs[i], TerrainData.FromString(Values[i])));
         }
         
-        OutputKnob.SetValue<ISupplier<TerrainDef>>(new Output<TerrainDef>(input, options, Thresholds));
+        OutputKnob.SetValue<ISupplier<TerrainData>>(new Output<TerrainData>(input, options, Thresholds));
         return true;
     }
 }

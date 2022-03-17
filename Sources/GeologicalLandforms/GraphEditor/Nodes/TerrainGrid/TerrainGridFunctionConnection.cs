@@ -1,9 +1,9 @@
 using System;
 using NodeEditorFramework;
+using TerrainGraph;
 using UnityEngine;
-using Verse;
 
-namespace TerrainGraph;
+namespace GeologicalLandforms.GraphEditor;
 
 public class TerrainGridFunctionConnection : ValueConnectionType
 {
@@ -11,5 +11,5 @@ public class TerrainGridFunctionConnection : ValueConnectionType
     
     public override string Identifier => Id;
     public override Color Color => new(1.25f, 0f, 2.5f);
-    public override Type Type => typeof(ISupplier<IGridFunction<TerrainDef>>);
+    public override Type Type => typeof(ISupplier<IGridFunction<TerrainData>>);
 }

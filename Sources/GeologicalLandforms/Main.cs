@@ -4,7 +4,6 @@ using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using NodeEditorFramework;
 using NodeEditorFramework.Utilities;
-using RimWorld;
 using TerrainGraph;
 using UnityEngine;
 using Verse;

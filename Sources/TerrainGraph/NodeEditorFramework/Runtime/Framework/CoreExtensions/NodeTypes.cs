@@ -42,8 +42,8 @@ namespace NodeEditorFramework
 						ID = (string)IDField.GetValue(null);
 					// Create Data from information
 					NodeTypeData data = attr == null?  // Switch between explicit information by the attribute or node information
-						new NodeTypeData(ID, Title, type, new Type[0]) :
-						new NodeTypeData(ID, attr.contextText, type, attr.limitToCanvasTypes);
+						new NodeTypeData(ID, Title, type, Type.EmptyTypes, 0) :
+						new NodeTypeData(ID, attr.contextText, type, attr.limitToCanvasTypes, attr.orderValue);
 					nodes.Add (ID, data);
 				}
 			}
@@ -71,16 +71,16 @@ namespace NodeEditorFramework
 		/// Returns all node IDs that can automatically connect to the specified port.
 		/// If port is null, all node IDs are returned.
 		/// </summary>
-		public static List<string> getCompatibleNodes (ConnectionPort port)
+		public static List<NodeTypeData> getCompatibleNodes (ConnectionPort port)
 		{
 			if (port == null)
-				return NodeTypes.nodes.Keys.ToList ();
-			List<string> compatibleNodes = new List<string> ();
+				return NodeTypes.nodes.Values.ToList ();
+			List<NodeTypeData> compatibleNodes = new();
 			foreach (NodeTypeData nodeData in NodeTypes.nodes.Values)
 			{ // Iterate over all nodes to check compability of any of their connection ports
 				if (ConnectionPortManager.GetPortDeclarations (nodeData.typeID).Any (
-					(ConnectionPortDeclaration portDecl) => portDecl.portInfo.IsCompatibleWith (port)))
-					compatibleNodes.Add (nodeData.typeID);
+					portDecl => portDecl.portInfo.IsCompatibleWith (port)))
+					compatibleNodes.Add (nodeData);
 			}
 			return compatibleNodes;
 		}
@@ -91,17 +91,19 @@ namespace NodeEditorFramework
 	/// </summary>
 	public struct NodeTypeData 
 	{
-		public string typeID;
-		public string adress;
-		public Type type;
-		public Type[] limitToCanvasTypes;
+		public readonly string typeID;
+		public readonly string adress;
+		public readonly Type type;
+		public readonly Type[] limitToCanvasTypes;
+		public readonly int orderValue;
 
-		public NodeTypeData(string ID, string name, Type nodeType, Type[] limitedCanvasTypes)
+		public NodeTypeData(string ID, string name, Type nodeType, Type[] limitedCanvasTypes, int orderVal)
 		{
 			typeID = ID;
 			adress = name;
 			type = nodeType;
 			limitToCanvasTypes = limitedCanvasTypes;
+			orderValue = orderVal;
 		}
 	}
 
@@ -110,14 +112,16 @@ namespace NodeEditorFramework
 	/// </summary>
 	public class NodeAttribute : Attribute 
 	{
-		public bool hide { get; private set; }
-		public string contextText { get; private set; }
-		public Type[] limitToCanvasTypes { get; private set; }
+		public bool hide { get; }
+		public string contextText { get; }
+		public int orderValue { get; }
+		public Type[] limitToCanvasTypes { get; }
 
-		public NodeAttribute (bool HideNode, string ReplacedContextText, params Type[] limitedCanvasTypes)
+		public NodeAttribute (bool HideNode, string ReplacedContextText, int orderVal, params Type[] limitedCanvasTypes)
 		{
 			hide = HideNode;
 			contextText = ReplacedContextText;
+			orderValue = orderVal;
 			limitToCanvasTypes = limitedCanvasTypes;
 		}
 	}

@@ -185,6 +185,12 @@ public abstract class NodeBase : Node
         return supplier.ResetAndGet();
     }
     
+    protected ISupplier<T> RefreshIfConnected<T>(ValueConnectionKnob input)
+    {
+        if (input == null || !input.connected()) return null;
+        return input.GetValue<ISupplier<T>>();
+    }
+    
     protected ValueConnectionKnob FindDynamicKnob(ConnectionKnobAttribute attribute)
     {
         return (ValueConnectionKnob) dynamicConnectionPorts.FirstOrDefault(k => k.name.Equals(attribute.Name));

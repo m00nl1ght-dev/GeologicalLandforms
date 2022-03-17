@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections.Generic;
-
+using System.Linq;
 using NodeEditorFramework.Utilities;
 
 namespace NodeEditorFramework 
@@ -17,12 +17,12 @@ namespace NodeEditorFramework
 		private static void FillAddNodes (NodeEditorInputInfo inputInfo, GenericMenu canvasContextMenu) 
 		{ // Fill context menu with nodes to add to the canvas
 			NodeEditorState state = inputInfo.editorState;
-			List<string> nodes = NodeTypes.getCompatibleNodes (state.connectKnob);
-			foreach (string node in nodes)
+			List<NodeTypeData> nodes = NodeTypes.getCompatibleNodes (state.connectKnob);
+			foreach (NodeTypeData node in nodes.OrderBy(n => n.orderValue))
 			{ // Only add nodes to the context menu that are compatible
-				if (NodeCanvasManager.CheckCanvasCompability (node, inputInfo.editorState.canvas.GetType ()) && inputInfo.editorState.canvas.CanAddNode (node, true))
+				if (NodeCanvasManager.CheckCanvasCompability (node.typeID, inputInfo.editorState.canvas.GetType ()) && inputInfo.editorState.canvas.CanAddNode (node.typeID, true))
 				{
-					canvasContextMenu.AddItem (new GUIContent ("" + NodeTypes.getNodeData(node).adress), false, CreateNodeCallback, new NodeEditorInputInfo (node, state));
+					canvasContextMenu.AddItem (new GUIContent ("" + node.adress), false, CreateNodeCallback, new NodeEditorInputInfo (node.typeID, state));
 				}
 			}
 		}

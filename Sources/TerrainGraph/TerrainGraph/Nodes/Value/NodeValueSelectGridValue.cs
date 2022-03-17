@@ -7,7 +7,7 @@ using UnityEngine;
 namespace TerrainGraph;
 
 [Serializable]
-[Node(false, "Value/Select/Grid")]
+[Node(false, "Value/Select/Grid", 101)]
 public class NodeValueSelectGridValue : NodeSelectBase
 {
     public const string ID = "valueSelectGridValue";

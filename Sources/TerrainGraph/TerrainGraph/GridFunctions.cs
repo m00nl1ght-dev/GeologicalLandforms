@@ -30,19 +30,22 @@ public static class GridFunction
         public readonly IGridFunction<double> Input;
         public readonly List<IGridFunction<T>> Options;
         public readonly List<double> Thresholds;
+        public readonly Func<T, int, T> PostProcess;
 
-        public Select(IGridFunction<double> input, List<IGridFunction<T>> options, List<double> thresholds)
+        public Select(IGridFunction<double> input, List<IGridFunction<T>> options, List<double> thresholds, Func<T, int, T> postProcess = null)
         {
             Input = input;
             Options = options;
             Thresholds = thresholds;
+            PostProcess = postProcess ?? ((v, _) => v);
         }
 
         public T ValueAt(double x, double z)
         {
             var value = Input.ValueAt(x, z);
-            for (int i = 0; i < Math.Min(Thresholds.Count, Options.Count - 1); i++) if (value < Thresholds[i]) return Options[i].ValueAt(x, z);
-            return Options[Options.Count - 1].ValueAt(x, z);
+            for (int i = 0; i < Math.Min(Thresholds.Count, Options.Count - 1); i++) 
+                if (value < Thresholds[i]) return PostProcess(Options[i].ValueAt(x, z), i);
+            return PostProcess(Options[Options.Count - 1].ValueAt(x, z), Options.Count - 1);
         }
     }
 

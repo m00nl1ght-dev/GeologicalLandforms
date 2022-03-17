@@ -3,10 +3,10 @@ using NodeEditorFramework;
 using TerrainGraph;
 using Verse.Noise;
 
-namespace GeologicalLandforms.GraphEditor.Nodes.Grid;
+namespace GeologicalLandforms.GraphEditor;
 
 [Serializable]
-[Node(false, "Grid/Perlin Noise")]
+[Node(false, "Grid/Perlin Noise", 216)]
 public class NodeGridPerlin : NodeGridNoise
 {
     public const string ID = "gridPerlin";

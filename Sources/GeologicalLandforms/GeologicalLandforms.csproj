@@ -75,7 +75,9 @@
         <Compile Include="GraphEditor\LandformGraphInterface.cs" />
         <Compile Include="GraphEditor\Nodes\Grid\NodeGridPerlin.cs" />
         <Compile Include="GraphEditor\Nodes\Grid\NodeGridSelectTerrain.cs" />
+        <Compile Include="GraphEditor\Nodes\Grid\NodeGridSelectTerrainGrid.cs" />
         <Compile Include="GraphEditor\Nodes\TerrainGrid\NodeTerrainGridFromValue.cs" />
+        <Compile Include="GraphEditor\Nodes\TerrainGrid\NodeTerrainGridPreview.cs" />
         <Compile Include="GraphEditor\Nodes\TerrainGrid\TerrainGridFunctionConnection.cs" />
         <Compile Include="GraphEditor\Nodes\Terrain\NodeTerrainFromBiome.cs" />
         <Compile Include="GraphEditor\Nodes\Terrain\TerrainFunctionConnection.cs" />
@@ -83,6 +85,7 @@
         <Compile Include="GraphEditor\Nodes\UI\NodeUILandformManifest.cs" />
         <Compile Include="GraphEditor\Nodes\UI\NodeUIWorldTileReq.cs" />
         <Compile Include="GraphEditor\Nodes\Value\NodeValueSelectTerrain.cs" />
+        <Compile Include="GraphEditor\TerrainData.cs" />
         <Compile Include="Landform.cs" />
         <Compile Include="LandformManager.cs" />
         <Compile Include="Patches\RimWorld_Debug.cs" />

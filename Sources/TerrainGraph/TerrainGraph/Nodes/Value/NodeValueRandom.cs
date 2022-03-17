@@ -6,7 +6,7 @@ using UnityEngine;
 namespace TerrainGraph;
 
 [Serializable]
-[Node(false, "Value/Random")]
+[Node(false, "Value/Random", 111)]
 public class NodeValueRandom : NodeBase
 {
     public const string ID = "valueRandom";

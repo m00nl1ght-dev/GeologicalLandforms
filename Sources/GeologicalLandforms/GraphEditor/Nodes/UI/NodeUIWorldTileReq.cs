@@ -8,7 +8,7 @@ using Verse;
 namespace GeologicalLandforms.GraphEditor;
 
 [Serializable]
-[Node(false, "World Tile Requirements")]
+[Node(false, "World Tile Requirements", 0)]
 public class NodeUIWorldTileReq : NodeUIBase
 {
     public const string ID = "worldTileReq";

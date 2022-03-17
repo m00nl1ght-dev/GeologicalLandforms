@@ -5,7 +5,7 @@ using UnityEngine;
 namespace TerrainGraph;
 
 [Serializable]
-[Node(false, "Grid/Rotate")]
+[Node(false, "Grid/Rotate", 212)]
 public class NodeGridRotate : NodeBase
 {
     public const string ID = "gridRotate";

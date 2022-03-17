@@ -1,12 +1,12 @@
 using System;
 using NodeEditorFramework;
+using TerrainGraph;
 using UnityEngine;
-using Verse;
 
-namespace TerrainGraph;
+namespace GeologicalLandforms.GraphEditor;
 
 [Serializable]
-[Node(false, "Terrain Grid/Const")]
+[Node(false, "Terrain/Const", 300)]
 public class NodeTerrainGridFromValue : NodeBase
 {
     public const string ID = "terrainGridFromValue";
@@ -31,22 +31,22 @@ public class NodeTerrainGridFromValue : NodeBase
 
     public override bool Calculate()
     {
-        OutputKnob.SetValue<ISupplier<IGridFunction<TerrainDef>>>(new Output(
-            SupplierOrFixed<TerrainDef>(InputKnob, null)
+        OutputKnob.SetValue<ISupplier<IGridFunction<TerrainData>>>(new Output(
+            SupplierOrFixed(InputKnob, TerrainData.Empty)
         ));
         return true;
     }
     
-    private class Output : ISupplier<IGridFunction<TerrainDef>>
+    public class Output : ISupplier<IGridFunction<TerrainData>>
     {
-        private readonly ISupplier<TerrainDef> _input;
+        private readonly ISupplier<TerrainData> _input;
 
-        public Output(ISupplier<TerrainDef> input)
+        public Output(ISupplier<TerrainData> input)
         {
             _input = input;
         }
 
-        public IGridFunction<TerrainDef> Get()
+        public IGridFunction<TerrainData> Get()
         {
             return GridFunction.Of(_input.Get());
         }
