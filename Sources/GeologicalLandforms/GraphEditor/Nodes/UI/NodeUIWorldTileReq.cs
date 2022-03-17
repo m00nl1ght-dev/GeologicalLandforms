@@ -46,7 +46,7 @@ public class NodeUIWorldTileReq : NodeUIBase
         if (RequireCaves && !worldTile.World.HasCaves(worldTile.TileId)) return false;
 
         MapParent mapParent = Find.WorldObjects.MapParentAt(worldTile.TileId);
-        bool isPlayer = mapParent.Faction is { IsPlayer: true };
+        bool isPlayer = mapParent?.Faction is { IsPlayer: true };
         if (!AllowSettlements && mapParent is Settlement && !isPlayer) return false;
         if (!AllowSites && mapParent is Site && !isPlayer) return false;
 
