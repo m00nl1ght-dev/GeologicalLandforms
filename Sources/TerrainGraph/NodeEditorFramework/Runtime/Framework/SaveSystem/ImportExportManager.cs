@@ -203,7 +203,7 @@ namespace NodeEditorFramework.IO
 
 			foreach (NodeData nodeData in canvasData.nodes.Values)
 			{ // Read all nodes
-				Node node = Node.Create (nodeData.typeID, nodeData.nodePos, nodeCanvas, null, false);
+				Node node = Node.Create (nodeData.typeID, nodeData.nodePos, nodeCanvas, null, true, false);
 				if (!string.IsNullOrEmpty(nodeData.name))
 					node.name = nodeData.name;
 				if (node == null)

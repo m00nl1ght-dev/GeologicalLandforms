@@ -18,6 +18,6 @@ internal static class RimWorld_MapGenerator
     [HarmonyPriority(Priority.Last)]
     private static void Postfix(Map map, int seed)
     {
-        Landform.CleanUpMapGen();
+        Landform.CleanUp();
     }
 }

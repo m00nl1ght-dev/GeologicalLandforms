@@ -1,6 +1,6 @@
 using System;
 using NodeEditorFramework;
-using RimWorld;
+using TerrainGraph;
 using UnityEngine;
 using Verse;
 
@@ -8,12 +8,13 @@ namespace GeologicalLandforms.GraphEditor;
 
 [Serializable]
 [NodeCanvasType("Landform")]
-public class Landform : TerrainGraph.TerrainCanvas
+public class Landform : TerrainCanvas
 {
-    public static WorldTileInfo GeneratingWorldTile { get; private set; }
-    public static Landform GeneratingLandform { get; private set; }
-    public static BiomeDef GeneratingBiome => GeneratingWorldTile?.Biome ?? BiomeDefOf.TemperateForest;
-    
+    public static IWorldTileInfo GeneratingTile { get; private set; }
+    public static Landform GeneratingLandform => GeneratingTile?.Landform;
+    public static bool IsAnyGenerating => GeneratingTile?.Landform != null;
+    public static int GeneratingMapSize { get; private set; } = 250;
+
     public string Id => Manifest?.Id;
     public bool IsCustom => Manifest?.IsCustom ?? false;
 
@@ -22,12 +23,15 @@ public class Landform : TerrainGraph.TerrainCanvas
 
     public NodeUILandformManifest Manifest { get; internal set; }
     public NodeUIWorldTileReq WorldTileReq { get; internal set; }
+    
+    public NodeOutputElevation OutputElevation { get; internal set; }
+    public NodeOutputFertility OutputFertility { get; internal set; }
 
     public override int GridFullSize => 250;
     public override int GridPreviewSize => 100;
 
     public override string canvasName => Id ?? "Landform";
-    public Vector2 ScreenOrigin = new(- Screen.width / 2f, - Screen.height / 2f + LandformGraphInterface.toolbarHeight);
+    public Vector2 ScreenOrigin = new(- Screen.width / 2f, - Screen.height / 2f + LandformGraphInterface.ToolbarHeight);
 
     public string TranslatedName => DisplayName?.Length > 0 ? DisplayName : Id != null ? ("GeologicalLandforms.Landform." + Id).Translate() : "Unknown";
     public string TranslatedNameForSelection => TranslatedName + (IsCornerVariant ? (" " + "GeologicalLandforms.Landform.Corner".Translate()) : "");
@@ -35,22 +39,28 @@ public class Landform : TerrainGraph.TerrainCanvas
 
     public static void PrepareMapGen(Map map)
     {
-        CleanUpMapGen();
-        GeneratingWorldTile = WorldTileInfo.GetWorldTileInfo(map.Tile);
+        CleanUp();
+        GeneratingTile = WorldTileInfo.GetWorldTileInfo(map.Tile);
+        GeneratingMapSize = Math.Min(map.Size.x, map.Size.z);
+
+        if (GeneratingTile.Landform == null) return;
+        if (!GeneratingTile.Landform.WorldTileReq.CheckMapRequirements(map)) return;
         
-        if (!(GeneratingWorldTile?.LandformId?.Length > 0)) return;
-        if (!LandformManager.Landforms.TryGetValue(GeneratingWorldTile.LandformId, out Landform landform)) return;
-        
-        int mapSize = Math.Min(map.Size.x, map.Size.z);
-        if (!landform.WorldTileReq.MapSizeRequirement.Includes(mapSize)) return;
-        
-        GeneratingLandform = landform;
+        GeneratingLandform.RandSeed = NodeBase.SeedSource.Next();
+        GeneratingLandform.TraverseAll();
     }
-    
-    public static void CleanUpMapGen()
+
+    public static void PrepareEditor(EditorMockTileInfo tileInfo)
     {
-        GeneratingLandform = null;
-        GeneratingWorldTile = null;
+        CleanUp();
+        GeneratingTile = tileInfo;
+        GeneratingMapSize = 250;
+        GeneratingLandform.RandSeed = NodeBase.SeedSource.Next();
+    }
+
+    public static void CleanUp()
+    {
+        GeneratingTile = null;
     }
 
     protected override void ValidateSelf()
@@ -66,7 +76,7 @@ public class Landform : TerrainGraph.TerrainCanvas
         {
             NodeUILandformManifest.ID => !isEditorAction,
             NodeUIWorldTileReq.ID => !isEditorAction,
-            _ => Id != null
+            _ => Id != null || !isEditorAction
         };
     }
     

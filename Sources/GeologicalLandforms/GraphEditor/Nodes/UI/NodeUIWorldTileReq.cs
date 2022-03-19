@@ -34,18 +34,18 @@ public class NodeUIWorldTileReq : NodeUIBase
     public bool AllowSettlements;
     public bool AllowSites;
     
-    public bool CheckRequirements(WorldTileInfo worldTile)
+    public bool CheckRequirements(IWorldTileInfo worldTile)
     {
         if (Topology != Topology.Any && worldTile.Topology != Topology) return false;
-        if (!HillinessRequirement.Includes((float) worldTile.Tile.hilliness)) return false;
-        if (!ElevationRequirement.Includes(worldTile.Tile.elevation)) return false;
-        if (!AvgTemperatureRequirement.Includes(worldTile.Tile.temperature)) return false;
-        if (!RainfallRequirement.Includes(worldTile.Tile.rainfall)) return false;
-        if (!SwampinessRequirement.Includes(worldTile.Tile.swampiness)) return false;
-        if (!AllowCaves && worldTile.World.HasCaves(worldTile.TileId)) return false;
-        if (RequireCaves && !worldTile.World.HasCaves(worldTile.TileId)) return false;
+        if (!HillinessRequirement.Includes((float) worldTile.Hilliness)) return false;
+        if (!ElevationRequirement.Includes(worldTile.Elevation)) return false;
+        if (!AvgTemperatureRequirement.Includes(worldTile.Temperature)) return false;
+        if (!RainfallRequirement.Includes(worldTile.Rainfall)) return false;
+        if (!SwampinessRequirement.Includes(worldTile.Swampiness)) return false;
+        if (!AllowCaves && worldTile.HasCaves) return false;
+        if (RequireCaves && !worldTile.HasCaves) return false;
 
-        MapParent mapParent = Find.WorldObjects.MapParentAt(worldTile.TileId);
+        MapParent mapParent = worldTile.WorldObject;
         bool isPlayer = mapParent?.Faction is { IsPlayer: true };
         if (!AllowSettlements && mapParent is Settlement && !isPlayer) return false;
         if (!AllowSites && mapParent is Site && !isPlayer) return false;
@@ -54,11 +54,21 @@ public class NodeUIWorldTileReq : NodeUIBase
         int expectedMapSizeInt = Math.Min(expectedMapSize.x, expectedMapSize.z);
         if (!MapSizeRequirement.Includes(expectedMapSizeInt)) return false;
 
-        if (RoadRequirement.max <= 0f && worldTile.MainRoadMultiplier < 1f) return false;
-        if (RiverRequirement.max <= 0f && worldTile.RiverWidth > 0f) return false;
+        float riverWidth = worldTile.MainRiver?.widthOnWorld ?? 0f;
+        float mainRoadMultiplier = worldTile.MainRoad?.movementCostMultiplier ?? 1f;
+        if (RoadRequirement.max <= 0f && mainRoadMultiplier < 1f) return false;
+        if (RiverRequirement.max <= 0f && riverWidth > 0f) return false;
         
-        if (!RoadRequirement.Includes(1f - worldTile.MainRoadMultiplier) && 
-            !RiverRequirement.Includes(worldTile.RiverWidth)) return false;
+        if (!RoadRequirement.Includes(1f - mainRoadMultiplier) && 
+            !RiverRequirement.Includes(riverWidth)) return false;
+        
+        return true;
+    }
+
+    public bool CheckMapRequirements(Map map)
+    {
+        int mapSizeInt = Math.Min(map.Size.x, map.Size.z);
+        if (!MapSizeRequirement.Includes(mapSizeInt)) return false;
         
         return true;
     }
@@ -95,7 +105,8 @@ public class NodeUIWorldTileReq : NodeUIBase
 
     public override void OnCreate(bool fromGUI)
     {
-        if (Landform.WorldTileReq != null && Landform.WorldTileReq != this && canvas.nodes.Contains(Landform.WorldTileReq)) Landform.WorldTileReq.Delete();
+        NodeUIWorldTileReq existing = Landform.WorldTileReq;
+        if (existing != null && existing != this && canvas.nodes.Contains(existing)) existing.Delete();
         Landform.WorldTileReq = this;
     }
 }

@@ -61,7 +61,7 @@ public class GenNoiseStack : IExposable
         SetDefaults(noiseType);
     }
 
-    public ModuleBase BuildModule(WorldTileInfo tile, Map map, string name, QualityMode qualityMode)
+    public ModuleBase BuildModule(IWorldTileInfo tile, Map map, string name, QualityMode qualityMode)
     {
         int seed = PerlinSeed == 0 ? Rand.Range(0, int.MaxValue) : PerlinSeed;
         ModuleBase module = new Perlin(PerlinFrequency, PerlinLacunarity, 
@@ -86,7 +86,7 @@ public class GenNoiseStack : IExposable
         return module;
     }
 
-    public ModuleBase BuildModule(WorldTileInfo tile, Map map, CombineMethod forApplyMethod)
+    public ModuleBase BuildModule(IWorldTileInfo tile, Map map, CombineMethod forApplyMethod)
     {
         ModuleBase combinedModule = null;
 
@@ -95,9 +95,9 @@ public class GenNoiseStack : IExposable
             foreach (GenNoiseLayer layer in entry.Layers)
             {
                 float? fixedRotation = null;
-                if (layer.AlignWithRiver && tile.River != null)
+                if (layer.AlignWithRiver && tile.MainRiver != null)
                 {
-                    fixedRotation = - tile.RiverAngle % 180f;
+                    fixedRotation = - tile.MainRiverAngle % 180f;
                 } 
                 else if (layer.AlignWithMainRoad && tile.MainRoad != null)
                 {

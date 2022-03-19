@@ -18,6 +18,12 @@ public class NodeGridLinear : NodeBase
     public ValueConnectionKnob BiasKnob;
     
     [NonSerialized]
+    public ValueConnectionKnob ClampMinKnob;
+    
+    [NonSerialized]
+    public ValueConnectionKnob ClampMaxKnob;
+    
+    [NonSerialized]
     public ValueConnectionKnob OriginXKnob;
     
     [NonSerialized]
@@ -36,6 +42,8 @@ public class NodeGridLinear : NodeBase
     public ValueConnectionKnob SpanNzKnob;
     
     private static readonly ValueConnectionKnobAttribute BiasKnobAttribute = new("Bias", Direction.In, ValueFunctionConnection.Id);
+    private static readonly ValueConnectionKnobAttribute ClampMinKnobAttribute = new("Clamp min", Direction.In, ValueFunctionConnection.Id);
+    private static readonly ValueConnectionKnobAttribute ClampMaxKnobAttribute = new("Clamp max", Direction.In, ValueFunctionConnection.Id);
     private static readonly ValueConnectionKnobAttribute OriginXKnobAttribute = new("Origin x", Direction.In, ValueFunctionConnection.Id);
     private static readonly ValueConnectionKnobAttribute OriginZKnobAttribute = new("Origin z", Direction.In, ValueFunctionConnection.Id);
     private static readonly ValueConnectionKnobAttribute SpanPxKnobAttribute = new("Span px", Direction.In, ValueFunctionConnection.Id);
@@ -47,6 +55,8 @@ public class NodeGridLinear : NodeBase
     public ValueConnectionKnob OutputKnob;
     
     public double Bias;
+    public double ClampMin = double.MinValue;
+    public double ClampMax = double.MaxValue;
     public double OriginX;
     public double OriginZ;
     public double SpanPx;
@@ -59,6 +69,8 @@ public class NodeGridLinear : NodeBase
     public override void RefreshDynamicKnobs()
     {
         BiasKnob = FindDynamicKnob(BiasKnobAttribute);
+        ClampMinKnob = FindDynamicKnob(ClampMinKnobAttribute);
+        ClampMaxKnob = FindDynamicKnob(ClampMaxKnobAttribute);
         OriginXKnob = FindDynamicKnob(OriginXKnobAttribute);
         OriginZKnob = FindDynamicKnob(OriginZKnobAttribute);
         SpanPxKnob = FindDynamicKnob(SpanPxKnobAttribute);
@@ -85,6 +97,8 @@ public class NodeGridLinear : NodeBase
         GUILayout.BeginVertical(BoxStyle);
         
         if (BiasKnob != null) KnobValueField(BiasKnob, ref Bias);
+        if (ClampMinKnob != null) KnobValueField(ClampMinKnob, ref ClampMin);
+        if (ClampMaxKnob != null) KnobValueField(ClampMaxKnob, ref ClampMax);
         if (OriginXKnob != null) KnobValueField(OriginXKnob, ref OriginX, KnobName("Origin", "x", ""));
         if (OriginZKnob != null) KnobValueField(OriginZKnob, ref OriginZ, KnobName("Origin", "z", ""));
         if (SpanPxKnob != null) KnobValueField(SpanPxKnob, ref SpanPx, KnobName("Span", "x", "p"));
@@ -109,6 +123,8 @@ public class NodeGridLinear : NodeBase
     public override void RefreshPreview()
     {
         RefreshIfConnected(BiasKnob, ref Bias);
+        RefreshIfConnected(ClampMinKnob, ref ClampMin);
+        RefreshIfConnected(ClampMaxKnob, ref ClampMax);
         RefreshIfConnected(OriginXKnob, ref OriginX);
         RefreshIfConnected(OriginZKnob, ref OriginZ);
         RefreshIfConnected(SpanPxKnob, ref SpanPx);
@@ -189,12 +205,38 @@ public class NodeGridLinear : NodeBase
                 canvas.OnNodeChange(this);
             });
         }
+        
+        if (ClampMinKnob != null)
+        {
+            menu.AddItem(new GUIContent ("Remove clamp"), false, () =>
+            {
+                DeleteConnectionPort(ClampMinKnob);
+                DeleteConnectionPort(ClampMaxKnob);
+                RefreshDynamicKnobs();
+                ClampMin = double.MinValue;
+                ClampMax = double.MaxValue;
+                canvas.OnNodeChange(this);
+            });
+        }
+        else
+        {
+            menu.AddItem(new GUIContent ("Add clamp"), false, () =>
+            {
+                ClampMinKnob ??= (ValueConnectionKnob) CreateConnectionKnob(ClampMinKnobAttribute);
+                ClampMaxKnob ??= (ValueConnectionKnob) CreateConnectionKnob(ClampMaxKnobAttribute);
+                ClampMin = -1;
+                ClampMax = 1;
+                canvas.OnNodeChange(this);
+            });
+        }
     }
 
     public override bool Calculate()
     {
         OutputKnob.SetValue<ISupplier<IGridFunction<double>>>(new Output(
             SupplierOrValueFixed(BiasKnob, Bias),
+            SupplierOrValueFixed(ClampMinKnob, ClampMin),
+            SupplierOrValueFixed(ClampMaxKnob, ClampMax),
             SupplierOrValueFixed(OriginXKnob, OriginX),
             OriginZKnob == null ? Supplier.Zero : SupplierOrValueFixed(OriginZKnob, OriginZ),
             SupplierOrValueFixed(SpanPxKnob, SpanPx),
@@ -209,6 +251,8 @@ public class NodeGridLinear : NodeBase
     private class Output : ISupplier<IGridFunction<double>>
     {
         private readonly ISupplier<double> _bias;
+        private readonly ISupplier<double> _clampMin;
+        private readonly ISupplier<double> _clampMax;
         private readonly ISupplier<double> _originX;
         private readonly ISupplier<double> _originZ;
         private readonly ISupplier<double> _spanPx;
@@ -218,10 +262,15 @@ public class NodeGridLinear : NodeBase
         private readonly bool _circular;
         private readonly double _gridSize;
 
-        public Output(ISupplier<double> bias, ISupplier<double> originX, ISupplier<double> originZ, ISupplier<double> spanPx, 
-            ISupplier<double> spanNx, ISupplier<double> spanPz, ISupplier<double> spanNz, bool circular, double gridSize)
+        public Output(ISupplier<double> bias, ISupplier<double> clampMin, ISupplier<double> clampMax, 
+            ISupplier<double> originX, ISupplier<double> originZ, 
+            ISupplier<double> spanPx, ISupplier<double> spanNx, 
+            ISupplier<double> spanPz, ISupplier<double> spanNz, 
+            bool circular, double gridSize)
         {
             _bias = bias;
+            _clampMin = clampMin;
+            _clampMax = clampMax;
             _originX = originX;
             _originZ = originZ;
             _spanPx = spanPx;
@@ -234,14 +283,18 @@ public class NodeGridLinear : NodeBase
 
         public IGridFunction<double> Get()
         {
-            return new GridFunction.SpanFunction(
-                _bias.Get(), _originX.Get() * _gridSize, _originZ.Get() * _gridSize, _spanPx.Get(), _spanNx.Get(), _spanPz.Get(), _spanNz.Get(), _circular
+            return new GridFunction.Clamp(
+                new GridFunction.SpanFunction(
+                    _bias.Get(), _originX.Get() * _gridSize, _originZ.Get() * _gridSize, _spanPx.Get(), _spanNx.Get(), _spanPz.Get(), _spanNz.Get(), _circular
+                ), _clampMin.Get(), _clampMax.Get()
             );
         }
 
         public void ResetState()
         {
             _bias.ResetState();
+            _clampMin.ResetState();
+            _clampMax.ResetState();
             _originX.ResetState();
             _originZ.ResetState();
             _spanPx.ResetState();

@@ -291,7 +291,7 @@ namespace NodeEditorFramework
 		/// </summary>
 		public static void EndEditingCanvas ()
 		{
-			curNodeCanvas = editCanvasStack.Pop ();
+			curNodeCanvas = editCanvasStack.Pop (); // TODO this seems very wrong
 			curEditorState = editEditorStateStack.Pop ();
 		}
 

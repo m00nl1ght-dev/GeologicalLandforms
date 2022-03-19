@@ -1,9 +1,7 @@
 using System;
-using System.Linq;
 using NodeEditorFramework;
 using TerrainGraph;
 using UnityEngine;
-using Verse;
 
 namespace GeologicalLandforms.GraphEditor;
 

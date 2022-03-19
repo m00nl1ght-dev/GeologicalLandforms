@@ -61,17 +61,15 @@ internal static class RimWorld_WITab_Terrain
         StringBuilder sb = new();
         
         int tileId = Find.WorldSelector.selectedTile;
-        WorldTileInfo worldTileInfo = WorldTileInfo.GetWorldTileInfo(tileId);
+        IWorldTileInfo worldTileInfo = WorldTileInfo.GetWorldTileInfo(tileId);
 
-        LandformManager.Landforms.TryGetValue(worldTileInfo.LandformId, out Landform landform);
-        
-        if (landform != null)
+        if (worldTileInfo.Landform != null)
         {
-            string append = landform.TranslatedName;
+            string append = worldTileInfo.Landform.TranslatedName;
             
-            if (landform.DisplayNameHasDirection)
+            if (worldTileInfo.Landform.DisplayNameHasDirection)
             {
-                if (landform.IsCornerVariant)
+                if (worldTileInfo.Landform.IsCornerVariant)
                 {
                     append = TranslateDoubleRot4(worldTileInfo.LandformDirection) + " " + append;
                 }
@@ -109,11 +107,7 @@ internal static class RimWorld_WITab_Terrain
         {
             listingStandard.LabelDouble("GeologicalLandforms.WorldMap.Topology".Translate(), worldTileInfo.Topology.ToString());
             listingStandard.LabelDouble("GeologicalLandforms.WorldMap.TopologyDirection".Translate(), worldTileInfo.LandformDirection.ToStringHuman());
-            listingStandard.LabelDouble("GeologicalLandforms.WorldMap.Swampiness".Translate(), worldTileInfo.Tile.swampiness.ToString(CultureInfo.InvariantCulture));
-            listingStandard.LabelDouble("GeologicalLandforms.WorldMap.RiverWidth".Translate(), worldTileInfo.RiverWidth.ToString(CultureInfo.InvariantCulture));
-            listingStandard.LabelDouble("GeologicalLandforms.WorldMap.RiverAngle".Translate(), worldTileInfo.RiverAngle.ToString(CultureInfo.InvariantCulture));
-            listingStandard.LabelDouble("GeologicalLandforms.WorldMap.MainRoadMultiplier".Translate(), worldTileInfo.MainRoadMultiplier.ToString(CultureInfo.InvariantCulture));
-            listingStandard.LabelDouble("GeologicalLandforms.WorldMap.MainRoadAngle".Translate(), worldTileInfo.MainRoadAngle.ToString(CultureInfo.InvariantCulture));
+            listingStandard.LabelDouble("GeologicalLandforms.WorldMap.Swampiness".Translate(), worldTileInfo.Swampiness.ToString(CultureInfo.InvariantCulture));
         }
     }
 
@@ -132,8 +126,8 @@ internal static class RimWorld_WITab_Terrain
             pending.Clear();
             foreach (var p in copy)
             {
-                WorldTileInfo tileInfo = WorldTileInfo.GetWorldTileInfo(p);
-                if (tileInfo.LandformId == landform.Id)
+                IWorldTileInfo tileInfo = WorldTileInfo.GetWorldTileInfo(p);
+                if (tileInfo.Landform == landform)
                 {
                     CameraJumper.TryJumpAndSelect(new GlobalTargetInfo(p));
                     Find.WorldSelector.selectedTile = p;

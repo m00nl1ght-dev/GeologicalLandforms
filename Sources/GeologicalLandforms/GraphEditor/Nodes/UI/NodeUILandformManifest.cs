@@ -45,7 +45,8 @@ public class NodeUILandformManifest : NodeUIBase
 
     public override void OnCreate(bool fromGUI)
     {
-        if (Landform.Manifest != null && Landform.Manifest != this && canvas.nodes.Contains(Landform.Manifest)) Landform.Manifest.Delete();
+        NodeUILandformManifest existing = Landform.Manifest;
+        if (existing != null && existing != this && canvas.nodes.Contains(existing)) existing.Delete();
         Landform.Manifest = this;
     }
 }

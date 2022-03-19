@@ -14,11 +14,11 @@ public class LandformGraphInterface
     public NodeEditorUserCache CanvasCache;
     public Landform Landform => (Landform) CanvasCache.nodeCanvas;
 
-    public static float toolbarHeight = 20;
+    public static float ToolbarHeight = 20;
 
-    public bool showModalPanel;
-    public Rect modalPanelRect = new(20, 50, 250, 70);
-    public Action modalPanelContent;
+    public bool ShowModalPanel;
+    public Rect ModalPanelRect = new(20, 50, 250, 70);
+    public Action ModalPanelContent;
 
     public void DrawToolbarGUI()
     {
@@ -85,17 +85,17 @@ public class LandformGraphInterface
 
         GUILayout.EndHorizontal();
         if (Event.current.type == EventType.Repaint)
-            toolbarHeight = GUILayoutUtility.GetLastRect().yMax;
+            ToolbarHeight = GUILayoutUtility.GetLastRect().yMax;
     }
 
     public void DrawModalPanel()
     {
-        if (showModalPanel)
+        if (ShowModalPanel)
         {
-            if (modalPanelContent == null)
+            if (ModalPanelContent == null)
                 return;
-            GUILayout.BeginArea(modalPanelRect, GUI.skin.box);
-            modalPanelContent.Invoke();
+            GUILayout.BeginArea(ModalPanelRect, GUI.skin.box);
+            ModalPanelContent.Invoke();
             GUILayout.EndArea();
         }
     }

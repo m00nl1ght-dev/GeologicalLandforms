@@ -46,7 +46,7 @@ public class NodeTerrainFromBiome : NodeBase
     {
         OutputKnob.SetValue<ISupplier<TerrainData>>(new Output(
             SupplierOrValueFixed(FertilityKnob, Fertility),
-            Landform.GeneratingBiome
+            Landform.GeneratingTile.Biome
         ));
         return true;
     }

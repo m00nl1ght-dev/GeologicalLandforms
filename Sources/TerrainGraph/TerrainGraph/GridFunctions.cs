@@ -156,6 +156,25 @@ public static class GridFunction
         }
     }
     
+    public class Clamp : IGridFunction<double>
+    {
+        public readonly IGridFunction<double> Input;
+        public readonly double ClampMin;
+        public readonly double ClampMax;
+
+        public Clamp(IGridFunction<double> input, double clampMin, double clampMax)
+        {
+            Input = input;
+            ClampMin = clampMin;
+            ClampMax = clampMax;
+        }
+
+        public double ValueAt(double x, double z)
+        {
+            return Math.Max(ClampMin, Math.Min(ClampMax, Input.ValueAt(x, z)));
+        }
+    }
+    
     public class SpanFunction : IGridFunction<double>
     {
         public readonly double Bias;
@@ -232,6 +251,29 @@ public static class GridFunction
             nz += PivotY;
             
             return Input.ValueAt(nx, nz);
+        }
+    }
+    
+    public class Transform<T> : IGridFunction<T>
+    {
+        public readonly IGridFunction<T> Input;
+        public readonly double TranslateX;
+        public readonly double TranslateZ;
+        public readonly double ScaleX;
+        public readonly double ScaleZ;
+
+        public Transform(IGridFunction<T> input, double translateX, double translateZ, double scaleX, double scaleZ)
+        {
+            Input = input;
+            TranslateX = translateX;
+            TranslateZ = translateZ;
+            ScaleX = scaleX;
+            ScaleZ = scaleZ;
+        }
+
+        public T ValueAt(double x, double z)
+        {
+            return Input.ValueAt(x * ScaleX + TranslateX, z * ScaleZ + TranslateZ);
         }
     }
     

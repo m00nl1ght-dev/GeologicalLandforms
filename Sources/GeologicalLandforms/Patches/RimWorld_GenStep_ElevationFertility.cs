@@ -3,9 +3,9 @@ using System.Reflection.Emit;
 using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using RimWorld;
-using RimWorld.Planet;
+using TerrainGraph;
 using Verse;
-using Verse.Noise;
+using static TerrainGraph.GridFunction;
 
 namespace GeologicalLandforms.Patches;
 
@@ -17,18 +17,18 @@ internal static class RimWorld_GenStep_ElevationFertility
     private static bool Prefix(Map map, GenStepParams parms)
     {
         // if there is no landform on this tile, let vanilla gen or other mods handle it
-        if (Landform.GeneratingLandform == null) return true;
+        if (!Landform.IsAnyGenerating) return true;
 
-        ModuleBase elevationModule = BuildDefaultElevationModule(map);
-        ModuleBase fertilityModule = BuildDefaultFertilityModule(map);
+        IGridFunction<double> elevationModule = Landform.GeneratingLandform.OutputElevation?.Get() ?? BuildDefaultElevationGrid(map);
+        IGridFunction<double> fertilityModule = Landform.GeneratingLandform.OutputFertility?.Get() ?? BuildDefaultFertilityGrid(map);
         
         MapGenFloatGrid elevation = MapGenerator.Elevation;
         MapGenFloatGrid fertility = MapGenerator.Fertility;
         
         foreach (IntVec3 cell in map.AllCells)
         {
-            elevation[cell] = elevationModule.GetValue(cell);
-            fertility[cell] = fertilityModule.GetValue(cell);
+            elevation[cell] = (float) elevationModule.ValueAt(cell.x, cell.z);
+            fertility[cell] = (float) fertilityModule.ValueAt(cell.x, cell.z);
         }
         
         return false;
@@ -61,29 +61,19 @@ internal static class RimWorld_GenStep_ElevationFertility
             Log.Error("Failed to patch RimWorld_GenStep_ElevationFertility");
     }
 
-    public static ModuleBase BuildDefaultElevationModule(Map map)
+    public static IGridFunction<double> BuildDefaultElevationGrid(Map map)
     {
-        ModuleBase module = new ScaleBias(0.5, 0.5, new Perlin(0.021, 2, 0.5, 6, Rand.Range(0, int.MaxValue), QualityMode.High));
-        module = new Multiply(module, new Const(GetHillinessFactor(map)));
-        if (map.TileInfo.WaterCovered) module = new Min(module, new Const(0f));
-        return module;
+        IGridFunction<double> function = new NoiseGenerator(NodeGridPerlin.PerlinNoise, 0.021, 2, 0.5, 6, Rand.Range(0, int.MaxValue));
+        function = new ScaleWithBias(function, 0.5, 0.5);
+        function = new Multiply(function, Of(NodeValueWorldTile.GetHillinessFactor(map.TileInfo.hilliness)));
+        if (map.TileInfo.WaterCovered) function = new Min(function, Of<double>(0f));
+        return function;
     }
     
-    public static ModuleBase BuildDefaultFertilityModule(Map map)
+    public static IGridFunction<double> BuildDefaultFertilityGrid(Map map)
     {
-        return new ScaleBias(0.5, 0.5, new Perlin(0.021, 2, 0.5, 6, Rand.Range(0, int.MaxValue), QualityMode.High));
-    }
-
-    public static float GetHillinessFactor(Map map)
-    {
-        return map.TileInfo.hilliness switch
-        {
-            Hilliness.Flat => MapGenTuning.ElevationFactorFlat,
-            Hilliness.SmallHills => MapGenTuning.ElevationFactorSmallHills,
-            Hilliness.LargeHills => MapGenTuning.ElevationFactorLargeHills,
-            Hilliness.Mountainous => MapGenTuning.ElevationFactorMountains,
-            Hilliness.Impassable => MapGenTuning.ElevationFactorImpassableMountains,
-            _ => 1f
-        };
+        IGridFunction<double> function = new NoiseGenerator(NodeGridPerlin.PerlinNoise, 0.021, 2, 0.5, 6, Rand.Range(0, int.MaxValue));
+        function = new ScaleWithBias(function, 0.5, 0.5);
+        return function;
     }
 }

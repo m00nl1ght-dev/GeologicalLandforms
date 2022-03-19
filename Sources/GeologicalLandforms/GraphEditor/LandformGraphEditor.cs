@@ -10,6 +10,8 @@ public class LandformGraphEditor : Window
     private NodeEditorUserCache _canvasCache;
     private LandformGraphInterface _editorInterface;
     
+    public EditorMockTileInfo EditorTileInfo { get; private set; }
+    
     public Landform Landform => (Landform) _canvasCache?.nodeCanvas;
     public bool HasLoadedLandform => Landform != null && Landform.Id != null;
 
@@ -42,8 +44,11 @@ public class LandformGraphEditor : Window
 
     public void Open(Landform landform)
     {
+        EditorTileInfo = new EditorMockTileInfo(landform);
+        Landform.PrepareEditor(EditorTileInfo);
         _canvasCache.nodeCanvas = landform;
         _canvasCache.NewEditorState();
+        landform.PrepareGUI();
         landform.TraverseAll();
         Landform.RefreshPreviews();
         landform.ResetView();
@@ -81,7 +86,10 @@ public class LandformGraphEditor : Window
     public override void Close(bool doCloseSound = true)
     {
         LandformManager.SaveAllCustom();
+        WorldTileInfo.InvalidateCache();
+        Landform.CleanUp();
         base.Close(doCloseSound);
+        Landform.CleanUpGUI();
     }
 
     public override void PreOpen()
@@ -116,7 +124,7 @@ public class LandformGraphEditor : Window
 
         // Begin Node Editor GUI and set canvas rect
         NodeEditorGUI.StartNodeGUI(false);
-        _canvasCache.editorState.canvasRect = new Rect (inRect.x, inRect.y + LandformGraphInterface.toolbarHeight, inRect.width, inRect.height - LandformGraphInterface.toolbarHeight);
+        _canvasCache.editorState.canvasRect = new Rect (inRect.x, inRect.y + LandformGraphInterface.ToolbarHeight, inRect.width, inRect.height - LandformGraphInterface.ToolbarHeight);
 
         try
         { // Perform drawing with error-handling

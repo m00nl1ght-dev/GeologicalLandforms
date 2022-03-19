@@ -71,19 +71,26 @@
         <Compile Include="GenConfig\GenNoiseConfig.cs" />
         <Compile Include="GenConfig\GenNoiseLayer.cs" />
         <Compile Include="GenConfig\GenNoiseStack.cs" />
+        <Compile Include="GraphEditor\EditorMockTileInfo.cs" />
         <Compile Include="GraphEditor\LandformGraphEditor.cs" />
         <Compile Include="GraphEditor\LandformGraphInterface.cs" />
         <Compile Include="GraphEditor\Nodes\Grid\NodeGridPerlin.cs" />
+        <Compile Include="GraphEditor\Nodes\Grid\NodeGridTransformByMapSize.cs" />
         <Compile Include="GraphEditor\Nodes\Grid\NodeGridSelectTerrain.cs" />
         <Compile Include="GraphEditor\Nodes\Grid\NodeGridSelectTerrainGrid.cs" />
+        <Compile Include="GraphEditor\Nodes\Output\NodeOutputBase.cs" />
+        <Compile Include="GraphEditor\Nodes\Output\NodeOutputElevation.cs" />
+        <Compile Include="GraphEditor\Nodes\Output\NodeOutputFertility.cs" />
         <Compile Include="GraphEditor\Nodes\TerrainGrid\NodeTerrainGridFromValue.cs" />
         <Compile Include="GraphEditor\Nodes\TerrainGrid\NodeTerrainGridPreview.cs" />
         <Compile Include="GraphEditor\Nodes\TerrainGrid\TerrainGridFunctionConnection.cs" />
         <Compile Include="GraphEditor\Nodes\Terrain\NodeTerrainFromBiome.cs" />
+        <Compile Include="GraphEditor\Nodes\Terrain\NodeTerrainNaturalWater.cs" />
         <Compile Include="GraphEditor\Nodes\Terrain\TerrainFunctionConnection.cs" />
         <Compile Include="GraphEditor\Nodes\UI\NodeUIBase.cs" />
         <Compile Include="GraphEditor\Nodes\UI\NodeUILandformManifest.cs" />
         <Compile Include="GraphEditor\Nodes\UI\NodeUIWorldTileReq.cs" />
+        <Compile Include="GraphEditor\Nodes\Value\NodeValueWorldTile.cs" />
         <Compile Include="GraphEditor\Nodes\Value\NodeValueSelectTerrain.cs" />
         <Compile Include="GraphEditor\TerrainData.cs" />
         <Compile Include="Landform.cs" />
@@ -92,7 +99,7 @@
         <Compile Include="Patches\RimWorld_MapGenerator.cs" />
         <Compile Include="Util\BiasedDistFromXZ.cs" />
         <Compile Include="Util\GuiUtils.cs" />
-        <Compile Include="WorldTileInfo.cs" />
+        <Compile Include="IWorldTileInfo.cs" />
         <Compile Include="Topology.cs" />
         <Compile Include="Main.cs" />
         <Compile Include="ModInstance.cs" />
@@ -102,6 +109,7 @@
         <Compile Include="Properties\AssemblyInfo.cs" />
         <Compile Include="Settings.cs" />
         <Compile Include="Util\Rot6.cs" />
+        <Compile Include="WorldTileInfo.cs" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\TerrainGraph\TerrainGraph.csproj">

@@ -8,10 +8,12 @@ namespace TerrainGraph;
 
 public class TerrainCanvasTraversal : NodeCanvasTraversal
 {
+    public TerrainCanvas TerrainCanvas => (TerrainCanvas) nodeCanvas;
+    
     // A list of Nodes from which calculation originates -> Call StartCalculation
     public List<Node> workList;
 
-    public TerrainCanvasTraversal(NodeCanvas canvas) : base(canvas) {}
+    public TerrainCanvasTraversal(TerrainCanvas canvas) : base(canvas) {}
 
     /// <summary>
     /// Recalculate from every node regarded as an input node
@@ -30,7 +32,7 @@ public class TerrainCanvasTraversal : NodeCanvasTraversal
             }
         }
 
-        StartCalculation(NodeEditor.curNodeCanvas == nodeCanvas);
+        StartCalculation(TerrainCanvas.HasActiveGUI);
     }
 
     /// <summary>
@@ -40,7 +42,7 @@ public class TerrainCanvasTraversal : NodeCanvasTraversal
     {
         node.ClearCalculation();
         workList = new List<Node> { node };
-        StartCalculation(NodeEditor.curNodeCanvas == nodeCanvas);
+        StartCalculation(TerrainCanvas.HasActiveGUI);
     }
 
     /// <summary>

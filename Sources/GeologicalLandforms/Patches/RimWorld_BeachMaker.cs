@@ -1,5 +1,3 @@
-using System;
-using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using RimWorld;
 using Verse;
@@ -10,7 +8,7 @@ namespace GeologicalLandforms.Patches;
 [HarmonyPatch(typeof(BeachMaker))]
 internal static class RimWorld_BeachMaker
 {
-    private static WorldTileInfo _worldTileInfo;
+    private static IWorldTileInfo _worldTileInfo;
     private static GenNoiseConfig _noiseConfig;
 
     private static TerrainDef _terrainDeep;
@@ -22,13 +20,10 @@ internal static class RimWorld_BeachMaker
     private static bool Prefix(ref ModuleBase ___beachNoise, Map map)
     {
         _worldTileInfo = WorldTileInfo.GetWorldTileInfo(map.Tile);
-        LandformManager.Landforms.TryGetValue(_worldTileInfo.LandformId, out Landform landform);
-        // _noiseConfig = landform?.GenConfig; TODO
-        _noiseConfig = null;
-        if (_noiseConfig == null) return true;
+        if (_worldTileInfo.Landform == null && !_worldTileInfo.Landform.WorldTileReq.CheckMapRequirements(map)) return true;
         
-        int mapSizeInt = Math.Min(map.Size.x, map.Size.z);
-        if (landform != null && !landform.WorldTileReq.MapSizeRequirement.Includes(mapSizeInt)) return true;
+        _noiseConfig = null; // TODO
+        if (_noiseConfig == null) return true;
         
         _terrainDeep = _worldTileInfo.HasOcean ? TerrainDefOf.WaterOceanDeep : TerrainDefOf.WaterDeep;
         _terrainShallow = _worldTileInfo.HasOcean ? TerrainDefOf.WaterOceanShallow : TerrainDefOf.WaterShallow;

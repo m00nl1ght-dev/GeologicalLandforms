@@ -19,6 +19,7 @@ public class TerrainCanvas : NodeCanvas
     public double GridPreviewRatio => (double) GridFullSize / GridPreviewSize;
 
     public int RandSeed = NodeBase.SeedSource.Next();
+    public bool HasActiveGUI { get; private set; }
 
     protected override void OnCreate() 
     {
@@ -37,12 +38,14 @@ public class TerrainCanvas : NodeCanvas
     
     public virtual void PrepareGUI()
     {
+        HasActiveGUI = true;
         foreach (NodeBase nodeBase in Nodes) nodeBase.PrepareGUI();
     }
     
     public virtual void CleanUpGUI()
     {
         foreach (NodeBase nodeBase in Nodes) nodeBase.CleanUpGUI();
+        HasActiveGUI = false;
     }
 
     public virtual void ResetView()

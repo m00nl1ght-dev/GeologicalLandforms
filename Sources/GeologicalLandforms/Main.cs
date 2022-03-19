@@ -41,9 +41,9 @@ public static class Main
         LandformManager.InitialLoad();
     }
 
-    public static Rot6 Random(this List<Rot6> rotList, int tileId)
+    public static Rot6 Random(this List<Rot6> rotList, int seed)
     {
         if (rotList.Count == 0) return Rot6.Invalid;
-        return rotList[Rand.RangeSeeded(0, rotList.Count, tileId)];
+        return rotList[Rand.RangeSeeded(0, rotList.Count, seed)];
     }
 }
