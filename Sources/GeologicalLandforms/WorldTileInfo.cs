@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using GeologicalLandforms.GraphEditor;
+using GeologicalLandforms.Patches;
 using RimWorld;
 using RimWorld.Planet;
 using Verse;
@@ -36,7 +37,7 @@ public class WorldTileInfo : IWorldTileInfo
     public RoadDef MainRoad { get; private set; }
     public float MainRoadAngle { get; private set; }
 
-    private int MakeSeed(int offset) => World.info.Seed + TileId + offset;
+    private int MakeSeed(int hash) => RimWorld_Misc.LastKnownInitialWorldSeed ^ TileId ^ hash;
 
     public WorldTileInfo(int tileId, Tile tile, World world)
     {

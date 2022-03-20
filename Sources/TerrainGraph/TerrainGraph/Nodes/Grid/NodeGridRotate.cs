@@ -58,7 +58,7 @@ public class NodeGridRotate : NodeBase
         return true;
     }
     
-    private class Output : ISupplier<IGridFunction<double>>
+    public class Output : ISupplier<IGridFunction<double>>
     {
         private readonly ISupplier<IGridFunction<double>> _input;
         private readonly ISupplier<double> _angle;

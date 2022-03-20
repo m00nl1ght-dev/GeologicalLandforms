@@ -11,6 +11,7 @@ public abstract class NodeOutputBase : NodeBase
     public Landform Landform => (Landform) canvas;
     
     public abstract ValueConnectionKnob InputKnobRef { get; }
+    public virtual ValueConnectionKnob OutputKnobRef => null;
 
     public override void NodeGUI()
     {
@@ -20,6 +21,7 @@ public abstract class NodeOutputBase : NodeBase
         GUILayout.Label(InputKnobRef.name, BoxLayout);
         GUILayout.EndHorizontal();
         InputKnobRef.SetPosition();
+        OutputKnobRef?.SetPosition();
 
         GUILayout.EndVertical();
     }

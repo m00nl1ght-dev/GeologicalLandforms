@@ -13,6 +13,8 @@ public class NodeTerrainNaturalWater : NodeBase
 {
     public const string ID = "terrainNaturalWater";
     public override string GetID => ID;
+    
+    public override Vector2 MinSize => new(100, 10);
 
     public override string Title => "Natural Water";
     
@@ -27,12 +29,12 @@ public class NodeTerrainNaturalWater : NodeBase
         GUILayout.BeginVertical(BoxStyle);
 
         GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Deep", BoxLayout);
+        GUILayout.Label("Deep", DoubleBoxLayout);
         GUILayout.EndHorizontal();
         DeepOutputKnob.SetPosition();
         
         GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Shallow", BoxLayout);
+        GUILayout.Label("Shallow", DoubleBoxLayout);
         GUILayout.EndHorizontal();
         ShallowOutputKnob.SetPosition();
 

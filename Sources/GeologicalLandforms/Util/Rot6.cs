@@ -58,8 +58,6 @@ public struct Rot6 : IEquatable<Rot6>
     
     public static Rot6 NorthWest => new(5);
 
-    public static Rot6 Random => new(Rand.RangeInclusive(0, 5));
-
     public static Rot6 Invalid => new() { _rotInt = 200 };
     
     public Rot6(byte newRot) => _rotInt = newRot;

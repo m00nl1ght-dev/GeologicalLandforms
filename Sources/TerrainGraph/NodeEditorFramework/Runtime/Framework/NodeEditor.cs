@@ -181,17 +181,7 @@ namespace NodeEditorFramework
 			if (curNodeCanvas == null || curEditorState == null || !curEditorState.drawing)
 				return;
 
-			if (Event.current.type == EventType.Repaint) 
-			{ // Draw Background when Repainting
-				// Offset from origin in tile units
-				Vector2 tileOffset = new Vector2 (-(curEditorState.zoomPos.x * curEditorState.zoom + curEditorState.panOffset.x) / NodeEditorGUI.Background.width, 
-					((curEditorState.zoomPos.y - curEditorState.canvasRect.height) * curEditorState.zoom + curEditorState.panOffset.y) / NodeEditorGUI.Background.height);
-				// Amount of tiles
-				Vector2 tileAmount = new Vector2 (Mathf.Round (curEditorState.canvasRect.width * curEditorState.zoom) / NodeEditorGUI.Background.width,
-					Mathf.Round (curEditorState.canvasRect.height * curEditorState.zoom) / NodeEditorGUI.Background.height);
-				// Draw tiled background
-				GUI.DrawTextureWithTexCoords (curEditorState.canvasRect, NodeEditorGUI.Background, new Rect (tileOffset, tileAmount));
-			}
+			DrawBackground();
 
 			// Handle input events
 			NodeEditorInputSystem.HandleInputEvents (curEditorState);
@@ -261,6 +251,27 @@ namespace NodeEditorFramework
 			NodeEditorInputSystem.HandleLateInputEvents (curEditorState);
 
 			EndEditingCanvas ();
+		}
+
+		public static void DrawBackground()
+		{
+			if (Event.current.type == EventType.Repaint)
+			{
+				// Draw Background when Repainting
+				// Offset from origin in tile units
+				Vector2 tileOffset = new Vector2(
+					-(curEditorState.zoomPos.x * curEditorState.zoom + curEditorState.panOffset.x) /
+					NodeEditorGUI.Background.width,
+					((curEditorState.zoomPos.y - curEditorState.canvasRect.height) * curEditorState.zoom +
+					 curEditorState.panOffset.y) / NodeEditorGUI.Background.height);
+				// Amount of tiles
+				Vector2 tileAmount = new Vector2(
+					Mathf.Round(curEditorState.canvasRect.width * curEditorState.zoom) / NodeEditorGUI.Background.width,
+					Mathf.Round(curEditorState.canvasRect.height * curEditorState.zoom) / NodeEditorGUI.Background.height);
+				// Draw tiled background
+				GUI.DrawTextureWithTexCoords(curEditorState.canvasRect, NodeEditorGUI.Background,
+					new Rect(tileOffset, tileAmount));
+			}
 		}
 
 		/// <summary>

@@ -9,6 +9,7 @@ namespace GeologicalLandforms.GraphEditor;
 public readonly struct TerrainData
 {
     public static readonly TerrainData Empty = new();
+    public static readonly IGridFunction<TerrainData> EmptyGrid = GridFunction.Of(Empty);
     
     public readonly TerrainDef Terrain;
     public readonly int SelectionIndex;

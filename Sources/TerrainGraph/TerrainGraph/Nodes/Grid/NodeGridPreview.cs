@@ -64,9 +64,6 @@ public class NodeGridPreview : NodeBase
                 }, 0f);
             }
         }
-
-        if (GUI.changed)
-            canvas.OnNodeChange(this);
     }
 
     public override bool Calculate()

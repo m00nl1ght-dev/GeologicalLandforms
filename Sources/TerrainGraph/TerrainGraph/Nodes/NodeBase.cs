@@ -17,7 +17,7 @@ public abstract class NodeBase : Node
     public double GridSize => TerrainCanvas.GridFullSize;
     
     public override Vector2 MinSize => new(200, 10);
-    public override Vector2 DefaultSize => new(200, 10);
+    public override Vector2 DefaultSize => MinSize;
     public override bool AutoLayout => true;
 
     public int RandSeed = SeedSource.Next();
@@ -26,6 +26,7 @@ public abstract class NodeBase : Node
     public const int FirstKnobPosition = 37;
     
     public GUILayoutOption[] BoxLayout => new[] { GUILayout.Width(DefaultSize.x / 2f - 13f), GUILayout.Height(20f) };
+    public GUILayoutOption[] DoubleBoxLayout => new[] { GUILayout.Width(DefaultSize.x - 12f), GUILayout.Height(20f) };
 
     private static GUIStyle _boxStyle;
     public static GUIStyle BoxStyle

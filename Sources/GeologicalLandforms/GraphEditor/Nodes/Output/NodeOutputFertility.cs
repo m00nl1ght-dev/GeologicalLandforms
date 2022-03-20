@@ -5,7 +5,7 @@ using TerrainGraph;
 namespace GeologicalLandforms.GraphEditor;
 
 [Serializable]
-[Node(false, "Output/Fertility", 400)]
+[Node(false, "Output/Fertility", 401)]
 public class NodeOutputFertility : NodeOutputBase
 {
     public const string ID = "outputFertility";
@@ -14,9 +14,13 @@ public class NodeOutputFertility : NodeOutputBase
     public override string Title => "Fertility Output";
     
     public override ValueConnectionKnob InputKnobRef => InputKnob;
-    
+    public override ValueConnectionKnob OutputKnobRef => OutputKnob;
+
     [ValueConnectionKnob("Fertility", Direction.In, GridFunctionConnection.Id)]
     public ValueConnectionKnob InputKnob;
+    
+    [ValueConnectionKnob("FertilityOutput", Direction.Out, GridFunctionConnection.Id)]
+    public ValueConnectionKnob OutputKnob;
 
     public override void OnCreate(bool fromGUI)
     {
@@ -29,5 +33,11 @@ public class NodeOutputFertility : NodeOutputBase
     {
         IGridFunction<double> function = InputKnob.GetValue<ISupplier<IGridFunction<double>>>()?.ResetAndGet();
         return function == null ? GridFunction.Zero : ScaleWithMap(function);
+    }
+    
+    public override bool Calculate()
+    {
+        OutputKnob.SetValue(InputKnob.GetValue<ISupplier<IGridFunction<double>>>());
+        return true;
     }
 }

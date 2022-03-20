@@ -14,9 +14,13 @@ public class NodeOutputElevation : NodeOutputBase
     public override string Title => "Elevation Output";
 
     public override ValueConnectionKnob InputKnobRef => InputKnob;
-    
+    public override ValueConnectionKnob OutputKnobRef => OutputKnob;
+
     [ValueConnectionKnob("Elevation", Direction.In, GridFunctionConnection.Id)]
     public ValueConnectionKnob InputKnob;
+    
+    [ValueConnectionKnob("ElevationOutput", Direction.Out, GridFunctionConnection.Id)]
+    public ValueConnectionKnob OutputKnob;
 
     public override void OnCreate(bool fromGUI)
     {
@@ -29,5 +33,11 @@ public class NodeOutputElevation : NodeOutputBase
     {
         IGridFunction<double> function = InputKnob.GetValue<ISupplier<IGridFunction<double>>>()?.ResetAndGet();
         return function == null ? GridFunction.Zero : ScaleWithMap(function);
+    }
+    
+    public override bool Calculate()
+    {
+        OutputKnob.SetValue(InputKnob.GetValue<ISupplier<IGridFunction<double>>>());
+        return true;
     }
 }

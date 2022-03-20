@@ -20,6 +20,7 @@
   <GeologicalLandforms.Settings.OpenDataDir>Open custom landform data directory</GeologicalLandforms.Settings.OpenDataDir>
   <GeologicalLandforms.Settings.ConfirmResetAll>Are you sure you want to fully reset the settings for this mod, including all landform configs? This will also unrecoverably delete ALL custom landforms you created!</GeologicalLandforms.Settings.ConfirmResetAll>
 
+  <GeologicalLandforms.WorldMap.Landform>Landform</GeologicalLandforms.WorldMap.Landform>
   <GeologicalLandforms.WorldMap.Topology>Topology</GeologicalLandforms.WorldMap.Topology>
   <GeologicalLandforms.WorldMap.TopologyDirection>Topology direction</GeologicalLandforms.WorldMap.TopologyDirection>
   <GeologicalLandforms.WorldMap.Swampiness>Swampiness</GeologicalLandforms.WorldMap.Swampiness>

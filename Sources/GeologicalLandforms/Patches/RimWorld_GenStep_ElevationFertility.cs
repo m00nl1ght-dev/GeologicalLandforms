@@ -63,7 +63,8 @@ internal static class RimWorld_GenStep_ElevationFertility
 
     public static IGridFunction<double> BuildDefaultElevationGrid(Map map)
     {
-        IGridFunction<double> function = new NoiseGenerator(NodeGridPerlin.PerlinNoise, 0.021, 2, 0.5, 6, Rand.Range(0, int.MaxValue));
+        var seed = Landform.GeneratingLandform.RandSeed ^ 7365;
+        IGridFunction<double> function = new NoiseGenerator(NodeGridPerlin.PerlinNoise, 0.021, 2, 0.5, 6, seed);
         function = new ScaleWithBias(function, 0.5, 0.5);
         function = new Multiply(function, Of(NodeValueWorldTile.GetHillinessFactor(map.TileInfo.hilliness)));
         if (map.TileInfo.WaterCovered) function = new Min(function, Of<double>(0f));
@@ -72,7 +73,8 @@ internal static class RimWorld_GenStep_ElevationFertility
     
     public static IGridFunction<double> BuildDefaultFertilityGrid(Map map)
     {
-        IGridFunction<double> function = new NoiseGenerator(NodeGridPerlin.PerlinNoise, 0.021, 2, 0.5, 6, Rand.Range(0, int.MaxValue));
+        var seed = Landform.GeneratingLandform.RandSeed ^ 4385;
+        IGridFunction<double> function = new NoiseGenerator(NodeGridPerlin.PerlinNoise, 0.021, 2, 0.5, 6, seed);
         function = new ScaleWithBias(function, 0.5, 0.5);
         return function;
     }

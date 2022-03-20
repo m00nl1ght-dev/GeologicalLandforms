@@ -12,6 +12,7 @@ internal static class RimWorld_MapGenerator
     private static void Prefix(Map map, int seed)
     {
         Landform.PrepareMapGen(map);
+        RimWorld_TerrainPatchMaker.Reset();
     }
     
     [HarmonyPatch(nameof(MapGenerator.GenerateContentsIntoMap))]
@@ -19,5 +20,6 @@ internal static class RimWorld_MapGenerator
     private static void Postfix(Map map, int seed)
     {
         Landform.CleanUp();
+        RimWorld_TerrainPatchMaker.Reset();
     }
 }

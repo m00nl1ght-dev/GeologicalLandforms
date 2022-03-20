@@ -58,29 +58,29 @@ internal static class RimWorld_WITab_Terrain
 
     private static void GetSpecialFeatures(Listing_Standard listingStandard, string str0, string str1, string str2 = null)
     {
-        StringBuilder sb = new();
-        
         int tileId = Find.WorldSelector.selectedTile;
         IWorldTileInfo worldTileInfo = WorldTileInfo.GetWorldTileInfo(tileId);
 
         if (worldTileInfo.Landform != null)
         {
-            string append = worldTileInfo.Landform.TranslatedName;
+            string landformStr = worldTileInfo.Landform.TranslatedName;
             
             if (worldTileInfo.Landform.DisplayNameHasDirection)
             {
                 if (worldTileInfo.Landform.IsCornerVariant)
                 {
-                    append = TranslateDoubleRot4(worldTileInfo.LandformDirection) + " " + append;
+                    landformStr = TranslateDoubleRot4(worldTileInfo.LandformDirection) + " " + landformStr;
                 }
                 else
                 {
-                    append = TranslateRot4(worldTileInfo.LandformDirection) + " " + append;
+                    landformStr = TranslateRot4(worldTileInfo.LandformDirection) + " " + landformStr;
                 }
             }
             
-            sb.AppendWithComma(append);
+            listingStandard.LabelDouble("GeologicalLandforms.WorldMap.Landform".Translate(), landformStr.CapitalizeFirst());
         }
+
+        StringBuilder sb = new();
         
         if (Find.World.HasCaves(tileId))
         {

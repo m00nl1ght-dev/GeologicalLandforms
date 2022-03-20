@@ -15,6 +15,9 @@ public class LandformGraphEditor : Window
     public Landform Landform => (Landform) _canvasCache?.nodeCanvas;
     public bool HasLoadedLandform => Landform != null && Landform.Id != null;
 
+    public static bool IsEditorOpen => Find.WindowStack.IsOpen<LandformGraphEditor>();
+    public static LandformGraphEditor ActiveEditor => Find.WindowStack.WindowOfType<LandformGraphEditor>();
+
     public override Vector2 InitialSize => new(Screen.width, Screen.height);
 
     protected override float Margin => 0f;
@@ -25,6 +28,15 @@ public class LandformGraphEditor : Window
         AssureSetup();
         if (_canvasCache.nodeCanvas)
             _canvasCache.nodeCanvas.Validate();
+    }
+    
+    public override void Close(bool doCloseSound = true)
+    {
+        base.Close(doCloseSound);
+        Landform.CleanUp();
+        Landform.CleanUpGUI();
+        LandformManager.SaveAllCustom();
+        WorldTileInfo.InvalidateCache();
     }
     
     private void AssureSetup()
@@ -42,16 +54,36 @@ public class LandformGraphEditor : Window
         };
     }
 
-    public void Open(Landform landform)
+    public void OpenLandform(Landform landform)
     {
-        EditorTileInfo = new EditorMockTileInfo(landform);
-        Landform.PrepareEditor(EditorTileInfo);
-        _canvasCache.nodeCanvas = landform;
-        _canvasCache.NewEditorState();
-        landform.PrepareGUI();
-        landform.TraverseAll();
-        Landform.RefreshPreviews();
-        landform.ResetView();
+        if (HasLoadedLandform)
+        {
+            Landform.CleanUp();
+            Landform.CleanUpGUI();
+            EditorTileInfo = null;
+        }
+
+        if (landform != null)
+        {
+            EditorTileInfo = new EditorMockTileInfo(landform);
+            Landform.PrepareEditor(EditorTileInfo);
+            _canvasCache.nodeCanvas = landform;
+            _canvasCache.NewEditorState();
+            landform.PrepareGUI();
+            landform.TraverseAll();
+            Landform.RefreshPreviews();
+            landform.ResetView();
+        }
+        else
+        {
+            _canvasCache.NewNodeCanvas(typeof(Landform));
+            _canvasCache.NewEditorState();
+        }
+    }
+
+    public void CloseLandform()
+    {
+        OpenLandform(null);
     }
     
     public void Duplicate()
@@ -61,7 +93,7 @@ public class LandformGraphEditor : Window
             Landform duplicate = LandformManager.Duplicate(Landform);
             if (duplicate != null)
             {
-                Open(duplicate);
+                OpenLandform(duplicate);
             }
         }
     }
@@ -70,7 +102,7 @@ public class LandformGraphEditor : Window
     {
         if (HasLoadedLandform)
         {
-            Open(LandformManager.Reset(Landform));
+            OpenLandform(LandformManager.Reset(Landform));
         }
     }
 
@@ -81,15 +113,6 @@ public class LandformGraphEditor : Window
             LandformManager.Delete(Landform);
             _canvasCache.NewNodeCanvas(typeof(Landform));
         }
-    }
-
-    public override void Close(bool doCloseSound = true)
-    {
-        LandformManager.SaveAllCustom();
-        WorldTileInfo.InvalidateCache();
-        Landform.CleanUp();
-        base.Close(doCloseSound);
-        Landform.CleanUpGUI();
     }
 
     public override void PreOpen()
@@ -132,7 +155,7 @@ public class LandformGraphEditor : Window
         }
         catch (UnityException e)
         { // On exceptions in drawing flush the canvas to avoid locking the UI
-            _canvasCache.NewNodeCanvas ();
+            _canvasCache.NewNodeCanvas(typeof(Landform));
             NodeEditor.ReInit (true);
             Debug.LogError ("Unloaded Canvas due to exception in Draw!");
             Debug.LogException (e);

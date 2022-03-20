@@ -26,6 +26,7 @@ public class Landform : TerrainCanvas
     
     public NodeOutputElevation OutputElevation { get; internal set; }
     public NodeOutputFertility OutputFertility { get; internal set; }
+    public NodeOutputTerrain OutputTerrain { get; internal set; }
 
     public override int GridFullSize => 250;
     public override int GridPreviewSize => 100;
@@ -36,17 +37,30 @@ public class Landform : TerrainCanvas
     public string TranslatedName => DisplayName?.Length > 0 ? DisplayName : Id != null ? ("GeologicalLandforms.Landform." + Id).Translate() : "Unknown";
     public string TranslatedNameForSelection => TranslatedName + (IsCornerVariant ? (" " + "GeologicalLandforms.Landform.Corner".Translate()) : "");
     public bool IsCornerVariant => WorldTileReq?.Topology is Topology.CoastTwoSides or Topology.CliffTwoSides;
+    
+    public static int MakeSeed(int tileId, int hash)
+    {
+        return (GeneratingLandform != null ? GeneratingLandform.RandSeed : Find.World.info.Seed) ^ tileId ^ hash;
+    }
 
     public static void PrepareMapGen(Map map)
     {
+        LandformGraphEditor.ActiveEditor?.Close();
+        
+        int seed = Find.World.info.Seed ^ map.Tile;
+        PrepareMapGen(Math.Min(map.Size.x, map.Size.z), map.Tile, seed);
+    }
+    
+    public static void PrepareMapGen(int mapSize, int worldTile, int seed)
+    {
         CleanUp();
-        GeneratingTile = WorldTileInfo.GetWorldTileInfo(map.Tile);
-        GeneratingMapSize = Math.Min(map.Size.x, map.Size.z);
+        GeneratingTile = WorldTileInfo.GetWorldTileInfo(worldTile);
+        GeneratingMapSize = mapSize;
 
         if (GeneratingTile.Landform == null) return;
-        if (!GeneratingTile.Landform.WorldTileReq.CheckMapRequirements(map)) return;
+        if (!GeneratingTile.Landform.WorldTileReq.CheckMapRequirements(mapSize)) return;
         
-        GeneratingLandform.RandSeed = NodeBase.SeedSource.Next();
+        GeneratingLandform.RandSeed = seed;
         GeneratingLandform.TraverseAll();
     }
 

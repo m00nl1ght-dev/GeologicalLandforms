@@ -13,6 +13,8 @@ public class NodeValueWorldTile : NodeBase
 {
     public const string ID = "valueWorldTile";
     public override string GetID => ID;
+    
+    public override Vector2 MinSize => new(100, 10);
 
     public override string Title => "World Tile";
     
@@ -33,22 +35,22 @@ public class NodeValueWorldTile : NodeBase
         GUILayout.BeginVertical(BoxStyle);
         
         GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Elevation", BoxLayout);
+        GUILayout.Label("Elevation", DoubleBoxLayout);
         GUILayout.EndHorizontal();
         ElevationOutputKnob.SetPosition();
         
         GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Hilliness", BoxLayout);
+        GUILayout.Label("Hilliness", DoubleBoxLayout);
         GUILayout.EndHorizontal();
         HillinessOutputKnob.SetPosition();
         
         GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Temperature", BoxLayout);
+        GUILayout.Label("Temperature", DoubleBoxLayout);
         GUILayout.EndHorizontal();
         TemperatureOutputKnob.SetPosition();
         
         GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Rainfall", BoxLayout);
+        GUILayout.Label("Rainfall", DoubleBoxLayout);
         GUILayout.EndHorizontal();
         RainfallOutputKnob.SetPosition();
         

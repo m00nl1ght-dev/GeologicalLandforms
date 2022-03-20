@@ -65,10 +65,9 @@ public class NodeUIWorldTileReq : NodeUIBase
         return true;
     }
 
-    public bool CheckMapRequirements(Map map)
+    public bool CheckMapRequirements(int mapSize)
     {
-        int mapSizeInt = Math.Min(map.Size.x, map.Size.z);
-        if (!MapSizeRequirement.Includes(mapSizeInt)) return false;
+        if (!MapSizeRequirement.Includes(mapSize)) return false;
         
         return true;
     }

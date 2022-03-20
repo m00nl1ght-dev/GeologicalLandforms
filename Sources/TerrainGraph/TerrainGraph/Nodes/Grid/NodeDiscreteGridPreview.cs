@@ -56,9 +56,6 @@ public abstract class NodeDiscreteGridPreview<T> : NodeBase
                 }, 0f);
             }
         }
-
-        if (GUI.changed)
-            canvas.OnNodeChange(this);
     }
 
     protected abstract string MakeTooltip(T value, double x, double y);
