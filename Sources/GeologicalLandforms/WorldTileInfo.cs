@@ -39,7 +39,7 @@ public class WorldTileInfo
 
     private static void DetermineLandform(WorldTileInfo info)
     {
-        if (!info.Biome.canBuildBase) return; 
+        if (!info.Biome.canBuildBase || info.Tile.hilliness == Hilliness.Impassable) return; 
         if (Main.ExcludedBiomePrefixes.Any(info.Biome.defName.StartsWith)) return;
 
         List<Landform> landforms = Main.Settings.Landforms.Values.Where(e => e.CheckConditions(info)).ToList();
