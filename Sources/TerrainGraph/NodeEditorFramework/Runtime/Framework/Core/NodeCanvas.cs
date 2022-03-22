@@ -118,7 +118,7 @@ namespace NodeEditorFramework
 		/// <summary>
 		/// Specifies a node change, usually triggering traversal from that node
 		/// </summary>
-		public void OnNodeChange (Node node)
+		public virtual void OnNodeChange (Node node)
 		{
 			if (Traversal != null && node != null)
 				Traversal.OnChange (node);

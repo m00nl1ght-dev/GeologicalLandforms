@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using GeologicalLandforms.Patches;
 using NodeEditorFramework;
 using NodeEditorFramework.IO;
 using Verse;
@@ -10,81 +11,122 @@ namespace GeologicalLandforms.GraphEditor;
 
 public static class LandformManager
 {
-    public static string DefaultLandformsDir => Path.Combine(ModInstance.ModContentPack.RootDir, "LandformData");
-    public static string LegacyCustomLandformsDir => Path.Combine(GenFilePaths.ConfigFolderPath, "CustomLandformData");
-    public static string CustomLandformsDir => Path.Combine(GenFilePaths.ConfigFolderPath, "CustomLandforms");
+    public const int CurrentVersion = 1;
     
-    private static Dictionary<string, Landform> _defaultLandforms = new();
-    private static Dictionary<string, Landform> _customLandforms = new();
-
-    public static IReadOnlyDictionary<string, Landform> DefaultLandforms => _defaultLandforms;
-    public static IReadOnlyDictionary<string, Landform> CustomLandforms => _customLandforms;
-
-    public static IReadOnlyDictionary<string, Landform> Landforms => ModInstance.Settings?.UseCustomConfig ?? false ? _customLandforms : _defaultLandforms;
+    public static string CoreLandformsDir => Path.Combine(ModInstance.ModContentPack.RootDir, "LandformData");
+    
+    public static string CustomLandformsDir(int version) => Path.Combine(GenFilePaths.ConfigFolderPath, "CustomLandforms-v" + version);
+    public static string LegacyCustomLandformsDir => Path.Combine(GenFilePaths.ConfigFolderPath, "CustomLandformData");
+    
+    private static Dictionary<string, Landform> _landforms = new();
+    public static IReadOnlyDictionary<string, Landform> Landforms => _landforms;
     
     private static ImportExportFormat IOFormat => ImportExportManager.ParseFormat("XML");
 
     public static void InitialLoad()
     {
-        Directory.CreateDirectory(CustomLandformsDir);
-        _defaultLandforms = LoadLandformsFromDirectory(DefaultLandformsDir, null);
-        _customLandforms = LoadLandformsFromDirectory(CustomLandformsDir, _defaultLandforms);
+        Directory.CreateDirectory(CustomLandformsDir(CurrentVersion));
+        _landforms = LoadAll();
+
+        if (Directory.Exists(LegacyCustomLandformsDir) && ModInstance.Settings.HasLegacyCustomConfig)
+        {
+            RimWorld_Misc.OnMainMenu(() =>
+            {
+                ModInstance.Settings.HasLegacyCustomConfig = false;
+                Find.WindowStack.Add(new Dialog_MessageBox("GeologicalLandforms.LandformManager.LegacyConfigWarning".Translate()));
+            });
+        }
+    }
+
+    public static Dictionary<string, Landform> LoadAll()
+    {
+        Dictionary<string, Landform> coreLandforms = LoadLandformsFromDirectory(CoreLandformsDir, null);
+        Dictionary<string, Landform> mergedLandforms = LoadLandformsFromDirectory(CustomLandformsDir(CurrentVersion), coreLandforms);
+
+        List<Landform> upgradableLandforms = coreLandforms.Values
+            .Where(lf => mergedLandforms[lf.Id].Manifest.RevisionVersion < lf.Manifest.RevisionVersion)
+            .Select(lf => mergedLandforms[lf.Id]).ToList();
+
+        if (upgradableLandforms.Count > 0) RimWorld_Misc.OnMainMenu(() =>
+        {
+            string msg = "GeologicalLandforms.LandformManager.LandformUpgrade".Translate() + "\n";
+            msg = upgradableLandforms.Aggregate(msg, (current, lf) => current + ("\n" + lf.TranslatedNameForSelection));
+
+            void UpgradeAction()
+            {
+                foreach (Landform lf in upgradableLandforms) Reset(lf);
+                SaveAllEdited();
+            }
+            
+            void KeepAction()
+            {
+                foreach (Landform lf in upgradableLandforms) lf.Manifest.RevisionVersion += 1;
+                SaveAllEdited();
+            }
+
+            Find.WindowStack.Add(new Dialog_MessageBox(msg, 
+                "GeologicalLandforms.LandformManager.LandformUpgradeYes".Translate(), UpgradeAction,
+                "GeologicalLandforms.LandformManager.LandformUpgradeNo".Translate(), KeepAction));
+        });
+        
+        return mergedLandforms;
     }
     
-    public static void SaveAllCustom()
+    public static void SaveAllEdited()
     {
-        SaveLandformsToDirectory(CustomLandformsDir, _customLandforms);
+        SaveLandformsToDirectory(CustomLandformsDir(CurrentVersion), _landforms);
     }
 
     public static Landform Duplicate(Landform landform)
     {
-        SaveAllCustom();
+        SaveAllEdited();
         
-        Landform duplicate = LoadLandformsFromDirectory(CustomLandformsDir, _defaultLandforms).TryGetValue(landform.Manifest.Id);
+        Landform duplicate = LoadAll().TryGetValue(landform.Manifest.Id);
         if (duplicate == null) return null;
         
         string newId = landform.Manifest.Id + "Copy";
-        while (CustomLandforms.ContainsKey(newId) || DefaultLandforms.ContainsKey(newId))
+        while (Landforms.ContainsKey(newId))
         {
             newId += "Copy";
         }
         
         duplicate.Manifest.IsCustom = true;
+        duplicate.Manifest.IsEdited = true;
         duplicate.Manifest.Id = newId;
         
-        _customLandforms.Add(newId, duplicate);
+        _landforms.Add(newId, duplicate);
         return duplicate;
     }
     
     public static void Rename(Landform landform, string newId)
     {
-        if (_customLandforms.ContainsKey(newId))
+        while (_landforms.ContainsKey(newId))
         {
             newId = "New" + newId;
         }
         
-        if (landform.Manifest.Id != null) _customLandforms.Remove(landform.Manifest.Id);
+        if (landform.Manifest.Id != null) _landforms.Remove(landform.Manifest.Id);
         landform.Manifest.Id = newId;
-        _customLandforms.Add(landform.Manifest.Id, landform);
+        _landforms.Add(landform.Manifest.Id, landform);
     }
 
     public static void Delete(Landform landform)
     {
-        _customLandforms.Remove(landform.Manifest.Id);
+        _landforms.Remove(landform.Manifest.Id);
     }
     
     public static Landform Reset(Landform landform)
     {
-        Landform reset = LoadLandformsFromDirectory(DefaultLandformsDir, null).TryGetValue(landform.Id);
+        Landform reset = LoadLandformsFromDirectory(CoreLandformsDir, null).TryGetValue(landform.Id);
         if (reset == null) return landform;
 
-        _customLandforms[landform.Id] = reset;
+        _landforms[landform.Id] = reset;
         return reset;
     }
     
     public static void ResetAll()
     {
-        _customLandforms = LoadLandformsFromDirectory(DefaultLandformsDir, null);
+        _landforms = LoadLandformsFromDirectory(CoreLandformsDir, null);
     }
     
     public static Dictionary<string, Landform> LoadLandformsFromDirectory(string directory, Dictionary<string, Landform> fallback)
@@ -131,9 +173,9 @@ public static class LandformManager
     {
         List<string> existing = Directory.GetFiles(directory, "*.xml").ToList();
 
-        foreach (KeyValuePair<string, Landform> pair in landforms.Where(p => p.Key?.Length > 0))
+        foreach (KeyValuePair<string, Landform> pair in landforms.Where(p => p.Value.Manifest.IsEdited || p.Value.Manifest.IsCustom))
         {
-            string file = Path.Combine(directory, pair.Key + ".xml");
+            string file = Path.Combine(directory, "Landform" + pair.Key + ".xml");
             Landform landform = pair.Value;
             existing.Remove(file);
             

@@ -1,4 +1,6 @@
 using System;
+using System.IO;
+using System.Linq;
 using NodeEditorFramework;
 using UnityEngine;
 using Verse;
@@ -18,6 +20,9 @@ public class NodeUILandformManifest : NodeUIBase
     public string Id;
     public bool IsCustom = true;
     
+    public int RevisionVersion = 1;
+    public bool IsEdited;
+    
     public string DisplayName;
     public bool DisplayNameHasDirection;
 
@@ -32,6 +37,8 @@ public class NodeUILandformManifest : NodeUIBase
 
         if (Id != newId)
         {
+            char[] invalids = Path.GetInvalidFileNameChars();
+            newId = invalids.Aggregate(newId, (current, c) => current.Replace(c, '_'));
             LandformManager.Rename(Landform, newId);
         }
 

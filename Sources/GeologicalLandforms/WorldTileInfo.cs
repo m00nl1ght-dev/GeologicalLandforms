@@ -37,7 +37,7 @@ public class WorldTileInfo : IWorldTileInfo
     public RoadDef MainRoad { get; private set; }
     public float MainRoadAngle { get; private set; }
 
-    private int MakeSeed(int hash) => RimWorld_Misc.LastKnownInitialWorldSeed ^ TileId ^ hash;
+    public int MakeSeed(int hash) => RimWorld_World.LastKnownInitialWorldSeed ^ TileId ^ hash;
 
     public WorldTileInfo(int tileId, Tile tile, World world)
     {
@@ -48,7 +48,7 @@ public class WorldTileInfo : IWorldTileInfo
 
     private static WorldTileInfo _cache;
     
-    public static WorldTileInfo GetWorldTileInfo(int tileId)
+    public static WorldTileInfo Get(int tileId)
     {
         World world = Find.World;
         if (_cache != null && _cache.TileId == tileId && _cache.World == world) return _cache;

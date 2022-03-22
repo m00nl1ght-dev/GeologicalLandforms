@@ -54,7 +54,7 @@ public class Landform : TerrainCanvas
     public static void PrepareMapGen(int mapSize, int worldTile, int seed)
     {
         CleanUp();
-        GeneratingTile = WorldTileInfo.GetWorldTileInfo(worldTile);
+        GeneratingTile = WorldTileInfo.Get(worldTile);
         GeneratingMapSize = mapSize;
 
         if (GeneratingTile.Landform == null) return;
@@ -84,6 +84,12 @@ public class Landform : TerrainCanvas
         if (WorldTileReq == null) Node.Create(NodeUIWorldTileReq.ID, new Vector2(), this);
     }
 
+    public override void OnNodeChange(Node node)
+    {
+        base.OnNodeChange(node);
+        if (Manifest != null) Manifest.IsEdited = true;
+    }
+
     public override bool CanAddNode(string nodeID, bool isEditorAction)
     {
         return nodeID switch
@@ -110,7 +116,7 @@ public class Landform : TerrainCanvas
     public override void ResetView()
     {
         base.ResetView();
-        Manifest.position = ScreenOrigin + new Vector2(10f, 3f);
-        WorldTileReq.position = new Vector2(ScreenOrigin.x + 10f, (IsCustom ? Manifest.rect.yMax : ScreenOrigin.y) + 10f);
+        if (Manifest != null) Manifest.position = ScreenOrigin + new Vector2(10f, 3f);
+        if (WorldTileReq != null) WorldTileReq.position = new Vector2(ScreenOrigin.x + 10f, (IsCustom ? Manifest.rect.yMax + 10f : ScreenOrigin.y + 3f));
     }
 }

@@ -31,7 +31,7 @@ public class LandformGraphInterface
                     "GeologicalLandforms.Editor.Open.Tooltip".Translate()), GUI.skin.GetStyle("toolbarDropdown"),
                 GUILayout.MinWidth(Landform?.Id != null ? 150f : 50f)))
         {
-            List<FloatMenuOption> options = LandformManager.CustomLandforms.Values.Select(e =>
+            List<FloatMenuOption> options = LandformManager.Landforms.Values.Select(e =>
                 new FloatMenuOption(e.Id, () => Editor.OpenLandform(e))).ToList();
             Find.WindowStack.Add(new FloatMenu(options));
         }

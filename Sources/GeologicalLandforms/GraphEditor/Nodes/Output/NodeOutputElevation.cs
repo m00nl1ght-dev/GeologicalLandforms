@@ -29,6 +29,11 @@ public class NodeOutputElevation : NodeOutputBase
         Landform.OutputElevation = this;
     }
 
+    protected override void OnDelete()
+    {
+        if (Landform.OutputElevation == this) Landform.OutputElevation = null;
+    }
+
     public IGridFunction<double> Get()
     {
         IGridFunction<double> function = InputKnob.GetValue<ISupplier<IGridFunction<double>>>()?.ResetAndGet();

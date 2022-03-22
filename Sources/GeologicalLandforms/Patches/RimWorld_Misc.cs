@@ -1,8 +1,8 @@
+using System;
+using System.Collections.Generic;
 using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using RimWorld;
-using RimWorld.Planet;
-using Verse;
 
 // ReSharper disable All
 namespace GeologicalLandforms.Patches;
@@ -10,13 +10,21 @@ namespace GeologicalLandforms.Patches;
 [HarmonyPatch]
 internal static class RimWorld_Misc
 {
-    public static int LastKnownInitialWorldSeed { get; private set; }
+    private static List<Action> _onMainMenu = new();
+
+    public static void OnMainMenu(Action action)
+    {
+        _onMainMenu.Add(action);
+    }
     
     [HarmonyPatch(typeof(MainMenuDrawer))]
     [HarmonyPatch(nameof(MainMenuDrawer.Init))]
     private static void Postfix()
     {
-        if (Prefs.DevMode) Find.WindowStack.Add(new LandformGraphEditor());
+        _onMainMenu.ForEach(e => e.Invoke());
+        _onMainMenu.Clear();
+        
+        //if (Prefs.DevMode) Find.WindowStack.Add(new LandformGraphEditor());
     }
     
     [HarmonyPatch(typeof(LearningReadout))]
@@ -24,12 +32,5 @@ internal static class RimWorld_Misc
     private static bool Prefix()
     {
         return !LandformGraphEditor.IsEditorOpen;
-    }
-    
-    [HarmonyPatch(typeof(World))]
-    [HarmonyPatch(nameof(World.ConstructComponents))]
-    private static void Postfix(WorldInfo ___info)
-    {
-        LastKnownInitialWorldSeed = ___info.Seed;
     }
 }

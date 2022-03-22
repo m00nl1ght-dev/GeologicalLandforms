@@ -29,6 +29,11 @@ public class NodeOutputFertility : NodeOutputBase
         Landform.OutputFertility = this;
     }
     
+    protected override void OnDelete()
+    {
+        if (Landform.OutputFertility == this) Landform.OutputFertility = null;
+    }
+    
     public IGridFunction<double> Get()
     {
         IGridFunction<double> function = InputKnob.GetValue<ISupplier<IGridFunction<double>>>()?.ResetAndGet();

@@ -17,6 +17,7 @@ public class LandformGraphEditor : Window
 
     public static bool IsEditorOpen => Find.WindowStack.IsOpen<LandformGraphEditor>();
     public static LandformGraphEditor ActiveEditor => Find.WindowStack.WindowOfType<LandformGraphEditor>();
+    public NodeEditorState EditorState => _canvasCache?.editorState;
 
     public override Vector2 InitialSize => new(Screen.width, Screen.height);
 
@@ -35,7 +36,7 @@ public class LandformGraphEditor : Window
         base.Close(doCloseSound);
         Landform.CleanUp();
         Landform.CleanUpGUI();
-        LandformManager.SaveAllCustom();
+        LandformManager.SaveAllEdited();
         WorldTileInfo.InvalidateCache();
     }
     
@@ -54,7 +55,7 @@ public class LandformGraphEditor : Window
         };
     }
 
-    public void OpenLandform(Landform landform)
+    public void OpenLandform(Landform landform, NodeEditorState editorState = null)
     {
         if (HasLoadedLandform)
         {
@@ -68,7 +69,16 @@ public class LandformGraphEditor : Window
             EditorTileInfo = new EditorMockTileInfo(landform);
             Landform.PrepareEditor(EditorTileInfo);
             _canvasCache.nodeCanvas = landform;
-            _canvasCache.NewEditorState();
+
+            if (editorState != null)
+            {
+                _canvasCache.editorState = editorState;
+            }
+            else
+            {
+                _canvasCache.NewEditorState();
+            }
+
             landform.PrepareGUI();
             landform.TraverseAll();
             Landform.RefreshPreviews();

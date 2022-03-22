@@ -45,6 +45,11 @@ public class NodeOutputTerrain : NodeOutputBase
         if (existing != null && existing != this && canvas.nodes.Contains(existing)) existing.Delete();
         Landform.OutputTerrain = this;
     }
+    
+    protected override void OnDelete()
+    {
+        if (Landform.OutputTerrain == this) Landform.OutputTerrain = null;
+    }
 
     public IGridFunction<TerrainData> GetBase()
     {

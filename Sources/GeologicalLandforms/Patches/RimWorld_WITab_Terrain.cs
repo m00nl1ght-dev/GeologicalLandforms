@@ -59,7 +59,7 @@ internal static class RimWorld_WITab_Terrain
     private static void GetSpecialFeatures(Listing_Standard listingStandard, string str0, string str1, string str2 = null)
     {
         int tileId = Find.WorldSelector.selectedTile;
-        IWorldTileInfo worldTileInfo = WorldTileInfo.GetWorldTileInfo(tileId);
+        IWorldTileInfo worldTileInfo = WorldTileInfo.Get(tileId);
 
         if (worldTileInfo.Landform != null)
         {
@@ -126,7 +126,7 @@ internal static class RimWorld_WITab_Terrain
             pending.Clear();
             foreach (var p in copy)
             {
-                IWorldTileInfo tileInfo = WorldTileInfo.GetWorldTileInfo(p);
+                IWorldTileInfo tileInfo = WorldTileInfo.Get(p);
                 if (tileInfo.Landform == landform)
                 {
                     CameraJumper.TryJumpAndSelect(new GlobalTargetInfo(p));

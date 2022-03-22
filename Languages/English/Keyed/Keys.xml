@@ -2,8 +2,16 @@
 <LanguageData>
   
   <GeologicalLandforms.Settings.MaxLandformSearchRadius>Max landform search radius on world map</GeologicalLandforms.Settings.MaxLandformSearchRadius>
-  <GeologicalLandforms.Settings.Advanced>Override default config and customize landforms (advanced)</GeologicalLandforms.Settings.Advanced>
+  <GeologicalLandforms.Settings.OpenEditor>Open landform editor</GeologicalLandforms.Settings.OpenEditor>
+  <GeologicalLandforms.Settings.ResetAll>Reset everything to default</GeologicalLandforms.Settings.ResetAll>
+  <GeologicalLandforms.Settings.OpenDataDir>Open custom landform data directory</GeologicalLandforms.Settings.OpenDataDir>
+  <GeologicalLandforms.Settings.ConfirmResetAll>Are you sure you want to fully reset the settings for this mod, including all landform configs? This will also unrecoverably delete ALL custom landforms you created!</GeologicalLandforms.Settings.ConfirmResetAll>
 
+  <GeologicalLandforms.LandformManager.LegacyConfigWarning>With the latest update of Geological Landforms a new landform editor was added, replacing the old one. This means landforms previously created or modified with the old editor will no longer be loaded by this version of the mod. The new editor can be accessed from the mod settings.</GeologicalLandforms.LandformManager.LegacyConfigWarning>
+  <GeologicalLandforms.LandformManager.LandformUpgrade>There are new versions available for some landforms that you previously modified. Would you like to get the new versions, or keep the old modified ones?\n\nAffected landforms:</GeologicalLandforms.LandformManager.LandformUpgrade>
+  <GeologicalLandforms.LandformManager.LandformUpgradeYes>Replace with new data</GeologicalLandforms.LandformManager.LandformUpgradeYes>
+  <GeologicalLandforms.LandformManager.LandformUpgradeNo>Keep old data</GeologicalLandforms.LandformManager.LandformUpgradeNo>
+  
   <GeologicalLandforms.Editor.Open>Open</GeologicalLandforms.Editor.Open>
   <GeologicalLandforms.Editor.Open.Tooltip>Select landform to edit</GeologicalLandforms.Editor.Open.Tooltip>
   <GeologicalLandforms.Editor.Reset>Reset</GeologicalLandforms.Editor.Reset>
@@ -15,11 +23,6 @@
   <GeologicalLandforms.Editor.ConfirmReset>Are you sure you want to reset the config for the selected landform to default?</GeologicalLandforms.Editor.ConfirmReset>
   <GeologicalLandforms.Editor.ConfirmDelete>Are you sure you want to delete the selected custom landform? It will be gone forever!</GeologicalLandforms.Editor.ConfirmDelete>
   
-  <GeologicalLandforms.Settings.OpenEditor>Open landform editor</GeologicalLandforms.Settings.OpenEditor>
-  <GeologicalLandforms.Settings.ResetAll>Reset everything to default</GeologicalLandforms.Settings.ResetAll>
-  <GeologicalLandforms.Settings.OpenDataDir>Open custom landform data directory</GeologicalLandforms.Settings.OpenDataDir>
-  <GeologicalLandforms.Settings.ConfirmResetAll>Are you sure you want to fully reset the settings for this mod, including all landform configs? This will also unrecoverably delete ALL custom landforms you created!</GeologicalLandforms.Settings.ConfirmResetAll>
-
   <GeologicalLandforms.WorldMap.Landform>Landform</GeologicalLandforms.WorldMap.Landform>
   <GeologicalLandforms.WorldMap.Topology>Topology</GeologicalLandforms.WorldMap.Topology>
   <GeologicalLandforms.WorldMap.TopologyDirection>Topology direction</GeologicalLandforms.WorldMap.TopologyDirection>
@@ -47,6 +50,7 @@
   <GeologicalLandforms.Settings.Landform.MapSizeRequirement>Map size requirement</GeologicalLandforms.Settings.Landform.MapSizeRequirement>
   <GeologicalLandforms.Settings.Landform.AllowSettlements>Allow non-player settlements</GeologicalLandforms.Settings.Landform.AllowSettlements>
   <GeologicalLandforms.Settings.Landform.AllowSites>Allow quest sites</GeologicalLandforms.Settings.Landform.AllowSites>
+  <GeologicalLandforms.Settings.Landform.CaveChance>Cave chance</GeologicalLandforms.Settings.Landform.CaveChance>
   <GeologicalLandforms.Settings.Landform.AllowCaves>Allow caves</GeologicalLandforms.Settings.Landform.AllowCaves>
   <GeologicalLandforms.Settings.Landform.RequireCaves>Require caves</GeologicalLandforms.Settings.Landform.RequireCaves>
 
@@ -64,67 +68,6 @@
   <GeologicalLandforms.Settings.Landform.Topology.CliffAllSides>Cliff on all sides</GeologicalLandforms.Settings.Landform.Topology.CliffAllSides>
   <GeologicalLandforms.Settings.Landform.Topology.CliffAndCoast>Cliff and coast</GeologicalLandforms.Settings.Landform.Topology.CliffAndCoast>
   <GeologicalLandforms.Settings.Landform.Topology.Ocean>Ocean</GeologicalLandforms.Settings.Landform.Topology.Ocean>
-  
-  <GeologicalLandforms.Settings.GenNoiseConfig.SelectNoiseType>Edit settings for NoiseType: </GeologicalLandforms.Settings.GenNoiseConfig.SelectNoiseType>
-  <GeologicalLandforms.Settings.GenNoiseConfig.ThresholdShallow>ThresholdShallow</GeologicalLandforms.Settings.GenNoiseConfig.ThresholdShallow>
-  <GeologicalLandforms.Settings.GenNoiseConfig.ThresholdBeach>ThresholdBeach</GeologicalLandforms.Settings.GenNoiseConfig.ThresholdBeach>
-  <GeologicalLandforms.Settings.GenNoiseConfig.TerrainDeep>TerrainDeep</GeologicalLandforms.Settings.GenNoiseConfig.TerrainDeep>
-  <GeologicalLandforms.Settings.GenNoiseConfig.TerrainShallow>TerrainShallow</GeologicalLandforms.Settings.GenNoiseConfig.TerrainShallow>
-  <GeologicalLandforms.Settings.GenNoiseConfig.TerrainBeach>TerrainBeach</GeologicalLandforms.Settings.GenNoiseConfig.TerrainBeach>
-  <GeologicalLandforms.Settings.GenNoiseConfig.HillModifierEffectiveness>HillModifierEffectiveness</GeologicalLandforms.Settings.GenNoiseConfig.HillModifierEffectiveness>
-  <GeologicalLandforms.Settings.GenNoiseConfig.MaxElevationIfWaterCovered>MaxElevationIfWaterCovered</GeologicalLandforms.Settings.GenNoiseConfig.MaxElevationIfWaterCovered>
-
-  <GeologicalLandforms.Settings.GenNoiseConfig.NoiseType.Coast>Coast</GeologicalLandforms.Settings.GenNoiseConfig.NoiseType.Coast>
-  <GeologicalLandforms.Settings.GenNoiseConfig.NoiseType.Elevation>Elevation</GeologicalLandforms.Settings.GenNoiseConfig.NoiseType.Elevation>
-  <GeologicalLandforms.Settings.GenNoiseConfig.NoiseType.Fertility>Fertility</GeologicalLandforms.Settings.GenNoiseConfig.NoiseType.Fertility>
-  
-  <GeologicalLandforms.Settings.GenNoiseStack.PerlinFrequency>PerlinFrequency</GeologicalLandforms.Settings.GenNoiseStack.PerlinFrequency>
-  <GeologicalLandforms.Settings.GenNoiseStack.PerlinLacunarity>PerlinLacunarity</GeologicalLandforms.Settings.GenNoiseStack.PerlinLacunarity>
-  <GeologicalLandforms.Settings.GenNoiseStack.PerlinPersistence>PerlinPersistence</GeologicalLandforms.Settings.GenNoiseStack.PerlinPersistence>
-  <GeologicalLandforms.Settings.GenNoiseStack.PerlinOctaves>PerlinOctaves</GeologicalLandforms.Settings.GenNoiseStack.PerlinOctaves>
-  <GeologicalLandforms.Settings.GenNoiseStack.NoiseSeed>NoiseSeed</GeologicalLandforms.Settings.GenNoiseStack.NoiseSeed>
-  <GeologicalLandforms.Settings.GenNoiseStack.BaseScale>BaseScale</GeologicalLandforms.Settings.GenNoiseStack.BaseScale>
-  <GeologicalLandforms.Settings.GenNoiseStack.BaseBias>BaseBias</GeologicalLandforms.Settings.GenNoiseStack.BaseBias>
-  <GeologicalLandforms.Settings.GenNoiseStack.SelectApplyMethod>Edit for ApplyMethod: </GeologicalLandforms.Settings.GenNoiseStack.SelectApplyMethod>
-  <GeologicalLandforms.Settings.GenNoiseStack.MinSmoothness>MinSmoothness</GeologicalLandforms.Settings.GenNoiseStack.MinSmoothness>
-  <GeologicalLandforms.Settings.GenNoiseStack.MaxSmoothness>MaxSmoothness</GeologicalLandforms.Settings.GenNoiseStack.MaxSmoothness>
-  <GeologicalLandforms.Settings.GenNoiseStack.LayerCount>LayerCount: </GeologicalLandforms.Settings.GenNoiseStack.LayerCount>
-
-  <GeologicalLandforms.Settings.GenNoiseStack.ApplyMethod.Min>Min</GeologicalLandforms.Settings.GenNoiseStack.ApplyMethod.Min>
-  <GeologicalLandforms.Settings.GenNoiseStack.ApplyMethod.Max>Max</GeologicalLandforms.Settings.GenNoiseStack.ApplyMethod.Max>
-  <GeologicalLandforms.Settings.GenNoiseStack.ApplyMethod.Add>Add</GeologicalLandforms.Settings.GenNoiseStack.ApplyMethod.Add>
-  <GeologicalLandforms.Settings.GenNoiseStack.ApplyMethod.Multiply>Multiply</GeologicalLandforms.Settings.GenNoiseStack.ApplyMethod.Multiply>
-
-  <GeologicalLandforms.Settings.GenNoiseLayer.LayerHeader>Layer</GeologicalLandforms.Settings.GenNoiseLayer.LayerHeader>
-  <GeologicalLandforms.Settings.GenNoiseLayer.CenterX>CenterX</GeologicalLandforms.Settings.GenNoiseLayer.CenterX>
-  <GeologicalLandforms.Settings.GenNoiseLayer.CenterZ>CenterZ</GeologicalLandforms.Settings.GenNoiseLayer.CenterZ>
-  <GeologicalLandforms.Settings.GenNoiseLayer.SpanX>SpanX</GeologicalLandforms.Settings.GenNoiseLayer.SpanX>
-  <GeologicalLandforms.Settings.GenNoiseLayer.SpanPositiveX>SpanPositiveX</GeologicalLandforms.Settings.GenNoiseLayer.SpanPositiveX>
-  <GeologicalLandforms.Settings.GenNoiseLayer.SpanNegativeX>SpanNegativeX</GeologicalLandforms.Settings.GenNoiseLayer.SpanNegativeX>
-  <GeologicalLandforms.Settings.GenNoiseLayer.SpanZ>SpanZ</GeologicalLandforms.Settings.GenNoiseLayer.SpanZ>
-  <GeologicalLandforms.Settings.GenNoiseLayer.SpanPositiveZ>SpanPositiveZ</GeologicalLandforms.Settings.GenNoiseLayer.SpanPositiveZ>
-  <GeologicalLandforms.Settings.GenNoiseLayer.SpanNegativeZ>SpanNegativeZ</GeologicalLandforms.Settings.GenNoiseLayer.SpanNegativeZ>
-  <GeologicalLandforms.Settings.GenNoiseLayer.RotationOffset>RotationOffset</GeologicalLandforms.Settings.GenNoiseLayer.RotationOffset>
-  <GeologicalLandforms.Settings.GenNoiseLayer.Bias>Bias</GeologicalLandforms.Settings.GenNoiseLayer.Bias>
-  <GeologicalLandforms.Settings.GenNoiseLayer.Clamp>Clamp</GeologicalLandforms.Settings.GenNoiseLayer.Clamp>
-  <GeologicalLandforms.Settings.GenNoiseLayer.MapSideFilter>Map Side Filter: </GeologicalLandforms.Settings.GenNoiseLayer.MapSideFilter>
-  <GeologicalLandforms.Settings.GenNoiseLayer.SideCombineMethod>Side Combine Method: </GeologicalLandforms.Settings.GenNoiseLayer.SideCombineMethod>
-  <GeologicalLandforms.Settings.GenNoiseLayer.LayerCombineMethod>Layer Combine Method: </GeologicalLandforms.Settings.GenNoiseLayer.LayerCombineMethod>
-  <GeologicalLandforms.Settings.GenNoiseLayer.SpanOptions>Span Options: </GeologicalLandforms.Settings.GenNoiseLayer.SpanOptions>
-  <GeologicalLandforms.Settings.GenNoiseLayer.InvertX>InvertX</GeologicalLandforms.Settings.GenNoiseLayer.InvertX>
-  <GeologicalLandforms.Settings.GenNoiseLayer.InvertZ>InvertZ</GeologicalLandforms.Settings.GenNoiseLayer.InvertZ>
-  <GeologicalLandforms.Settings.GenNoiseLayer.Radial>Radial</GeologicalLandforms.Settings.GenNoiseLayer.Radial>
-  <GeologicalLandforms.Settings.GenNoiseLayer.SyncPosNeg>SyncPosNeg</GeologicalLandforms.Settings.GenNoiseLayer.SyncPosNeg>
-  <GeologicalLandforms.Settings.GenNoiseLayer.AlignOptions>Align Options: </GeologicalLandforms.Settings.GenNoiseLayer.AlignOptions>
-  <GeologicalLandforms.Settings.GenNoiseLayer.AlignRiver>AlignRiver</GeologicalLandforms.Settings.GenNoiseLayer.AlignRiver>
-  <GeologicalLandforms.Settings.GenNoiseLayer.AlignRoad>AlignRoad</GeologicalLandforms.Settings.GenNoiseLayer.AlignRoad>
-  <GeologicalLandforms.Settings.GenNoiseLayer.FixedSpan>FixedSpan</GeologicalLandforms.Settings.GenNoiseLayer.FixedSpan>
-  <GeologicalLandforms.Settings.GenNoiseLayer.ApplyChance>ApplyChance</GeologicalLandforms.Settings.GenNoiseLayer.ApplyChance>
-
-  <GeologicalLandforms.Settings.GenNoiseLayer.MapSide.Front>Front</GeologicalLandforms.Settings.GenNoiseLayer.MapSide.Front>
-  <GeologicalLandforms.Settings.GenNoiseLayer.MapSide.Back>Back</GeologicalLandforms.Settings.GenNoiseLayer.MapSide.Back>
-  <GeologicalLandforms.Settings.GenNoiseLayer.MapSide.Left>Left</GeologicalLandforms.Settings.GenNoiseLayer.MapSide.Left>
-  <GeologicalLandforms.Settings.GenNoiseLayer.MapSide.Right>Right</GeologicalLandforms.Settings.GenNoiseLayer.MapSide.Right>
   
   <GeologicalLandforms.Rot4.0>northern</GeologicalLandforms.Rot4.0>
   <GeologicalLandforms.Rot4.1>eastern</GeologicalLandforms.Rot4.1>

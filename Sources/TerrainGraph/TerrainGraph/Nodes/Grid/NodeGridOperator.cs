@@ -103,7 +103,7 @@ public class NodeGridOperator : NodeOperatorBase
             double applyChance = _applyChance.Get();
             double smoothness = _smoothness.Get();
             List<IGridFunction<double>> inputs = _inputs
-                .Where((_, i) => i == 0 || applyChance >= 1 || _random.NextDouble() > applyChance)
+                .Where((_, i) => i == 0 || applyChance >= 1 || _random.NextDouble() < applyChance)
                 .Select(e => e.Get()).ToList();
             
             return inputs.Count switch

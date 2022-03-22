@@ -15,10 +15,11 @@ public class NodeUIWorldTileReq : NodeUIBase
     public override string GetID => ID;
 
     public override string Title => "World Tile Requirements";
-    public override Vector2 DefaultSize => new(400, 870);
+    public override Vector2 DefaultSize => new(400, 875);
     
     public Topology Topology = Topology.Inland;
     public float Commonness = 1f;
+    public float CaveChance;
 
     public FloatRange HillinessRequirement = new(1f, 5f);
     public FloatRange RoadRequirement = new(0f, 1f);
@@ -29,8 +30,6 @@ public class NodeUIWorldTileReq : NodeUIBase
     public FloatRange SwampinessRequirement = new(0f, 1f);
     public FloatRange MapSizeRequirement = new(250f, 1000f);
     
-    public bool AllowCaves = true;
-    public bool RequireCaves;
     public bool AllowSettlements;
     public bool AllowSites;
     
@@ -42,8 +41,6 @@ public class NodeUIWorldTileReq : NodeUIBase
         if (!AvgTemperatureRequirement.Includes(worldTile.Temperature)) return false;
         if (!RainfallRequirement.Includes(worldTile.Rainfall)) return false;
         if (!SwampinessRequirement.Includes(worldTile.Swampiness)) return false;
-        if (!AllowCaves && worldTile.HasCaves) return false;
-        if (RequireCaves && !worldTile.HasCaves) return false;
 
         MapParent mapParent = worldTile.WorldObject;
         bool isPlayer = mapParent?.Faction is { IsPlayer: true };
@@ -74,9 +71,14 @@ public class NodeUIWorldTileReq : NodeUIBase
 
     protected override void DoWindowContents(Listing_Standard listing)
     {
-        GuiUtils.Dropdown(listing, "GeologicalLandforms.Settings.Landform.Topology".Translate(), Topology, e => Topology = e, 150f, "GeologicalLandforms.Settings.Landform.Topology");
         GuiUtils.CenteredLabel(listing, "GeologicalLandforms.Settings.Landform.Commonness".Translate(), Math.Round(Commonness, 2).ToString(CultureInfo.InvariantCulture));
         Commonness = listing.Slider(Commonness, 0f, 1f);
+        
+        GuiUtils.CenteredLabel(listing, "GeologicalLandforms.Settings.Landform.CaveChance".Translate(), Math.Round(CaveChance, 2).ToString(CultureInfo.InvariantCulture));
+        CaveChance = listing.Slider(CaveChance, 0f, 1f);
+        listing.Gap(18f);
+        
+        GuiUtils.Dropdown(listing, "GeologicalLandforms.Settings.Landform.Topology".Translate(), Topology, e => Topology = e, 150f, "GeologicalLandforms.Settings.Landform.Topology");
         listing.Gap();
         
         GuiUtils.FloatRangeSlider(listing, ref HillinessRequirement, "GeologicalLandforms.Settings.Landform.HillinessRequirement".Translate(), 1f, 5f);
@@ -91,10 +93,6 @@ public class NodeUIWorldTileReq : NodeUIBase
         
         listing.CheckboxLabeled("GeologicalLandforms.Settings.Landform.AllowSettlements".Translate(), ref AllowSettlements);
         listing.CheckboxLabeled("GeologicalLandforms.Settings.Landform.AllowSites".Translate(), ref AllowSites);
-        listing.Gap();
-        
-        listing.CheckboxLabeled("GeologicalLandforms.Settings.Landform.AllowCaves".Translate(), ref AllowCaves);
-        if (AllowCaves) listing.CheckboxLabeled("GeologicalLandforms.Settings.Landform.RequireCaves".Translate(), ref RequireCaves);
     }
 
     public override void DrawNode()

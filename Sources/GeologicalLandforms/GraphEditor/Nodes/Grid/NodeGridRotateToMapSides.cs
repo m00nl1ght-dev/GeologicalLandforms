@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using GeologicalLandforms.GraphEditor;
 using NodeEditorFramework;
 using NodeEditorFramework.Utilities;
 using UnityEngine;
@@ -109,7 +110,7 @@ public class NodeGridRotateToMapSides : NodeBase
         {
             OutputKnobs[i].SetValue<ISupplier<IGridFunction<double>>>(new NodeGridRotate.Output(
                 SupplierOrGridFixed(InputKnobs[i], GridFunction.Zero), 
-                Supplier.Of(MapSideToAngle(MapSides[i])), 
+                Supplier.Of(MapSideToAngle(MapSides[i]) + Landform.GeneratingTile.LandformDirection.AsAngle), 
                 GridSize / 2, GridSize / 2
             ));
         }

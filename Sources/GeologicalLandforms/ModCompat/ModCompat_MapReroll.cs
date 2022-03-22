@@ -3,6 +3,7 @@ using System.Reflection;
 using GeologicalLandforms.GraphEditor;
 using GeologicalLandforms.Patches;
 using HarmonyLib;
+using NodeEditorFramework;
 using Verse;
 
 namespace GeologicalLandforms.ModCompat;
@@ -64,6 +65,7 @@ internal static class ModCompat_MapReroll
     }
 
     private static Landform _lastEditedLandform;
+    private static NodeEditorState _lastEditorState;
     public static bool IsPreviewWindowOpen;
     
     private static void Dialog_MapPreviews_SetUpTabs_Postfix()
@@ -74,6 +76,7 @@ internal static class ModCompat_MapReroll
         if (editor is { HasLoadedLandform: true })
         {
             _lastEditedLandform = editor.Landform;
+            _lastEditorState = editor.EditorState;
             editor.CloseLandform();
         }
     }
@@ -84,10 +87,11 @@ internal static class ModCompat_MapReroll
         
         if (editor != null && _lastEditedLandform != null && Landform.GeneratingTile == null)
         {
-            editor.OpenLandform(_lastEditedLandform);
+            editor.OpenLandform(_lastEditedLandform, _lastEditorState);
         }
         
         _lastEditedLandform = null;
+        _lastEditorState = null;
         IsPreviewWindowOpen = false;
     }
     
