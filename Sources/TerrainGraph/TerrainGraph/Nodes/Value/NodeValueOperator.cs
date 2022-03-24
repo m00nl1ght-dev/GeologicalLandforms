@@ -57,12 +57,19 @@ public class NodeValueOperator : NodeOperatorBase
     public override void RefreshPreview()
     {
         base.RefreshPreview();
+        List<ISupplier<double>> suppliers = new();
+
         for (int i = 0; i < Math.Min(Values.Count, InputKnobs.Count); i++)
         {
             ValueConnectionKnob knob = InputKnobs[i];
-            var value = Values[i];
-            RefreshIfConnected(knob, ref value);
-            Values[i] = value;
+            ISupplier<double> supplier = GetIfConnected<double>(knob);
+            supplier?.ResetState();
+            suppliers.Add(supplier);
+        }
+
+        for (var i = 0; i < suppliers.Count; i++)
+        {
+            if (suppliers[i] != null) Values[i] = suppliers[i].Get();
         }
     }
 

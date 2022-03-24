@@ -43,8 +43,14 @@ public class NodeValueRandom : NodeBase
     
     public override void RefreshPreview()
     {
-        RefreshIfConnected(AverageKnob, ref Average);
-        RefreshIfConnected(DeviationKnob, ref Deviation);
+        ISupplier<double> avg = GetIfConnected<double>(AverageKnob);
+        ISupplier<double> dev = GetIfConnected<double>(DeviationKnob);
+        
+        avg?.ResetState();
+        dev?.ResetState();
+
+        if (avg != null) Average = avg.Get();
+        if (dev != null) Deviation = dev.Get();
     }
 
     public override bool Calculate()

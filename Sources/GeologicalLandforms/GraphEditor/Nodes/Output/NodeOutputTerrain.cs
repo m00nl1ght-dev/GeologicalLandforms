@@ -54,12 +54,12 @@ public class NodeOutputTerrain : NodeOutputBase
     public IGridFunction<TerrainData> GetBase()
     {
         IGridFunction<TerrainData> function = BaseKnob.GetValue<ISupplier<IGridFunction<TerrainData>>>()?.ResetAndGet();
-        return function == null ? TerrainData.EmptyGrid : ScaleWithMap(function);
+        return function == null ? null : ScaleWithMap(function);
     }
     
     public IGridFunction<TerrainData> GetStone()
     {
         IGridFunction<TerrainData> function = StoneKnob.GetValue<ISupplier<IGridFunction<TerrainData>>>()?.ResetAndGet();
-        return function == null ? TerrainData.EmptyGrid : ScaleWithMap(function);
+        return function == null ? null : ScaleWithMap(function);
     }
 }

@@ -122,15 +122,27 @@ public class NodeGridLinear : NodeBase
 
     public override void RefreshPreview()
     {
-        RefreshIfConnected(BiasKnob, ref Bias);
-        RefreshIfConnected(ClampMinKnob, ref ClampMin);
-        RefreshIfConnected(ClampMaxKnob, ref ClampMax);
-        RefreshIfConnected(OriginXKnob, ref OriginX);
-        RefreshIfConnected(OriginZKnob, ref OriginZ);
-        RefreshIfConnected(SpanPxKnob, ref SpanPx);
-        RefreshIfConnected(SpanNxKnob, ref SpanNx);
-        RefreshIfConnected(SpanPzKnob, ref SpanPz);
-        RefreshIfConnected(SpanNzKnob, ref SpanNz);
+        ISupplier<double> bias = GetIfConnected<double>(BiasKnob);
+        ISupplier<double> min = GetIfConnected<double>(ClampMinKnob);
+        ISupplier<double> max = GetIfConnected<double>(ClampMaxKnob);
+        ISupplier<double> oX = GetIfConnected<double>(OriginXKnob);
+        ISupplier<double> oZ = GetIfConnected<double>(OriginZKnob);
+        ISupplier<double> sPx = GetIfConnected<double>(SpanPxKnob);
+        ISupplier<double> sNx = GetIfConnected<double>(SpanNxKnob);
+        ISupplier<double> sPz = GetIfConnected<double>(SpanPzKnob);
+        ISupplier<double> sNz = GetIfConnected<double>(SpanNzKnob);
+        
+        foreach (ISupplier<double> supplier in new[]{bias, min, max, oX, oZ, sPx, sNx, sPz, sNz}) supplier?.ResetState();
+
+        if (bias != null) Bias = bias.Get();
+        if (min != null) ClampMin = min.Get();
+        if (max != null) ClampMax = max.Get();
+        if (oX != null) OriginX = oX.Get();
+        if (oZ != null) OriginZ = oZ.Get();
+        if (sPx != null) SpanPx = sPx.Get();
+        if (sNx != null) SpanNx = sNx.Get();
+        if (sPz != null) SpanPz = sPz.Get();
+        if (sNz != null) SpanNz = sNz.Get();
     }
     
     public override void FillNodeActionsMenu(NodeEditorInputInfo inputInfo, GenericMenu menu)

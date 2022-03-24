@@ -173,12 +173,12 @@ public abstract class NodeBase : Node
         return val ?? Supplier.Of(fixedValue);
     }
 
-    protected void RefreshIfConnected(ValueConnectionKnob input, ref double value)
+    protected void RefreshIfConnectedX(ValueConnectionKnob input, ref double value)
     {
         if (input != null && input.connected()) value = input.GetValue<ISupplier<double>>()?.ResetAndGet() ?? 0f;
     }
     
-    protected T RefreshIfConnected<T>(ValueConnectionKnob input, T value)
+    protected T RefreshIfConnectedX<T>(ValueConnectionKnob input, T value)
     {
         if (input == null || !input.connected()) return value;
         ISupplier<T> supplier = input.GetValue<ISupplier<T>>();
@@ -186,7 +186,7 @@ public abstract class NodeBase : Node
         return supplier.ResetAndGet();
     }
     
-    protected ISupplier<T> RefreshIfConnected<T>(ValueConnectionKnob input)
+    protected ISupplier<T> GetIfConnected<T>(ValueConnectionKnob input)
     {
         if (input == null || !input.connected()) return null;
         return input.GetValue<ISupplier<T>>();

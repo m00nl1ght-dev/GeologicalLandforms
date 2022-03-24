@@ -57,11 +57,19 @@ public abstract class NodeGridNoise : NodeBase
     
     public override void RefreshPreview()
     {
-        RefreshIfConnected(FrequencyKnob, ref Frequency);
-        RefreshIfConnected(LacunarityKnob, ref Lacunarity);
-        RefreshIfConnected(PersistenceKnob, ref Persistence);
-        RefreshIfConnected(ScaleKnob, ref Scale);
-        RefreshIfConnected(BiasKnob, ref Bias);
+        ISupplier<double> freq = GetIfConnected<double>(FrequencyKnob);
+        ISupplier<double> lac = GetIfConnected<double>(LacunarityKnob);
+        ISupplier<double> pers = GetIfConnected<double>(PersistenceKnob);
+        ISupplier<double> scale = GetIfConnected<double>(ScaleKnob);
+        ISupplier<double> bias = GetIfConnected<double>(BiasKnob);
+        
+        foreach (ISupplier<double> supplier in new[]{freq, lac, pers, scale, bias}) supplier?.ResetState();
+        
+        if (freq != null) Frequency = freq.Get();
+        if (lac != null) Lacunarity = lac.Get();
+        if (pers != null) Persistence = pers.Get();
+        if (scale != null) Scale = scale.Get();
+        if (bias != null) Bias = bias.Get();
     }
 
     public override bool Calculate()

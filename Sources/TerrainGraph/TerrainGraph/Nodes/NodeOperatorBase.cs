@@ -129,8 +129,14 @@ public abstract class NodeOperatorBase : NodeBase
 
     public override void RefreshPreview()
     {
-        RefreshIfConnected(ApplyChanceKnob, ref ApplyChance);
-        RefreshIfConnected(SmoothnessKnob, ref Smoothness);
+        ISupplier<double> chance = GetIfConnected<double>(ApplyChanceKnob);
+        ISupplier<double> smooth = GetIfConnected<double>(SmoothnessKnob);
+        
+        chance?.ResetState();
+        smooth?.ResetState();
+
+        if (chance != null) ApplyChance = chance.Get();
+        if (smooth != null) Smoothness = smooth.Get();
     }
 
     public enum Operation

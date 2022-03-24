@@ -51,11 +51,19 @@ public class NodeValueSelectTerrain : NodeSelectBase
     public override void RefreshPreview()
     {
         base.RefreshPreview();
+        List<ISupplier<TerrainData>> suppliers = new();
+        
         for (int i = 0; i < Math.Min(Values.Count, OptionKnobs.Count); i++)
         {
             ValueConnectionKnob knob = OptionKnobs[i];
-            ISupplier<TerrainData> supplier = RefreshIfConnected<TerrainData>(knob);
-            if (supplier != null) Values[i] = supplier.ResetAndGet().ToString();
+            ISupplier<TerrainData> supplier = GetIfConnected<TerrainData>(knob);
+            supplier?.ResetState();
+            suppliers.Add(supplier);
+        }
+
+        for (var i = 0; i < suppliers.Count; i++)
+        {
+            if (suppliers[i] != null) Values[i] = suppliers[i].Get().ToString();
         }
     }
     

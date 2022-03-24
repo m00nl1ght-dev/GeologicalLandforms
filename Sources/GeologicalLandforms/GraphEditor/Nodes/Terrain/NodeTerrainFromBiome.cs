@@ -39,7 +39,8 @@ public class NodeTerrainFromBiome : NodeBase
     
     public override void RefreshPreview()
     {
-        RefreshIfConnected(FertilityKnob, ref Fertility);
+        ISupplier<double> supplier = GetIfConnected<double>(FertilityKnob);
+        if (supplier != null) Fertility = supplier.ResetAndGet();
     }
 
     public override bool Calculate()

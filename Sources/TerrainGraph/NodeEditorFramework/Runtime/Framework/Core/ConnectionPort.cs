@@ -268,6 +268,7 @@ namespace NodeEditorFramework
 			connections.Remove (port);
 
 			if (!silent) body.canvas.OnNodeChange (body);
+			if (!silent) port.body.canvas.OnNodeChange (body);
 		}
 
 		#endregion

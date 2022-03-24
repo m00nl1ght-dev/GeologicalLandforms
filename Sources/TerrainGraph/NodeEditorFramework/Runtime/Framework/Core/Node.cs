@@ -312,7 +312,7 @@ namespace NodeEditorFramework
 
 			canvas.nodes.Remove(this);
 			for (int i = 0; i < connectionPorts.Count; i++) 
-				connectionPorts[i].ClearConnections(true);
+				connectionPorts[i].ClearConnections(silent);
 
 			if (!silent)
 				canvas.Validate ();
