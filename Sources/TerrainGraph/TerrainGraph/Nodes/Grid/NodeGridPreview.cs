@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using NodeEditorFramework;
+using NodeEditorFramework.Utilities;
 using UnityEngine;
 
 namespace TerrainGraph;
@@ -21,6 +24,8 @@ public class NodeGridPreview : NodeBase
     
     [ValueConnectionKnob("Output", Direction.Out, GridFunctionConnection.Id)]
     public ValueConnectionKnob OutputKnob;
+
+    public string PreviewModelId = "Default";
     
     [NonSerialized]
     private Texture2D _previewTexture;
@@ -65,6 +70,20 @@ public class NodeGridPreview : NodeBase
             }
         }
     }
+    
+    public override void FillNodeActionsMenu(NodeEditorInputInfo inputInfo, GenericMenu menu)
+    {
+        base.FillNodeActionsMenu(inputInfo, menu);
+        menu.AddSeparator("");
+        
+        SelectionMenu(menu, PreviewModels.Keys.ToList(), SetModel, e => "Set preview model/"+e);
+    }
+
+    private void SetModel(string id)
+    {
+        PreviewModelId = id;
+        canvas.OnNodeChange(this);
+    }
 
     public override bool Calculate()
     {
@@ -75,6 +94,9 @@ public class NodeGridPreview : NodeBase
     public override void RefreshPreview()
     {
         var previewRatio = TerrainCanvas.GridPreviewRatio;
+        PreviewModels.TryGetValue(PreviewModelId, out IPreviewModel previewModel);
+        previewModel ??= DefaultModel;
+        
         _previewFunction = InputKnob.connected() ? InputKnob.GetValue<ISupplier<IGridFunction<double>>>().ResetAndGet() : GridFunction.Zero;
         
         for (int x = 0; x < TerrainCanvas.GridPreviewSize; x++)
@@ -82,20 +104,45 @@ public class NodeGridPreview : NodeBase
             for (int y = 0; y < TerrainCanvas.GridPreviewSize; y++)
             {
                 var val = (float) _previewFunction.ValueAt(x * previewRatio, y * previewRatio);
-                Color color = val switch
-                {
-                    < -5f => new Color(0f, 0.5f, 0f),
-                    < -1f => new Color(0f, - (val + 1f) / 8f, 0.5f + (val + 1f) / 8f),
-                    < 0f => new Color(0f, 0f, - val / 2f),
-                    < 1f => new Color(val, val, val),
-                    < 2f => new Color(1f, 1f, 2f - val),
-                    < 5f => new Color(1f, 1f - (val - 2f) / 3f, 0f),
-                    _ => new Color(1f, 0f, 0f)
-                };
-                _previewTexture.SetPixel(x, y, color);
+                _previewTexture.SetPixel(x, y, previewModel.GetColorFor(val, x, y));
             }
         }
         
         _previewTexture.Apply();
+    }
+
+    private static readonly Dictionary<string, IPreviewModel> PreviewModels = new();
+    public static readonly IPreviewModel DefaultModel = new DefaultPreviewModel();
+    
+    public static void RegisterPreviewModel(IPreviewModel model, string id)
+    {
+        PreviewModels.Add(id, model);
+    }
+
+    static NodeGridPreview()
+    {
+        RegisterPreviewModel(DefaultModel, "Default");
+    }
+    
+    public interface IPreviewModel
+    {
+        public Color GetColorFor(float val, int x, int y);
+    }
+
+    private class DefaultPreviewModel : IPreviewModel
+    {
+        public Color GetColorFor(float val, int x, int y)
+        {
+            return val switch
+            {
+                < -5f => new Color(0f, 0.5f, 0f),
+                < -1f => new Color(0f, - (val + 1f) / 8f, 0.5f + (val + 1f) / 8f),
+                < 0f => new Color(0f, 0f, - val / 2f),
+                < 1f => new Color(val, val, val),
+                < 2f => new Color(1f, 1f, 2f - val),
+                < 5f => new Color(1f, 1f - (val - 2f) / 3f, 0f),
+                _ => new Color(1f, 0f, 0f)
+            };
+        }
     }
 }

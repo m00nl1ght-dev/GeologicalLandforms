@@ -1,5 +1,8 @@
+using System.Collections.Generic;
+using System.Linq;
 using NodeEditorFramework;
 using NodeEditorFramework.Utilities;
+using TerrainGraph;
 using UnityEngine;
 using Verse;
 
@@ -22,6 +25,27 @@ public class LandformGraphEditor : Window
     public override Vector2 InitialSize => new(Screen.width, Screen.height);
 
     protected override float Margin => 0f;
+
+    public static void InitialSetup()
+    {
+        AssetBundle assetBundle = ModInstance.ModContentPack.assetBundles.loadedAssetBundles.Find(b => b.name == "terraingraph");
+        ResourceManager.InitAssetBundle(assetBundle);
+
+        NodeBase.ActiveDropdownHandler = (values, action) =>
+        {
+            List<FloatMenuOption> options = values.Select((e, i) => new FloatMenuOption(e, () => { action(i); })).ToList();
+            Find.WindowStack.Add(new FloatMenu(options));
+        };
+
+        NodeBase.ActiveTooltipHandler = (rect, textFunc, tdelay) =>
+        {
+            TooltipHandler.TipRegion(rect, new TipSignal(textFunc, textFunc.GetHashCode()) {delay = tdelay});
+        };
+        
+        NodeGridPreview.RegisterPreviewModel(new NodeOutputElevation.ElevationPreviewModel(), "Elevation");
+        
+        NodeEditor.ReInit(false);
+    }
 
     private void Init()
     {

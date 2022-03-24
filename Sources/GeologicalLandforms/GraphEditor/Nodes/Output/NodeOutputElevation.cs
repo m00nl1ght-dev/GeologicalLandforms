@@ -1,6 +1,7 @@
 using System;
 using NodeEditorFramework;
 using TerrainGraph;
+using UnityEngine;
 
 namespace GeologicalLandforms.GraphEditor;
 
@@ -44,5 +45,13 @@ public class NodeOutputElevation : NodeOutputBase
     {
         OutputKnob.SetValue(InputKnob.GetValue<ISupplier<IGridFunction<double>>>());
         return true;
+    }
+
+    public class ElevationPreviewModel : NodeGridPreview.IPreviewModel
+    {
+        public Color GetColorFor(float val, int x, int y)
+        {
+            return val >= 0.7f ? Color.white : Color.black;
+        }
     }
 }
