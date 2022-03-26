@@ -247,7 +247,7 @@ namespace NodeEditorFramework.IO
 								varData.refObject = objData;
 						}
 						else
-						{ // Read value-type variable (old save file only) TODO: Remove
+						{ // Read value-type variable (old save file only) TODOx: Remove
 							string typeName = xmlVariable.GetAttribute("type");
 							Type type = Type.GetType(typeName, true);
 							varData.value = DeserializeObjectFromXML(xmlVariable, type);
@@ -347,7 +347,7 @@ namespace NodeEditorFramework.IO
 
 		private XmlElement SerializeObjectToXML(XmlElement parent, object obj)
 		{
-			// TODO: Need to handle asset references
+			// TODOx: Need to handle asset references
 			// Because of runtime compability, always try to embed objects
 			// If that fails, try to find references to assets (e.g. for textures)
 			try

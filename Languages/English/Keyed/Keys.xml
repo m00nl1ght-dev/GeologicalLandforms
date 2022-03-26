@@ -105,6 +105,9 @@
   <GeologicalLandforms.Landform.Oasis>oasis</GeologicalLandforms.Landform.Oasis>
   <GeologicalLandforms.Landform.SwampHill>swamp hill</GeologicalLandforms.Landform.SwampHill>
   <GeologicalLandforms.Landform.IceOasis>ice oasis</GeologicalLandforms.Landform.IceOasis>
+  <GeologicalLandforms.Landform.Badlands>badlands</GeologicalLandforms.Landform.Badlands>
+  <GeologicalLandforms.Landform.DesertPlateau>desert plateau</GeologicalLandforms.Landform.DesertPlateau>
+  <GeologicalLandforms.Landform.Skerry>skerry</GeologicalLandforms.Landform.Skerry>
   
   <GeologicalLandforms.Landform.Corner>(corner)</GeologicalLandforms.Landform.Corner>
   

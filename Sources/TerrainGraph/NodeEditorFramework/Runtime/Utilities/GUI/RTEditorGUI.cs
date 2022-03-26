@@ -656,7 +656,7 @@ namespace NodeEditorFramework.Utilities
 
 		#region Popups
 
-		// TODO: Implement RT Popup
+		// TODOx: Implement RT Popup
 
 		public static System.Enum EnumPopup (System.Enum selected) 
 		{
@@ -729,7 +729,7 @@ namespace NodeEditorFramework.Utilities
 			{
 				Shader lineShader = ResourceManager.LoadResource<Shader>("Shader/LineShader.shader");
 				if (lineShader == null)
-					throw new NotImplementedException("Missing line shader implementation!");
+					throw new NotSupportedException("Missing line shader implementation!");
 				lineMaterial = new Material(lineShader);
 			}
 			if (tex == null)

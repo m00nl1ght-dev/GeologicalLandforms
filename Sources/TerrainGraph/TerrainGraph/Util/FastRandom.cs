@@ -11,7 +11,7 @@ using System;
 /// </summary>
 /// September 4th 2005
 ///	 Added NextBytesUnsafe() - commented out by default.
-///	 Fixed bug in Reinitialise() - y,z and w variables were not being reset.
+///	 Fixed bugx in Reinitialise() - y,z and w variables were not being reset.
 /// 
 /// Key points:
 ///  1) Based on a simple and fast xor-shift pseudo random number generator (RNG) specified in: 

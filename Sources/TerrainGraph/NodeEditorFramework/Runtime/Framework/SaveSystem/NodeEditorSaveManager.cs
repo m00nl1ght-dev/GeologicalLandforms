@@ -238,7 +238,7 @@ namespace NodeEditorFramework
 		public static void SaveNodeCanvas (string path, ref NodeCanvas nodeCanvas, bool createWorkingCopy, bool safeOverwrite = true) 
 		{
 	#if !UNITY_EDITOR
-			throw new System.NotImplementedException ();
+			throw new System.NotSupportedException ();
 	#else
 			if (string.IsNullOrEmpty (path)) throw new System.ArgumentNullException ("Cannot save NodeCanvas: No path specified!");
 			if (nodeCanvas == null) throw new System.ArgumentNullException ("Cannot save NodeCanvas: The specified NodeCanvas that should be saved to path '" + path + "' is null!");
@@ -323,7 +323,7 @@ namespace NodeEditorFramework
 		public static NodeCanvas LoadNodeCanvas (string path, bool createWorkingCopy)
 		{
 	#if !UNITY_EDITOR
-			throw new System.NotImplementedException ();
+			throw new System.NotSupportedException();
 	#else
 			if (string.IsNullOrEmpty (path))
 				throw new System.ArgumentNullException ("Cannot load Canvas: No path specified!");
