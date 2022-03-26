@@ -68,9 +68,6 @@
         </Reference>
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="GenConfig\GenNoiseConfig.cs" />
-        <Compile Include="GenConfig\GenNoiseLayer.cs" />
-        <Compile Include="GenConfig\GenNoiseStack.cs" />
         <Compile Include="GraphEditor\EditorMockTileInfo.cs" />
         <Compile Include="GraphEditor\LandformGraphEditor.cs" />
         <Compile Include="GraphEditor\LandformGraphInterface.cs" />
@@ -105,7 +102,6 @@
         <Compile Include="Patches\RimWorld_MapGenerator.cs" />
         <Compile Include="Patches\RimWorld_TerrainPatchMaker.cs" />
         <Compile Include="Patches\RimWorld_World.cs" />
-        <Compile Include="Util\BiasedDistFromXZ.cs" />
         <Compile Include="Util\GuiUtils.cs" />
         <Compile Include="IWorldTileInfo.cs" />
         <Compile Include="Topology.cs" />

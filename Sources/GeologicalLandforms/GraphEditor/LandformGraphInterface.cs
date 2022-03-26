@@ -27,12 +27,14 @@ public class LandformGraphInterface
         
         GUILayout.BeginHorizontal(GUI.skin.GetStyle("toolbar"));
         
-        if (GUILayout.Button(new GUIContent(Landform?.TranslatedNameForSelection ?? "GeologicalLandforms.Editor.Open".Translate(),
+        if (GUILayout.Button(new GUIContent(Landform.Id != null 
+                        ? Landform.TranslatedNameForSelection.CapitalizeFirst() 
+                        : "GeologicalLandforms.Editor.Open".Translate(),
                     "GeologicalLandforms.Editor.Open.Tooltip".Translate()), GUI.skin.GetStyle("toolbarDropdown"),
                 GUILayout.MinWidth(Landform?.Id != null ? 150f : 50f)))
         {
             List<FloatMenuOption> options = LandformManager.Landforms.Values.Select(e =>
-                new FloatMenuOption(e.Id, () => Editor.OpenLandform(e))).ToList();
+                new FloatMenuOption(e.TranslatedNameForSelection.CapitalizeFirst(), () => Editor.OpenLandform(e))).ToList();
             Find.WindowStack.Add(new FloatMenu(options));
         }
 
@@ -40,7 +42,7 @@ public class LandformGraphInterface
 
         if (Landform != null && Landform.Id != null)
         {
-            if (GUILayout.Button("GeologicalLandforms.Editor.Copy".Translate(), GUI.skin.GetStyle("toolbarButton"), GUILayout.MinWidth(70f)))
+            if (GUILayout.Button("GeologicalLandforms.Editor.Copy".Translate(), GUI.skin.GetStyle("toolbarButton"), GUILayout.MinWidth(50f)))
                 Editor.Duplicate();
             GuiUtils.Tooltip("GeologicalLandforms.Editor.Copy.Tooltip".Translate());
 

@@ -38,10 +38,10 @@ public static class LandformManager
         }
     }
 
-    public static Dictionary<string, Landform> LoadAll()
+    public static Dictionary<string, Landform> LoadAll(string fileFilter = "*")
     {
-        Dictionary<string, Landform> coreLandforms = LoadLandformsFromDirectory(CoreLandformsDir, null);
-        Dictionary<string, Landform> mergedLandforms = LoadLandformsFromDirectory(CustomLandformsDir(CurrentVersion), coreLandforms);
+        Dictionary<string, Landform> coreLandforms = LoadLandformsFromDirectory(CoreLandformsDir, null, fileFilter);
+        Dictionary<string, Landform> mergedLandforms = LoadLandformsFromDirectory(CustomLandformsDir(CurrentVersion), coreLandforms, fileFilter);
 
         List<Landform> upgradableLandforms = coreLandforms.Values
             .Where(lf => mergedLandforms[lf.Id].Manifest.RevisionVersion < lf.Manifest.RevisionVersion)
@@ -50,7 +50,7 @@ public static class LandformManager
         if (upgradableLandforms.Count > 0) RimWorld_Misc.OnMainMenu(() =>
         {
             string msg = "GeologicalLandforms.LandformManager.LandformUpgrade".Translate() + "\n";
-            msg = upgradableLandforms.Aggregate(msg, (current, lf) => current + ("\n" + lf.TranslatedNameForSelection));
+            msg = upgradableLandforms.Aggregate(msg, (current, lf) => current + ("\n" + lf.TranslatedNameForSelection.CapitalizeFirst()));
 
             void UpgradeAction()
             {
@@ -81,7 +81,8 @@ public static class LandformManager
     {
         SaveAllEdited();
         
-        Landform duplicate = LoadAll().TryGetValue(landform.Manifest.Id);
+        Landform duplicate = LoadAll("*" + landform.Id).TryGetValue(landform.Manifest.Id);
+        duplicate ??= LoadAll().TryGetValue(landform.Manifest.Id);
         if (duplicate == null) return null;
         
         string newId = landform.Manifest.Id + "Copy";
@@ -117,7 +118,8 @@ public static class LandformManager
     
     public static Landform Reset(Landform landform)
     {
-        Landform reset = LoadLandformsFromDirectory(CoreLandformsDir, null).TryGetValue(landform.Id);
+        Landform reset = LoadLandformsFromDirectory(CoreLandformsDir, null, "*" + landform.Id).TryGetValue(landform.Id);
+        reset ??= LoadLandformsFromDirectory(CoreLandformsDir, null).TryGetValue(landform.Id);
         if (reset == null) return landform;
 
         _landforms[landform.Id] = reset;
@@ -129,11 +131,11 @@ public static class LandformManager
         _landforms = LoadLandformsFromDirectory(CoreLandformsDir, null);
     }
     
-    public static Dictionary<string, Landform> LoadLandformsFromDirectory(string directory, Dictionary<string, Landform> fallback)
+    public static Dictionary<string, Landform> LoadLandformsFromDirectory(string directory, Dictionary<string, Landform> fallback, string fileFilter = "*")
     {
         Dictionary<string, Landform> landforms = new(fallback ?? new());
         
-        foreach (string file in Directory.GetFiles(directory, "*.xml"))
+        foreach (string file in Directory.GetFiles(directory, fileFilter + ".xml"))
         {
             Landform landform = null;
             

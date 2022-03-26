@@ -10,7 +10,7 @@
 			<boolean name="IsCustom">false</boolean>
 			<int name="RevisionVersion">1</int>
 			<boolean name="IsEdited">false</boolean>
-			<string name="DisplayName">CoastalIsland</string>
+			<string name="DisplayName" />
 			<boolean name="DisplayNameHasDirection">true</boolean>
 			<int name="RandSeed">1333644392</int>
 		</Node>

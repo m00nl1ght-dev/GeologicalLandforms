@@ -16,7 +16,7 @@
   <GeologicalLandforms.Editor.Open.Tooltip>Select landform to edit</GeologicalLandforms.Editor.Open.Tooltip>
   <GeologicalLandforms.Editor.Reset>Reset</GeologicalLandforms.Editor.Reset>
   <GeologicalLandforms.Editor.Reset.Tooltip>Reset config for this landform to default</GeologicalLandforms.Editor.Reset.Tooltip>
-  <GeologicalLandforms.Editor.Copy>Duplicate</GeologicalLandforms.Editor.Copy>
+  <GeologicalLandforms.Editor.Copy>Copy</GeologicalLandforms.Editor.Copy>
   <GeologicalLandforms.Editor.Copy.Tooltip>Create a new custom landform (with selected one as template)</GeologicalLandforms.Editor.Copy.Tooltip>
   <GeologicalLandforms.Editor.Delete>Delete</GeologicalLandforms.Editor.Delete>
   <GeologicalLandforms.Editor.Delete.Tooltip>Delete selected custom landform</GeologicalLandforms.Editor.Delete.Tooltip>
