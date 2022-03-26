@@ -34,7 +34,12 @@ public class Landform : TerrainCanvas
     public override string canvasName => Id ?? "Landform";
     public Vector2 ScreenOrigin = new(- Screen.width / 2f, - Screen.height / 2f + LandformGraphInterface.ToolbarHeight);
 
-    public string TranslatedName => DisplayName?.Length > 0 ? DisplayName : Id != null ? ("GeologicalLandforms.Landform." + Id).Translate() : "Unknown";
+    public string TranslatedName => 
+        DisplayName?.Length > 0 ? DisplayName : 
+        Id == null ? "Unknown" : 
+        IsCustom ? Id : 
+        ("GeologicalLandforms.Landform." + Id).Translate();
+    
     public string TranslatedNameForSelection => TranslatedName + (IsCornerVariant ? (" " + "GeologicalLandforms.Landform.Corner".Translate()) : "");
     public bool IsCornerVariant => WorldTileReq?.Topology is Topology.CoastTwoSides or Topology.CliffTwoSides;
     

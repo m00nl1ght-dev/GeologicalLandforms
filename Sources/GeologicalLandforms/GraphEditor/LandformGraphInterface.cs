@@ -27,7 +27,7 @@ public class LandformGraphInterface
         
         GUILayout.BeginHorizontal(GUI.skin.GetStyle("toolbar"));
         
-        if (GUILayout.Button(new GUIContent(Landform?.Id ?? "GeologicalLandforms.Editor.Open".Translate(),
+        if (GUILayout.Button(new GUIContent(Landform?.TranslatedNameForSelection ?? "GeologicalLandforms.Editor.Open".Translate(),
                     "GeologicalLandforms.Editor.Open.Tooltip".Translate()), GUI.skin.GetStyle("toolbarDropdown"),
                 GUILayout.MinWidth(Landform?.Id != null ? 150f : 50f)))
         {
