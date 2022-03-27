@@ -9,8 +9,8 @@ namespace GeologicalLandforms.GraphEditor;
 public abstract class NodeOutputBase : NodeBase
 {
     public Landform Landform => (Landform) canvas;
-    
-    public abstract ValueConnectionKnob InputKnobRef { get; }
+
+    public virtual ValueConnectionKnob InputKnobRef => null;
     public virtual ValueConnectionKnob OutputKnobRef => null;
 
     public override void NodeGUI()

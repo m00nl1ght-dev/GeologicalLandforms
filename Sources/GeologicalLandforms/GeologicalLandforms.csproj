@@ -79,6 +79,7 @@
         <Compile Include="GraphEditor\Nodes\Output\NodeOutputBase.cs" />
         <Compile Include="GraphEditor\Nodes\Output\NodeOutputElevation.cs" />
         <Compile Include="GraphEditor\Nodes\Output\NodeOutputFertility.cs" />
+        <Compile Include="GraphEditor\Nodes\Output\NodeOutputScatterers.cs" />
         <Compile Include="GraphEditor\Nodes\Output\NodeOutputTerrain.cs" />
         <Compile Include="GraphEditor\Nodes\TerrainGrid\NodeTerrainGridFromValue.cs" />
         <Compile Include="GraphEditor\Nodes\TerrainGrid\NodeTerrainGridNaturalRock.cs" />
@@ -97,6 +98,7 @@
         <Compile Include="Landform.cs" />
         <Compile Include="LandformManager.cs" />
         <Compile Include="ModCompat\ModCompat_MapReroll.cs" />
+        <Compile Include="Patches\RimWorld_GenStep_Scatterer.cs" />
         <Compile Include="Patches\RimWorld_Misc.cs" />
         <Compile Include="Patches\RimWorld_GenStep_Terrain.cs" />
         <Compile Include="Patches\RimWorld_MapGenerator.cs" />
