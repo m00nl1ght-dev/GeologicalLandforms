@@ -1,0 +1,3 @@
+[submodule "Sources\\TerrainGraph"]
+	path = Sources\\TerrainGraph
+	url = https://github.com/m00nl1ght-dev/TerrainGraph
