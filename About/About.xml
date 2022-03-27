@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
   <packageId>m00nl1ght.GeologicalLandforms</packageId>
-  <!-- <version>0.3</version> -->
+  <!-- <version>1.0</version> -->
   <url>https://github.com/m00nl1ght-dev/GeologicalLandforms</url>
   <name>Geological Landforms</name>
   <author>m00nl1ght-dev</author>
@@ -21,6 +21,5 @@
     <li>brrainz.harmony</li>
   </loadAfter>
   <incompatibleWith>
-    <!-- <li>configurablemaps.kv.rw</li> -->
   </incompatibleWith>
 </ModMetaData>

@@ -43,6 +43,7 @@ public class NodeUILandformManifest : NodeUIBase
         }
 
         GUI.enabled = true;
+        if (GUI.changed) TerrainCanvas.OnNodeChange(this);
     }
 
     public override void DrawNode()

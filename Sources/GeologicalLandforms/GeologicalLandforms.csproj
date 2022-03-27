@@ -98,6 +98,7 @@
         <Compile Include="Landform.cs" />
         <Compile Include="LandformManager.cs" />
         <Compile Include="ModCompat\ModCompat_MapReroll.cs" />
+        <Compile Include="ModCompat\ModCompat_PrepareLanding.cs" />
         <Compile Include="Patches\RimWorld_GenStep_Scatterer.cs" />
         <Compile Include="Patches\RimWorld_Misc.cs" />
         <Compile Include="Patches\RimWorld_GenStep_Terrain.cs" />

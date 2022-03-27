@@ -13,9 +13,12 @@ public static class GuiUtils
     {
         CenteredLabel(listingStandard, "", name);
         Rect rect = listingStandard.GetRect(28f);
+        FloatRange before = floatRange;
         
         if (!listingStandard.BoundingRectCached.HasValue || rect.Overlaps(listingStandard.BoundingRectCached.Value))
             Widgets.FloatRange(rect, (int) listingStandard.CurHeight, ref floatRange, min, max);
+
+        if (floatRange != before) GUI.changed = true;
             
         listingStandard.Gap(18f);
     }
@@ -44,7 +47,7 @@ public static class GuiUtils
             if (Widgets.ButtonText(right, textFunc != null ? textFunc.Invoke(value) : value.ToString()))
             {
                 List<FloatMenuOption> options = potentialValues.Select(e => 
-                    new FloatMenuOption(textFunc != null ? textFunc.Invoke(e) : e.ToString(), () => action(e))).ToList();
+                    new FloatMenuOption(textFunc != null ? textFunc.Invoke(e) : e.ToString(), () => { action(e); GUI.changed = true; })).ToList();
                 Find.WindowStack.Add(new FloatMenu(options));
             }
         }

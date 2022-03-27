@@ -93,6 +93,8 @@ public class NodeUIWorldTileReq : NodeUIBase
         
         listing.CheckboxLabeled("GeologicalLandforms.Settings.Landform.AllowSettlements".Translate(), ref AllowSettlements);
         listing.CheckboxLabeled("GeologicalLandforms.Settings.Landform.AllowSites".Translate(), ref AllowSites);
+        
+        if (GUI.changed) TerrainCanvas.OnNodeChange(this);
     }
 
     public override void DrawNode()
