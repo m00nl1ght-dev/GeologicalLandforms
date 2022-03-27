@@ -1,60 +1,86 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using GeologicalLandforms.GraphEditor;
+using GeologicalLandforms.Patches;
 using RimWorld;
 using RimWorld.Planet;
 using Verse;
 
 namespace GeologicalLandforms;
 
-public class WorldTileInfo
+public class WorldTileInfo : IWorldTileInfo
 {
-    public int TileId;
-    public Tile Tile;
-    public World World;
-    public string LandformId = "";
-    public Topology Topology = Topology.Any;
-    public Rot4 LandformDirection = Rot4.Random;
-    public RiverDef River;
-    public float RiverAngle;
-    public RoadDef MainRoad;
-    public float MainRoadAngle;
-    public bool HasOcean;
-
-    public BiomeDef Biome => Tile?.biome;
-    public float MainRoadMultiplier => MainRoad?.movementCostMultiplier ?? 1f;
-    public float RiverWidth => River?.widthOnWorld ?? 0f;
+    public readonly int TileId;
+    public readonly Tile Tile;
+    public readonly World World;
     
-    private static WorldTileInfo _cache;
+    public Landform Landform { get; private set; }
+    public Topology Topology { get; private set; } = Topology.Any;
+    public Rot4 LandformDirection { get; private set; }
+    
+    public MapParent WorldObject => World.worldObjects.MapParentAt(TileId);
+    public BiomeDef Biome => Tile.biome;
+    
+    public bool HasCaves { get; private set; }
+    public bool HasOcean { get; private set; }
 
-    public static WorldTileInfo GetWorldTileInfo(int tileId)
+    public Hilliness Hilliness => Tile.hilliness;
+    public float Elevation => Tile.elevation;
+    public float Temperature => Tile.temperature;
+    public float Rainfall => Tile.rainfall;
+    public float Swampiness => Tile.swampiness;
+
+    public RiverDef MainRiver { get; private set; }
+    public float MainRiverAngle { get; private set; }
+    
+    public RoadDef MainRoad { get; private set; }
+    public float MainRoadAngle { get; private set; }
+
+    public int MakeSeed(int hash) => RimWorld_World.LastKnownInitialWorldSeed ^ TileId ^ hash;
+
+    public WorldTileInfo(int tileId, Tile tile, World world)
+    {
+        TileId = tileId;
+        Tile = tile;
+        World = world;
+    }
+
+    private static WorldTileInfo _cache;
+    
+    public static WorldTileInfo Get(int tileId)
     {
         World world = Find.World;
         if (_cache != null && _cache.TileId == tileId && _cache.World == world) return _cache;
-        _cache = new WorldTileInfo { TileId = tileId, World = world, Tile = world.grid[tileId] };
+        _cache = new WorldTileInfo(tileId, world.grid[tileId], world);
         DetermineTopology(_cache);
         DetermineLandform(_cache);
         return _cache;
     }
 
+    public static void InvalidateCache()
+    {
+        _cache = null;
+    }
+
     private static void DetermineLandform(WorldTileInfo info)
     {
-        if (!info.Biome.canBuildBase || info.Tile.hilliness == Hilliness.Impassable) return; 
+        if (!info.Biome.canBuildBase || info.Hilliness == Hilliness.Impassable) return; 
         if (Main.ExcludedBiomePrefixes.Any(info.Biome.defName.StartsWith)) return;
 
-        List<Landform> landforms = Main.Settings.Landforms.Values.Where(e => e.CheckConditions(info)).ToList();
+        List<Landform> landforms = LandformManager.Landforms.Values.Where(e => e.WorldTileReq?.CheckRequirements(info) ?? false).ToList();
         
-        float sum = Math.Max(1f, landforms.Sum(e => e.Commonness));
-        float rand = new FloatRange(0f, sum).RandomInRangeSeeded(info.TileId + 1754);
+        float sum = Math.Max(1f, landforms.Sum(e => e.WorldTileReq.Commonness));
+        float rand = new FloatRange(0f, sum).RandomInRangeSeeded(info.MakeSeed(1754));
         foreach (Landform landform in landforms)
         {
-            if (rand < landform.Commonness)
+            if (rand < landform.WorldTileReq.Commonness)
             {
-                info.LandformId = landform.Id;
+                info.Landform = landform;
                 return;
             }
 
-            rand -= landform.Commonness;
+            rand -= landform.WorldTileReq.Commonness;
         }
     }
 
@@ -63,6 +89,9 @@ public class WorldTileInfo
         BiomeDef biome = info.Biome;
         WorldGrid grid = info.World.grid;
         int tileId = info.TileId;
+
+        info.LandformDirection = new Rot4(Rand.RangeInclusiveSeeded(0, 3, info.MakeSeed(0087)));
+        info.HasCaves = info.World.HasCaves(tileId);
 
         if (biome == BiomeDefOf.Lake || biome == BiomeDefOf.Ocean && (info.HasOcean = true))
         {
@@ -74,8 +103,8 @@ public class WorldTileInfo
         if (rivers?.Count > 0)
         {
             Tile.RiverLink riverLink = rivers.OrderBy(r => -r.river.degradeThreshold).First();
-            info.RiverAngle = info.World.grid.GetHeadingFromTo(info.TileId, riverLink.neighbor);
-            info.River = riverLink.river;
+            info.MainRiverAngle = info.World.grid.GetHeadingFromTo(info.TileId, riverLink.neighbor);
+            info.MainRiver = riverLink.river;
         }
         
         List<Tile.RoadLink> roads = info.Tile.Roads;
@@ -149,7 +178,7 @@ public class WorldTileInfo
                 return;
             }
 
-            Rot6 random = waterTiles.Random(tileId);
+            Rot6 random = waterTiles.Random(info.MakeSeed(1785));
             info.LandformDirection = random.AsRot4();
             info.Topology = Topology.CoastOneSide;
             DetermineCliffTopology(info, random, cliffTiles);
@@ -190,7 +219,7 @@ public class WorldTileInfo
         {
             if (landTiles[0] == landTiles[1].RotatedCW() || landTiles[0] == landTiles[1].RotatedCCW())
             {
-                DetermineCoastTopology(info, landTiles.Random(tileId).Opposite, 0.5f);
+                DetermineCoastTopology(info, landTiles.Random(info.MakeSeed(9365)).Opposite, 0.5f);
                 return;
             }
             
@@ -229,7 +258,7 @@ public class WorldTileInfo
 
     public static void DetermineCoastTopology(WorldTileInfo info, Rot6 dir, float chance)
     {
-        if (Rand.ChanceSeeded(chance, info.TileId + 8021))
+        if (Rand.ChanceSeeded(chance, info.MakeSeed(8021)))
         {
             info.LandformDirection = dir.AsRot4();
             info.Topology = Topology.CoastThreeSides;
@@ -243,7 +272,7 @@ public class WorldTileInfo
             return;
         }
 
-        info.LandformDirection = Rand.ChanceSeeded(0.5f, info.TileId + 9777) ? dir.AsRot4() : dir.RotatedCCW().AsRot4();
+        info.LandformDirection = Rand.ChanceSeeded(0.5f, info.MakeSeed(9777)) ? dir.AsRot4() : dir.RotatedCCW().AsRot4();
         info.Topology = Topology.CoastTwoSides;
     }
 
@@ -297,7 +326,7 @@ public class WorldTileInfo
                 return;
             }
 
-            Rot6 random = cliffTiles.Random(info.TileId);
+            Rot6 random = cliffTiles.Random(info.MakeSeed(2573));
             info.LandformDirection = random.AsRot4();
             info.Topology = Topology.CliffOneSide;
             return;
@@ -305,7 +334,7 @@ public class WorldTileInfo
         
         if (cliffTiles.Count == 3)
         {
-            Rot6 first = cliffTiles.Where(d => cliffTiles.Contains(d.RotatedCW()) && d.AsRot4() != d.RotatedCW().AsRot4()).ToList().Random(info.TileId);
+            Rot6 first = cliffTiles.Where(d => cliffTiles.Contains(d.RotatedCW()) && d.AsRot4() != d.RotatedCW().AsRot4()).ToList().Random(info.MakeSeed(2647));
             if (first.IsValid)
             {
                 info.LandformDirection = first.AsRot4();
@@ -313,7 +342,7 @@ public class WorldTileInfo
                 return;
             }
             
-            Rot6 random = cliffTiles.Random(info.TileId);
+            Rot6 random = cliffTiles.Random(info.MakeSeed(1142));
             info.LandformDirection = random.AsRot4();
             info.Topology = Topology.CliffOneSide;
             return;
@@ -325,7 +354,7 @@ public class WorldTileInfo
         {
             if (nonCliffTiles[0] == nonCliffTiles[1].RotatedCW() || nonCliffTiles[0] == nonCliffTiles[1].RotatedCCW())
             {
-                info.LandformDirection = nonCliffTiles.Random(info.TileId).AsRot4().Opposite;
+                info.LandformDirection = nonCliffTiles.Random(info.MakeSeed(1455)).AsRot4().Opposite;
                 info.Topology = Topology.CliffThreeSides;
                 return;
             }
@@ -337,7 +366,7 @@ public class WorldTileInfo
                 return;
             }
             
-            Rot6 first = cliffTiles.Where(d => cliffTiles.Contains(d.RotatedCW()) && d.AsRot4() != d.RotatedCW().AsRot4()).ToList().Random(info.TileId);
+            Rot6 first = cliffTiles.Where(d => cliffTiles.Contains(d.RotatedCW()) && d.AsRot4() != d.RotatedCW().AsRot4()).ToList().Random(info.MakeSeed(1675));
             if (first.IsValid)
             {
                 info.LandformDirection = first.AsRot4();
@@ -345,7 +374,7 @@ public class WorldTileInfo
                 return;
             }
             
-            Rot6 random = cliffTiles.Random(info.TileId);
+            Rot6 random = cliffTiles.Random(info.MakeSeed(1675));
             info.LandformDirection = random.AsRot4();
             info.Topology = Topology.CliffOneSide;
             return;

@@ -1,91 +1,81 @@
-using System;
 using System.Collections.Generic;
 using System.Reflection.Emit;
+using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using RimWorld;
-using RimWorld.Planet;
+using TerrainGraph;
 using Verse;
-using Verse.Noise;
+using static TerrainGraph.GridFunction;
 
 namespace GeologicalLandforms.Patches;
 
-[HarmonyPatch(typeof (GenStep_ElevationFertility), nameof(GenStep_ElevationFertility.Generate))]
+[HarmonyPatch(typeof(GenStep_ElevationFertility), nameof(GenStep_ElevationFertility.Generate))]
 internal static class RimWorld_GenStep_ElevationFertility
 {
-    private static WorldTileInfo _worldTileInfo;
-    private static GenNoiseConfig _noiseConfig;
-    
     [HarmonyPriority(Priority.VeryHigh)]
     [HarmonyBefore("com.configurablemaps.rimworld.mod")]
     private static bool Prefix(Map map, GenStepParams parms)
     {
-        _worldTileInfo = WorldTileInfo.GetWorldTileInfo(map.Tile);
-        Landform landform = Main.Settings.Landforms.TryGetValue(_worldTileInfo.LandformId);
-        _noiseConfig = landform?.GenConfig;
-        if (_noiseConfig == null) return true;
+        // if there is no landform on this tile, let vanilla gen or other mods handle it
+        if (!Landform.IsAnyGenerating) return true;
+
+        IGridFunction<double> elevationModule = Landform.GeneratingLandform.OutputElevation?.Get() ?? BuildDefaultElevationGrid(map);
+        IGridFunction<double> fertilityModule = Landform.GeneratingLandform.OutputFertility?.Get() ?? BuildDefaultFertilityGrid(map);
         
-        int mapSizeInt = Math.Min(map.Size.x, map.Size.z);
-        if (landform != null && !landform.MapSizeRequirement.Includes(mapSizeInt)) return true;
-        
-        GenNoiseStack noiseStackElevation = _noiseConfig.NoiseStacks.TryGetValue(GenNoiseConfig.NoiseType.Elevation);
-        noiseStackElevation ??= new GenNoiseStack(GenNoiseConfig.NoiseType.Elevation);
-        
-        GenNoiseStack noiseStackFertility = _noiseConfig.NoiseStacks.TryGetValue(GenNoiseConfig.NoiseType.Fertility);
-        noiseStackFertility ??= new GenNoiseStack(GenNoiseConfig.NoiseType.Fertility);
-
-        ModuleBase elevationModule = noiseStackElevation.BuildModule(_worldTileInfo, map, "Elevation", QualityMode.High);
-        ModuleBase fertilityModule = noiseStackFertility.BuildModule(_worldTileInfo, map, "Fertility", QualityMode.High);
-
-        float hillFactor = 1f + ( GetHillinessFactor(map) - 1f ) * _noiseConfig.HillModifierEffectiveness;
-        elevationModule = new Multiply(elevationModule, new Const(hillFactor));
-
-        if (map.TileInfo.WaterCovered) elevationModule = new Min(elevationModule, new Const(_noiseConfig.MaxElevationIfWaterCovered));
-
         MapGenFloatGrid elevation = MapGenerator.Elevation;
         MapGenFloatGrid fertility = MapGenerator.Fertility;
+        
         foreach (IntVec3 cell in map.AllCells)
         {
-            elevation[cell] = elevationModule.GetValue(cell);
-            fertility[cell] = fertilityModule.GetValue(cell);
+            elevation[cell] = (float) elevationModule.ValueAt(cell.x, cell.z);
+            fertility[cell] = (float) fertilityModule.ValueAt(cell.x, cell.z);
         }
         
         return false;
     }
     
+    /// <summary>
+    /// Disables vanilla cliff generation on mountainous tiles.
+    /// </summary>
     [HarmonyPriority(Priority.First)]
     private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
-        {
-            OpCode lastOpCode = OpCodes.Nop;
-            var patched = false;
-    
-            foreach (CodeInstruction instruction in instructions)
-            {
-                if (!patched && lastOpCode == OpCodes.Ldfld && instruction.opcode == OpCodes.Ldc_I4_4)
-                {
-                    patched = true;
-                    lastOpCode = OpCodes.Ldc_I4_5;
-                    yield return new CodeInstruction(lastOpCode);
-                    continue;
-                }
-
-                lastOpCode = instruction.opcode;
-                yield return instruction;
-            }
-            
-            if (patched == false)
-                Log.Error("Failed to patch RimWorld_GenStep_ElevationFertility");
-        }
-
-    public static float GetHillinessFactor(Map map)
     {
-        return map.TileInfo.hilliness switch
+        OpCode lastOpCode = OpCodes.Nop;
+        var patched = false;
+    
+        foreach (CodeInstruction instruction in instructions)
         {
-            Hilliness.Flat => MapGenTuning.ElevationFactorFlat,
-            Hilliness.SmallHills => MapGenTuning.ElevationFactorSmallHills,
-            Hilliness.LargeHills => MapGenTuning.ElevationFactorLargeHills,
-            Hilliness.Mountainous => MapGenTuning.ElevationFactorMountains,
-            Hilliness.Impassable => MapGenTuning.ElevationFactorImpassableMountains,
-            _ => 1f
-        };
+            if (!patched && lastOpCode == OpCodes.Ldfld && instruction.opcode == OpCodes.Ldc_I4_4)
+            {
+                patched = true;
+                lastOpCode = OpCodes.Ldc_I4_5;
+                yield return new CodeInstruction(lastOpCode);
+                continue;
+            }
+
+            lastOpCode = instruction.opcode;
+            yield return instruction;
+        }
+            
+        if (patched == false)
+            Log.Error("Failed to patch RimWorld_GenStep_ElevationFertility");
+    }
+
+    public static IGridFunction<double> BuildDefaultElevationGrid(Map map)
+    {
+        var seed = Landform.GeneratingLandform.RandSeed ^ 7365;
+        IGridFunction<double> function = new NoiseGenerator(NodeGridPerlin.PerlinNoise, 0.021, 2, 0.5, 6, seed);
+        function = new ScaleWithBias(function, 0.5, 0.5);
+        function = new Multiply(function, Of(NodeValueWorldTile.GetHillinessFactor(map.TileInfo.hilliness)));
+        if (map.TileInfo.WaterCovered) function = new Min(function, Of<double>(0f));
+        return function;
+    }
+    
+    public static IGridFunction<double> BuildDefaultFertilityGrid(Map map)
+    {
+        var seed = Landform.GeneratingLandform.RandSeed ^ 4385;
+        IGridFunction<double> function = new NoiseGenerator(NodeGridPerlin.PerlinNoise, 0.021, 2, 0.5, 6, seed);
+        function = new ScaleWithBias(function, 0.5, 0.5);
+        return function;
     }
 }

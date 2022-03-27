@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
+using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using RimWorld.Planet;
 using UnityEngine;
@@ -57,31 +58,29 @@ internal static class RimWorld_WITab_Terrain
 
     private static void GetSpecialFeatures(Listing_Standard listingStandard, string str0, string str1, string str2 = null)
     {
-        StringBuilder sb = new();
-        
         int tileId = Find.WorldSelector.selectedTile;
-        WorldTileInfo worldTileInfo = WorldTileInfo.GetWorldTileInfo(tileId);
+        IWorldTileInfo worldTileInfo = WorldTileInfo.Get(tileId);
 
-        Landform landform = Main.Settings.Landforms.TryGetValue(worldTileInfo.LandformId);
-        
-        if (landform != null)
+        if (worldTileInfo.Landform != null)
         {
-            string append = landform.TranslatedName;
+            string landformStr = worldTileInfo.Landform.TranslatedName;
             
-            if (landform.DisplayNameHasDirection)
+            if (worldTileInfo.Landform.DisplayNameHasDirection)
             {
-                if (worldTileInfo.Topology is Topology.CoastTwoSides or Topology.CliffTwoSides)
+                if (worldTileInfo.Landform.IsCornerVariant)
                 {
-                    append = TranslateDoubleRot4(worldTileInfo.LandformDirection) + " " + append;
+                    landformStr = TranslateDoubleRot4(worldTileInfo.LandformDirection) + " " + landformStr;
                 }
                 else
                 {
-                    append = TranslateRot4(worldTileInfo.LandformDirection) + " " + append;
+                    landformStr = TranslateRot4(worldTileInfo.LandformDirection) + " " + landformStr;
                 }
             }
             
-            sb.AppendWithComma(append);
+            listingStandard.LabelDouble("GeologicalLandforms.WorldMap.Landform".Translate(), landformStr.CapitalizeFirst());
         }
+
+        StringBuilder sb = new();
         
         if (Find.World.HasCaves(tileId))
         {
@@ -97,8 +96,8 @@ internal static class RimWorld_WITab_Terrain
         {
             if (Widgets.ButtonText(rect, "GeologicalLandforms.WorldMap.FindLandform".Translate()))
             {
-                List<FloatMenuOption> options = Main.Settings.Landforms.Values.Select(e => 
-                    new FloatMenuOption(e.TranslatedName.CapitalizeFirst(), () => FindLandform(e))).ToList();
+                List<FloatMenuOption> options = LandformManager.Landforms.Values.Select(e => 
+                    new FloatMenuOption(e.TranslatedNameForSelection.CapitalizeFirst(), () => FindLandform(e))).ToList();
                 Find.WindowStack.Add(new FloatMenu(options));
             }
         }
@@ -108,11 +107,7 @@ internal static class RimWorld_WITab_Terrain
         {
             listingStandard.LabelDouble("GeologicalLandforms.WorldMap.Topology".Translate(), worldTileInfo.Topology.ToString());
             listingStandard.LabelDouble("GeologicalLandforms.WorldMap.TopologyDirection".Translate(), worldTileInfo.LandformDirection.ToStringHuman());
-            listingStandard.LabelDouble("GeologicalLandforms.WorldMap.Swampiness".Translate(), worldTileInfo.Tile.swampiness.ToString(CultureInfo.InvariantCulture));
-            listingStandard.LabelDouble("GeologicalLandforms.WorldMap.RiverWidth".Translate(), worldTileInfo.RiverWidth.ToString(CultureInfo.InvariantCulture));
-            listingStandard.LabelDouble("GeologicalLandforms.WorldMap.RiverAngle".Translate(), worldTileInfo.RiverAngle.ToString(CultureInfo.InvariantCulture));
-            listingStandard.LabelDouble("GeologicalLandforms.WorldMap.MainRoadMultiplier".Translate(), worldTileInfo.MainRoadMultiplier.ToString(CultureInfo.InvariantCulture));
-            listingStandard.LabelDouble("GeologicalLandforms.WorldMap.MainRoadAngle".Translate(), worldTileInfo.MainRoadAngle.ToString(CultureInfo.InvariantCulture));
+            listingStandard.LabelDouble("GeologicalLandforms.WorldMap.Swampiness".Translate(), worldTileInfo.Swampiness.ToString(CultureInfo.InvariantCulture));
         }
     }
 
@@ -125,14 +120,14 @@ internal static class RimWorld_WITab_Terrain
         HashSet<int> pending = new() {tileId};
         List<int> nb = new();
 
-        for (int i = 0; i < Main.Settings.MaxLandformSearchRadius; i++)
+        for (int i = 0; i < ModInstance.Settings.MaxLandformSearchRadius; i++)
         {
             List<int> copy = pending.ToList();
             pending.Clear();
             foreach (var p in copy)
             {
-                WorldTileInfo tileInfo = WorldTileInfo.GetWorldTileInfo(p);
-                if (tileInfo.LandformId == landform.Id)
+                IWorldTileInfo tileInfo = WorldTileInfo.Get(p);
+                if (tileInfo.Landform == landform)
                 {
                     CameraJumper.TryJumpAndSelect(new GlobalTargetInfo(p));
                     Find.WorldSelector.selectedTile = p;
@@ -155,7 +150,7 @@ internal static class RimWorld_WITab_Terrain
         }
         
         Find.WindowStack.Add(new Dialog_MessageBox(
-            "GeologicalLandforms.WorldMap.FindLandformFail".Translate() + Main.Settings.MaxLandformSearchRadius));
+            "GeologicalLandforms.WorldMap.FindLandformFail".Translate() + ModInstance.Settings.MaxLandformSearchRadius));
     }
 
     private static string TranslateRot4(Rot4 rot4)
