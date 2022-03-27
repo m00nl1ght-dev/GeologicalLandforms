@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
+using NodeEditorFramework.Utilities;
+using TerrainGraph;
 using Verse;
 
 namespace GeologicalLandforms;
@@ -18,6 +20,8 @@ public static class Main
     {
         new Harmony("Geological Landforms").PatchAll();
         
+        ReflectionUtility.AddSearchableAssembly(typeof(Main).Assembly);
+        ReflectionUtility.AddSearchableAssembly(typeof(TerrainCanvas).Assembly);
         LandformGraphEditor.InitialSetup();
         LandformManager.InitialLoad();
     }
