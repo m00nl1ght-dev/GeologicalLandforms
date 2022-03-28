@@ -2,6 +2,7 @@
 <LanguageData>
   
   <GeologicalLandforms.Settings.MaxLandformSearchRadius>Max landform search radius on world map</GeologicalLandforms.Settings.MaxLandformSearchRadius>
+  <GeologicalLandforms.Settings.ShowWorldTileDebugInfo>[Dev Mode] Show world tile debug info</GeologicalLandforms.Settings.ShowWorldTileDebugInfo>
   <GeologicalLandforms.Settings.OpenEditor>Open landform editor</GeologicalLandforms.Settings.OpenEditor>
   <GeologicalLandforms.Settings.ResetAll>Reset everything to default</GeologicalLandforms.Settings.ResetAll>
   <GeologicalLandforms.Settings.OpenDataDir>Open custom landform data directory</GeologicalLandforms.Settings.OpenDataDir>

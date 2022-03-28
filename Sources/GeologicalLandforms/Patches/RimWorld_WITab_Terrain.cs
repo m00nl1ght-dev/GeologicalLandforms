@@ -103,7 +103,7 @@ internal static class RimWorld_WITab_Terrain
         }
         
         listingStandard.Gap();
-        if (Prefs.DevMode)
+        if (Prefs.DevMode && ModInstance.Settings.ShowWorldTileDebugInfo)
         {
             listingStandard.LabelDouble("GeologicalLandforms.WorldMap.Topology".Translate(), worldTileInfo.Topology.ToString());
             listingStandard.LabelDouble("GeologicalLandforms.WorldMap.TopologyDirection".Translate(), worldTileInfo.LandformDirection.ToStringHuman());

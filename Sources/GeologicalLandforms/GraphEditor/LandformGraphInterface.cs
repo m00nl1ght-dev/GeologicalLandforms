@@ -63,10 +63,10 @@ public class LandformGraphInterface
 
         if (Landform != null && Landform.Id != null)
         {
-            if (Prefs.DevMode && GUILayout.Button("Refresh", GUI.skin.GetStyle("toolbarButton"), GUILayout.MinWidth(65f)))
-            {
-                Landform.TraverseAll();
-            }
+            //if (Prefs.DevMode && GUILayout.Button("Refresh", GUI.skin.GetStyle("toolbarButton"), GUILayout.MinWidth(65f)))
+            //{
+            //    Landform.TraverseAll();
+            //}
 
             if (GUILayout.Button("Reseed", GUI.skin.GetStyle("toolbarButton"), GUILayout.MinWidth(60f)))
             {
