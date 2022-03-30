@@ -78,8 +78,7 @@ public class LandformGraphInterface
             
             if (GUILayout.Button("Reset View", GUI.skin.GetStyle("toolbarButton"), GUILayout.MinWidth(85f)))
             {
-                CanvasCache.NewEditorState();
-                Landform?.ResetView();
+                Editor.ResetView();
             }
         }
 

@@ -33,7 +33,7 @@ public class Landform : TerrainCanvas
     public override int GridPreviewSize => 100;
 
     public override string canvasName => Id ?? "Landform";
-    public Vector2 ScreenOrigin = new(- Screen.width / 2f, - Screen.height / 2f + LandformGraphInterface.ToolbarHeight);
+    public Vector2 ScreenOrigin = new(-960f, -540f + LandformGraphInterface.ToolbarHeight);
 
     public string TranslatedName => 
         DisplayName?.Length > 0 ? DisplayName : 

@@ -22,7 +22,7 @@ public class LandformGraphEditor : Window
     public static LandformGraphEditor ActiveEditor => Find.WindowStack.WindowOfType<LandformGraphEditor>();
     public NodeEditorState EditorState => _canvasCache?.editorState;
 
-    public override Vector2 InitialSize => new(Screen.width, Screen.height);
+    public override Vector2 InitialSize => new(Prefs.ScreenWidth / Prefs.UIScale, Prefs.ScreenHeight / Prefs.UIScale);
 
     protected override float Margin => 0f;
 
@@ -106,13 +106,20 @@ public class LandformGraphEditor : Window
             landform.PrepareGUI();
             landform.TraverseAll();
             Landform.RefreshPreviews();
-            landform.ResetView();
+            ResetView();
         }
         else
         {
             _canvasCache.NewNodeCanvas(typeof(Landform));
             _canvasCache.NewEditorState();
         }
+    }
+    
+    public void ResetView()
+    {
+        _canvasCache.NewEditorState();
+        _canvasCache.editorState.zoom = Prefs.UIScale * (1920f / Prefs.ScreenWidth);
+        Landform.ResetView();
     }
 
     public void CloseLandform()
