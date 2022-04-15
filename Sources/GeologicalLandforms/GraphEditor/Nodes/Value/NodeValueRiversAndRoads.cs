@@ -55,11 +55,11 @@ public class NodeValueRiversAndRoads : NodeBase
         float angle = 0f;
         if (Landform.GeneratingTile.MainRiver != null)
         {
-            angle = Landform.GeneratingTile.MainRiverAngle % 180f;
+            angle = Landform.GeneratingTile.MainRiverAngle;
         } 
         else if (Landform.GeneratingTile.MainRoad != null)
         {
-            angle = Landform.GeneratingTile.MainRoadAngle % 180f;
+            angle = Landform.GeneratingTile.MainRoadAngle;
         }
         
         AngleOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) angle));

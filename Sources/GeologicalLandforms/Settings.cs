@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using GeologicalLandforms.GraphEditor;
 using UnityEngine;
 using Verse;
@@ -40,6 +42,14 @@ public class Settings : ModSettings
             Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation("GeologicalLandforms.Settings.ConfirmResetAll".Translate(), ResetAll));
         }
         
+        if (Prefs.DevMode && Find.CurrentMap != null && listingStandard.ButtonText("[dev] Replace all stone on current map"))
+        {
+            List<FloatMenuOption> options = DefDatabase<ThingDef>.AllDefsListForReading
+                .Where(d => d.IsNonResourceNaturalRock)
+                .Select(e => new FloatMenuOption(e.defName, () => ReplaceNaturalRock(e))).ToList();
+            Find.WindowStack.Add(new FloatMenu(options));
+        }
+        
         listingStandard.Gap();
         
         GuiUtils.CenteredLabel(listingStandard, "GeologicalLandforms.Settings.MaxLandformSearchRadius".Translate(), MaxLandformSearchRadius.ToString(CultureInfo.InvariantCulture));
@@ -52,6 +62,27 @@ public class Settings : ModSettings
         }
 
         Widgets.EndScrollView();
+    }
+
+    private void ReplaceNaturalRock(ThingDef thingDef)
+    {
+        Map map = Find.CurrentMap;
+        map.regionAndRoomUpdater.Enabled = false;
+
+        TerrainDef terrainDef = thingDef.building.naturalTerrain;
+            
+        foreach (IntVec3 allCell in map.AllCells)
+        {
+            if (map.edificeGrid[allCell]?.def?.IsNonResourceNaturalRock ?? false)
+                GenSpawn.Spawn(thingDef, allCell, map);
+                
+            if (map.terrainGrid.TerrainAt(allCell)?.smoothedTerrain != null)
+            {
+                map.terrainGrid.SetTerrain(allCell, terrainDef);
+            }
+        }
+            
+        map.regionAndRoomUpdater.Enabled = true;
     }
 
     public override void ExposeData()

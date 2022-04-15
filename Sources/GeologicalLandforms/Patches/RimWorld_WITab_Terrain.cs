@@ -108,6 +108,8 @@ internal static class RimWorld_WITab_Terrain
             listingStandard.LabelDouble("GeologicalLandforms.WorldMap.Topology".Translate(), worldTileInfo.Topology.ToString());
             listingStandard.LabelDouble("GeologicalLandforms.WorldMap.TopologyDirection".Translate(), worldTileInfo.LandformDirection.ToStringHuman());
             listingStandard.LabelDouble("GeologicalLandforms.WorldMap.Swampiness".Translate(), worldTileInfo.Swampiness.ToString(CultureInfo.InvariantCulture));
+            listingStandard.LabelDouble("GeologicalLandforms.WorldMap.RiverAngle".Translate(), worldTileInfo.MainRiverAngle.ToString(CultureInfo.InvariantCulture));
+            listingStandard.LabelDouble("GeologicalLandforms.WorldMap.MainRoadAngle".Translate(), worldTileInfo.MainRoadAngle.ToString(CultureInfo.InvariantCulture));
         }
     }
 
