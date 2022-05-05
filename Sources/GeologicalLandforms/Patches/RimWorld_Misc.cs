@@ -23,8 +23,6 @@ internal static class RimWorld_Misc
     {
         _onMainMenu.ForEach(e => e.Invoke());
         _onMainMenu.Clear();
-        
-        //if (Prefs.DevMode) Find.WindowStack.Add(new LandformGraphEditor());
     }
     
     [HarmonyPatch(typeof(LearningReadout))]

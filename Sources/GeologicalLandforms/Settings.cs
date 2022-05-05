@@ -9,7 +9,7 @@ namespace GeologicalLandforms;
 
 public class Settings : ModSettings
 {
-    public int MaxLandformSearchRadius = 50;
+    public int MaxLandformSearchRadius = 100;
     
     public bool HasLegacyCustomConfig;
     
@@ -88,7 +88,7 @@ public class Settings : ModSettings
     public override void ExposeData()
     {
         Scribe_Values.Look(ref HasLegacyCustomConfig, "UseCustomConfig");
-        Scribe_Values.Look(ref MaxLandformSearchRadius, "MaxLandformSearchRadius", 50);
+        Scribe_Values.Look(ref MaxLandformSearchRadius, "MaxLandformSearchRadius", 100);
         Scribe_Values.Look(ref ShowWorldTileDebugInfo, "ShowWorldTileDebugInfo");
         base.ExposeData();
     }
@@ -98,6 +98,6 @@ public class Settings : ModSettings
         LandformManager.ResetAll();
         HasLegacyCustomConfig = false;
         ShowWorldTileDebugInfo = false;
-        MaxLandformSearchRadius = 50;
+        MaxLandformSearchRadius = 100;
     }
 }

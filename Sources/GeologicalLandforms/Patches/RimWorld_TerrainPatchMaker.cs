@@ -7,6 +7,10 @@ using Verse.Noise;
 // ReSharper disable All
 namespace GeologicalLandforms.Patches;
 
+/// <summary>
+/// Fixes an inconsistency in Map Reroll code that causes all TerrainPatchMakers to have the same seed,
+/// making biomes with multiple of them (r.g. swamps) look ugly.
+/// </summary>
 [HarmonyPatch(typeof(TerrainPatchMaker), "Init")]
 internal static class RimWorld_TerrainPatchMaker
 {

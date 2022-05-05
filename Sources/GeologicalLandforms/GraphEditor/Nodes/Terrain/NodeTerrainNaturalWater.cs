@@ -51,7 +51,7 @@ public class NodeTerrainNaturalWater : NodeBase
 
     public override bool Calculate()
     {
-        TerrainDef beach = Landform.GeneratingTile.Elevation < 0 && Landform.GeneratingTile.Temperature < 0f ? TerrainDefOf.Ice : TerrainDefOf.Sand;
+        TerrainDef beach = Landform.GeneratingTile.Temperature < -20f ? TerrainDefOf.Ice : TerrainDefOf.Sand;
         TerrainDef shallow = Landform.GeneratingTile.HasOcean ? TerrainDefOf.WaterOceanShallow : TerrainDefOf.WaterShallow;
         TerrainDef deep = Landform.GeneratingTile.HasOcean ? TerrainDefOf.WaterOceanDeep : TerrainDefOf.WaterDeep;
         BeachOutputKnob.SetValue<ISupplier<TerrainData>>(Supplier.Of(new TerrainData(beach, 3)));

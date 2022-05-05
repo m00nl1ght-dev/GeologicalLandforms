@@ -12,8 +12,11 @@ public static class Main
 {
     public static readonly IReadOnlyCollection<string> ExcludedBiomePrefixes = new HashSet<string>
     {
-        "BiomesIslands",
-        "BMT_FungalForest"
+        "BiomesIslands", // Biomes! Islands
+        "BMT_FungalForest", // Biomes! Fungal Forest
+        "Tunnelworld", "InfestedMountains", "DeepRavine", "FrozenLake", "Oasis", // Terra Project
+        "Archipelago", "VolcanicIsland", "TundraSkerries", "PackIce", "Atoll", // Terra Project
+        "Cave" // CaveBiome, Terra Project
     };
 
     static Main()
