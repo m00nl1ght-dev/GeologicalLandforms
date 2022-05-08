@@ -1,4 +1,3 @@
-using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using RimWorld;
 using Verse;
@@ -20,7 +19,7 @@ internal static class RimWorld_TerrainPatchMaker
     private static bool Prefix(Map map, ref ModuleBase ___noise, ref Map ___currentlyInitializedForMap, 
         ref float ___perlinFrequency, ref float ___perlinLacunarity, ref float ___perlinPersistence, ref int ___perlinOctaves)
     {
-        int seed = Landform.MakeSeed(map.Tile, 9305 + _instanceIdx);
+        int seed = Find.World.info.Seed ^ map.Tile ^ 9305 + _instanceIdx;
         ___noise = new Perlin(___perlinFrequency, ___perlinLacunarity, ___perlinPersistence, ___perlinOctaves, seed, QualityMode.Medium);
         ___currentlyInitializedForMap = map;
         _instanceIdx++;

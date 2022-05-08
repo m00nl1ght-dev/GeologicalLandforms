@@ -43,11 +43,6 @@ public class Landform : TerrainCanvas
     
     public string TranslatedNameForSelection => TranslatedName + (IsCornerVariant ? (" " + "GeologicalLandforms.Landform.Corner".Translate()) : "");
     public bool IsCornerVariant => WorldTileReq?.Topology is Topology.CoastTwoSides or Topology.CliffTwoSides;
-    
-    public static int MakeSeed(int tileId, int hash)
-    {
-        return (GeneratingLandform != null ? GeneratingLandform.RandSeed : Find.World.info.Seed) ^ tileId ^ hash;
-    }
 
     public static void PrepareMapGen(Map map)
     {

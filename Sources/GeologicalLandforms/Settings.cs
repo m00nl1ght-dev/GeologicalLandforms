@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using GeologicalLandforms.GraphEditor;
+using GeologicalLandforms.Patches;
 using UnityEngine;
 using Verse;
 
@@ -10,9 +11,7 @@ namespace GeologicalLandforms;
 public class Settings : ModSettings
 {
     public int MaxLandformSearchRadius = 100;
-    
-    public bool HasLegacyCustomConfig;
-    
+
     public bool ShowWorldTileDebugInfo;
 
     private static Vector2 _scrollPos = Vector2.zero;
@@ -62,6 +61,8 @@ public class Settings : ModSettings
         }
 
         Widgets.EndScrollView();
+        
+        RimWorld_Misc.RunOnMainMenuNow();
     }
 
     private void ReplaceNaturalRock(ThingDef thingDef)
@@ -87,7 +88,6 @@ public class Settings : ModSettings
 
     public override void ExposeData()
     {
-        Scribe_Values.Look(ref HasLegacyCustomConfig, "UseCustomConfig");
         Scribe_Values.Look(ref MaxLandformSearchRadius, "MaxLandformSearchRadius", 100);
         Scribe_Values.Look(ref ShowWorldTileDebugInfo, "ShowWorldTileDebugInfo");
         base.ExposeData();
@@ -96,7 +96,6 @@ public class Settings : ModSettings
     public void ResetAll()
     {
         LandformManager.ResetAll();
-        HasLegacyCustomConfig = false;
         ShowWorldTileDebugInfo = false;
         MaxLandformSearchRadius = 100;
     }

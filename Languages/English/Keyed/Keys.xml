@@ -8,7 +8,6 @@
   <GeologicalLandforms.Settings.OpenDataDir>Open custom landform data directory</GeologicalLandforms.Settings.OpenDataDir>
   <GeologicalLandforms.Settings.ConfirmResetAll>Are you sure you want to fully reset the settings for this mod, including all landform configs? This will also unrecoverably delete ALL custom landforms you created!</GeologicalLandforms.Settings.ConfirmResetAll>
 
-  <GeologicalLandforms.LandformManager.LegacyConfigWarning>With the latest update of Geological Landforms a new landform editor was added, replacing the old one. This means landforms previously created or modified with the old editor will no longer be loaded by this version of the mod. The new editor can be accessed from the mod settings.</GeologicalLandforms.LandformManager.LegacyConfigWarning>
   <GeologicalLandforms.LandformManager.LandformUpgrade>There are new versions available for some landforms that you previously modified. Would you like to get the new versions, or keep the old modified ones?\n\nAffected landforms:</GeologicalLandforms.LandformManager.LandformUpgrade>
   <GeologicalLandforms.LandformManager.LandformUpgradeYes>Replace with new data</GeologicalLandforms.LandformManager.LandformUpgradeYes>
   <GeologicalLandforms.LandformManager.LandformUpgradeNo>Keep old data</GeologicalLandforms.LandformManager.LandformUpgradeNo>

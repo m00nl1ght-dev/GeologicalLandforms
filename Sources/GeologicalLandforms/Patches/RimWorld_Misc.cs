@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using RimWorld;
+using Verse;
 
 // ReSharper disable All
 namespace GeologicalLandforms.Patches;
@@ -20,6 +21,11 @@ internal static class RimWorld_Misc
     [HarmonyPatch(typeof(MainMenuDrawer))]
     [HarmonyPatch(nameof(MainMenuDrawer.Init))]
     private static void Postfix()
+    {
+        RunOnMainMenuNow();
+    }
+
+    public static void RunOnMainMenuNow()
     {
         _onMainMenu.ForEach(e => e.Invoke());
         _onMainMenu.Clear();

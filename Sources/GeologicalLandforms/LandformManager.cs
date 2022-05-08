@@ -27,15 +27,6 @@ public static class LandformManager
     {
         Directory.CreateDirectory(CustomLandformsDir(CurrentVersion));
         _landforms = LoadAll();
-
-        if (Directory.Exists(LegacyCustomLandformsDir) && ModInstance.Settings.HasLegacyCustomConfig)
-        {
-            RimWorld_Misc.OnMainMenu(() =>
-            {
-                ModInstance.Settings.HasLegacyCustomConfig = false;
-                Find.WindowStack.Add(new Dialog_MessageBox("GeologicalLandforms.LandformManager.LegacyConfigWarning".Translate()));
-            });
-        }
     }
 
     public static Dictionary<string, Landform> LoadAll(string fileFilter = "*")
