@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using RimWorld;
-using Verse;
 
 // ReSharper disable All
 namespace GeologicalLandforms.Patches;
