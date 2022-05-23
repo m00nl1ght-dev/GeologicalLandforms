@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using GeologicalLandforms.GraphEditor;
 using RimWorld;
 using RimWorld.Planet;
@@ -14,9 +15,10 @@ public interface IWorldTileInfo
     public MapParent WorldObject { get; }
     public BiomeDef Biome { get; }
     
-    public bool HasCaves { get; }
     public bool HasOcean { get; }
     
+    public List<BorderingBiome> BorderingBiomes { get; }
+
     public Hilliness Hilliness { get; }
     public float Elevation { get; }
     public float Temperature { get; }
@@ -28,4 +30,16 @@ public interface IWorldTileInfo
     
     public RoadDef MainRoad { get; }
     public float MainRoadAngle { get; }
+    
+    public readonly struct BorderingBiome
+    {
+        public readonly BiomeDef Biome;
+        public readonly float Angle;
+
+        public BorderingBiome(BiomeDef biome, float angle)
+        {
+            Biome = biome;
+            Angle = angle;
+        }
+    }
 }

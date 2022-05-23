@@ -24,6 +24,7 @@
   <GeologicalLandforms.Editor.ConfirmDelete>Are you sure you want to delete the selected custom landform? It will be gone forever!</GeologicalLandforms.Editor.ConfirmDelete>
   
   <GeologicalLandforms.WorldMap.Landform>Landform</GeologicalLandforms.WorldMap.Landform>
+  <GeologicalLandforms.WorldMap.BorderingBiomes>Bordering biomes</GeologicalLandforms.WorldMap.BorderingBiomes>
   <GeologicalLandforms.WorldMap.Topology>Topology</GeologicalLandforms.WorldMap.Topology>
   <GeologicalLandforms.WorldMap.TopologyDirection>Topology direction</GeologicalLandforms.WorldMap.TopologyDirection>
   <GeologicalLandforms.WorldMap.Swampiness>Swampiness</GeologicalLandforms.WorldMap.Swampiness>

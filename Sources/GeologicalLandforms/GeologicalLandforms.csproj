@@ -68,15 +68,21 @@
         </Reference>
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="GraphEditor\BiomeData.cs" />
         <Compile Include="GraphEditor\EditorMockTileInfo.cs" />
         <Compile Include="GraphEditor\LandformGraphEditor.cs" />
         <Compile Include="GraphEditor\LandformGraphInterface.cs" />
+        <Compile Include="GraphEditor\Nodes\BiomeGrid\BiomeGridFunctionConnection.cs" />
+        <Compile Include="GraphEditor\Nodes\BiomeGrid\NodeBiomeGridPreview.cs" />
+        <Compile Include="GraphEditor\Nodes\Biome\BiomeFunctionConnection.cs" />
         <Compile Include="GraphEditor\Nodes\Grid\NodeGridPerlin.cs" />
+        <Compile Include="GraphEditor\Nodes\Grid\NodeGridSelectBiomeGrid.cs" />
         <Compile Include="GraphEditor\Nodes\Grid\NodeGridTransformByMapSize.cs" />
         <Compile Include="GraphEditor\Nodes\Grid\NodeGridSelectTerrain.cs" />
         <Compile Include="GraphEditor\Nodes\Grid\NodeGridSelectTerrainGrid.cs" />
         <Compile Include="GraphEditor\Nodes\Grid\NodeGridRotateToMapSides.cs" />
         <Compile Include="GraphEditor\Nodes\Output\NodeOutputBase.cs" />
+        <Compile Include="GraphEditor\Nodes\Output\NodeOutputBiomeGrid.cs" />
         <Compile Include="GraphEditor\Nodes\Output\NodeOutputElevation.cs" />
         <Compile Include="GraphEditor\Nodes\Output\NodeOutputFertility.cs" />
         <Compile Include="GraphEditor\Nodes\Output\NodeOutputScatterers.cs" />
@@ -97,6 +103,7 @@
         <Compile Include="GraphEditor\TerrainData.cs" />
         <Compile Include="Landform.cs" />
         <Compile Include="LandformManager.cs" />
+        <Compile Include="BiomeGrid.cs" />
         <Compile Include="ModCompat\ModCompat_MapReroll.cs" />
         <Compile Include="ModCompat\ModCompat_PrepareLanding.cs" />
         <Compile Include="Patches\RimWorld_GenStep_Scatterer.cs" />
@@ -104,6 +111,8 @@
         <Compile Include="Patches\RimWorld_GenStep_Terrain.cs" />
         <Compile Include="Patches\RimWorld_MapGenerator.cs" />
         <Compile Include="Patches\RimWorld_TerrainPatchMaker.cs" />
+        <Compile Include="Patches\RimWorld_WildAnimalSpawner.cs" />
+        <Compile Include="Patches\RimWorld_WildPlantSpawner.cs" />
         <Compile Include="Patches\RimWorld_World.cs" />
         <Compile Include="Util\GuiUtils.cs" />
         <Compile Include="IWorldTileInfo.cs" />

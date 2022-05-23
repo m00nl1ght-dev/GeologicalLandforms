@@ -6,7 +6,7 @@ using UnityEngine;
 namespace GeologicalLandforms.GraphEditor;
 
 [Serializable]
-[Node(false, "Output/Scatterers", 403)]
+[Node(false, "Output/Scatterers", 404)]
 public class NodeOutputScatterers : NodeOutputBase
 {
     public const string ID = "outputScatterers";

@@ -18,11 +18,14 @@ public class NodeValueWorldTile : NodeBase
 
     public override string Title => "World Tile";
     
-    [ValueConnectionKnob("Elevation", Direction.Out, ValueFunctionConnection.Id)]
-    public ValueConnectionKnob ElevationOutputKnob;
-    
+    [ValueConnectionKnob("Biome", Direction.Out, BiomeFunctionConnection.Id)]
+    public ValueConnectionKnob BiomeOutputKnob;
+
     [ValueConnectionKnob("Hilliness", Direction.Out, ValueFunctionConnection.Id)]
     public ValueConnectionKnob HillinessOutputKnob;
+    
+    [ValueConnectionKnob("Elevation", Direction.Out, ValueFunctionConnection.Id)]
+    public ValueConnectionKnob ElevationOutputKnob;
     
     [ValueConnectionKnob("Temperature", Direction.Out, ValueFunctionConnection.Id)]
     public ValueConnectionKnob TemperatureOutputKnob;
@@ -35,14 +38,19 @@ public class NodeValueWorldTile : NodeBase
         GUILayout.BeginVertical(BoxStyle);
         
         GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Elevation", DoubleBoxLayout);
+        GUILayout.Label("Biome", DoubleBoxLayout);
         GUILayout.EndHorizontal();
-        ElevationOutputKnob.SetPosition();
+        BiomeOutputKnob.SetPosition();
         
         GUILayout.BeginHorizontal(BoxStyle);
         GUILayout.Label("Hilliness", DoubleBoxLayout);
         GUILayout.EndHorizontal();
         HillinessOutputKnob.SetPosition();
+        
+        GUILayout.BeginHorizontal(BoxStyle);
+        GUILayout.Label("Elevation", DoubleBoxLayout);
+        GUILayout.EndHorizontal();
+        ElevationOutputKnob.SetPosition();
         
         GUILayout.BeginHorizontal(BoxStyle);
         GUILayout.Label("Temperature", DoubleBoxLayout);
@@ -53,7 +61,7 @@ public class NodeValueWorldTile : NodeBase
         GUILayout.Label("Rainfall", DoubleBoxLayout);
         GUILayout.EndHorizontal();
         RainfallOutputKnob.SetPosition();
-        
+
         GUILayout.EndVertical();
     }
 
@@ -63,6 +71,7 @@ public class NodeValueWorldTile : NodeBase
         HillinessOutputKnob.SetValue<ISupplier<double>>(Supplier.Of(GetHillinessFactor(Landform.GeneratingTile.Hilliness)));
         TemperatureOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) Landform.GeneratingTile.Temperature));
         RainfallOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) Landform.GeneratingTile.Rainfall));
+        BiomeOutputKnob.SetValue<ISupplier<BiomeData>>(Supplier.Of(new BiomeData(Landform.GeneratingTile.Biome)));
         return true;
     }
     

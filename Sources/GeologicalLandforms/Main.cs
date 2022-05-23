@@ -1,7 +1,9 @@
 using System.Collections.Generic;
+using System.Linq;
 using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using NodeEditorFramework.Utilities;
+using RimWorld;
 using TerrainGraph;
 using Verse;
 
@@ -13,7 +15,8 @@ public static class Main
     public static readonly IReadOnlyCollection<string> ExcludedBiomePrefixes = new HashSet<string>
     {
         "BiomesIslands", // Biomes! Islands
-        "BMT_FungalForest", // Biomes! Fungal Forest
+        "BMT_FungalForest", // Biomes! Caverns
+        "BMT_ChromaticOasis", // Biomes! Oasis
         "Tunnelworld", "InfestedMountains", "DeepRavine", "FrozenLake", "Oasis", // Terra Project
         "Archipelago", "VolcanicIsland", "TundraSkerries", "PackIce", "Atoll", // Terra Project
         "Cave" // CaveBiome, Terra Project
@@ -33,5 +36,10 @@ public static class Main
     {
         if (rotList.Count == 0) return Rot6.Invalid;
         return rotList[Rand.RangeSeeded(0, rotList.Count, seed)];
+    }
+
+    public static bool IsBiomeExcluded(BiomeDef biome)
+    {
+        return ExcludedBiomePrefixes.Any(biome.defName.StartsWith);
     }
 }

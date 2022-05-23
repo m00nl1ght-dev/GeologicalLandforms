@@ -27,6 +27,7 @@ public class Landform : TerrainCanvas
     public NodeOutputElevation OutputElevation { get; internal set; }
     public NodeOutputFertility OutputFertility { get; internal set; }
     public NodeOutputTerrain OutputTerrain { get; internal set; }
+    public NodeOutputBiomeGrid OutputBiomeGrid { get; internal set; }
     public NodeOutputScatterers OutputScatterers { get; internal set; }
 
     public override int GridFullSize => 250;

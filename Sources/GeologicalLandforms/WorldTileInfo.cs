@@ -22,8 +22,9 @@ public class WorldTileInfo : IWorldTileInfo
     public MapParent WorldObject => World.worldObjects.MapParentAt(TileId);
     public BiomeDef Biome => Tile.biome;
     
-    public bool HasCaves { get; private set; }
     public bool HasOcean { get; private set; }
+
+    public List<IWorldTileInfo.BorderingBiome> BorderingBiomes { get; } = new();
 
     public Hilliness Hilliness => Tile.hilliness;
     public float Elevation => Tile.elevation;
@@ -66,9 +67,9 @@ public class WorldTileInfo : IWorldTileInfo
     private static void DetermineLandform(WorldTileInfo info)
     {
         if (!info.Biome.canBuildBase || info.Hilliness == Hilliness.Impassable) return; 
-        if (Main.ExcludedBiomePrefixes.Any(info.Biome.defName.StartsWith)) return;
+        if (Main.IsBiomeExcluded(info.Biome)) return;
 
-        List<Landform> landforms = LandformManager.Landforms.Values.Where(e => e.WorldTileReq?.CheckRequirements(info) ?? false).ToList();
+        var landforms = LandformManager.Landforms.Values.Where(e => e.WorldTileReq?.CheckRequirements(info) ?? false).ToList();
         
         float sum = Math.Max(1f, landforms.Sum(e => e.WorldTileReq.Commonness));
         float rand = new FloatRange(0f, sum).RandomInRangeSeeded(info.MakeSeed(1754));
@@ -91,7 +92,6 @@ public class WorldTileInfo : IWorldTileInfo
         int tileId = info.TileId;
 
         info.LandformDirection = new Rot4(Rand.RangeInclusiveSeeded(0, 3, info.MakeSeed(0087)));
-        info.HasCaves = info.World.HasCaves(tileId);
 
         if (biome == BiomeDefOf.Lake || biome == BiomeDefOf.Ocean && (info.HasOcean = true))
         {
@@ -99,7 +99,7 @@ public class WorldTileInfo : IWorldTileInfo
             return;
         }
         
-        List<Tile.RiverLink> rivers = info.Tile.Rivers;
+        var rivers = info.Tile.Rivers;
         if (rivers?.Count > 0)
         {
             Tile.RiverLink riverLink = rivers.OrderBy(r => -r.river.degradeThreshold).First();
@@ -107,12 +107,18 @@ public class WorldTileInfo : IWorldTileInfo
             info.MainRiver = riverLink.river;
         }
         
-        List<Tile.RoadLink> roads = info.Tile.Roads;
+        var roads = info.Tile.Roads;
         if (roads?.Count > 0)
         {
             Tile.RoadLink roadLink = roads.OrderBy(r => r.road.movementCostMultiplier).First();
             info.MainRoadAngle = info.World.grid.GetHeadingFromTo(info.TileId, roadLink.neighbor);
             info.MainRoad = roadLink.road;
+        }
+
+        if (Main.IsBiomeExcluded(biome))
+        {
+            info.Topology = Topology.Any;
+            return;
         }
 
         List<int> nb = new();
@@ -128,11 +134,19 @@ public class WorldTileInfo : IWorldTileInfo
             {
                 Rot6 rotFromTo = Rot6.FromAngleFlat(grid.GetHeadingFromTo(tileId, nbTileId));
                 if (!waterTiles.Contains(rotFromTo)) waterTiles.Add(rotFromTo);
-            } 
-            else if (((int) nbTile.hilliness) >= 3 && nbTile.hilliness - info.Tile.hilliness > 0)
+            }
+            else
             {
                 Rot6 rotFromTo = Rot6.FromAngleFlat(grid.GetHeadingFromTo(tileId, nbTileId));
-                if (!cliffTiles.Contains(rotFromTo)) cliffTiles.Add(rotFromTo);
+                if (nbTile.biome != biome && nbTile.biome.canBuildBase && !Main.IsBiomeExcluded(nbTile.biome))
+                {
+                    info.BorderingBiomes.Add(new IWorldTileInfo.BorderingBiome(nbTile.biome, rotFromTo.AsAngle));
+                }
+                
+                if (((int) nbTile.hilliness) >= 3 && nbTile.hilliness - info.Tile.hilliness > 0)
+                {
+                    if (!cliffTiles.Contains(rotFromTo)) cliffTiles.Add(rotFromTo);
+                }
             }
         }
 
@@ -213,7 +227,7 @@ public class WorldTileInfo : IWorldTileInfo
             return;
         }
 
-        List<Rot6> landTiles = Rot6.All.Except(waterTiles).ToList();
+        var landTiles = Rot6.All.Except(waterTiles).ToList();
         
         if (waterTiles.Count == 4)
         {
@@ -348,7 +362,7 @@ public class WorldTileInfo : IWorldTileInfo
             return;
         }
         
-        List<Rot6> nonCliffTiles = Rot6.All.Except(cliffTiles).ToList();
+        var nonCliffTiles = Rot6.All.Except(cliffTiles).ToList();
         
         if (cliffTiles.Count == 4)
         {

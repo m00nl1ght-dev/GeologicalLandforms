@@ -80,6 +80,12 @@ internal static class RimWorld_WITab_Terrain
             listingStandard.LabelDouble("GeologicalLandforms.WorldMap.Landform".Translate(), landformStr.CapitalizeFirst());
         }
 
+        if (worldTileInfo.BorderingBiomes?.Count > 0)
+        {
+            string bbStr = worldTileInfo.BorderingBiomes.Select(b => b.Biome.label.CapitalizeFirst()).Distinct().Join(b => b);
+            listingStandard.LabelDouble("GeologicalLandforms.WorldMap.BorderingBiomes".Translate(), bbStr);
+        }
+
         StringBuilder sb = new();
         
         if (Find.World.HasCaves(tileId))

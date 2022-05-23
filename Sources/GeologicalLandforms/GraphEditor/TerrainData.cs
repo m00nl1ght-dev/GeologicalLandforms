@@ -35,14 +35,15 @@ public readonly struct TerrainData
         GUI.enabled = true;
     }
     
-    public static string DislayString(string str)
+    public static string DislayString(string defName)
     {
-        return string.IsNullOrEmpty(str) ? "None" : str;
+        return string.IsNullOrEmpty(defName) || defName.EqualsIgnoreCase("None") ? "None"
+            : DefDatabase<TerrainDef>.GetNamed(defName, false)?.label.CapitalizeFirst() ?? "None";
     }
     
     public static string DislayString(TerrainDef def)
     {
-        return def == null ? "None" : def.defName;
+        return def == null ? "None" : def.label.CapitalizeFirst();
     }
     
     public override string ToString()

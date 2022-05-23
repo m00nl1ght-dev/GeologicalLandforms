@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using RimWorld;
 using RimWorld.Planet;
 using Verse;
@@ -17,9 +18,10 @@ public class EditorMockTileInfo : IWorldTileInfo
 
     public MapParent WorldObject => null;
     public BiomeDef Biome { get; set; } = BiomeDefOf.TemperateForest;
-
-    public bool HasCaves { get; set; } = true;
+    
     public bool HasOcean { get; set; } = true;
+
+    public List<IWorldTileInfo.BorderingBiome> BorderingBiomes => new();
 
     public Hilliness Hilliness { get; set; } = Hilliness.Flat;
     public float Elevation { get; set; } = 1000f;

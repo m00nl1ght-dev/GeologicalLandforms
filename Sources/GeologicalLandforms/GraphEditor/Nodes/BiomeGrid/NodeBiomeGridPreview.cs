@@ -1,17 +1,17 @@
 using System;
 using System.Collections.Generic;
 using NodeEditorFramework;
+using RimWorld;
 using TerrainGraph;
 using UnityEngine;
-using Verse;
 
 namespace GeologicalLandforms.GraphEditor;
 
 [Serializable]
-[Node(false, "Terrain/Preview", 320)]
-public class NodeTerrainGridPreview : NodeDiscreteGridPreview<TerrainData>
+[Node(false, "Biome/Preview", 360)]
+public class NodeBiomeGridPreview : NodeDiscreteGridPreview<BiomeData>
 {
-    public const string ID = "terrainGridPreview";
+    public const string ID = "biomeGridPreview";
     public override string GetID => ID;
 
     public override string Title => "Preview";
@@ -19,26 +19,26 @@ public class NodeTerrainGridPreview : NodeDiscreteGridPreview<TerrainData>
     public override ValueConnectionKnob InputKnobRef => InputKnob;
     public override ValueConnectionKnob OutputKnobRef => OutputKnob;
 
-    protected override IGridFunction<TerrainData> Default => GridFunction.Of(TerrainData.Empty);
+    protected override IGridFunction<BiomeData> Default => GridFunction.Of(BiomeData.Empty);
     
-    [ValueConnectionKnob("Input", Direction.In, TerrainGridFunctionConnection.Id)]
+    [ValueConnectionKnob("Input", Direction.In, BiomeGridFunctionConnection.Id)]
     public ValueConnectionKnob InputKnob;
     
-    [ValueConnectionKnob("Output", Direction.Out, TerrainGridFunctionConnection.Id)]
+    [ValueConnectionKnob("Output", Direction.Out, BiomeGridFunctionConnection.Id)]
     public ValueConnectionKnob OutputKnob;
     
     public override bool Calculate()
     {
-        OutputKnob.SetValue(InputKnob.GetValue<ISupplier<IGridFunction<TerrainData>>>());
+        OutputKnob.SetValue(InputKnob.GetValue<ISupplier<IGridFunction<BiomeData>>>());
         return true;
     }
 
-    protected override string MakeTooltip(TerrainData value, double x, double y)
+    protected override string MakeTooltip(BiomeData value, double x, double y)
     {
         return value + " ( " + Math.Round(x, 0) + " | " + Math.Round(y, 0) + " )";
     }
 
-    private static List<Color> _terrainColors = new()
+    private static List<Color> _biomeColors = new()
     {
         new Color(0.2f, 0.2f, 0.2f),
         new Color(0.4f, 0.4f, 0.4f),
@@ -47,14 +47,14 @@ public class NodeTerrainGridPreview : NodeDiscreteGridPreview<TerrainData>
         new Color(1f, 1f, 1f)
     };
 
-    protected override Color GetColor(TerrainData value)
+    protected override Color GetColor(BiomeData value)
     {
         if (value.IsEmpty) return Color.black;
-        return GetTerrainColor(value.Terrain, value.SelectionIndex);
+        return GetTerrainColor(value.Biome, value.SelectionIndex);
     }
 
-    public Color GetTerrainColor(TerrainDef def, int selIdx)
+    public Color GetTerrainColor(BiomeDef def, int selIdx)
     {
-        return _terrainColors[selIdx % _terrainColors.Count];
+        return _biomeColors[selIdx % _biomeColors.Count];
     }
 }
