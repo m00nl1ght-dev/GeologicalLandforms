@@ -14,23 +14,26 @@ public class WorldTileInfo : IWorldTileInfo
     public readonly int TileId;
     public readonly Tile Tile;
     public readonly World World;
+
+    public IReadOnlyList<Landform> Landforms => _landforms;
+    private List<Landform> _landforms;
     
-    public Landform Landform { get; private set; }
+    public IReadOnlyList<IWorldTileInfo.BorderingBiome> BorderingBiomes => _borderingBiomes;
+    private List<IWorldTileInfo.BorderingBiome> _borderingBiomes;
+
     public Topology Topology { get; private set; } = Topology.Any;
     public Rot4 LandformDirection { get; private set; }
     
     public MapParent WorldObject => World.worldObjects.MapParentAt(TileId);
     public BiomeDef Biome => Tile.biome;
-    
-    public bool HasOcean { get; private set; }
-
-    public List<IWorldTileInfo.BorderingBiome> BorderingBiomes { get; } = new();
 
     public Hilliness Hilliness => Tile.hilliness;
     public float Elevation => Tile.elevation;
     public float Temperature => Tile.temperature;
     public float Rainfall => Tile.rainfall;
     public float Swampiness => Tile.swampiness;
+    
+    public bool HasOcean { get; private set; }
 
     public RiverDef MainRiver { get; private set; }
     public float MainRiverAngle { get; private set; }
@@ -55,7 +58,7 @@ public class WorldTileInfo : IWorldTileInfo
         if (_cache != null && _cache.TileId == tileId && _cache.World == world) return _cache;
         _cache = new WorldTileInfo(tileId, world.grid[tileId], world);
         DetermineTopology(_cache);
-        DetermineLandform(_cache);
+        DetermineLandforms(_cache);
         return _cache;
     }
 
@@ -64,25 +67,36 @@ public class WorldTileInfo : IWorldTileInfo
         _cache = null;
     }
 
-    private static void DetermineLandform(WorldTileInfo info)
+    private static void DetermineLandforms(WorldTileInfo info)
     {
         if (!info.Biome.canBuildBase || info.Hilliness == Hilliness.Impassable) return; 
         if (Main.IsBiomeExcluded(info.Biome)) return;
 
-        var landforms = LandformManager.Landforms.Values.Where(e => e.WorldTileReq?.CheckRequirements(info) ?? false).ToList();
+        var eligible = LandformManager.Landforms.Values
+            .Where(e => e.WorldTileReq?.CheckRequirements(info) ?? false)
+            .OrderBy(e => e.Manifest.TimeCreated)
+            .ToList();
         
-        float sum = Math.Max(1f, landforms.Sum(e => e.WorldTileReq.Commonness));
+        var eligibleForMain = eligible.Where(e => !e.IsLayer).ToList();
+
+        float sum = Math.Max(1f, eligibleForMain.Sum(e => e.WorldTileReq.Commonness));
         float rand = new FloatRange(0f, sum).RandomInRangeSeeded(info.MakeSeed(1754));
-        foreach (Landform landform in landforms)
+
+        Landform main = null;
+        foreach (Landform landform in eligibleForMain)
         {
             if (rand < landform.WorldTileReq.Commonness)
             {
-                info.Landform = landform;
-                return;
+                main = landform;
+                break;
             }
 
             rand -= landform.WorldTileReq.Commonness;
         }
+
+        var landforms = eligible.Where(e => e.IsLayer && Rand.ChanceSeeded(e.WorldTileReq.Commonness, info.MakeSeed(e.RandSeed)));
+        if (main != null) landforms = landforms.Append(main);
+        info._landforms = landforms.OrderByDescending(e => e.Priority).ToList();
     }
 
     private static void DetermineTopology(WorldTileInfo info)
@@ -140,7 +154,8 @@ public class WorldTileInfo : IWorldTileInfo
                 Rot6 rotFromTo = Rot6.FromAngleFlat(grid.GetHeadingFromTo(tileId, nbTileId));
                 if (nbTile.biome != biome && nbTile.biome.canBuildBase && !Main.IsBiomeExcluded(nbTile.biome))
                 {
-                    info.BorderingBiomes.Add(new IWorldTileInfo.BorderingBiome(nbTile.biome, rotFromTo.AsAngle));
+                    info._borderingBiomes ??= new List<IWorldTileInfo.BorderingBiome>();
+                    info._borderingBiomes.Add(new IWorldTileInfo.BorderingBiome(nbTile.biome, rotFromTo.AsAngle));
                 }
                 
                 if (((int) nbTile.hilliness) >= 3 && nbTile.hilliness - info.Tile.hilliness > 0)

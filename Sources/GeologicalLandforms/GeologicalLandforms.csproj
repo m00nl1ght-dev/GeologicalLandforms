@@ -96,6 +96,7 @@
         <Compile Include="GraphEditor\Nodes\Terrain\TerrainFunctionConnection.cs" />
         <Compile Include="GraphEditor\Nodes\UI\NodeUIBase.cs" />
         <Compile Include="GraphEditor\Nodes\UI\NodeUILandformManifest.cs" />
+        <Compile Include="GraphEditor\Nodes\UI\NodeUILayerConfig.cs" />
         <Compile Include="GraphEditor\Nodes\UI\NodeUIWorldTileReq.cs" />
         <Compile Include="GraphEditor\Nodes\Value\NodeValueRiversAndRoads.cs" />
         <Compile Include="GraphEditor\Nodes\Value\NodeValueWorldTile.cs" />

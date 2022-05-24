@@ -1,3 +1,5 @@
+using System.Linq;
+using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using RimWorld.Planet;
 using Verse;
@@ -21,9 +23,10 @@ internal static class RimWorld_World
     private static void Postfix(ref bool __result, int tile)
     {
         WorldTileInfo worldTileInfo = WorldTileInfo.Get(tile);
-        if (worldTileInfo.Landform == null) return;
+        Landform landform = worldTileInfo.Landforms?.FirstOrDefault(l => !l.IsLayer);
+        if (landform == null) return;
 
         int seed = worldTileInfo.MakeSeed(8266);
-        __result = Rand.ChanceSeeded(worldTileInfo.Landform.WorldTileReq.CaveChance, seed);
+        __result = Rand.ChanceSeeded(landform.WorldTileReq.CaveChance, seed);
     }
 }

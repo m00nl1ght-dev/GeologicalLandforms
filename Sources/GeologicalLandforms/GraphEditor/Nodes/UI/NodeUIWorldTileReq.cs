@@ -73,10 +73,14 @@ public class NodeUIWorldTileReq : NodeUIBase
     {
         GuiUtils.CenteredLabel(listing, "GeologicalLandforms.Settings.Landform.Commonness".Translate(), Math.Round(Commonness, 2).ToString(CultureInfo.InvariantCulture));
         Commonness = listing.Slider(Commonness, 0f, 1f);
+
+        GUI.enabled = !Landform.IsLayer;
         
         GuiUtils.CenteredLabel(listing, "GeologicalLandforms.Settings.Landform.CaveChance".Translate(), Math.Round(CaveChance, 2).ToString(CultureInfo.InvariantCulture));
         CaveChance = listing.Slider(CaveChance, 0f, 1f);
         listing.Gap(18f);
+        
+        GUI.enabled = true;
         
         GuiUtils.Dropdown(listing, "GeologicalLandforms.Settings.Landform.Topology".Translate(), Topology, e => Topology = e, 150f, "GeologicalLandforms.Settings.Landform.Topology");
         listing.Gap();

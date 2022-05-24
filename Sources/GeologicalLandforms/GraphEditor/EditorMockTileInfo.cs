@@ -7,12 +7,12 @@ namespace GeologicalLandforms.GraphEditor;
 
 public class EditorMockTileInfo : IWorldTileInfo
 {
-    public EditorMockTileInfo(Landform landform)
-    {
-        Landform = landform;
-    }
-
-    public Landform Landform { get; }
+    public IReadOnlyList<Landform> Landforms => LandformsList;
+    public List<Landform> LandformsList { get; set; }
+    
+    public IReadOnlyList<IWorldTileInfo.BorderingBiome> BorderingBiomes => BorderingBiomesList;
+    public List<IWorldTileInfo.BorderingBiome> BorderingBiomesList { get; set; }
+    
     public Topology Topology => Topology.Any;
     public Rot4 LandformDirection { get; set; } = Rot4.North;
 
@@ -20,8 +20,6 @@ public class EditorMockTileInfo : IWorldTileInfo
     public BiomeDef Biome { get; set; } = BiomeDefOf.TemperateForest;
     
     public bool HasOcean { get; set; } = true;
-
-    public List<IWorldTileInfo.BorderingBiome> BorderingBiomes => new();
 
     public Hilliness Hilliness { get; set; } = Hilliness.Flat;
     public float Elevation { get; set; } = 1000f;

@@ -60,14 +60,15 @@ internal static class RimWorld_WITab_Terrain
     {
         int tileId = Find.WorldSelector.selectedTile;
         IWorldTileInfo worldTileInfo = WorldTileInfo.Get(tileId);
+        Landform mainLandform = worldTileInfo.Landforms?.FirstOrDefault(l => !l.IsLayer);
 
-        if (worldTileInfo.Landform != null)
+        if (mainLandform != null)
         {
-            string landformStr = worldTileInfo.Landform.TranslatedName;
+            string landformStr = mainLandform.TranslatedName;
             
-            if (worldTileInfo.Landform.DisplayNameHasDirection)
+            if (mainLandform.DisplayNameHasDirection)
             {
-                if (worldTileInfo.Landform.IsCornerVariant)
+                if (mainLandform.IsCornerVariant)
                 {
                     landformStr = TranslateDoubleRot4(worldTileInfo.LandformDirection) + " " + landformStr;
                 }
@@ -130,12 +131,12 @@ internal static class RimWorld_WITab_Terrain
 
         for (int i = 0; i < ModInstance.Settings.MaxLandformSearchRadius; i++)
         {
-            List<int> copy = pending.ToList();
+            var copy = pending.ToList();
             pending.Clear();
             foreach (var p in copy)
             {
                 IWorldTileInfo tileInfo = WorldTileInfo.Get(p);
-                if (tileInfo.Landform == landform)
+                if (tileInfo.Landforms != null && tileInfo.Landforms.Contains(landform))
                 {
                     CameraJumper.TryJumpAndSelect(new GlobalTargetInfo(p));
                     Find.WorldSelector.selectedTile = p;

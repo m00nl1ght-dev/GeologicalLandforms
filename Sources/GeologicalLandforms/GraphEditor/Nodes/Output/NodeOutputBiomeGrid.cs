@@ -1,5 +1,6 @@
 using System;
 using NodeEditorFramework;
+using RimWorld;
 using TerrainGraph;
 using UnityEngine;
 
@@ -19,6 +20,9 @@ public class NodeOutputBiomeGrid : NodeOutputBase
     [ValueConnectionKnob("Biome Grid", Direction.In, BiomeGridFunctionConnection.Id)]
     public ValueConnectionKnob BiomeGridKnob;
     
+    [ValueConnectionKnob("Transitions", Direction.In, GridFunctionConnection.Id)]
+    public ValueConnectionKnob BiomeTransitionKnob;
+    
     public override void NodeGUI()
     {
         GUILayout.BeginVertical(BoxStyle);
@@ -27,6 +31,11 @@ public class NodeOutputBiomeGrid : NodeOutputBase
         GUILayout.Label(BiomeGridKnob.name, BoxLayout);
         GUILayout.EndHorizontal();
         BiomeGridKnob.SetPosition();
+        
+        GUILayout.BeginHorizontal(BoxStyle);
+        GUILayout.Label(BiomeTransitionKnob.name, BoxLayout);
+        GUILayout.EndHorizontal();
+        BiomeTransitionKnob.SetPosition();
 
         GUILayout.EndVertical();
     }
@@ -45,7 +54,65 @@ public class NodeOutputBiomeGrid : NodeOutputBase
 
     public IGridFunction<BiomeData> GetBiomeGrid()
     {
-        IGridFunction<BiomeData> function = BiomeGridKnob.GetValue<ISupplier<IGridFunction<BiomeData>>>()?.ResetAndGet();
+        var function = BiomeGridKnob.GetValue<ISupplier<IGridFunction<BiomeData>>>()?.ResetAndGet();
         return function == null ? null : ScaleWithMap(function);
+    }
+    
+    public IGridFunction<BiomeData> ApplyBiomeTransitions(IWorldTileInfo tile, int mapSize, IGridFunction<BiomeData> landformBiomes)
+    {
+        var transition = BiomeTransitionKnob.GetValue<ISupplier<IGridFunction<double>>>();
+        if (transition == null) return null;
+        return new BiomeBorderFunc(landformBiomes, transition, tile, mapSize);
+    }
+    
+    private class BiomeBorderFunc : IGridFunction<BiomeData>
+    {
+        private readonly IGridFunction<BiomeData> _preFunc;
+        private readonly BiomeDef _primary;
+        
+        private readonly IGridFunction<double>[] _selFuncs;
+        private readonly BiomeDef[] _biomes;
+
+        public BiomeBorderFunc(
+            IGridFunction<BiomeData> preFunc, 
+            ISupplier<IGridFunction<double>> selSupplier, 
+            IWorldTileInfo tile, int mapSize)
+        {
+            _preFunc = preFunc;
+            _primary = tile.Biome;
+            _biomes = new BiomeDef[tile.BorderingBiomes.Count];
+            _selFuncs = new IGridFunction<double>[_biomes.Length];
+            
+            selSupplier.ResetState();
+            for (var i = 0; i < _biomes.Length; i++)
+            {
+                IWorldTileInfo.BorderingBiome borderingBiome = tile.BorderingBiomes[i];
+                _biomes[i] = borderingBiome.Biome;
+
+                var func = selSupplier.Get();
+                func = new GridFunction.Rotate<double>(func, mapSize / 2f, mapSize / 2f, borderingBiome.Angle + 90f);
+                _selFuncs[i] = func;
+            }
+        }
+
+        public BiomeData ValueAt(double x, double z)
+        {
+            BiomeDef pre = _preFunc?.ValueAt(x, z).Biome;
+            if (pre != null) return new BiomeData(pre);
+
+            double v = 0;
+            BiomeDef b = _primary;
+            for (var i = 0; i < _biomes.Length; i++)
+            {
+                var sel = _selFuncs[i].ValueAt(x, z);
+                if (sel > v)
+                {
+                    v = sel;
+                    b = _biomes[i];
+                }
+            }
+
+            return new BiomeData(b);
+        }
     }
 }

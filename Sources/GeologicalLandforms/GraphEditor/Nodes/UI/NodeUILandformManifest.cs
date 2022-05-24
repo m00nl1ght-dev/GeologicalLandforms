@@ -21,6 +21,7 @@ public class NodeUILandformManifest : NodeUIBase
     public bool IsCustom = true;
     
     public int RevisionVersion = 1;
+    public long TimeCreated = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
     public bool IsEdited;
     
     public string DisplayName;

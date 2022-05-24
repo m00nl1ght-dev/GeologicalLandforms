@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using RimWorld;
+using RimWorld.Planet;
 using Verse;
 
 namespace GeologicalLandforms;
@@ -11,33 +12,39 @@ public class BiomeGrid : MapComponent
     private readonly BiomeDef[] _grid;
 
     private Dictionary<BiomeDef, int> _cellCounts = new();
-    private BiomeDef _fallback = BiomeDefOf.TemperateForest;
-
     public IReadOnlyDictionary<BiomeDef, int> CellCounts => _cellCounts;
     public bool HasMultipleBiomes => CellCounts.Count > 1;
-    public BiomeDef PrimaryBiome => _fallback;
+
+    private BiomeDef _primary;
+    public BiomeDef PrimaryBiome
+    {
+        get
+        {
+            if (_primary != null) return _primary;
+            MapParent parent = map?.info?.parent;
+            WorldGrid worldGrid = Find.WorldGrid;
+            if (parent == null || worldGrid == null) return BiomeDefOf.TemperateForest;
+            Tile tile = worldGrid[parent.Tile];
+            if (tile == null) return BiomeDefOf.TemperateForest;
+            _primary = tile.biome;
+            _cellCounts[_primary] = map.cellIndices.NumGridCells;
+            return _primary;
+        }
+    }
 
     public BiomeGrid(Map map) : base(map)
     {
         _grid = new BiomeDef[map.cellIndices.NumGridCells];
     }
 
-    public void Init(BiomeDef primaryBiome)
-    {
-        _fallback = primaryBiome ?? BiomeDefOf.TemperateForest;
-        _cellCounts[_fallback] = map.cellIndices.NumGridCells;
-    }
-
     public BiomeDef BiomeAt(int cell)
     {
-        if (_grid == null) return _fallback;
-        return _grid[cell] ?? _fallback;
+        return _grid[cell] ?? PrimaryBiome;
     }
     
     public BiomeDef BiomeAt(IntVec3 c)
     {
-        if (_grid == null) return _fallback;
-        return _grid[map.cellIndices.CellToIndex(c)] ?? _fallback;
+        return _grid[map.cellIndices.CellToIndex(c)] ?? PrimaryBiome;
     }
 
     public void SetBiome(IntVec3 c, BiomeDef biomeDef)
@@ -53,7 +60,7 @@ public class BiomeGrid : MapComponent
 
     public override void ExposeData()
     {
-        Scribe_Defs.Look(ref _fallback, "fallback");
+        Scribe_Defs.Look(ref _primary, "primary");
         var biomeDefsByShortHash = DefDatabase<BiomeDef>.AllDefs.ToDictionary(allDef => allDef.shortHash);
         ExposeBiomeArray(biomeDefsByShortHash, _grid, "biomeGrid");
         Scribe_Collections.Look(ref _cellCounts, "cellCounts", LookMode.Def, LookMode.Value);
@@ -63,14 +70,14 @@ public class BiomeGrid : MapComponent
     {
         MapExposeUtility.ExposeUshort(map, c => array[map.cellIndices.CellToIndex(c)]?.shortHash ?? 0, (c, val) =>
         {
+            BiomeDef primary = PrimaryBiome;
             BiomeDef biome = biomeDefsByShortHash.TryGetValue(val);
             if (biome == null && val != 0)
             {
                 Log.Error("Did not find biome def with short hash " + val + " for cell " + c + ".");
-                biome = _fallback;
-                biomeDefsByShortHash.Add(val, biome);
+                biomeDefsByShortHash.Add(val, primary);
             }
-            biome ??= _fallback;
+            biome ??= primary;
             array[map.cellIndices.CellToIndex(c)] = biome;
         }, name);
     }

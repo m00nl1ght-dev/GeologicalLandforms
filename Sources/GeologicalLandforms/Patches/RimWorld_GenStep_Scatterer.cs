@@ -13,9 +13,9 @@ internal static class RimWorld_GenStep_Scatterer
     [HarmonyPatch(typeof(GenStep_ScatterLumpsMineable), nameof(GenStep_ScatterLumpsMineable.Generate))]
     private static void Prefix(Map map, GenStepParams parms, ref FloatRange ___countPer10kCellsRange)
     {
-        if (!Landform.IsAnyGenerating) return;
+        if (!Landform.AnyGenerating) return;
 
-        double? scatterAmount = Landform.GeneratingLandform.OutputScatterers?.GetMineables();
+        double? scatterAmount = Landform.GetFeature(l => l.OutputScatterers)?.GetMineables();
         if (scatterAmount.HasValue)
         {
             ___countPer10kCellsRange = new FloatRange((float) scatterAmount.Value, (float) scatterAmount.Value);

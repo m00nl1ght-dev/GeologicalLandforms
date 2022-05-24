@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
@@ -62,7 +63,11 @@ internal static class ModCompat_PrepareLanding
     private static void TileFilterHasCave_Filter_Postfix(ref List<int> ____filteredTiles)
     {
         if (LandformFilter == null) return;
-        ____filteredTiles.RemoveAll(tile => WorldTileInfo.Get(tile).Landform != LandformFilter);
+        ____filteredTiles.RemoveAll(tile =>
+        {
+            var landforms = WorldTileInfo.Get(tile).Landforms;
+            return landforms == null || !landforms.Contains(LandformFilter);
+        });
     }
     
     private static void TileFilterHasCave_FilterActive_Postfix(ref bool __result)

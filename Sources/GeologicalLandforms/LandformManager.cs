@@ -166,7 +166,7 @@ public static class LandformManager
     {
         List<string> existing = Directory.GetFiles(directory, "*.xml").ToList();
 
-        foreach (KeyValuePair<string, Landform> pair in landforms.Where(p => p.Value.Manifest.IsEdited || p.Value.Manifest.IsCustom))
+        foreach (KeyValuePair<string, Landform> pair in landforms.Where(p => true)) // TODO revert
         {
             string file = Path.Combine(directory, "Landform" + pair.Key + ".xml");
             Landform landform = pair.Value;

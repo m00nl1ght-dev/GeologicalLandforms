@@ -9,17 +9,6 @@ namespace GeologicalLandforms.Patches;
 [HarmonyPatch(typeof(GenStep_Terrain))]
 internal static class RimWorld_GenStep_Terrain
 {
-    [TweakValue("Geological Landforms", 0.0f, 0.5f)]
-    private static float BorderingBiomeNoiseFrequency = 0.01f; // 0.21f;
-    [TweakValue("Geological Landforms", 0.0f, 5f)]
-    private static float BorderingBiomeNoiseLacunarity = 2f;
-    [TweakValue("Geological Landforms", 0.0f, 2f)]
-    private static float BorderingBiomeNoisePersistence = 0.5f;
-    [TweakValue("Geological Landforms", -2f, 2f)]
-    private static float BorderingBiomeBias = 0.325f; // 0.85f;
-    [TweakValue("Geological Landforms", 0f, 300f)]
-    private static float BorderingBiomeSpan = 100f; // 50f;
-    
     public static IGridFunction<TerrainData> BaseFunction { get; private set; }
     public static IGridFunction<TerrainData> StoneFunction { get; private set; }
     public static IGridFunction<BiomeData> BiomeFunction { get; private set; }
@@ -34,7 +23,6 @@ internal static class RimWorld_GenStep_Terrain
     private static void Prefix(Map map, GenStepParams parms)
     {
         var biomeGrid = map.GetComponent<BiomeGrid>();
-        biomeGrid?.Init(map.TileInfo.biome);
         Init(map.Tile, biomeGrid);
     }
     
@@ -61,18 +49,19 @@ internal static class RimWorld_GenStep_Terrain
     {
         CleanUp();
         
-        if (Landform.IsAnyGenerating)
+        if (!Landform.AnyGenerating) return;
+        
+        BaseFunction = Landform.GetFeature(l => l.OutputTerrain?.GetBase());
+        StoneFunction = Landform.GetFeature(l => l.OutputTerrain?.GetStone());
+        BiomeFunction = Landform.GetFeature(l => l.OutputBiomeGrid?.GetBiomeGrid());
+        
+        IWorldTileInfo tile = Landform.GeneratingTile;
+        var mapSize = Landform.GeneratingMapSize;
+        
+        if (tile?.BorderingBiomes?.Count > 0)
         {
-            NodeOutputTerrain terrainOutput = Landform.GeneratingLandform.OutputTerrain;
-            NodeOutputBiomeGrid biomeOutput = Landform.GeneratingLandform.OutputBiomeGrid;
-            BaseFunction = terrainOutput?.GetBase();
-            StoneFunction = terrainOutput?.GetStone();
-            BiomeFunction = biomeOutput?.GetBiomeGrid();
-        }
-
-        if (Landform.GeneratingTile?.BorderingBiomes?.Count > 0)
-        {
-            BiomeFunction = new BiomeBorderGen(BiomeFunction, Landform.GeneratingTile, tileId, Landform.GeneratingMapSize);
+            var transition = Landform.GetFeature(l => l.OutputBiomeGrid?.ApplyBiomeTransitions(tile, mapSize, BiomeFunction));
+            if (transition != null) BiomeFunction = transition;
         }
         
         UseVanillaTerrain = BaseFunction == null && StoneFunction == null && BiomeFunction == null;
@@ -137,64 +126,5 @@ internal static class RimWorld_GenStep_Terrain
     public static bool IsDeepWater(this TerrainDef def)
     {
         return def == TerrainDefOf.WaterDeep || def == TerrainDefOf.WaterOceanDeep;
-    }
-
-    private class BiomeBorderGen : IGridFunction<BiomeData>
-    {
-        private readonly IGridFunction<BiomeData> _preFunc;
-        private readonly BiomeDef _primary;
-        
-        private IGridFunction<double>[] _selFuncs;
-        private BiomeDef[] _biomes;
-
-        public BiomeBorderGen(IGridFunction<BiomeData> preFunc, IWorldTileInfo tile, int tileId, int mapSize)
-        {
-            _preFunc = preFunc;
-            _primary = tile.Biome;
-            InitSelFuncs(tile, tileId, mapSize);
-        }
-
-        private void InitSelFuncs(IWorldTileInfo tile, int tileId, int mapSize)
-        {
-            _biomes = new BiomeDef[tile.BorderingBiomes.Count];
-            _selFuncs = new IGridFunction<double>[_biomes.Length];
-            
-            for (var i = 0; i < _biomes.Length; i++)
-            {
-                IWorldTileInfo.BorderingBiome borderingBiome = tile.BorderingBiomes[i];
-                _biomes[i] = borderingBiome.Biome;
-
-                int seed = Find.World.info.Seed ^ tileId ^ 1753 ^ i;
-                IGridFunction<double> func = new GridFunction.NoiseGenerator(
-                    NodeGridPerlin.PerlinNoise, 
-                    BorderingBiomeNoiseFrequency, 
-                    BorderingBiomeNoiseLacunarity, 
-                    BorderingBiomeNoisePersistence, 
-                    6, seed);
-                func = new GridFunction.Add(func, new GridFunction.SpanFunction(BorderingBiomeBias, 0, 0, -BorderingBiomeSpan, 0, 0, 0, false));
-                func = new GridFunction.Rotate<double>(func, mapSize / 2f, mapSize / 2f, borderingBiome.Angle + 90f);
-                _selFuncs[i] = func;
-            }
-        }
-
-        public BiomeData ValueAt(double x, double z)
-        {
-            BiomeDef pre = _preFunc?.ValueAt(x, z).Biome;
-            if (pre != null) return new BiomeData(pre);
-
-            double v = 0;
-            BiomeDef b = _primary;
-            for (var i = 0; i < _biomes.Length; i++)
-            {
-                var sel = _selFuncs[i].ValueAt(x, z);
-                if (sel > v)
-                {
-                    v = sel;
-                    b = _biomes[i];
-                }
-            }
-
-            return new BiomeData(b);
-        }
     }
 }

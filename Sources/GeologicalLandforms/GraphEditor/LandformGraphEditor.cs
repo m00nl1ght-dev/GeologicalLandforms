@@ -90,7 +90,7 @@ public class LandformGraphEditor : Window
 
         if (landform != null)
         {
-            EditorTileInfo = new EditorMockTileInfo(landform);
+            EditorTileInfo = new EditorMockTileInfo{LandformsList = new List<Landform>{landform}};
             Landform.PrepareEditor(EditorTileInfo);
             _canvasCache.nodeCanvas = landform;
 

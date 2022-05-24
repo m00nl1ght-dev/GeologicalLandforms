@@ -8,22 +8,21 @@ namespace GeologicalLandforms;
 
 public interface IWorldTileInfo
 {
-    public Landform Landform { get; }
+    public IReadOnlyList<Landform> Landforms { get; }
+    public IReadOnlyList<BorderingBiome> BorderingBiomes { get; }
+
     public Topology Topology { get; }
     public Rot4 LandformDirection  { get; }
     
     public MapParent WorldObject { get; }
     public BiomeDef Biome { get; }
-    
-    public bool HasOcean { get; }
-    
-    public List<BorderingBiome> BorderingBiomes { get; }
 
     public Hilliness Hilliness { get; }
     public float Elevation { get; }
     public float Temperature { get; }
     public float Rainfall { get; }
     public float Swampiness { get; }
+    public bool HasOcean { get; }
     
     public RiverDef MainRiver { get; }
     public float MainRiverAngle { get; }

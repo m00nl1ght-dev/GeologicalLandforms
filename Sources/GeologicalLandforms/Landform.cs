@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using NodeEditorFramework;
 using TerrainGraph;
 using UnityEngine;
@@ -11,18 +13,23 @@ namespace GeologicalLandforms.GraphEditor;
 public class Landform : TerrainCanvas
 {
     public static IWorldTileInfo GeneratingTile { get; private set; }
-    public static Landform GeneratingLandform => GeneratingTile?.Landform;
-    public static bool IsAnyGenerating => GeneratingTile?.Landform != null;
+    public static IReadOnlyList<Landform> GeneratingLandforms { get; private set; }
+    public static bool AnyGenerating => GeneratingLandforms is { Count: > 0 };
+    public static Landform GeneratingMainLandform => GeneratingLandforms?.FirstOrDefault(v => !v.IsLayer);
     public static int GeneratingMapSize { get; private set; } = 250;
+    public static int GeneratingSeed { get; private set; }
 
     public string Id => Manifest?.Id;
     public bool IsCustom => Manifest?.IsCustom ?? false;
+    public bool IsLayer => LayerConfig != null;
+    public int Priority => IsLayer ? LayerConfig.Priority : 0;
 
     public string DisplayName => Manifest.DisplayName ?? "";
     public bool DisplayNameHasDirection => Manifest?.DisplayNameHasDirection ?? false;
 
     public NodeUILandformManifest Manifest { get; internal set; }
     public NodeUIWorldTileReq WorldTileReq { get; internal set; }
+    public NodeUILayerConfig LayerConfig { get; internal set; }
     
     public NodeOutputElevation OutputElevation { get; internal set; }
     public NodeOutputFertility OutputFertility { get; internal set; }
@@ -58,12 +65,19 @@ public class Landform : TerrainCanvas
         CleanUp();
         GeneratingTile = WorldTileInfo.Get(worldTile);
         GeneratingMapSize = mapSize;
+        GeneratingSeed = seed;
 
-        if (GeneratingTile.Landform == null) return;
-        if (!GeneratingTile.Landform.WorldTileReq.CheckMapRequirements(mapSize)) return;
+        if (GeneratingTile.Landforms == null) return;
+        GeneratingLandforms = GeneratingTile.Landforms
+            .OrderByDescending(l => l.Priority)
+            .Where(l => l.WorldTileReq.CheckMapRequirements(mapSize))
+            .ToList();
         
-        GeneratingLandform.RandSeed = seed;
-        GeneratingLandform.TraverseAll();
+        foreach (Landform landform in GeneratingLandforms)
+        {
+            landform.RandSeed = seed;
+            landform.TraverseAll();
+        }
     }
 
     public static void PrepareEditor(EditorMockTileInfo tileInfo)
@@ -71,12 +85,22 @@ public class Landform : TerrainCanvas
         CleanUp();
         GeneratingTile = tileInfo;
         GeneratingMapSize = 250;
-        GeneratingLandform.RandSeed = NodeBase.SeedSource.Next();
+        GeneratingSeed = NodeBase.SeedSource.Next();
+        if (GeneratingTile.Landforms == null) return;
+        GeneratingLandforms = GeneratingTile.Landforms;
+        foreach (Landform landform in GeneratingLandforms) landform.RandSeed = GeneratingSeed;
     }
 
     public static void CleanUp()
     {
         GeneratingTile = null;
+        GeneratingLandforms = null;
+    }
+    
+    public static T GetFeature<T>(Func<Landform, T> func)
+    {
+        if (GeneratingLandforms == null) return default;
+        return GeneratingLandforms.Select(func).FirstOrDefault(v => v != null);
     }
 
     protected override void ValidateSelf()
@@ -98,6 +122,7 @@ public class Landform : TerrainCanvas
         {
             NodeUILandformManifest.ID => !isEditorAction,
             NodeUIWorldTileReq.ID => !isEditorAction,
+            NodeUILayerConfig.ID => !isEditorAction || IsCustom,
             _ => Id != null || !isEditorAction
         };
     }
