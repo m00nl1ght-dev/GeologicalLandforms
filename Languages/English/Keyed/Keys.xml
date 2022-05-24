@@ -110,6 +110,8 @@
   <GeologicalLandforms.Landform.Badlands>badlands</GeologicalLandforms.Landform.Badlands>
   <GeologicalLandforms.Landform.DesertPlateau>desert plateau</GeologicalLandforms.Landform.DesertPlateau>
   <GeologicalLandforms.Landform.Skerry>skerry</GeologicalLandforms.Landform.Skerry>
+
+  <GeologicalLandforms.Landform.BiomeTransitions>biome transitions</GeologicalLandforms.Landform.BiomeTransitions>
   
   <GeologicalLandforms.Landform.Corner>(corner)</GeologicalLandforms.Landform.Corner>
 

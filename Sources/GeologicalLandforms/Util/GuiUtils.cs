@@ -35,6 +35,18 @@ public static class GuiUtils
         listingStandard.Gap();
         return value;
     }
+    
+    public static void IntEntry(Listing_Standard listingStandard, string name, ref int value, ref string editBuffer, int min, int max, float labelWidth = 200f)
+    {
+        Rect rect = listingStandard.GetRect(28f);
+        if (!listingStandard.BoundingRectCached.HasValue || rect.Overlaps(listingStandard.BoundingRectCached.Value))
+        {
+            Widgets.Label(rect.LeftPartPixels(labelWidth), name);
+            Widgets.TextFieldNumeric(rect.RightPartPixels(rect.width - labelWidth), ref value, ref editBuffer, min, max);
+        }
+        
+        listingStandard.Gap();
+    }
 
     public static void Dropdown<T>(Listing_Standard listingStandard, string name, T value, List<T> potentialValues, 
         Action<T> action, float labelWidth = 200f, Func<T, string> textFunc = null)

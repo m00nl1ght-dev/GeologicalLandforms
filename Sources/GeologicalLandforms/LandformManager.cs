@@ -84,6 +84,7 @@ public static class LandformManager
         
         duplicate.Manifest.IsCustom = true;
         duplicate.Manifest.IsEdited = true;
+        duplicate.Manifest.TimeCreated = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         duplicate.Manifest.Id = newId;
         
         _landforms.Add(newId, duplicate);
@@ -166,7 +167,7 @@ public static class LandformManager
     {
         List<string> existing = Directory.GetFiles(directory, "*.xml").ToList();
 
-        foreach (KeyValuePair<string, Landform> pair in landforms.Where(p => true)) // TODO revert
+        foreach (KeyValuePair<string, Landform> pair in landforms.Where(p => p.Value.Manifest.IsEdited || p.Value.Manifest.IsCustom))
         {
             string file = Path.Combine(directory, "Landform" + pair.Key + ".xml");
             Landform landform = pair.Value;

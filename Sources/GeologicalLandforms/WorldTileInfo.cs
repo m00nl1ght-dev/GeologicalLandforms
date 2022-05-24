@@ -50,6 +50,7 @@ public class WorldTileInfo : IWorldTileInfo
         World = world;
     }
 
+    [ThreadStatic]
     private static WorldTileInfo _cache;
     
     public static WorldTileInfo Get(int tileId)
