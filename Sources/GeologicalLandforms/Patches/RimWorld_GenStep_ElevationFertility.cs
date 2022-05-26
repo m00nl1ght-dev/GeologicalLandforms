@@ -63,7 +63,7 @@ internal static class RimWorld_GenStep_ElevationFertility
         }
             
         if (patched == false)
-            Log.Error("Failed to patch RimWorld_GenStep_ElevationFertility");
+            Log.Error(ModInstance.LogPrefix + "Failed to patch RimWorld_GenStep_ElevationFertility");
     }
 
     public static IGridFunction<double> BuildDefaultElevationGrid(Map map)

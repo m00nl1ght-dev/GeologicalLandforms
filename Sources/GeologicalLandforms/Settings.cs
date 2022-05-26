@@ -12,6 +12,8 @@ public class Settings : ModSettings
 {
     public int MaxLandformSearchRadius = 100;
 
+    public bool EnableCellFinderOptimization = true;
+    
     public bool ShowWorldTileDebugInfo;
 
     private static Vector2 _scrollPos = Vector2.zero;
@@ -53,6 +55,9 @@ public class Settings : ModSettings
         
         GuiUtils.CenteredLabel(listingStandard, "GeologicalLandforms.Settings.MaxLandformSearchRadius".Translate(), MaxLandformSearchRadius.ToString(CultureInfo.InvariantCulture));
         MaxLandformSearchRadius = (int) listingStandard.Slider(MaxLandformSearchRadius, 10f, 500f);
+        
+        listingStandard.Gap();
+        listingStandard.CheckboxLabeled("GeologicalLandforms.Settings.EnableCellFinderOptimization".Translate(), ref EnableCellFinderOptimization);
 
         if (Prefs.DevMode)
         {
@@ -89,6 +94,7 @@ public class Settings : ModSettings
     public override void ExposeData()
     {
         Scribe_Values.Look(ref MaxLandformSearchRadius, "MaxLandformSearchRadius", 100);
+        Scribe_Values.Look(ref EnableCellFinderOptimization, "EnableCellFinderOptimization", true);
         Scribe_Values.Look(ref ShowWorldTileDebugInfo, "ShowWorldTileDebugInfo");
         base.ExposeData();
     }
@@ -97,6 +103,7 @@ public class Settings : ModSettings
     {
         LandformManager.ResetAll();
         ShowWorldTileDebugInfo = false;
+        EnableCellFinderOptimization = true;
         MaxLandformSearchRadius = 100;
     }
 }

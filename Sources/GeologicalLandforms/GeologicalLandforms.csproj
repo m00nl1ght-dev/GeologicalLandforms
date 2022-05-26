@@ -111,6 +111,7 @@
         <Compile Include="Patches\RimWorld_Misc.cs" />
         <Compile Include="Patches\RimWorld_GenStep_Terrain.cs" />
         <Compile Include="Patches\RimWorld_MapGenerator.cs" />
+        <Compile Include="Patches\RimWorld_RCellFinder.cs" />
         <Compile Include="Patches\RimWorld_TerrainPatchMaker.cs" />
         <Compile Include="Patches\RimWorld_WildAnimalSpawner.cs" />
         <Compile Include="Patches\RimWorld_WildPlantSpawner.cs" />

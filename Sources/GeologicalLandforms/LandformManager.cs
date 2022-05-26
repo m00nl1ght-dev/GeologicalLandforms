@@ -147,7 +147,7 @@ public static class LandformManager
             }
             catch (Exception ex)
             {
-                Log.Warning($"Caught exception while loading landform from file {file}. The exception was: {ex}");
+                Log.Warning(ModInstance.LogPrefix + $"Caught exception while loading landform from file {file}. The exception was: {ex}");
             }
         }
 
