@@ -57,6 +57,7 @@ public class LandformGraphEditor : Window
     
     public override void Close(bool doCloseSound = true)
     {
+        ResetView();
         base.Close(doCloseSound);
         Landform.CleanUp();
         Landform.CleanUpGUI();

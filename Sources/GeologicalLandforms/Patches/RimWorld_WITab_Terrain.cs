@@ -60,31 +60,37 @@ internal static class RimWorld_WITab_Terrain
     {
         int tileId = Find.WorldSelector.selectedTile;
         IWorldTileInfo worldTileInfo = WorldTileInfo.Get(tileId);
-        Landform mainLandform = worldTileInfo.Landforms?.FirstOrDefault(l => !l.IsLayer);
 
-        if (mainLandform != null)
+        if (worldTileInfo.Landforms != null)
         {
-            string landformStr = mainLandform.TranslatedName;
-            
-            if (mainLandform.DisplayNameHasDirection)
+            var mainLandform = worldTileInfo.Landforms.FirstOrDefault(l => !l.IsLayer);
+            if (mainLandform != null)
             {
-                if (mainLandform.IsCornerVariant)
+                string landformStr = mainLandform.TranslatedName;
+                
+                if (mainLandform.DisplayNameHasDirection)
                 {
-                    landformStr = TranslateDoubleRot4(worldTileInfo.LandformDirection) + " " + landformStr;
+                    if (mainLandform.IsCornerVariant)
+                    {
+                        landformStr = TranslateDoubleRot4(worldTileInfo.LandformDirection) + " " + landformStr;
+                    }
+                    else
+                    {
+                        landformStr = TranslateRot4(worldTileInfo.LandformDirection) + " " + landformStr;
+                    }
                 }
-                else
+            
+                listingStandard.LabelDouble("GeologicalLandforms.WorldMap.Landform".Translate(), landformStr.CapitalizeFirst());
+            }
+        
+            if (worldTileInfo.BorderingBiomes?.Count > 0)
+            {
+                if (worldTileInfo.Landforms.Any(l => l.OutputBiomeGrid?.BiomeTransitionKnob?.connected() ?? false))
                 {
-                    landformStr = TranslateRot4(worldTileInfo.LandformDirection) + " " + landformStr;
+                    string bbStr = worldTileInfo.BorderingBiomes.Select(b => b.Biome.label.CapitalizeFirst()).Distinct().Join(b => b);
+                    listingStandard.LabelDouble("GeologicalLandforms.WorldMap.BorderingBiomes".Translate(), bbStr);
                 }
             }
-            
-            listingStandard.LabelDouble("GeologicalLandforms.WorldMap.Landform".Translate(), landformStr.CapitalizeFirst());
-        }
-
-        if (worldTileInfo.BorderingBiomes?.Count > 0)
-        {
-            string bbStr = worldTileInfo.BorderingBiomes.Select(b => b.Biome.label.CapitalizeFirst()).Distinct().Join(b => b);
-            listingStandard.LabelDouble("GeologicalLandforms.WorldMap.BorderingBiomes".Translate(), bbStr);
         }
 
         StringBuilder sb = new();
