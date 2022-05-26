@@ -56,7 +56,7 @@
 			<int name="RandSeed">351232153</int>
 		</Node>
 		<Node name="Layer Config" ID="-581535744" type="layerConfig" pos="545,-516">
-			<int name="Priority">0</int>
+			<int name="Priority">-10</int>
 			<int name="RandSeed">1476866388</int>
 		</Node>
 		<Node name="Biome Output" ID="-1870900736" type="outputBiomeGrid" pos="674,-311">

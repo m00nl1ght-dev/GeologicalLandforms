@@ -31,7 +31,7 @@ public class NodeUILayerConfig : NodeUIBase
 
     public override void DrawNode()
     {
-        if (Landform.Id != null && Landform.IsCustom) base.DrawNode();
+        if (Landform.Id != null) base.DrawNode();
     }
 
     public override void OnCreate(bool fromGUI)
