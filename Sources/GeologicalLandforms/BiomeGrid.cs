@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using GeologicalLandforms.GraphEditor;
 using RimWorld;
 using RimWorld.Planet;
+using TerrainGraph;
 using Verse;
 
 namespace GeologicalLandforms;
@@ -67,6 +69,20 @@ public class BiomeGrid : MapComponent
         _grid[i] = biomeDef;
         _cellCounts.TryGetValue(biomeDef, out var newCount); 
         _cellCounts[biomeDef] = newCount + 1;
+    }
+
+    public void SetBiomes(IGridFunction<BiomeData> biomeFunction)
+    {
+        _cellCounts.Clear();
+        for (int x = 0; x < _mapSize.x; x++) for (int z = 0; z < _mapSize.z; z++)
+        {
+            var c = new IntVec3(x, 0, z);
+            var biomeDef = biomeFunction.ValueAt(c.x, c.z).Biome ?? PrimaryBiome;
+            int i = CellIndicesUtility.CellToIndex(c, _mapSize.x);
+            _grid[i] = biomeDef;
+            _cellCounts.TryGetValue(biomeDef, out var newCount); 
+            _cellCounts[biomeDef] = newCount + 1;
+        }
     }
 
     public override void ExposeData()

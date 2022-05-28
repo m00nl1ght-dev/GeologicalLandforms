@@ -20,6 +20,7 @@ public class WorldTileInfo : IWorldTileInfo
     
     public IReadOnlyList<IWorldTileInfo.BorderingBiome> BorderingBiomes => _borderingBiomes;
     private List<IWorldTileInfo.BorderingBiome> _borderingBiomes;
+    public bool HasBorderingBiomes => BorderingBiomes?.Count > 0;
 
     public Topology Topology { get; private set; } = Topology.Any;
     public Rot4 LandformDirection { get; private set; }

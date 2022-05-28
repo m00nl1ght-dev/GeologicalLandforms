@@ -14,16 +14,25 @@ namespace GeologicalLandforms.Patches;
 internal static class RimWorld_TerrainPatchMaker
 {
     private static int _instanceIdx;
+
+    public static bool UseStableSeed;
     
     [HarmonyPriority(Priority.VeryHigh)]
-    private static bool Prefix(Map map, ref ModuleBase ___noise, ref Map ___currentlyInitializedForMap, 
-        ref float ___perlinFrequency, ref float ___perlinLacunarity, ref float ___perlinPersistence, ref int ___perlinOctaves)
+    private static bool Prefix(Map map, ref ModuleBase ___noise, ref Map ___currentlyInitializedForMap, TerrainPatchMaker __instance)
     {
-        int seed = Find.World.info.Seed ^ map.Tile ^ 9305 + _instanceIdx;
-        ___noise = new Perlin(___perlinFrequency, ___perlinLacunarity, ___perlinPersistence, ___perlinOctaves, seed, QualityMode.Medium);
+        int seed = MakeSeed(__instance, map.Tile);
+        ___noise = new Perlin(__instance.perlinFrequency, __instance.perlinLacunarity, __instance.perlinPersistence, __instance.perlinOctaves, seed, QualityMode.Medium);
+        NoiseDebugUI.RenderSize = new IntVec2(map.Size.x, map.Size.z);
+        NoiseDebugUI.StoreNoiseRender(___noise, "TerrainPatchMaker " + _instanceIdx);
         ___currentlyInitializedForMap = map;
         _instanceIdx++;
         return false;
+    }
+
+    private static int MakeSeed(TerrainPatchMaker tpm, int tile)
+    {
+        if (!UseStableSeed) return Find.World.info.Seed ^ tile ^ 9305 + _instanceIdx;
+        return Find.World.info.Seed ^ tile ^ GenText.StableStringHash(tpm.thresholds[0].terrain.defName);
     }
 
     public static void Reset()

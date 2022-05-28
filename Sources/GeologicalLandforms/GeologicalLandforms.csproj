@@ -68,6 +68,7 @@
         </Reference>
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="BiomeTransition.cs" />
         <Compile Include="GraphEditor\BiomeData.cs" />
         <Compile Include="GraphEditor\EditorMockTileInfo.cs" />
         <Compile Include="GraphEditor\LandformGraphEditor.cs" />
