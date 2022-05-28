@@ -61,15 +61,20 @@ internal static class RimWorld_GenStep_Terrain
 
         _biomeGrid = biomeGrid ?? new BiomeGrid(new IntVec3(mapSize, 0, mapSize), tile.Biome);
         
+        bool hasBiomeTransition = false;
         if (tile.HasBorderingBiomes)
         {
             var transition = Landform.GetFeature(l => l.OutputBiomeGrid?.ApplyBiomeTransitions(tile, mapSize, BiomeFunction));
-            if (transition != null) BiomeFunction = transition;
+            if (transition != null)
+            {
+                BiomeFunction = transition;
+                hasBiomeTransition = true;
+            }
         }
 
-        if (BiomeFunction != null)
+        if (BiomeFunction != null) _biomeGrid.SetBiomes(BiomeFunction);
+        if (hasBiomeTransition)
         {
-            _biomeGrid.SetBiomes(BiomeFunction);
             RimWorld_TerrainPatchMaker.UseStableSeed = true;
             BiomeTransition.PostProcessBiomeGrid(_biomeGrid, tile, mapSize);
         }
