@@ -15,6 +15,8 @@ public class BiomeGrid : MapComponent
     public IReadOnlyDictionary<BiomeDef, int> CellCounts => _cellCounts;
     public bool HasMultipleBiomes => CellCounts.Count > 1;
 
+    private readonly IntVec3 _mapSize;
+    
     private BiomeDef _primary;
     public BiomeDef PrimaryBiome
     {
@@ -27,30 +29,39 @@ public class BiomeGrid : MapComponent
             Tile tile = worldGrid[parent.Tile];
             if (tile == null) return BiomeDefOf.TemperateForest;
             _primary = tile.biome;
-            _cellCounts[_primary] = map.cellIndices.NumGridCells;
+            _cellCounts[_primary] = _mapSize.x * _mapSize.z;
             return _primary;
         }
     }
 
     public BiomeGrid(Map map) : base(map)
     {
-        _grid = new BiomeDef[map.cellIndices.NumGridCells];
+        _mapSize = map.Size;
+        _grid = new BiomeDef[_mapSize.x * _mapSize.z];
+    }
+    
+    public BiomeGrid(IntVec3 mapSize, BiomeDef primary) : base(null)
+    {
+        _mapSize = mapSize;
+        _primary = primary;
+        _grid = new BiomeDef[_mapSize.x * _mapSize.z];
     }
 
     public BiomeDef BiomeAt(int cell)
     {
+        if (cell < 0 || cell >= _grid.Length) return PrimaryBiome;
         return _grid[cell] ?? PrimaryBiome;
     }
     
     public BiomeDef BiomeAt(IntVec3 c)
     {
-        return _grid[map.cellIndices.CellToIndex(c)] ?? PrimaryBiome;
+        return BiomeAt(CellIndicesUtility.CellToIndex(c, _mapSize.x));
     }
 
     public void SetBiome(IntVec3 c, BiomeDef biomeDef)
     {
-        int i = map.cellIndices.CellToIndex(c);
-        BiomeDef old = BiomeAt(i);
+        int i = CellIndicesUtility.CellToIndex(c, _mapSize.x);
+        var old = BiomeAt(i);
         _cellCounts.TryGetValue(old, out var oldCount); 
         _cellCounts[old] = Math.Max(0, oldCount - 1);
         _grid[i] = biomeDef;
@@ -68,6 +79,7 @@ public class BiomeGrid : MapComponent
 
     private void ExposeBiomeArray(Dictionary<ushort, BiomeDef> biomeDefsByShortHash, BiomeDef[] array, string name)
     {
+        if (map == null) return;
         MapExposeUtility.ExposeUshort(map, c => array[map.cellIndices.CellToIndex(c)]?.shortHash ?? 0, (c, val) =>
         {
             BiomeDef primary = PrimaryBiome;

@@ -54,7 +54,7 @@ internal static class ModCompat_MapReroll
         int landformSeed = GenText.StableStringHash(seed) ^ mapTile;
         Landform.PrepareMapGen(mapSize, mapTile, landformSeed);
         RimWorld_TerrainPatchMaker.Reset();
-        RimWorld_GenStep_Terrain.Init(mapTile);
+        RimWorld_GenStep_Terrain.Init();
     }
     
     private static void GeneratePreviewForSeed_Postfix(string seed, int mapTile, int mapSize)

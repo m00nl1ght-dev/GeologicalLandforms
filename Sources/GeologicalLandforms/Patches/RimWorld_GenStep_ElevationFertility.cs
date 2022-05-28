@@ -26,6 +26,8 @@ internal static class RimWorld_GenStep_ElevationFertility
         
         elevationModule ??= BuildDefaultElevationGrid(map);
         fertilityModule ??= BuildDefaultFertilityGrid(map);
+        
+        if (map.TileInfo.WaterCovered) elevationModule = new Min(elevationModule, Of<double>(0f));
 
         MapGenFloatGrid elevation = MapGenerator.Elevation;
         MapGenFloatGrid fertility = MapGenerator.Fertility;
