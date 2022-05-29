@@ -18,7 +18,7 @@ internal static class RimWorld_World
         LastKnownInitialWorldSeed = ___info.Seed;
     }
     
-    [HarmonyPriority(-10)]
+    [HarmonyPriority(2)]
     [HarmonyPatch(nameof(World.HasCaves))]
     private static void Postfix(ref bool __result, int tile)
     {
