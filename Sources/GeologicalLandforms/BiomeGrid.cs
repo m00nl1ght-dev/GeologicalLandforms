@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using GeologicalLandforms.GraphEditor;
 using RimWorld;
-using RimWorld.Planet;
 using TerrainGraph;
 using Verse;
 
@@ -14,7 +13,7 @@ public class BiomeGrid : MapComponent
     private readonly BiomeDef[] _grid;
 
     private Dictionary<BiomeDef, int> _cellCounts = new();
-    public IReadOnlyDictionary<BiomeDef, int> CellCounts => _cellCounts;
+    public IReadOnlyDictionary<BiomeDef, int> CellCounts => PrimaryBiome == null ? new() : _cellCounts;
     public bool HasMultipleBiomes => CellCounts.Count > 1;
 
     private readonly IntVec3 _mapSize;
@@ -25,10 +24,10 @@ public class BiomeGrid : MapComponent
         get
         {
             if (_primary != null) return _primary;
-            MapParent parent = map?.info?.parent;
-            WorldGrid worldGrid = Find.WorldGrid;
+            var parent = map?.info?.parent;
+            var worldGrid = Find.WorldGrid;
             if (parent == null || worldGrid == null) return BiomeDefOf.TemperateForest;
-            Tile tile = worldGrid[parent.Tile];
+            var tile = worldGrid[parent.Tile];
             if (tile == null) return BiomeDefOf.TemperateForest;
             _primary = tile.biome;
             _cellCounts[_primary] = _mapSize.x * _mapSize.z;
@@ -47,6 +46,7 @@ public class BiomeGrid : MapComponent
         _mapSize = mapSize;
         _primary = primary;
         _grid = new BiomeDef[_mapSize.x * _mapSize.z];
+        _cellCounts[_primary] = _mapSize.x * _mapSize.z;
     }
 
     public BiomeDef BiomeAt(int cell)
@@ -73,11 +73,12 @@ public class BiomeGrid : MapComponent
 
     public void SetBiomes(IGridFunction<BiomeData> biomeFunction)
     {
+        var primaryBiome = PrimaryBiome;
         _cellCounts.Clear();
         for (int x = 0; x < _mapSize.x; x++) for (int z = 0; z < _mapSize.z; z++)
         {
             var c = new IntVec3(x, 0, z);
-            var biomeDef = biomeFunction.ValueAt(c.x, c.z).Biome ?? PrimaryBiome;
+            var biomeDef = biomeFunction.ValueAt(c.x, c.z).Biome ?? primaryBiome;
             int i = CellIndicesUtility.CellToIndex(c, _mapSize.x);
             _grid[i] = biomeDef;
             _cellCounts.TryGetValue(biomeDef, out var newCount); 
@@ -98,8 +99,8 @@ public class BiomeGrid : MapComponent
         if (map == null) return;
         MapExposeUtility.ExposeUshort(map, c => array[map.cellIndices.CellToIndex(c)]?.shortHash ?? 0, (c, val) =>
         {
-            BiomeDef primary = PrimaryBiome;
-            BiomeDef biome = biomeDefsByShortHash.TryGetValue(val);
+            var primary = PrimaryBiome;
+            var biome = biomeDefsByShortHash.TryGetValue(val);
             if (biome == null && val != 0)
             {
                 Log.Error("Did not find biome def with short hash " + val + " for cell " + c + ".");

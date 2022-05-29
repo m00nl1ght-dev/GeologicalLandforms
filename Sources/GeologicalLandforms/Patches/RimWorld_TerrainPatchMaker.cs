@@ -1,3 +1,4 @@
+using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using RimWorld;
 using Verse;
@@ -32,7 +33,7 @@ internal static class RimWorld_TerrainPatchMaker
     private static int MakeSeed(TerrainPatchMaker tpm, int tile)
     {
         if (!UseStableSeed) return Find.World.info.Seed ^ tile ^ 9305 + _instanceIdx;
-        return Find.World.info.Seed ^ tile ^ GenText.StableStringHash(tpm.thresholds[0].terrain.defName);
+        return Landform.GeneratingSeed ^ GenText.StableStringHash(tpm.thresholds[0].terrain.defName);
     }
 
     public static void Reset()
