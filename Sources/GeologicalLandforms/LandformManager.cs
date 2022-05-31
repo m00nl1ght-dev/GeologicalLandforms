@@ -47,6 +47,12 @@ public static class LandformManager
         var coreLandforms = LoadLandformsFromDirectory(CoreLandformsDir, null, fileFilter);
         var mcpLandforms = _mcpLandformDirs.Aggregate(coreLandforms, (current, dir) => LoadLandformsFromDirectory(dir, current, fileFilter));
         
+        foreach (var landform in mcpLandforms.Values)
+        {
+            landform.Manifest.IsEdited = false;
+            landform.Manifest.IsCustom = false;
+        }
+        
         if (!includeCustom) return mcpLandforms;
         
         var mergedLandforms = LoadLandformsFromDirectory(CustomLandformsDir(CurrentVersion), mcpLandforms, fileFilter);
