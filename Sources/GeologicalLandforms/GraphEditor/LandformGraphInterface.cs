@@ -2,6 +2,7 @@
 using System.Linq;
 using GeologicalLandforms.ModCompat;
 using NodeEditorFramework;
+using RimWorld;
 using TerrainGraph;
 using UnityEngine;
 using Verse;
@@ -64,11 +65,26 @@ public class LandformGraphInterface
 
         if (Landform != null && Landform.Id != null)
         {
-            //if (Prefs.DevMode && GUILayout.Button("Refresh", GUI.skin.GetStyle("toolbarButton"), GUILayout.MinWidth(65f)))
-            //{
-            //    Landform.TraverseAll();
-            //}
-
+            if (GUILayout.Button(Landform.GeneratingMapSize + "x" + Landform.GeneratingMapSize, GUI.skin.GetStyle("toolbarButton"), GUILayout.MinWidth(100f)))
+            {
+                var options = new[]{50, 100, 150, 200, 250, 300, 350, 400, 450, 500}
+                    .Select(e => new FloatMenuOption(e + "x" + e, () => { Landform.GeneratingMapSize = e; Landform.TraverseAll(); }))
+                    .ToList();
+                Find.WindowStack.Add(new FloatMenu(options));
+            }
+            
+            GUILayout.Space(50f);
+            
+            if (GUILayout.Button(Editor.EditorTileInfo.Biome.label.CapitalizeFirst(), GUI.skin.GetStyle("toolbarButton"), GUILayout.MinWidth(150f)))
+            {
+                var options = DefDatabase<BiomeDef>.AllDefsListForReading
+                    .Select(e => new FloatMenuOption(e.label.CapitalizeFirst(), () => { Editor.EditorTileInfo.Biome = e; Landform.TraverseAll(); }))
+                    .ToList();
+                Find.WindowStack.Add(new FloatMenu(options));
+            }
+            
+            GUILayout.Space(50f);
+            
             if (GUILayout.Button("Reseed", GUI.skin.GetStyle("toolbarButton"), GUILayout.MinWidth(60f)))
             {
                 Landform.RandSeed = NodeBase.SeedSource.Next();

@@ -60,6 +60,10 @@ public static class LandformManager
             .Where(lf => mergedLandforms[lf.Id].Manifest.RevisionVersion < lf.Manifest.RevisionVersion)
             .Select(lf => mergedLandforms[lf.Id]).ToList();
 
+        int customCount = mergedLandforms.Values.Count(l => l.IsCustom);
+        int editedCount = mergedLandforms.Values.Count(l => l.Manifest.IsEdited);
+        Log.Message(ModInstance.LogPrefix + "Loaded " + mergedLandforms + " landforms of which " + editedCount + " are edited and " + customCount + " are custom.");
+
         if (upgradableLandforms.Count > 0) RimWorld_Misc.OnMainMenu(() =>
         {
             string msg = "GeologicalLandforms.LandformManager.LandformUpgrade".Translate() + "\n";

@@ -14,6 +14,8 @@ public interface IWorldTileInfo
     public Topology Topology { get; }
     public Rot4 LandformDirection  { get; }
     
+    public StructRot6<CoastType> Coast { get; }
+    
     public MapParent WorldObject { get; }
     public BiomeDef Biome { get; }
 
@@ -22,8 +24,7 @@ public interface IWorldTileInfo
     public float Temperature { get; }
     public float Rainfall { get; }
     public float Swampiness { get; }
-    public bool HasOcean { get; }
-    
+
     public RiverDef MainRiver { get; }
     public float MainRiverAngle { get; }
     
@@ -40,5 +41,12 @@ public interface IWorldTileInfo
             Biome = biome;
             Angle = angle;
         }
+    }
+
+    public enum CoastType
+    {
+        None,
+        Lake,
+        Ocean
     }
 }

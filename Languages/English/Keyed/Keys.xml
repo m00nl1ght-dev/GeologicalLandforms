@@ -3,6 +3,7 @@
   
   <GeologicalLandforms.Settings.MaxLandformSearchRadius>Max landform search radius on world map</GeologicalLandforms.Settings.MaxLandformSearchRadius>
   <GeologicalLandforms.Settings.EnableCellFinderOptimization>Enable map exit pathfinding optimization</GeologicalLandforms.Settings.EnableCellFinderOptimization>
+  <GeologicalLandforms.Settings.EnableLandformScaling>Scale landforms with map size</GeologicalLandforms.Settings.EnableLandformScaling>
   <GeologicalLandforms.Settings.ShowWorldTileDebugInfo>[Dev Mode] Show advanced debug info</GeologicalLandforms.Settings.ShowWorldTileDebugInfo>
   <GeologicalLandforms.Settings.OpenEditor>Open landform editor</GeologicalLandforms.Settings.OpenEditor>
   <GeologicalLandforms.Settings.ResetAll>Reset everything to default</GeologicalLandforms.Settings.ResetAll>

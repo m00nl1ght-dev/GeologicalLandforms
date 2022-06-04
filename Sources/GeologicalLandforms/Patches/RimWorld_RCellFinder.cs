@@ -27,7 +27,14 @@ internal static class RimWorld_RCellFinder
     {
         if (!ModInstance.Settings.EnableCellFinderOptimization) return true;
         
-        var map = pawn.Map;
+        var map = pawn?.Map;
+        if (map == null)
+        {
+            __result = false;
+            spot = IntVec3.Invalid;
+            return false;
+        }
+        
         var cache = GetOrBuildCacheForMap(map);
         if (cache.Length == 0) return true;
         

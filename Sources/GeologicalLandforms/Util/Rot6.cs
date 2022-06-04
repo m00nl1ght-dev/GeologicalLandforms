@@ -166,4 +166,18 @@ public struct Rot6 : IEquatable<Rot6>
     {
         return _rotInt.GetHashCode();
     }
+
+    public override string ToString()
+    {
+        return AsInt switch
+        {
+            0 => "North",
+            1 => "NorthEast",
+            2 => "SouthEast",
+            3 => "South",
+            4 => "SouthWest",
+            5 => "NorthWest",
+            _ => "Invalid"
+        };
+    }
 }

@@ -16,7 +16,7 @@ public class Landform : TerrainCanvas
     public static IReadOnlyList<Landform> GeneratingLandforms { get; private set; }
     public static bool AnyGenerating => GeneratingLandforms is { Count: > 0 };
     public static Landform GeneratingMainLandform => GeneratingLandforms?.FirstOrDefault(v => !v.IsLayer);
-    public static int GeneratingMapSize { get; private set; } = 250;
+    public static int GeneratingMapSize { get; set; } = 250;
     public static int GeneratingSeed { get; private set; }
 
     public string Id => Manifest?.Id;
@@ -37,7 +37,7 @@ public class Landform : TerrainCanvas
     public NodeOutputBiomeGrid OutputBiomeGrid { get; internal set; }
     public NodeOutputScatterers OutputScatterers { get; internal set; }
 
-    public override int GridFullSize => 250;
+    public override int GridFullSize => ModInstance.Settings.EnableLandformScaling ? 250 : GeneratingMapSize;
     public override int GridPreviewSize => 100;
 
     public override string canvasName => Id ?? "Landform";

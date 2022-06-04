@@ -6,6 +6,7 @@ using GeologicalLandforms.Patches;
 using RimWorld;
 using RimWorld.Planet;
 using Verse;
+using static GeologicalLandforms.IWorldTileInfo.CoastType;
 
 namespace GeologicalLandforms;
 
@@ -25,6 +26,8 @@ public class WorldTileInfo : IWorldTileInfo
     public Topology Topology { get; private set; } = Topology.Any;
     public Rot4 LandformDirection { get; private set; }
     
+    public StructRot6<IWorldTileInfo.CoastType> Coast { get; private set; }
+    
     public MapParent WorldObject => World.worldObjects.MapParentAt(TileId);
     public BiomeDef Biome => Tile.biome;
 
@@ -33,8 +36,6 @@ public class WorldTileInfo : IWorldTileInfo
     public float Temperature => Tile.temperature;
     public float Rainfall => Tile.rainfall;
     public float Swampiness => Tile.swampiness;
-    
-    public bool HasOcean { get; private set; }
 
     public RiverDef MainRiver { get; private set; }
     public float MainRiverAngle { get; private set; }
@@ -56,7 +57,7 @@ public class WorldTileInfo : IWorldTileInfo
     
     public static WorldTileInfo Get(int tileId)
     {
-        World world = Find.World;
+        var world = Find.World;
         if (_cache != null && _cache.TileId == tileId && _cache.World == world) return _cache;
         _cache = new WorldTileInfo(tileId, world.grid[tileId], world);
         DetermineTopology(_cache);
@@ -103,14 +104,15 @@ public class WorldTileInfo : IWorldTileInfo
 
     private static void DetermineTopology(WorldTileInfo info)
     {
-        BiomeDef biome = info.Biome;
+        BiomeDef selfBiome = info.Biome;
         WorldGrid grid = info.World.grid;
         int tileId = info.TileId;
 
         info.LandformDirection = new Rot4(Rand.RangeInclusiveSeeded(0, 3, info.MakeSeed(0087)));
 
-        if (biome == BiomeDefOf.Lake || biome == BiomeDefOf.Ocean && (info.HasOcean = true))
+        if (selfBiome == BiomeDefOf.Lake || selfBiome == BiomeDefOf.Ocean)
         {
+            info.Coast = new StructRot6<IWorldTileInfo.CoastType>(selfBiome == BiomeDefOf.Ocean ? Ocean : Lake);
             info.Topology = Topology.Ocean;
             return;
         }
@@ -131,7 +133,7 @@ public class WorldTileInfo : IWorldTileInfo
             info.MainRoad = roadLink.road;
         }
 
-        if (Main.IsBiomeExcluded(biome))
+        if (Main.IsBiomeExcluded(selfBiome))
         {
             info.Topology = Topology.Any;
             return;
@@ -139,33 +141,40 @@ public class WorldTileInfo : IWorldTileInfo
 
         List<int> nb = new();
         grid.GetTileNeighbors(info.TileId, nb);
+        nb.SortBy(n => (grid.GetHeadingFromTo(tileId, n) + 30f) % 360f);
 
         List<Rot6> waterTiles = new();
         List<Rot6> cliffTiles = new();
-        foreach (var nbTileId in nb)
+
+        var coast = new StructRot6<IWorldTileInfo.CoastType>();
+
+        for (var i = 0; i < nb.Count; i++)
         {
-            Tile nbTile = grid[nbTileId];
+            var rot = new Rot6(i);
+            var nbTile = grid[nb[i]];
             
-            if (nbTile.biome == BiomeDefOf.Lake || nbTile.biome == BiomeDefOf.Ocean && (info.HasOcean = true))
+            if (nbTile.biome == BiomeDefOf.Lake || nbTile.biome == BiomeDefOf.Ocean)
             {
-                Rot6 rotFromTo = Rot6.FromAngleFlat(grid.GetHeadingFromTo(tileId, nbTileId));
-                if (!waterTiles.Contains(rotFromTo)) waterTiles.Add(rotFromTo);
+                Log.Message("water: " + rot + " " + nb[i] + " b " + nbTile.biome + " a " + grid.GetHeadingFromTo(tileId, nb[i]));
+                coast[rot] = nbTile.biome == BiomeDefOf.Ocean ? Ocean : Lake;
+                if (!waterTiles.Contains(rot)) waterTiles.Add(rot);
             }
             else
             {
-                Rot6 rotFromTo = Rot6.FromAngleFlat(grid.GetHeadingFromTo(tileId, nbTileId));
-                if (nbTile.biome != biome && nbTile.biome.canBuildBase && !Main.IsBiomeExcluded(nbTile.biome))
+                if (nbTile.biome != selfBiome && nbTile.biome.canBuildBase && !Main.IsBiomeExcluded(nbTile.biome))
                 {
                     info._borderingBiomes ??= new List<IWorldTileInfo.BorderingBiome>();
-                    info._borderingBiomes.Add(new IWorldTileInfo.BorderingBiome(nbTile.biome, rotFromTo.AsAngle));
+                    info._borderingBiomes.Add(new IWorldTileInfo.BorderingBiome(nbTile.biome, rot.AsAngle));
                 }
-                
-                if (((int) nbTile.hilliness) >= 3 && nbTile.hilliness - info.Tile.hilliness > 0)
+
+                if ((int)nbTile.hilliness >= 3 && nbTile.hilliness - info.Tile.hilliness > 0)
                 {
-                    if (!cliffTiles.Contains(rotFromTo)) cliffTiles.Add(rotFromTo);
+                    if (!cliffTiles.Contains(rot)) cliffTiles.Add(rot);
                 }
             }
         }
+
+        info.Coast = coast;
 
         if (waterTiles.Count == 0)
         {

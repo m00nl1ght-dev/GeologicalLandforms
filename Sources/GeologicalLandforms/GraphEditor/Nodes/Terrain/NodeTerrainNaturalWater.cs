@@ -4,6 +4,7 @@ using RimWorld;
 using TerrainGraph;
 using UnityEngine;
 using Verse;
+using static GeologicalLandforms.IWorldTileInfo.CoastType;
 
 namespace GeologicalLandforms.GraphEditor;
 
@@ -27,6 +28,8 @@ public class NodeTerrainNaturalWater : NodeBase
     [ValueConnectionKnob("Beach", Direction.Out, TerrainFunctionConnection.Id)]
     public ValueConnectionKnob BeachOutputKnob;
 
+    public NodeGridRotateToMapSides.MapSide MapSide;
+
     public override void NodeGUI()
     {
         GUILayout.BeginVertical(BoxStyle);
@@ -45,18 +48,38 @@ public class NodeTerrainNaturalWater : NodeBase
         GUILayout.Label("Beach", DoubleBoxLayout);
         GUILayout.EndHorizontal();
         BeachOutputKnob.SetPosition();
+        
+        GUILayout.BeginHorizontal(BoxStyle);
+
+        if (GUILayout.Button(MapSide.ToString(), GUI.skin.box))
+        {
+            Dropdown<NodeGridRotateToMapSides.MapSide>(s =>
+            {
+                MapSide = s;
+                canvas.OnNodeChange(this);
+            });
+        }
+
+        GUILayout.EndHorizontal();
 
         GUILayout.EndVertical();
     }
 
     public override bool Calculate()
     {
-        TerrainDef beach = Landform.GeneratingTile.Temperature < -20f ? TerrainDefOf.Ice : TerrainDefOf.Sand;
-        TerrainDef shallow = Landform.GeneratingTile.HasOcean ? TerrainDefOf.WaterOceanShallow : TerrainDefOf.WaterShallow;
-        TerrainDef deep = Landform.GeneratingTile.HasOcean ? TerrainDefOf.WaterOceanDeep : TerrainDefOf.WaterDeep;
+        var angle = Landform.GeneratingTile.LandformDirection.AsAngle + NodeGridRotateToMapSides.MapSideToAngle(MapSide);
+        var coastType = Landform.GeneratingTile.Coast.AtRot4(Rot4.FromAngleFlat((float) angle), MergeCoastTypes);
+        var beach = Landform.GeneratingTile.Temperature < -20f ? TerrainDefOf.Ice : TerrainDefOf.Sand;
+        var shallow = coastType == Ocean ? TerrainDefOf.WaterOceanShallow : TerrainDefOf.WaterShallow;
+        var deep = coastType == Ocean ? TerrainDefOf.WaterOceanDeep : TerrainDefOf.WaterDeep;
         BeachOutputKnob.SetValue<ISupplier<TerrainData>>(Supplier.Of(new TerrainData(beach, 3)));
         ShallowOutputKnob.SetValue<ISupplier<TerrainData>>(Supplier.Of(new TerrainData(shallow, 2)));
         DeepOutputKnob.SetValue<ISupplier<TerrainData>>(Supplier.Of(new TerrainData(deep)));
         return true;
+    }
+
+    private IWorldTileInfo.CoastType MergeCoastTypes(IWorldTileInfo.CoastType a, IWorldTileInfo.CoastType b)
+    {
+        return a == None ? b : b == Ocean ? b : a;
     }
 }
