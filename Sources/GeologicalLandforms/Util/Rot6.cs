@@ -1,81 +1,47 @@
 using System;
-using System.Collections.Generic;
 using Verse;
 
 namespace GeologicalLandforms;
 
 public struct Rot6 : IEquatable<Rot6>
 {
-    public static readonly IReadOnlyList<Rot6> All = new List<Rot6> { North, NorthEast, SouthEast, South, SouthWest, NorthWest };
+    private byte _index;
+    private float _angle;
 
-    private byte _rotInt;
+    public bool IsValid => _index < 6;
 
-    public bool IsValid => _rotInt < 100;
+    public static Rot6 Invalid => new() {_index = 66};
 
-    public byte AsByte
+    public int Index
     {
-        get => _rotInt;
-        set => _rotInt = (byte) (value % 6U);
-    }
-
-    public int AsInt
-    {
-        get => _rotInt;
-        set
-        {
-            if (value < 0)
-                value += 6000;
-            _rotInt = (byte) (value % 6);
-        }
-    }
-
-    public float AsAngle
-    {
-        get
-        {
-            return AsInt switch
-            {
-                0 => 0.0f,
-                1 => 60f,
-                2 => 120f,
-                3 => 180f,
-                4 => 240f,
-                5 => 300f,
-                _ => 0.0f
-            };
-        }
+        get => _index;
+        set => _index = (byte) (value >= 0 ? value % 6 : value % 6 + 6);
     }
     
-    public static Rot6 North => new(0);
+    public float Angle
+    {
+        get => _angle;
+        set => _angle = value % 360f;
+    }
 
-    public static Rot6 NorthEast => new(1);
-    
-    public static Rot6 SouthEast => new(2);
+    public Rot6(int index, float angle)
+    {
+        _index = (byte) (index >= 0 ? index % 6 : index % 6 + 6);
+        _angle = angle % 360f;
+    }
 
-    public static Rot6 South => new(3);
-
-    public static Rot6 SouthWest => new(4);
-    
-    public static Rot6 NorthWest => new(5);
-
-    public static Rot6 Invalid => new() { _rotInt = 200 };
-    
-    public Rot6(byte newRot) => _rotInt = newRot;
-
-    public Rot6(int newRot) => _rotInt = (byte) (newRot % 6);
-    
     public Rot6 Opposite
     {
         get
         {
-            return AsInt switch
+            return Index switch
             {
-                0 => new Rot6(3),
-                1 => new Rot6(4),
-                2 => new Rot6(5),
-                3 => new Rot6(0),
-                4 => new Rot6(1),
-                5 => new Rot6(2),
+                0 => new Rot6(3, _angle + 180f),
+                1 => new Rot6(4, _angle + 180f),
+                2 => new Rot6(5, _angle + 180f),
+                3 => new Rot6(0, _angle + 180f),
+                4 => new Rot6(1, _angle + 180f),
+                5 => new Rot6(2, _angle + 180f),
                 _ => new Rot6()
             };
         }
@@ -84,14 +50,20 @@ public struct Rot6 : IEquatable<Rot6>
     public void Rotate(RotationDirection rotDir)
     {
         if (rotDir == RotationDirection.Clockwise)
-            ++AsInt;
-        if (rotDir == RotationDirection.Counterclockwise) 
-            --AsInt;
+        {
+            ++Index;
+            Angle += 60f;
+        }
+        else if (rotDir == RotationDirection.Counterclockwise)
+        {
+            --Index;
+            Angle -= 60f;
+        }
     }
 
     public Rot6 Rotated(RotationDirection rotDir)
     {
-        Rot6 rot6 = this;
+        var rot6 = this;
         rot6.Rotate(rotDir);
         return rot6;
     }
@@ -105,56 +77,24 @@ public struct Rot6 : IEquatable<Rot6>
     {
         return Rotated(RotationDirection.Counterclockwise);
     }
-    
-    public static Rot6 FromAngleFlat(float angle)
-    {
-        angle = GenMath.PositiveMod(angle, 360f);
-        if (angle < 30.0)
-            return North;
-        if (angle < 90.0)
-            return NorthEast;
-        if (angle < 150.0)
-            return SouthEast;
-        if (angle < 210.0)
-            return South;
-        if (angle < 270.0)
-            return SouthWest;
-        if (angle < 330.0)
-            return NorthWest;
-        return North;
-    }
 
     public Rot4 AsRot4()
     {
-        return AsInt switch
-        {
-            0 => Rot4.North,
-            1 => Rot4.East,
-            2 => Rot4.East,
-            3 => Rot4.South,
-            4 => Rot4.West,
-            5 => Rot4.West,
-            _ => Rot4.Invalid
-        };
+        return Rot4.FromAngleFlat(Angle);
     }
 
-    public bool IsHorizontal()
+    public bool Adjacent(Rot6 other)
     {
-        return _rotInt is 0 or 3;
+        return (Index + 1) % 6 == other.Index || (Index - 1) % 6 == other.Index;
     }
-    
-    public bool IsVertical()
-    {
-        return IsValid && !IsHorizontal();
-    }
-    
-    public static bool operator ==(Rot6 a, Rot6 b) => a.AsInt == b.AsInt;
 
-    public static bool operator !=(Rot6 a, Rot6 b) => a.AsInt != b.AsInt;
+    public static bool operator ==(Rot6 a, Rot6 b) => a.Index == b.Index;
+
+    public static bool operator !=(Rot6 a, Rot6 b) => a.Index != b.Index;
 
     public bool Equals(Rot6 other)
     {
-        return _rotInt == other._rotInt;
+        return _index == other._index;
     }
 
     public override bool Equals(object obj)
@@ -164,20 +104,25 @@ public struct Rot6 : IEquatable<Rot6>
 
     public override int GetHashCode()
     {
-        return _rotInt.GetHashCode();
+        return _index.GetHashCode();
     }
 
     public override string ToString()
     {
-        return AsInt switch
-        {
-            0 => "North",
-            1 => "NorthEast",
-            2 => "SouthEast",
-            3 => "South",
-            4 => "SouthWest",
-            5 => "NorthWest",
-            _ => "Invalid"
-        };
+        return $"{nameof(Index)}: {Index}, {nameof(Angle)}: {Angle}";
+    }
+
+    public static float MidPoint(Rot6 a, Rot6 b)
+    {
+        return MidPoint(a.Angle, b.Angle);
+    }
+    
+    public static float MidPoint(float a, float b)
+    {
+        if (a > b) (a, b) = (b, a);
+        if (b - a > 180) b -= 360;
+        var f = (b + a) / 2;
+        if (f < 0) f += 360;
+        return f;
     }
 }

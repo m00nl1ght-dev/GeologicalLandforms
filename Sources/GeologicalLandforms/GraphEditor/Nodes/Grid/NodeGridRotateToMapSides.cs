@@ -129,6 +129,11 @@ public class NodeGridRotateToMapSides : NodeBase
             _ => throw new ArgumentOutOfRangeException(nameof(mapSide), mapSide, null)
         };
     }
+    
+    public static double MapSideToWorldAngle(MapSide mapSide)
+    {
+        return MapSideToAngle(mapSide) - 90f;
+    }
 
     public enum MapSide
     {

@@ -16,7 +16,7 @@ public class EditorMockTileInfo : IWorldTileInfo
     public Topology Topology => Topology.Any;
     public Rot4 LandformDirection { get; set; } = Rot4.North;
     
-    public StructRot6<IWorldTileInfo.CoastType> Coast { get; set; }
+    public StructRot4<IWorldTileInfo.CoastType> Coast { get; set; }
 
     public MapParent WorldObject => null;
     public BiomeDef Biome { get; set; } = BiomeDefOf.TemperateForest;

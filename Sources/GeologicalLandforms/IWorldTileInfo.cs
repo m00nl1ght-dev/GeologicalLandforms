@@ -14,7 +14,7 @@ public interface IWorldTileInfo
     public Topology Topology { get; }
     public Rot4 LandformDirection  { get; }
     
-    public StructRot6<CoastType> Coast { get; }
+    public StructRot4<CoastType> Coast { get; }
     
     public MapParent WorldObject { get; }
     public BiomeDef Biome { get; }
