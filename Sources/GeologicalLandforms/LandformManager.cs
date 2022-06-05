@@ -62,7 +62,7 @@ public static class LandformManager
 
         int customCount = mergedLandforms.Values.Count(l => l.IsCustom);
         int editedCount = mergedLandforms.Values.Count(l => l.Manifest.IsEdited);
-        Log.Message(ModInstance.LogPrefix + "Loaded " + mergedLandforms + " landforms of which " + editedCount + " are edited and " + customCount + " are custom.");
+        Log.Message(ModInstance.LogPrefix + "Loaded " + mergedLandforms.Count + " landforms of which " + editedCount + " are edited and " + customCount + " are custom.");
 
         if (upgradableLandforms.Count > 0) RimWorld_Misc.OnMainMenu(() =>
         {
