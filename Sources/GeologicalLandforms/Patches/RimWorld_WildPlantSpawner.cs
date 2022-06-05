@@ -459,4 +459,11 @@ internal static class RimWorld_WildPlantSpawner
     private static bool GoodRoofForCavePlant(Map map, IntVec3 c) => c.GetRoof(map) is { isNatural: true };
     
     private static bool CanRegrowAt(Map map, IntVec3 c) => c.GetTemperature(map) > 0 && (!c.Roofed(map) || GoodRoofForCavePlant(map, c));
+
+    public static void LogInfo(Map map, IntVec3 pos)
+    {
+        Log.Message("whole map desired: " + map.wildPlantSpawner.CurrentWholeMapNumDesiredPlants);
+        Log.Message("current plant density: " + map.wildPlantSpawner.CurrentPlantDensity);
+        Log.Message("desired density at pos: " + map.wildPlantSpawner.GetDesiredPlantsCountAt(pos, pos, map.wildPlantSpawner.CurrentPlantDensity));
+    }
 }

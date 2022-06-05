@@ -18,15 +18,16 @@ internal static class RimWorld_World
         LastKnownInitialWorldSeed = ___info.Seed;
     }
     
-    [HarmonyPriority(2)]
+    [HarmonyAfter("zylle.MapDesigner")]
     [HarmonyPatch(nameof(World.HasCaves))]
-    private static void Postfix(ref bool __result, int tile)
+    private static bool Prefix(ref bool __result, int tile)
     {
         WorldTileInfo worldTileInfo = WorldTileInfo.Get(tile);
         Landform landform = worldTileInfo.Landforms?.FirstOrDefault(l => !l.IsLayer);
-        if (landform == null) return;
+        if (landform == null) return true;
 
         int seed = worldTileInfo.MakeSeed(8266);
         __result = Rand.ChanceSeeded(landform.WorldTileReq.CaveChance, seed);
+        return false;
     }
 }

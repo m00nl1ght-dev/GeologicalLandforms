@@ -396,7 +396,7 @@ public class WorldTileInfo : IWorldTileInfo
             return;
         }
 
-        if (cliffTiles.Count == 4)
+        if (cliffTiles.Count == 4 && nonCliffTiles.Count == 2)
         {
             if (nonCliffTiles[0] == nonCliffTiles[1].RotatedCW() || nonCliffTiles[0] == nonCliffTiles[1].RotatedCCW())
             {
@@ -426,7 +426,7 @@ public class WorldTileInfo : IWorldTileInfo
             return;
         }
         
-        if (cliffTiles.Count == 5)
+        if (cliffTiles.Count == 5 && nonCliffTiles.Count == 1)
         {
             info.LandformDirection = nonCliffTiles[0].AsRot4().Opposite;
             info.Topology = Topology.CliffThreeSides;

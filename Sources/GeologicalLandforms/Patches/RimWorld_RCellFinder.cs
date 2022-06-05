@@ -167,8 +167,14 @@ internal static class RimWorld_RCellFinder
                 localpawn.jobs.TryTakeOrderedJob(job1);
             }
             
+            void ActionMapInfo()
+            {
+                RimWorld_WildPlantSpawner.LogInfo(localpawn.Map, localpawn.Position);
+            }
+            
             opts.Add(FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption("[debug] Find best map exit", ActionBest, MenuOptionPriority.InitiateSocial, null, dest.Thing), pawn, pTarg));
             opts.Add(FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption("[debug] Find random map exit", ActionRandom, MenuOptionPriority.InitiateSocial, null, dest.Thing), pawn, pTarg));
+            opts.Add(FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption("[debug] Print map info", ActionMapInfo, MenuOptionPriority.InitiateSocial, null, dest.Thing), pawn, pTarg));
         }
     }
 }
