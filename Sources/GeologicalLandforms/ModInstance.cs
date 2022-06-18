@@ -5,7 +5,7 @@ namespace GeologicalLandforms;
 
 public class ModInstance : Mod
 {
-    public const string Version = "1.3.3";
+    public const string Version = "1.3.4";
 
     public static string LogPrefix => "[Geological Landforms v" + Version + "] ";
     
