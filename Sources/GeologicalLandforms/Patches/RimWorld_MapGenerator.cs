@@ -21,5 +21,6 @@ internal static class RimWorld_MapGenerator
     {
         Landform.CleanUp();
         RimWorld_TerrainPatchMaker.Reset();
+        map.GetComponent<BiomeGrid>()?.UpdateOpenGroundFraction();
     }
 }

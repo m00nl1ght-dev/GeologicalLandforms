@@ -38,7 +38,7 @@
           <HintPath>..\..\..\..\..\..\..\..\GOG\RimWorld\Mods\2009463077\Current\Assemblies\0Harmony.dll</HintPath>
           <Private>False</Private>
         </Reference>
-        <Reference Include="Assembly-CSharp, Version=1.3.8131.16884, Culture=neutral, PublicKeyToken=null">
+        <Reference Include="Assembly-CSharp">
           <HintPath>..\..\..\..\RimWorldWin64_Data\Managed\Assembly-CSharp.dll</HintPath>
           <Private>False</Private>
         </Reference>

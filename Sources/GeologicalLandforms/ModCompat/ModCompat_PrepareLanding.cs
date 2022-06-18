@@ -95,7 +95,7 @@ internal static class ModCompat_PrepareLanding
                 })
             };
 
-            foreach (Landform landform in LandformManager.Landforms.Values.Where(l => !l.IsLayer))
+            foreach (var landform in LandformManager.Landforms.Values.Where(l => !l.IsLayer).OrderBy(e => e.TranslatedNameForSelection))
             {
                 floatMenuOptions.Add(new FloatMenuOption(landform.TranslatedNameForSelection.CapitalizeFirst(), () =>
                 {

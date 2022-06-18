@@ -45,7 +45,7 @@ internal static class RimWorld_WildPlantSpawner
     private static bool CurrentWholeMapNumDesiredPlants(WildPlantSpawner __instance, Map ___map, ref float __result)
     {
         var biomeGrid = ___map.GetComponent<BiomeGrid>();
-        if (biomeGrid is not { HasMultipleBiomes: true }) return true;
+        if (biomeGrid is not { ShouldApply: true }) return true;
 
         var condFactor = AggregatePlantDensityFactor(___map.gameConditionManager, ___map);
 
@@ -71,7 +71,7 @@ internal static class RimWorld_WildPlantSpawner
         ref int ___cycleIndex)
     {
         var biomeGrid = ___map.GetComponent<BiomeGrid>();
-        if (biomeGrid is not { HasMultipleBiomes: true }) return true;
+        if (biomeGrid is not { ShouldApply: true }) return true;
         
         int area = ___map.Area;
         int num = Mathf.CeilToInt(area * 0.0001f);
@@ -149,7 +149,7 @@ internal static class RimWorld_WildPlantSpawner
     private static bool IsPlantAvailable(ThingDef plantDef, Map map, ref bool __result)
     {
         var biomeGrid = map.GetComponent<BiomeGrid>();
-        if (biomeGrid is not { HasMultipleBiomes: true }) return true;
+        if (biomeGrid is not { ShouldApply: true }) return true;
 
         if (!plantDef.plant.mustBeWildToSow) return true;
 
@@ -465,5 +465,6 @@ internal static class RimWorld_WildPlantSpawner
         Log.Message("whole map desired: " + map.wildPlantSpawner.CurrentWholeMapNumDesiredPlants);
         Log.Message("current plant density: " + map.wildPlantSpawner.CurrentPlantDensity);
         Log.Message("desired density at pos: " + map.wildPlantSpawner.GetDesiredPlantsCountAt(pos, pos, map.wildPlantSpawner.CurrentPlantDensity));
+        Log.Message("map open ground fraction: " + map.GetComponent<BiomeGrid>()?.OpenGroundFraction);
     }
 }

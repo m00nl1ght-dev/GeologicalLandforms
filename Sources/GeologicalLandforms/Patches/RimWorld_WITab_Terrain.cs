@@ -111,7 +111,7 @@ internal static class RimWorld_WITab_Terrain
             {
                 var options = LandformManager.Landforms.Values
                     .Where(e => !e.IsLayer)
-                    .OrderBy(e => e.Manifest.TimeCreated)
+                    .OrderBy(e => e.TranslatedNameForSelection)
                     .Select(e => new FloatMenuOption(e.TranslatedNameForSelection.CapitalizeFirst(), () => FindLandform(e))).ToList();
                 Find.WindowStack.Add(new FloatMenu(options));
             }

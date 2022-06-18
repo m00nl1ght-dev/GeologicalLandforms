@@ -1,4 +1,3 @@
-using System.Linq;
 using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using RimWorld;
@@ -33,6 +32,7 @@ internal static class RimWorld_GenStep_Terrain
     {
         CleanUp();
         BiomeTransition.DrawDebug(map.debugDrawer);
+        map.GetComponent<BiomeGrid>()?.UpdateOpenGroundFraction();
     }
     
     [HarmonyPriority(Priority.VeryHigh)]
@@ -140,5 +140,10 @@ internal static class RimWorld_GenStep_Terrain
     public static bool IsDeepWater(this TerrainDef def)
     {
         return def == TerrainDefOf.WaterDeep || def == TerrainDefOf.WaterOceanDeep;
+    }
+    
+    public static bool IsNormalWater(this TerrainDef def)
+    {
+        return IsDeepWater(def) || def == TerrainDefOf.WaterShallow || def == TerrainDefOf.WaterOceanShallow;
     }
 }

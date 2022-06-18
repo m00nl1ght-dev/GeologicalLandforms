@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using GeologicalLandforms.GraphEditor;
+using GeologicalLandforms.Patches;
 using RimWorld;
 using TerrainGraph;
+using UnityEngine;
 using Verse;
 
 namespace GeologicalLandforms;
@@ -14,10 +16,14 @@ public class BiomeGrid : MapComponent
 
     private Dictionary<BiomeDef, int> _cellCounts = new();
     public IReadOnlyDictionary<BiomeDef, int> CellCounts => PrimaryBiome == null ? new() : _cellCounts;
+    
     public bool HasMultipleBiomes => CellCounts.Count > 1;
+    public bool ShouldApply => HasMultipleBiomes && PrimaryBiome == map.Biome;
+    
+    public float OpenGroundFraction { get; private set; } = 1f;
 
     private readonly IntVec3 _mapSize;
-    
+
     private BiomeDef _primary;
     public BiomeDef PrimaryBiome
     {
@@ -84,6 +90,21 @@ public class BiomeGrid : MapComponent
             _cellCounts.TryGetValue(biomeDef, out var newCount); 
             _cellCounts[biomeDef] = newCount + 1;
         }
+    }
+
+    public void UpdateOpenGroundFraction()
+    {
+        if (map == null) return;
+        float total = map.cellIndices.NumGridCells;
+        float walkable = map.AllCells.Sum(GetOpenGroundFractionFor);
+        OpenGroundFraction = Mathf.Clamp01(walkable / total);
+    }
+
+    private float GetOpenGroundFractionFor(IntVec3 cell)
+    {
+        if (map.terrainGrid.TerrainAt(cell).IsNormalWater()) return 0f;
+        if (cell.Walkable(map)) return 1f;
+        return 0.5f;
     }
 
     public override void ExposeData()

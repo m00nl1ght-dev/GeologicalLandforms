@@ -19,17 +19,24 @@ internal static class RimWorld_WildAnimalSpawner
     private static bool DesiredAnimalDensity(Map ___map, ref float __result)
     {
         var biomeGrid = ___map.GetComponent<BiomeGrid>();
-        if (biomeGrid is not { HasMultipleBiomes: true }) return true;
+        if (biomeGrid == null) return true;
 
         float total = 0f;
-        float cells = ___map.cellIndices.NumGridCells;
-        foreach (var pair in biomeGrid.CellCounts)
+        if (biomeGrid.ShouldApply)
         {
-            var val = RawDesiredAnimalDensityForBiome(___map, pair.Key);
-            total += val * (pair.Value / cells);
+            float cells = ___map.cellIndices.NumGridCells;
+            foreach (var pair in biomeGrid.CellCounts)
+            {
+                var val = RawDesiredAnimalDensityForBiome(___map, pair.Key);
+                total += val * (pair.Value / cells);
+            }
+        }
+        else
+        {
+            total = RawDesiredAnimalDensityForBiome(___map, ___map.TileInfo.biome);
         }
 
-        __result = total * AggregateAnimalDensityFactor(___map.gameConditionManager, ___map);
+        __result = total * biomeGrid.OpenGroundFraction * AggregateAnimalDensityFactor(___map.gameConditionManager, ___map);
         return false;
     }
 
@@ -39,7 +46,7 @@ internal static class RimWorld_WildAnimalSpawner
     private static bool SpawnRandomWildAnimalAt(Map ___map, ref bool __result, IntVec3 loc)
     {
         var biomeGrid = ___map.GetComponent<BiomeGrid>();
-        if (biomeGrid is not { HasMultipleBiomes: true }) return true;
+        if (biomeGrid is not { ShouldApply: true }) return true;
 
         BiomeDef biome = biomeGrid.BiomeAt(loc);
 

@@ -34,7 +34,7 @@ public class LandformGraphInterface
                 GUILayout.MinWidth(Landform?.Id != null ? 150f : 50f)))
         {
             var options = LandformManager.Landforms.Values
-                .OrderBy(e => e.Manifest.TimeCreated)
+                .OrderBy(e => e.TranslatedNameForSelection)
                 .Select(e => new FloatMenuOption(e.TranslatedNameForSelection.CapitalizeFirst(), () => Editor.OpenLandform(e)))
                 .ToList();
             Find.WindowStack.Add(new FloatMenu(options));
