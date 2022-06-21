@@ -67,14 +67,9 @@ public class NodeUIWorldTileReq : NodeUIBase
     {
         if (req == Any || tile == req) return true;
         if (!lenient) return false;
-        return IsTopologySimilar(req, tile) || IsTopologySimilar(tile, req);
-    }
-    
-    private static bool IsTopologySimilar(Topology a, Topology b)
-    {
-        if (a == CoastOneSide && b == CoastThreeSides) return true;
-        if (a == CliffOneSide && b == CliffThreeSides) return true;
-        if (a == CoastOneSide && b == CliffAndCoast) return true;
+        if (req.IsCoast() && tile.IsCoast(true)) return true;
+        if (req.IsCliff() && tile.IsCliff(true)) return true;
+        if (req == Inland && tile.IsCliff(true)) return true;
         return false;
     }
 
