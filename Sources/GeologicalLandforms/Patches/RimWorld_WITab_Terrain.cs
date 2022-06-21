@@ -8,7 +8,6 @@ using System.Text;
 using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using RimWorld.Planet;
-using UnityEngine;
 using Verse;
 
 namespace GeologicalLandforms.Patches;
@@ -66,21 +65,8 @@ internal static class RimWorld_WITab_Terrain
             var mainLandform = worldTileInfo.Landforms.FirstOrDefault(l => !l.IsLayer);
             if (mainLandform != null)
             {
-                string landformStr = mainLandform.TranslatedName;
-                
-                if (mainLandform.DisplayNameHasDirection)
-                {
-                    if (mainLandform.IsCornerVariant)
-                    {
-                        landformStr = TranslateDoubleRot4(worldTileInfo.LandformDirection) + " " + landformStr;
-                    }
-                    else
-                    {
-                        landformStr = TranslateRot4(worldTileInfo.LandformDirection) + " " + landformStr;
-                    }
-                }
-            
-                listingStandard.LabelDouble("GeologicalLandforms.WorldMap.Landform".Translate(), landformStr.CapitalizeFirst());
+                var lfStr = mainLandform.TranslatedNameWithDirection(worldTileInfo.LandformDirection).CapitalizeFirst();
+                listingStandard.LabelDouble("GeologicalLandforms.WorldMap.Landform".Translate(), lfStr);
             }
         
             if (worldTileInfo.BorderingBiomes?.Count > 0)
@@ -104,7 +90,8 @@ internal static class RimWorld_WITab_Terrain
             listingStandard.LabelDouble("SpecialFeatures".Translate(), sb.ToString().CapitalizeFirst());
 
         listingStandard.Gap();
-        Rect rect = listingStandard.GetRect(28f);
+        
+        var rect = listingStandard.GetRect(28f);
         if (!listingStandard.BoundingRectCached.HasValue || rect.Overlaps(listingStandard.BoundingRectCached.Value))
         {
             if (Widgets.ButtonText(rect, "GeologicalLandforms.WorldMap.FindLandform".Translate()))
@@ -118,6 +105,62 @@ internal static class RimWorld_WITab_Terrain
         }
         
         listingStandard.Gap();
+        
+        if (ModInstance.Settings.EnableGodMode)
+        {
+            var landformData = Find.World.LandformData();
+            bool ignoreReq = Prefs.DevMode && ModInstance.Settings.IgnoreWorldTileReqInGodMode;
+            
+            if (landformData != null && (ignoreReq || (!landformData.IsLocked(tileId) && WorldTileInfo.CanHaveLandform(worldTileInfo))))
+            {
+                rect = listingStandard.GetRect(28f);
+                if (!listingStandard.BoundingRectCached.HasValue || rect.Overlaps(listingStandard.BoundingRectCached.Value))
+                {
+                    if (Widgets.ButtonText(rect, "GeologicalLandforms.WorldMap.SetLandform".Translate()))
+                    {
+                        var eligible = LandformManager.Landforms.Values
+                            .Where(e => ignoreReq || (e.WorldTileReq?.CheckRequirements(worldTileInfo, true) ?? false))
+                            .Where(e => !e.IsLayer)
+                            .ToList();
+                    
+                        var options = new List<FloatMenuOption>
+                        {
+                            new("GeologicalLandforms.WorldMap.SetLandformAuto".Translate(), () =>
+                            {
+                                landformData.Reset(tileId);
+                            }),
+                            new("None".Translate(), () =>
+                            {
+                                landformData.Commit(tileId, null, worldTileInfo.LandformDirection);
+                            })
+                        };
+                    
+                        options.AddRange(eligible
+                            .OrderBy(e => e.TranslatedNameForSelection)
+                            .Select(e => new FloatMenuOption(e.TranslatedNameForSelection.CapitalizeFirst(), () =>
+                            {
+                                if (ignoreReq)
+                                {
+                                    var dirOptions = new List<FloatMenuOption>(new[] { Rot4.North, Rot4.East, Rot4.South, Rot4.West }
+                                        .Select(d => new FloatMenuOption(e.TranslatedDirection(d).CapitalizeFirst(), () =>
+                                        {
+                                            landformData.Commit(tileId, e, d);
+                                        })));
+                                    Find.WindowStack.Add(new FloatMenu(dirOptions) {vanishIfMouseDistant = false});
+                                }
+                                else
+                                {
+                                    landformData.Commit(tileId, e, worldTileInfo.LandformDirection);
+                                }
+                            })));
+                        Find.WindowStack.Add(new FloatMenu(options));
+                    }
+                }
+            }
+            
+            listingStandard.Gap();
+        }
+        
         if (Prefs.DevMode && ModInstance.Settings.ShowWorldTileDebugInfo)
         {
             listingStandard.LabelDouble("GeologicalLandforms.WorldMap.Topology".Translate(), worldTileInfo.Topology.ToString());
@@ -168,15 +211,5 @@ internal static class RimWorld_WITab_Terrain
         
         Find.WindowStack.Add(new Dialog_MessageBox(
             "GeologicalLandforms.WorldMap.FindLandformFail".Translate() + ModInstance.Settings.MaxLandformSearchRadius));
-    }
-
-    private static string TranslateRot4(Rot4 rot4)
-    {
-        return ("GeologicalLandforms.Rot4." + rot4.AsInt).Translate();
-    }
-    
-    private static string TranslateDoubleRot4(Rot4 rot4)
-    {
-        return ("GeologicalLandforms.Rot4.Double." + rot4.AsInt).Translate();
     }
 }

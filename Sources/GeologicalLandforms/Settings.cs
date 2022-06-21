@@ -15,13 +15,15 @@ public class Settings : ModSettings
     public bool EnableCellFinderOptimization = true;
     public bool EnableLandformScaling = true;
     
+    public bool EnableGodMode;
+    public bool IgnoreWorldTileReqInGodMode;
     public bool ShowWorldTileDebugInfo;
 
     private static Vector2 _scrollPos = Vector2.zero;
 
     public void DoSettingsWindowContents(Rect inRect)
     {
-        Rect rect = new(0.0f, 0.0f, inRect.width, 300f);
+        Rect rect = new(0.0f, 0.0f, inRect.width, 500f);
         rect.xMax *= 0.95f;
         
         Listing_Standard listingStandard = new();
@@ -58,6 +60,7 @@ public class Settings : ModSettings
         MaxLandformSearchRadius = (int) listingStandard.Slider(MaxLandformSearchRadius, 10f, 500f);
         
         listingStandard.Gap();
+        listingStandard.CheckboxLabeled("GeologicalLandforms.Settings.EnableGodMode".Translate(), ref EnableGodMode);
         listingStandard.CheckboxLabeled("GeologicalLandforms.Settings.EnableCellFinderOptimization".Translate(), ref EnableCellFinderOptimization);
         listingStandard.CheckboxLabeled("GeologicalLandforms.Settings.EnableLandformScaling".Translate(), ref EnableLandformScaling);
 
@@ -65,6 +68,11 @@ public class Settings : ModSettings
         {
             listingStandard.Gap();
             listingStandard.CheckboxLabeled("GeologicalLandforms.Settings.ShowWorldTileDebugInfo".Translate(), ref ShowWorldTileDebugInfo);
+            
+            if (EnableGodMode)
+            {
+                listingStandard.CheckboxLabeled("GeologicalLandforms.Settings.IgnoreWorldTileReqInGodMode".Translate(), ref IgnoreWorldTileReqInGodMode);
+            }
         }
 
         Widgets.EndScrollView();
@@ -99,6 +107,8 @@ public class Settings : ModSettings
         Scribe_Values.Look(ref EnableCellFinderOptimization, "EnableCellFinderOptimization", true);
         Scribe_Values.Look(ref EnableLandformScaling, "EnableLandformScaling", true);
         Scribe_Values.Look(ref ShowWorldTileDebugInfo, "ShowWorldTileDebugInfo");
+        Scribe_Values.Look(ref EnableGodMode, "EnableGodMode");
+        Scribe_Values.Look(ref IgnoreWorldTileReqInGodMode, "IgnoreWorldTileReqInGodMode");
         base.ExposeData();
     }
     
@@ -108,6 +118,8 @@ public class Settings : ModSettings
         ShowWorldTileDebugInfo = false;
         EnableCellFinderOptimization = true;
         EnableLandformScaling = true;
+        EnableGodMode = false;
+        IgnoreWorldTileReqInGodMode = false;
         MaxLandformSearchRadius = 100;
     }
 }

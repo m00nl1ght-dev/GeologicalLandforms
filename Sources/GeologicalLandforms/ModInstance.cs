@@ -1,3 +1,4 @@
+using System.Reflection;
 using UnityEngine;
 using Verse;
 
@@ -5,7 +6,7 @@ namespace GeologicalLandforms;
 
 public class ModInstance : Mod
 {
-    public const string Version = "1.3.4";
+    public static string Version => Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
     public static string LogPrefix => "[Geological Landforms v" + Version + "] ";
     

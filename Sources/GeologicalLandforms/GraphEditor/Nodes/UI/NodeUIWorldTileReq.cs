@@ -4,6 +4,7 @@ using NodeEditorFramework;
 using RimWorld.Planet;
 using UnityEngine;
 using Verse;
+using static GeologicalLandforms.Topology;
 
 namespace GeologicalLandforms.GraphEditor;
 
@@ -17,7 +18,7 @@ public class NodeUIWorldTileReq : NodeUIBase
     public override string Title => "World Tile Requirements";
     public override Vector2 DefaultSize => new(400, 875);
     
-    public Topology Topology = Topology.Inland;
+    public Topology Topology = Inland;
     public float Commonness = 1f;
     public float CaveChance;
 
@@ -33,21 +34,21 @@ public class NodeUIWorldTileReq : NodeUIBase
     public bool AllowSettlements;
     public bool AllowSites;
     
-    public bool CheckRequirements(IWorldTileInfo worldTile)
+    public bool CheckRequirements(IWorldTileInfo worldTile, bool lenientTopology)
     {
-        if (Topology != Topology.Any && worldTile.Topology != Topology) return false;
+        if (!IsTopologyCompatible(Topology, worldTile.Topology, lenientTopology)) return false;
         if (!HillinessRequirement.Includes((float) worldTile.Hilliness)) return false;
         if (!ElevationRequirement.Includes(worldTile.Elevation)) return false;
         if (!AvgTemperatureRequirement.Includes(worldTile.Temperature)) return false;
         if (!RainfallRequirement.Includes(worldTile.Rainfall)) return false;
         if (!SwampinessRequirement.Includes(worldTile.Swampiness)) return false;
 
-        MapParent mapParent = worldTile.WorldObject;
+        var mapParent = worldTile.WorldObject;
         bool isPlayer = mapParent?.Faction is { IsPlayer: true };
         if (!AllowSettlements && mapParent is Settlement && !isPlayer) return false;
         if (!AllowSites && mapParent is Site && !isPlayer) return false;
 
-        IntVec3 expectedMapSize = mapParent is Site site ? site.PreferredMapSize : Find.World.info.initialMapSize;
+        var expectedMapSize = mapParent is Site site ? site.PreferredMapSize : Find.World.info.initialMapSize;
         int expectedMapSizeInt = Math.Min(expectedMapSize.x, expectedMapSize.z);
         if (!MapSizeRequirement.Includes(expectedMapSizeInt)) return false;
 
@@ -60,6 +61,21 @@ public class NodeUIWorldTileReq : NodeUIBase
             !RiverRequirement.Includes(riverWidth)) return false;
         
         return true;
+    }
+
+    public static bool IsTopologyCompatible(Topology req, Topology tile, bool lenient)
+    {
+        if (req == Any || tile == req) return true;
+        if (!lenient) return false;
+        return IsTopologySimilar(req, tile) || IsTopologySimilar(tile, req);
+    }
+    
+    private static bool IsTopologySimilar(Topology a, Topology b)
+    {
+        if (a == CoastOneSide && b == CoastThreeSides) return true;
+        if (a == CliffOneSide && b == CliffThreeSides) return true;
+        if (a == CoastOneSide && b == CliffAndCoast) return true;
+        return false;
     }
 
     public bool CheckMapRequirements(int mapSize)

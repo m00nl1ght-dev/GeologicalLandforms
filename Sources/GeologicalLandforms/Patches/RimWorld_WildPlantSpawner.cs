@@ -44,7 +44,7 @@ internal static class RimWorld_WildPlantSpawner
     [HarmonyPrefix]
     private static bool CurrentWholeMapNumDesiredPlants(WildPlantSpawner __instance, Map ___map, ref float __result)
     {
-        var biomeGrid = ___map.GetComponent<BiomeGrid>();
+        var biomeGrid = ___map.BiomeGrid();
         if (biomeGrid is not { ShouldApply: true }) return true;
 
         var condFactor = AggregatePlantDensityFactor(___map.gameConditionManager, ___map);
@@ -70,7 +70,7 @@ internal static class RimWorld_WildPlantSpawner
         ref int ___calculatedWholeMapNumNonZeroFertilityCellsTmp,
         ref int ___cycleIndex)
     {
-        var biomeGrid = ___map.GetComponent<BiomeGrid>();
+        var biomeGrid = ___map.BiomeGrid();
         if (biomeGrid is not { ShouldApply: true }) return true;
         
         int area = ___map.Area;
@@ -120,7 +120,7 @@ internal static class RimWorld_WildPlantSpawner
     [HarmonyPrefix]
     private static bool Generate(Map map)
     {
-        var biomeGrid = map.GetComponent<BiomeGrid>();
+        var biomeGrid = map.BiomeGrid();
         if (biomeGrid is not { HasMultipleBiomes: true }) return true;
         
         float condFactor = AggregatePlantDensityFactor(map.gameConditionManager, map);
@@ -148,7 +148,7 @@ internal static class RimWorld_WildPlantSpawner
     [HarmonyPrefix]
     private static bool IsPlantAvailable(ThingDef plantDef, Map map, ref bool __result)
     {
-        var biomeGrid = map.GetComponent<BiomeGrid>();
+        var biomeGrid = map.BiomeGrid();
         if (biomeGrid is not { ShouldApply: true }) return true;
 
         if (!plantDef.plant.mustBeWildToSow) return true;
@@ -465,6 +465,6 @@ internal static class RimWorld_WildPlantSpawner
         Log.Message("whole map desired: " + map.wildPlantSpawner.CurrentWholeMapNumDesiredPlants);
         Log.Message("current plant density: " + map.wildPlantSpawner.CurrentPlantDensity);
         Log.Message("desired density at pos: " + map.wildPlantSpawner.GetDesiredPlantsCountAt(pos, pos, map.wildPlantSpawner.CurrentPlantDensity));
-        Log.Message("map open ground fraction: " + map.GetComponent<BiomeGrid>()?.OpenGroundFraction);
+        Log.Message("map open ground fraction: " + map.BiomeGrid()?.OpenGroundFraction);
     }
 }

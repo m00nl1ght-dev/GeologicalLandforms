@@ -4,7 +4,10 @@ using HarmonyLib;
 using RimWorld.Planet;
 using Verse;
 
-// ReSharper disable All
+// ReSharper disable UnusedMember.Local
+// ReSharper disable RedundantAssignment
+// ReSharper disable InconsistentNaming
+
 namespace GeologicalLandforms.Patches;
 
 [HarmonyPatch(typeof(World))]

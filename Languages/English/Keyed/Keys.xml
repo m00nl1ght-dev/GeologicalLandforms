@@ -4,7 +4,9 @@
   <GeologicalLandforms.Settings.MaxLandformSearchRadius>Max landform search radius on world map</GeologicalLandforms.Settings.MaxLandformSearchRadius>
   <GeologicalLandforms.Settings.EnableCellFinderOptimization>Enable map exit pathfinding optimization</GeologicalLandforms.Settings.EnableCellFinderOptimization>
   <GeologicalLandforms.Settings.EnableLandformScaling>Scale landforms with map size</GeologicalLandforms.Settings.EnableLandformScaling>
+  <GeologicalLandforms.Settings.EnableGodMode>Enable god mode (allows placing landforms manually)</GeologicalLandforms.Settings.EnableGodMode>
   <GeologicalLandforms.Settings.ShowWorldTileDebugInfo>[Dev Mode] Show advanced debug info</GeologicalLandforms.Settings.ShowWorldTileDebugInfo>
+  <GeologicalLandforms.Settings.IgnoreWorldTileReqInGodMode>[Dev Mode] Ignore world tile requirements (unsafe)</GeologicalLandforms.Settings.IgnoreWorldTileReqInGodMode>
   <GeologicalLandforms.Settings.OpenEditor>Open landform editor</GeologicalLandforms.Settings.OpenEditor>
   <GeologicalLandforms.Settings.ResetAll>Reset everything to default</GeologicalLandforms.Settings.ResetAll>
   <GeologicalLandforms.Settings.OpenDataDir>Open custom landform data directory</GeologicalLandforms.Settings.OpenDataDir>
@@ -38,7 +40,9 @@
   <GeologicalLandforms.WorldMap.FindLandform>Search for specific landform nearby</GeologicalLandforms.WorldMap.FindLandform>
   <GeologicalLandforms.WorldMap.FindLandformSuccess>Found landform, distance from starting point: </GeologicalLandforms.WorldMap.FindLandformSuccess>
   <GeologicalLandforms.WorldMap.FindLandformFail>Could not find the landform within max allowed distance (can be changed in mod settings). Configured max distance: </GeologicalLandforms.WorldMap.FindLandformFail>
-
+  <GeologicalLandforms.WorldMap.SetLandform>Set landform override (god mode)</GeologicalLandforms.WorldMap.SetLandform>
+  <GeologicalLandforms.WorldMap.SetLandformAuto>Auto</GeologicalLandforms.WorldMap.SetLandformAuto>
+  
   <GeologicalLandforms.Settings.Landform.Id>Id</GeologicalLandforms.Settings.Landform.Id>
   <GeologicalLandforms.Settings.Landform.DisplayName>Display name</GeologicalLandforms.Settings.Landform.DisplayName>
   <GeologicalLandforms.Settings.Landform.DisplayNameHasDirection>Show direction</GeologicalLandforms.Settings.Landform.DisplayNameHasDirection>
@@ -113,6 +117,7 @@
   <GeologicalLandforms.Landform.DesertPlateau>desert plateau</GeologicalLandforms.Landform.DesertPlateau>
   <GeologicalLandforms.Landform.Skerry>skerry</GeologicalLandforms.Landform.Skerry>
   <GeologicalLandforms.Landform.Fjord>fjord</GeologicalLandforms.Landform.Fjord>
+  <GeologicalLandforms.Landform.SecludedCove>secluded cove</GeologicalLandforms.Landform.SecludedCove>
   
   <GeologicalLandforms.Landform.Corner>(corner)</GeologicalLandforms.Landform.Corner>
 

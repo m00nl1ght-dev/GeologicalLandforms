@@ -42,14 +42,7 @@ public class Landform : TerrainCanvas
 
     public override string canvasName => Id ?? "Landform";
     public Vector2 ScreenOrigin = new(-960f, -540f + LandformGraphInterface.ToolbarHeight);
-
-    public string TranslatedName => 
-        DisplayName?.Length > 0 ? DisplayName : 
-        Id == null ? "Unknown" : 
-        IsCustom ? Id : 
-        ("GeologicalLandforms.Landform." + Id).Translate();
     
-    public string TranslatedNameForSelection => TranslatedName + (IsCornerVariant ? (" " + "GeologicalLandforms.Landform.Corner".Translate()) : "");
     public bool IsCornerVariant => WorldTileReq?.Topology is Topology.CoastTwoSides or Topology.CliffTwoSides;
 
     public static void PrepareMapGen(Map map)
@@ -145,5 +138,36 @@ public class Landform : TerrainCanvas
         base.ResetView();
         if (Manifest != null) Manifest.position = ScreenOrigin + new Vector2(10f, 3f);
         if (WorldTileReq != null) WorldTileReq.position = new Vector2(ScreenOrigin.x + 10f, (IsCustom ? Manifest.rect.yMax + 10f : ScreenOrigin.y + 3f));
+    }
+    
+    public string TranslatedName => 
+        DisplayName?.Length > 0 ? DisplayName : 
+        Id == null ? "Unknown" : 
+        IsCustom ? Id : 
+        ("GeologicalLandforms.Landform." + Id).Translate();
+    
+    public string TranslatedNameForSelection => 
+        TranslatedName + (IsCornerVariant ? (" " + "GeologicalLandforms.Landform.Corner".Translate()) : "");
+    
+    public string TranslatedNameWithDirection(Rot4 direction)
+    {
+        if (!DisplayNameHasDirection) return TranslatedName;
+        return TranslatedDirection(direction) + " " + TranslatedName;
+    }
+    
+    public string TranslatedDirection(Rot4 direction)
+    {
+        if (!IsCornerVariant) return TranslateRot4(direction);
+        return TranslateDoubleRot4(direction);
+    }
+
+    private static string TranslateRot4(Rot4 rot4)
+    {
+        return ("GeologicalLandforms.Rot4." + rot4.AsInt).Translate();
+    }
+    
+    private static string TranslateDoubleRot4(Rot4 rot4)
+    {
+        return ("GeologicalLandforms.Rot4.Double." + rot4.AsInt).Translate();
     }
 }

@@ -52,55 +52,79 @@ public class WorldTileInfo : IWorldTileInfo
         Tile = tile;
         World = world;
     }
-
-    [ThreadStatic]
+    
     private static WorldTileInfo _cache;
     
     public static WorldTileInfo Get(int tileId)
     {
+        var cache = _cache;
         var world = Find.World;
-        if (_cache != null && _cache.TileId == tileId && _cache.World == world) return _cache;
-        _cache = new WorldTileInfo(tileId, world.grid[tileId], world);
-        DetermineTopology(_cache);
-        DetermineLandforms(_cache);
-        return _cache;
+        if (cache != null && cache.TileId == tileId && cache.World == world) return cache;
+        cache = new WorldTileInfo(tileId, world.grid[tileId], world);
+        DetermineTopology(cache);
+        DetermineLandforms(cache);
+        _cache = cache;
+        return cache;
     }
 
     public static void InvalidateCache()
     {
         _cache = null;
     }
+    
+    [ThreadStatic]
+    private static List<Landform> _tsc_eligible;
 
     private static void DetermineLandforms(WorldTileInfo info)
     {
-        if (!info.Biome.canBuildBase || info.Hilliness == Hilliness.Impassable) return; 
-        if (Main.IsBiomeExcluded(info.Biome)) return;
-
-        var eligible = LandformManager.Landforms.Values
-            .Where(e => e.WorldTileReq?.CheckRequirements(info) ?? false)
-            .OrderBy(e => e.Manifest.TimeCreated)
-            .ToList();
+        _tsc_eligible ??= new List<Landform>();
+        _tsc_eligible.Clear();
         
-        var eligibleForMain = eligible.Where(e => !e.IsLayer).ToList();
-
-        float sum = Math.Max(1f, eligibleForMain.Sum(e => e.WorldTileReq.Commonness));
-        float rand = new FloatRange(0f, sum).RandomInRangeSeeded(info.MakeSeed(1754));
-
-        Landform main = null;
-        foreach (Landform landform in eligibleForMain)
+        _tsc_eligible.AddRange(LandformManager.Landforms.Values
+            .Where(e => e.WorldTileReq?.CheckRequirements(info, false) ?? false)
+            .OrderBy(e => e.Manifest.TimeCreated));
+        
+        var landforms = _tsc_eligible.Where(e => e.IsLayer && Rand.ChanceSeeded(e.WorldTileReq.Commonness, info.MakeSeed(e.RandSeed)));
+        
+        var landformData = info.World.LandformData();
+        if (landformData != null && landformData.TryGet(info.TileId, out var data))
         {
-            if (rand < landform.WorldTileReq.Commonness)
-            {
-                main = landform;
-                break;
-            }
-
-            rand -= landform.WorldTileReq.Commonness;
+            var main = data.Landform;
+            if (main != null) landforms = landforms.Append(main);
+            info.LandformDirection = data.LandformDirection;
         }
+        else
+        {
+            if (!CanHaveLandform(info)) return;
+            
+            var eligibleForMain = _tsc_eligible.Where(e => !e.IsLayer);
 
-        var landforms = eligible.Where(e => e.IsLayer && Rand.ChanceSeeded(e.WorldTileReq.Commonness, info.MakeSeed(e.RandSeed)));
-        if (main != null) landforms = landforms.Append(main);
+            float sum = Math.Max(1f, eligibleForMain.Sum(e => e.WorldTileReq.Commonness));
+            float rand = new FloatRange(0f, sum).RandomInRangeSeeded(info.MakeSeed(1754));
+
+            Landform main = null;
+            foreach (var landform in eligibleForMain)
+            {
+                if (rand < landform.WorldTileReq.Commonness)
+                {
+                    main = landform;
+                    break;
+                }
+
+                rand -= landform.WorldTileReq.Commonness;
+            }
+            
+            if (main != null) landforms = landforms.Append(main);
+        }
+        
         info._landforms = landforms.OrderByDescending(e => e.Priority).ToList();
+    }
+
+    public static bool CanHaveLandform(IWorldTileInfo info)
+    {
+        if (!info.Biome.canBuildBase || info.Hilliness == Hilliness.Impassable) return false; 
+        if (Main.IsBiomeExcluded(info.Biome)) return false;
+        return true;
     }
     
     [ThreadStatic]

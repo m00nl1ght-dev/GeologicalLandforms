@@ -18,7 +18,7 @@ internal static class RimWorld_WildAnimalSpawner
     [HarmonyPrefix]
     private static bool DesiredAnimalDensity(Map ___map, ref float __result)
     {
-        var biomeGrid = ___map.GetComponent<BiomeGrid>();
+        var biomeGrid = ___map.BiomeGrid();
         if (biomeGrid == null) return true;
 
         float total = 0f;
@@ -45,7 +45,7 @@ internal static class RimWorld_WildAnimalSpawner
     [HarmonyPrefix]
     private static bool SpawnRandomWildAnimalAt(Map ___map, ref bool __result, IntVec3 loc)
     {
-        var biomeGrid = ___map.GetComponent<BiomeGrid>();
+        var biomeGrid = ___map.BiomeGrid();
         if (biomeGrid is not { ShouldApply: true }) return true;
 
         BiomeDef biome = biomeGrid.BiomeAt(loc);

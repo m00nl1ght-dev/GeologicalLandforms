@@ -22,8 +22,7 @@ internal static class RimWorld_GenStep_Terrain
     [HarmonyPatch(nameof(GenStep_Terrain.Generate))]
     private static void Prefix(Map map, GenStepParams parms)
     {
-        var biomeGrid = map.GetComponent<BiomeGrid>();
-        Init(biomeGrid);
+        Init(map.BiomeGrid());
     }
     
     [HarmonyPriority(Priority.Last)]
@@ -32,7 +31,7 @@ internal static class RimWorld_GenStep_Terrain
     {
         CleanUp();
         BiomeTransition.DrawDebug(map.debugDrawer);
-        map.GetComponent<BiomeGrid>()?.UpdateOpenGroundFraction();
+        map.BiomeGrid()?.UpdateOpenGroundFraction();
     }
     
     [HarmonyPriority(Priority.VeryHigh)]

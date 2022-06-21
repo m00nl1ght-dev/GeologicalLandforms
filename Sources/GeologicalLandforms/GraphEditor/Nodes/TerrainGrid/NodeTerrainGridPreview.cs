@@ -81,7 +81,7 @@ public class NodeTerrainGridPreview : NodeDiscreteGridPreview<TerrainData>
     protected override string MakeTooltip(TerrainData value, double x, double y)
     {
         bool isRock = ElevationFunction?.ValueAt(x, y) > 0.7; 
-        return (isRock ? "Natural Rock" : value) + " ( " + Math.Round(x, 0) + " | " + Math.Round(y, 0) + " )";
+        return (isRock ? "Natural rock" : TerrainData.DislayString(value.Terrain)) + " ( " + Math.Round(x, 0) + " | " + Math.Round(y, 0) + " )";
     }
 
     private static List<Color> _terrainColors = new()

@@ -62,6 +62,8 @@ public static class LandformManager
 
         int customCount = mergedLandforms.Values.Count(l => l.IsCustom);
         int editedCount = mergedLandforms.Values.Count(l => l.Manifest.IsEdited);
+        
+        Log.ResetMessageCount();
         Log.Message(ModInstance.LogPrefix + "Loaded " + mergedLandforms.Count + " landforms of which " + editedCount + " are edited and " + customCount + " are custom.");
 
         if (upgradableLandforms.Count > 0) RimWorld_Misc.OnMainMenu(() =>
@@ -92,6 +94,11 @@ public static class LandformManager
     public static void SaveAllEdited()
     {
         SaveLandformsToDirectory(CustomLandformsDir(CurrentVersion), _landforms);
+    }
+
+    public static Landform FindById(string id)
+    {
+        return Landforms.TryGetValue(id, out var landform) ? landform : null;
     }
 
     public static Landform Duplicate(Landform landform)

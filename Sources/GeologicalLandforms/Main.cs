@@ -4,6 +4,7 @@ using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using NodeEditorFramework.Utilities;
 using RimWorld;
+using RimWorld.Planet;
 using TerrainGraph;
 using Verse;
 
@@ -26,6 +27,8 @@ public static class Main
     {
         new Harmony("Geological Landforms").PatchAll();
         
+        ParseHelper.Parsers<LandformData.Entry>.Register(GeologicalLandforms.LandformData.Entry.FromString);
+        
         ReflectionUtility.AddSearchableAssembly(typeof(Main).Assembly);
         ReflectionUtility.AddSearchableAssembly(typeof(TerrainCanvas).Assembly);
         LandformGraphEditor.InitialSetup();
@@ -41,5 +44,25 @@ public static class Main
     public static bool IsBiomeExcluded(BiomeDef biome)
     {
         return ExcludedBiomePrefixes.Any(biome.defName.StartsWith);
+    }
+
+    private static LandformData _landformDataCache;
+    
+    public static LandformData LandformData(this World world)
+    {
+        if (world == null) return null;
+        if (_landformDataCache?.world == world) return _landformDataCache;
+        _landformDataCache = world.GetComponent<LandformData>();
+        return _landformDataCache;
+    }
+    
+    private static BiomeGrid _biomeGridCache;
+    
+    public static BiomeGrid BiomeGrid(this Map map)
+    {
+        if (map == null) return null;
+        if (_biomeGridCache?.map == map) return _biomeGridCache;
+        _biomeGridCache = map.GetComponent<BiomeGrid>();
+        return _biomeGridCache;
     }
 }

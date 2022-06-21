@@ -104,10 +104,12 @@
         <Compile Include="GraphEditor\Nodes\Value\NodeValueSelectTerrain.cs" />
         <Compile Include="GraphEditor\TerrainData.cs" />
         <Compile Include="Landform.cs" />
+        <Compile Include="LandformData.cs" />
         <Compile Include="LandformManager.cs" />
         <Compile Include="BiomeGrid.cs" />
         <Compile Include="ModCompat\ModCompat_MapReroll.cs" />
         <Compile Include="ModCompat\ModCompat_PrepareLanding.cs" />
+        <Compile Include="Patches\RimWorld_Game.cs" />
         <Compile Include="Patches\RimWorld_GenStep_Scatterer.cs" />
         <Compile Include="Patches\RimWorld_Misc.cs" />
         <Compile Include="Patches\RimWorld_GenStep_Terrain.cs" />
