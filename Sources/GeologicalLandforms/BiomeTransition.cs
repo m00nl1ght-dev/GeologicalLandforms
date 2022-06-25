@@ -27,6 +27,23 @@ public static class BiomeTransition
     public static float ThresholdForRoot = 0.25f;
     
     private static HashSet<IntVec3> _tpmProcessed;
+
+    public static bool IsTransition(int tile, int nTile, BiomeDef biome, BiomeDef nBiome)
+    {
+        if (biome == nBiome || !nBiome.canBuildBase || Main.IsBiomeExcluded(nBiome)) return false;
+
+        if (!WorldLayer_LocalBiomes.Enabled) return true;
+        
+        bool rev = tile > nTile;
+        int min = rev ? nTile : tile;
+        int max = rev ? tile : nTile;
+        
+        Rand.PushState(Gen.HashCombineInt(min, max));
+        bool flag = Rand.Bool;
+        Rand.PopState();
+        
+        return flag ^ rev;
+    }
     
     public static void PostProcessBiomeGrid(BiomeGrid biomeGrid, WorldTileInfo tile, int mapSize)
     {

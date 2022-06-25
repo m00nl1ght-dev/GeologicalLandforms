@@ -77,14 +77,14 @@ public class WorldTileInfo : IWorldTileInfo
 
     private static void DetermineLandforms(WorldTileInfo info)
     {
-        _tsc_eligible ??= new List<Landform>();
-        _tsc_eligible.Clear();
+        var eligible = _tsc_eligible ??= new List<Landform>();
+        eligible.Clear();
         
-        _tsc_eligible.AddRange(LandformManager.Landforms.Values
+        eligible.AddRange(LandformManager.Landforms.Values
             .Where(e => e.WorldTileReq?.CheckRequirements(info, false) ?? false)
             .OrderBy(e => e.Manifest.TimeCreated));
         
-        var landforms = _tsc_eligible.Where(e => e.IsLayer && Rand.ChanceSeeded(e.WorldTileReq.Commonness, info.MakeSeed(e.RandSeed)));
+        var landforms = eligible.Where(e => e.IsLayer && Rand.ChanceSeeded(e.WorldTileReq.Commonness, info.MakeSeed(e.RandSeed)));
         
         var landformData = info.World.LandformData();
         if (landformData != null && landformData.TryGet(info.TileId, out var data))
@@ -97,7 +97,7 @@ public class WorldTileInfo : IWorldTileInfo
         {
             if (!CanHaveLandform(info)) return;
             
-            var eligibleForMain = _tsc_eligible.Where(e => !e.IsLayer);
+            var eligibleForMain = eligible.Where(e => !e.IsLayer);
 
             float sum = Math.Max(1f, eligibleForMain.Sum(e => e.WorldTileReq.Commonness));
             float rand = new FloatRange(0f, sum).RandomInRangeSeeded(info.MakeSeed(1754));
@@ -207,7 +207,7 @@ public class WorldTileInfo : IWorldTileInfo
             }
             else
             {
-                if (nbTile.biome != selfBiome && nbTile.biome.canBuildBase && !Main.IsBiomeExcluded(nbTile.biome))
+                if (BiomeTransition.IsTransition(tileId, nbId, selfBiome, nbTile.biome))
                 {
                     info._borderingBiomes ??= new List<IWorldTileInfo.BorderingBiome>();
                     info._borderingBiomes.Add(new IWorldTileInfo.BorderingBiome(nbTile.biome, rot6.Angle));

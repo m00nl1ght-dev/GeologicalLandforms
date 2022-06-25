@@ -23,11 +23,15 @@ public static class Main
         "Cave" // CaveBiome, Terra Project
     };
 
+    private static readonly HashSet<BiomeDef> ExcludedBiomes = new();
+
     static Main()
     {
         new Harmony("Geological Landforms").PatchAll();
         
         ParseHelper.Parsers<LandformData.Entry>.Register(GeologicalLandforms.LandformData.Entry.FromString);
+        
+        ExcludedBiomes.AddRange(DefDatabase<BiomeDef>.AllDefsListForReading.Where(b => ExcludedBiomePrefixes.Any(b.defName.StartsWith)));
         
         ReflectionUtility.AddSearchableAssembly(typeof(Main).Assembly);
         ReflectionUtility.AddSearchableAssembly(typeof(TerrainCanvas).Assembly);
@@ -43,7 +47,7 @@ public static class Main
 
     public static bool IsBiomeExcluded(BiomeDef biome)
     {
-        return ExcludedBiomePrefixes.Any(biome.defName.StartsWith);
+        return ExcludedBiomes.Contains(biome);
     }
 
     private static LandformData _landformDataCache;

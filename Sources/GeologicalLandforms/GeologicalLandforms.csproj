@@ -130,6 +130,7 @@
         <Compile Include="Settings.cs" />
         <Compile Include="Util\Rot6.cs" />
         <Compile Include="Util\StructRot4.cs" />
+        <Compile Include="WorldLayer_LocalBiomes.cs" />
         <Compile Include="WorldTileInfo.cs" />
     </ItemGroup>
     <ItemGroup>
