@@ -8,7 +8,7 @@
 		<Node name="Custom Landform" ID="-1759679360" type="landformManifest" pos="-950,-517">
 			<string name="Id">Tombolo</string>
 			<boolean name="IsCustom">false</boolean>
-			<int name="RevisionVersion">2</int>
+			<int name="RevisionVersion">3</int>
 			<long name="TimeCreated">1653353880029</long>
 			<boolean name="IsEdited">false</boolean>
 			<string name="DisplayName" />
@@ -51,8 +51,8 @@
 				<min>117.090393</min>
 				<max>1000</max>
 			</FloatRange>
-			<boolean name="AllowSettlements">true</boolean>
-			<boolean name="AllowSites">true</boolean>
+			<boolean name="AllowSettlements">false</boolean>
+			<boolean name="AllowSites">false</boolean>
 			<int name="RandSeed">351232153</int>
 		</Node>
 		<Node name="Linear Function" ID="1501842560" type="gridLinear" pos="-86,-435.8">

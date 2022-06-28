@@ -8,7 +8,7 @@
 		<Node name="Custom Landform" ID="1189801088" type="landformManifest" pos="-950,-517">
 			<string name="Id">SwampHill</string>
 			<boolean name="IsCustom">false</boolean>
-			<int name="RevisionVersion">2</int>
+			<int name="RevisionVersion">3</int>
 			<long name="TimeCreated">1653353880028</long>
 			<boolean name="IsEdited">false</boolean>
 			<string name="DisplayName" />
@@ -51,8 +51,8 @@
 				<min>50</min>
 				<max>1000</max>
 			</FloatRange>
-			<boolean name="AllowSettlements">true</boolean>
-			<boolean name="AllowSites">true</boolean>
+			<boolean name="AllowSettlements">false</boolean>
+			<boolean name="AllowSites">false</boolean>
 			<int name="RandSeed">351232153</int>
 		</Node>
 		<Node name="Preview" ID="-564924928" type="gridPreview" pos="150.4002,-114.4">

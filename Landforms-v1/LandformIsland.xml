@@ -8,7 +8,7 @@
 		<Node name="Custom Landform" ID="367099520" type="landformManifest" pos="-950,-517">
 			<string name="Id">Island</string>
 			<boolean name="IsCustom">false</boolean>
-			<int name="RevisionVersion">2</int>
+			<int name="RevisionVersion">3</int>
 			<long name="TimeCreated">1653353880019</long>
 			<boolean name="IsEdited">false</boolean>
 			<string name="DisplayName" />
@@ -51,8 +51,8 @@
 				<min>50</min>
 				<max>1000</max>
 			</FloatRange>
-			<boolean name="AllowSettlements">true</boolean>
-			<boolean name="AllowSites">true</boolean>
+			<boolean name="AllowSettlements">false</boolean>
+			<boolean name="AllowSites">false</boolean>
 			<int name="RandSeed">351232153</int>
 		</Node>
 		<Node name="Linear Function" ID="748899456" type="gridLinear" pos="-85,-434.8">
