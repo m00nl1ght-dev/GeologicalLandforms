@@ -107,6 +107,7 @@
         <Compile Include="LandformData.cs" />
         <Compile Include="LandformManager.cs" />
         <Compile Include="BiomeGrid.cs" />
+        <Compile Include="ModCompat\ModCompat_DubsMintMenus.cs" />
         <Compile Include="ModCompat\ModCompat_MapReroll.cs" />
         <Compile Include="ModCompat\ModCompat_PrepareLanding.cs" />
         <Compile Include="Patches\RimWorld_Game.cs" />
