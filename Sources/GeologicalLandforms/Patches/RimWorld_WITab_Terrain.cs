@@ -96,10 +96,15 @@ internal static class RimWorld_WITab_Terrain
         {
             if (Widgets.ButtonText(rect, "GeologicalLandforms.WorldMap.FindLandform".Translate()))
             {
-                var options = LandformManager.Landforms.Values
+                var options = new List<FloatMenuOption>
+                {
+                    new("GeologicalLandforms.WorldMap.FindLandformAny".Translate(), () => FindLandform(null)),
+                    new("GeologicalLandforms.WorldMap.FindLandformAnyPOI".Translate(), () => FindLandform(null, true))
+                };
+                options.AddRange(LandformManager.Landforms.Values
                     .Where(e => !e.IsLayer)
                     .OrderBy(e => e.TranslatedNameForSelection)
-                    .Select(e => new FloatMenuOption(e.TranslatedNameForSelection.CapitalizeFirst(), () => FindLandform(e))).ToList();
+                    .Select(e => new FloatMenuOption(e.TranslatedNameForSelection.CapitalizeFirst(), () => FindLandform(e))));
                 Find.WindowStack.Add(new FloatMenu(options));
             }
         }
@@ -171,14 +176,21 @@ internal static class RimWorld_WITab_Terrain
         }
     }
 
-    private static void FindLandform(Landform landform)
+    private static void FindLandform(Landform landform, bool requirePoi = false)
     {
         int tileId = Find.WorldSelector.selectedTile;
-        WorldGrid grid = Find.WorldGrid;
+        var grid = Find.WorldGrid;
 
         HashSet<int> tested = new();
         HashSet<int> pending = new() {tileId};
         List<int> nb = new();
+
+        bool Matches(IWorldTileInfo tileInfo)
+        {
+            if (tileInfo.Landforms == null) return false;
+            if (landform != null) return tileInfo.Landforms.Contains(landform);
+            return tileInfo.Landforms.Any(l => !l.IsLayer && (!requirePoi || l.IsPointOfInterest()));
+        }
 
         for (int i = 0; i < ModInstance.Settings.MaxLandformSearchRadius; i++)
         {
@@ -187,7 +199,7 @@ internal static class RimWorld_WITab_Terrain
             foreach (var p in copy)
             {
                 IWorldTileInfo tileInfo = WorldTileInfo.Get(p);
-                if (tileInfo.Landforms != null && tileInfo.Landforms.Contains(landform))
+                if (Matches(tileInfo))
                 {
                     CameraJumper.TryJumpAndSelect(new GlobalTargetInfo(p));
                     Find.WorldSelector.selectedTile = p;

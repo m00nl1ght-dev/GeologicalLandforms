@@ -37,7 +37,9 @@
   <GeologicalLandforms.WorldMap.MainRoadMultiplier>Main road multiplier</GeologicalLandforms.WorldMap.MainRoadMultiplier>
   <GeologicalLandforms.WorldMap.MainRoadAngle>Main road angle</GeologicalLandforms.WorldMap.MainRoadAngle>
   <GeologicalLandforms.WorldMap.SelectLandform>Select landform</GeologicalLandforms.WorldMap.SelectLandform>
-  <GeologicalLandforms.WorldMap.FindLandform>Search for specific landform nearby</GeologicalLandforms.WorldMap.FindLandform>
+  <GeologicalLandforms.WorldMap.FindLandform>Search for landform nearby</GeologicalLandforms.WorldMap.FindLandform>
+  <GeologicalLandforms.WorldMap.FindLandformAny>Any</GeologicalLandforms.WorldMap.FindLandformAny>
+  <GeologicalLandforms.WorldMap.FindLandformAnyPOI>Any (POI)</GeologicalLandforms.WorldMap.FindLandformAnyPOI>
   <GeologicalLandforms.WorldMap.FindLandformSuccess>Found landform, distance from starting point: </GeologicalLandforms.WorldMap.FindLandformSuccess>
   <GeologicalLandforms.WorldMap.FindLandformFail>Could not find the landform within max allowed distance (can be changed in mod settings). Configured max distance: </GeologicalLandforms.WorldMap.FindLandformFail>
   <GeologicalLandforms.WorldMap.SetLandform>Set landform override (god mode)</GeologicalLandforms.WorldMap.SetLandform>

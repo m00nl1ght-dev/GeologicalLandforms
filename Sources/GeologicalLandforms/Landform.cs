@@ -170,4 +170,13 @@ public class Landform : TerrainCanvas
     {
         return ("GeologicalLandforms.Rot4.Double." + rot4.AsInt).Translate();
     }
+
+    public bool IsPointOfInterest()
+    {
+        var topology = WorldTileReq.Topology;
+        var commonness = WorldTileReq.Commonness;
+        if (topology == Topology.Any) return commonness < 0.1f;
+        if (topology.IsCommon()) return commonness < 0.5f;
+        return true;
+    }
 }

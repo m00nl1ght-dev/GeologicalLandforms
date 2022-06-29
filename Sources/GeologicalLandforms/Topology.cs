@@ -33,4 +33,9 @@ public static class TopologyExtensions
         return topology is CliffOneSide or CliffTwoSides or CliffThreeSides or CliffAllSides
                || (includeSpecial && topology is CliffValley or CliffAndCoast);
     }
+    
+    public static bool IsCommon(this Topology topology)
+    {
+        return topology is CliffOneSide or CliffTwoSides or CoastOneSide or CoastTwoSides;
+    }
 }
