@@ -166,6 +166,26 @@ internal static class RimWorld_WildPlantSpawner
         return false;
     }
     
+    [HarmonyPatch(typeof(AnimalPenManager), "GetFixedAutoCutFilter")]
+    [HarmonyPriority(Priority.VeryHigh)]
+    [HarmonyPrefix]
+    private static void GetFixedAutoCutFilter(Map ___map, ref ThingFilter ___cachedFixedAutoCutFilter)
+    {
+        if (___cachedFixedAutoCutFilter != null) return;
+        
+        var biomeGrid = ___map.BiomeGrid();
+        if (biomeGrid is not { ShouldApply: true }) return;
+
+        ___cachedFixedAutoCutFilter = new ThingFilter();
+        foreach (var allWildPlant in biomeGrid.CellCounts.Keys.SelectMany(b => b.AllWildPlants))
+        {
+            Log.Message("adding: " + allWildPlant.defName);
+            if (allWildPlant.plant.allowAutoCut)
+                ___cachedFixedAutoCutFilter.SetAllow(allWildPlant, true);
+        }
+        ___cachedFixedAutoCutFilter.SetAllow(ThingDefOf.BurnedTree, true);
+    }
+    
     // ### Modified internal methods ###
     
     private static bool CheckSpawnWildPlantAt_Patched_NonCave(
