@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System;
 using System.Globalization;
 using System.Linq;
 using GeologicalLandforms.GraphEditor;
@@ -11,6 +11,7 @@ namespace GeologicalLandforms;
 public class Settings : ModSettings
 {
     public int MaxLandformSearchRadius = 100;
+    public float AnimalDensityFactorForSecludedAreas = 0.5f;
 
     public bool EnableCellFinderOptimization = true;
     public bool EnableLandformScaling = true;
@@ -48,7 +49,7 @@ public class Settings : ModSettings
         
         if (Prefs.DevMode && Find.CurrentMap != null && listingStandard.ButtonText("[dev] Replace all stone on current map"))
         {
-            List<FloatMenuOption> options = DefDatabase<ThingDef>.AllDefsListForReading
+            var options = DefDatabase<ThingDef>.AllDefsListForReading
                 .Where(d => d.IsNonResourceNaturalRock)
                 .Select(e => new FloatMenuOption(e.defName, () => ReplaceNaturalRock(e))).ToList();
             Find.WindowStack.Add(new FloatMenu(options));
@@ -58,6 +59,9 @@ public class Settings : ModSettings
         
         GuiUtils.CenteredLabel(listingStandard, "GeologicalLandforms.Settings.MaxLandformSearchRadius".Translate(), MaxLandformSearchRadius.ToString(CultureInfo.InvariantCulture));
         MaxLandformSearchRadius = (int) listingStandard.Slider(MaxLandformSearchRadius, 10f, 500f);
+        
+        GuiUtils.CenteredLabel(listingStandard, "GeologicalLandforms.Settings.AnimalDensityFactorForSecludedAreas".Translate(), Math.Round(AnimalDensityFactorForSecludedAreas, 2).ToString(CultureInfo.InvariantCulture));
+        AnimalDensityFactorForSecludedAreas = listingStandard.Slider(AnimalDensityFactorForSecludedAreas, 0.25f, 0.75f);
         
         listingStandard.Gap();
         listingStandard.CheckboxLabeled("GeologicalLandforms.Settings.EnableGodMode".Translate(), ref EnableGodMode);
@@ -104,6 +108,7 @@ public class Settings : ModSettings
     public override void ExposeData()
     {
         Scribe_Values.Look(ref MaxLandformSearchRadius, "MaxLandformSearchRadius", 100);
+        Scribe_Values.Look(ref AnimalDensityFactorForSecludedAreas, "AnimalDensityFactorForSecludedAreas", 0.5f);
         Scribe_Values.Look(ref EnableCellFinderOptimization, "EnableCellFinderOptimization", true);
         Scribe_Values.Look(ref EnableLandformScaling, "EnableLandformScaling", true);
         Scribe_Values.Look(ref ShowWorldTileDebugInfo, "ShowWorldTileDebugInfo");
@@ -121,5 +126,6 @@ public class Settings : ModSettings
         EnableGodMode = false;
         IgnoreWorldTileReqInGodMode = false;
         MaxLandformSearchRadius = 100;
+        AnimalDensityFactorForSecludedAreas = 0.5f;
     }
 }

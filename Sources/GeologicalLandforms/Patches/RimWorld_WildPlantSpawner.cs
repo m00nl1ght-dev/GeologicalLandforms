@@ -466,5 +466,6 @@ internal static class RimWorld_WildPlantSpawner
         Log.Message("current plant density: " + map.wildPlantSpawner.CurrentPlantDensity);
         Log.Message("desired density at pos: " + map.wildPlantSpawner.GetDesiredPlantsCountAt(pos, pos, map.wildPlantSpawner.CurrentPlantDensity));
         Log.Message("map open ground fraction: " + map.BiomeGrid()?.OpenGroundFraction);
+        Log.Message("map animal density factor: " + RimWorld_WildAnimalSpawner.BaseDensityFactorForMap(map.BiomeGrid()));
     }
 }

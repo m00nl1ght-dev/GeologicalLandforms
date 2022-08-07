@@ -36,8 +36,15 @@ internal static class RimWorld_WildAnimalSpawner
             total = RawDesiredAnimalDensityForBiome(___map, ___map.TileInfo.biome);
         }
 
-        __result = total * biomeGrid.OpenGroundFraction * AggregateAnimalDensityFactor(___map.gameConditionManager, ___map);
+        __result = total * BaseDensityFactorForMap(biomeGrid) * AggregateAnimalDensityFactor(___map.gameConditionManager, ___map);
         return false;
+    }
+
+    public static float BaseDensityFactorForMap(BiomeGrid biomeGrid)
+    {
+        var openGroundFraction = biomeGrid?.OpenGroundFraction ?? 1f;
+        var scaleFactor = 2f - ModInstance.Settings.AnimalDensityFactorForSecludedAreas * 2f;
+        return 1f + (openGroundFraction - 1f) * scaleFactor;
     }
 
     [HarmonyPatch("SpawnRandomWildAnimalAt")]

@@ -104,7 +104,7 @@ public class BiomeGrid : MapComponent
     {
         if (map.terrainGrid.TerrainAt(cell).IsNormalWater()) return 0f;
         if (cell.Walkable(map)) return 1f;
-        return 0.5f;
+        return 0.25f;
     }
 
     public override void ExposeData()
