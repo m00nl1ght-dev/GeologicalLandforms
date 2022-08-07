@@ -15,20 +15,20 @@ internal static class ModCompat_MapReroll
     {
         try
         {
-            Type mapGen = GenTypes.GetTypeInAnyAssembly("MapReroll.MapPreviewGenerator");
+            var mapGen = GenTypes.GetTypeInAnyAssembly("MapReroll.MapPreviewGenerator");
             if (mapGen != null)
             {
-                Log.Message(ModInstance.LogPrefix + "Applying compatibility patches for MapReroll.");
+                Log.Message(Main.LogPrefix + "Applying compatibility patches for MapReroll.");
                 Harmony harmony = new("Geological Landforms MapReroll Compat");
                 
-                Type mapPreviews = GenTypes.GetTypeInAnyAssembly("MapReroll.UI.Dialog_MapPreviews");
+                var mapPreviews = GenTypes.GetTypeInAnyAssembly("MapReroll.UI.Dialog_MapPreviews");
 
-                MethodInfo methodGenerate = AccessTools.Method(mapGen, "GeneratePreviewForSeed");
-                MethodInfo methodTerrainFrom = AccessTools.Method(mapGen, "TerrainFrom");
-                MethodInfo methodSetupTabs = AccessTools.Method(mapPreviews, "SetUpTabs");
-                MethodInfo methodPreClose = AccessTools.Method(mapPreviews, "PreClose");
+                var methodGenerate = AccessTools.Method(mapGen, "GeneratePreviewForSeed");
+                var methodTerrainFrom = AccessTools.Method(mapGen, "TerrainFrom");
+                var methodSetupTabs = AccessTools.Method(mapPreviews, "SetUpTabs");
+                var methodPreClose = AccessTools.Method(mapPreviews, "PreClose");
 
-                Type self = typeof(ModCompat_MapReroll);
+                var self = typeof(ModCompat_MapReroll);
                 const BindingFlags bindingFlags = BindingFlags.NonPublic | BindingFlags.Static;
 
                 HarmonyMethod methodGeneratePrefix = new(self.GetMethod(nameof(GeneratePreviewForSeed_Prefix), bindingFlags), -10);
@@ -45,7 +45,7 @@ internal static class ModCompat_MapReroll
         }
         catch
         {
-            Log.Error(ModInstance.LogPrefix + "Failed to apply compatibility patches for MapReroll!");
+            Log.Error(Main.LogPrefix + "Failed to apply compatibility patches for MapReroll!");
         }
     }
     
@@ -72,7 +72,7 @@ internal static class ModCompat_MapReroll
     {
         IsPreviewWindowOpen = true;
         
-        LandformGraphEditor editor = LandformGraphEditor.ActiveEditor;
+        var editor = LandformGraphEditor.ActiveEditor;
         if (editor is { HasLoadedLandform: true })
         {
             _lastEditedLandform = editor.Landform;
@@ -83,7 +83,7 @@ internal static class ModCompat_MapReroll
     
     private static void Dialog_MapPreviews_PreClose_Postfix()
     {
-        LandformGraphEditor editor = LandformGraphEditor.ActiveEditor;
+        var editor = LandformGraphEditor.ActiveEditor;
         
         if (editor != null && _lastEditedLandform != null && Landform.GeneratingTile == null)
         {

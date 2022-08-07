@@ -1,8 +1,6 @@
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using GeologicalLandforms.GraphEditor;
-using GeologicalLandforms.Patches;
 using UnityEngine;
 using Verse;
 
@@ -46,9 +44,9 @@ public class Settings : ModSettings
             Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation("GeologicalLandforms.Settings.ConfirmResetAll".Translate(), ResetAll));
         }
         
-        if (Prefs.DevMode && Find.CurrentMap != null && listingStandard.ButtonText("[dev] Replace all stone on current map"))
+        if (Prefs.DevMode && Find.CurrentMap != null && listingStandard.ButtonText("[DEV] Replace all stone on current map"))
         {
-            List<FloatMenuOption> options = DefDatabase<ThingDef>.AllDefsListForReading
+            var options = DefDatabase<ThingDef>.AllDefsListForReading
                 .Where(d => d.IsNonResourceNaturalRock)
                 .Select(e => new FloatMenuOption(e.defName, () => ReplaceNaturalRock(e))).ToList();
             Find.WindowStack.Add(new FloatMenu(options));
@@ -77,17 +75,17 @@ public class Settings : ModSettings
 
         Widgets.EndScrollView();
         
-        RimWorld_Misc.RunOnMainMenuNow();
+        EventHooks.RunOnMainMenuOnce();
     }
 
     private void ReplaceNaturalRock(ThingDef thingDef)
     {
-        Map map = Find.CurrentMap;
+        var map = Find.CurrentMap;
         map.regionAndRoomUpdater.Enabled = false;
 
-        TerrainDef terrainDef = thingDef.building.naturalTerrain;
+        var terrainDef = thingDef.building.naturalTerrain;
             
-        foreach (IntVec3 allCell in map.AllCells)
+        foreach (var allCell in map.AllCells)
         {
             if (map.edificeGrid[allCell]?.def?.IsNonResourceNaturalRock ?? false)
                 GenSpawn.Spawn(thingDef, allCell, map);

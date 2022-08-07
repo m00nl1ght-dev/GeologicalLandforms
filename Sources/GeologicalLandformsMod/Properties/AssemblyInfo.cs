@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("GeologicalLandforms")]
+[assembly: AssemblyTitle("GeologicalLandformsMod")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
@@ -19,7 +19,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("3D0DE44D-4410-4F16-8E49-85FE38D12051")]
+[assembly: Guid("B0D7D213-E636-4516-B545-D4C22FDD2F80")]
 
 // Version information for an assembly consists of the following four values:
 //

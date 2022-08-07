@@ -29,10 +29,10 @@ internal static class RimWorld_GenStep_ElevationFertility
         
         if (map.TileInfo.WaterCovered) elevationModule = new Min(elevationModule, Of<double>(0f));
 
-        MapGenFloatGrid elevation = MapGenerator.Elevation;
-        MapGenFloatGrid fertility = MapGenerator.Fertility;
+        var elevation = MapGenerator.Elevation;
+        var fertility = MapGenerator.Fertility;
         
-        foreach (IntVec3 cell in map.AllCells)
+        foreach (var cell in map.AllCells)
         {
             elevation[cell] = (float) elevationModule.ValueAt(cell.x, cell.z);
             fertility[cell] = (float) fertilityModule.ValueAt(cell.x, cell.z);
@@ -47,10 +47,10 @@ internal static class RimWorld_GenStep_ElevationFertility
     [HarmonyPriority(Priority.First)]
     private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
     {
-        OpCode lastOpCode = OpCodes.Nop;
+        var lastOpCode = OpCodes.Nop;
         var patched = false;
     
-        foreach (CodeInstruction instruction in instructions)
+        foreach (var instruction in instructions)
         {
             if (!patched && lastOpCode == OpCodes.Ldfld && instruction.opcode == OpCodes.Ldc_I4_4)
             {
@@ -65,7 +65,7 @@ internal static class RimWorld_GenStep_ElevationFertility
         }
             
         if (patched == false)
-            Log.Error(ModInstance.LogPrefix + "Failed to patch RimWorld_GenStep_ElevationFertility");
+            Log.Error(Main.LogPrefix + "Failed to patch RimWorld_GenStep_ElevationFertility");
     }
 
     public static IGridFunction<double> BuildDefaultElevationGrid(Map map)

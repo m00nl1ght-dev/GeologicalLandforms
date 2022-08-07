@@ -28,12 +28,9 @@ public class LandformGraphEditor : Window
 
     public static void InitialSetup()
     {
-        AssetBundle assetBundle = ModInstance.ModContentPack.assetBundles.loadedAssetBundles.Find(b => b.name == "terraingraph");
-        ResourceManager.InitAssetBundle(assetBundle);
-
         NodeBase.ActiveDropdownHandler = (values, action) =>
         {
-            List<FloatMenuOption> options = values.Select((e, i) => new FloatMenuOption(e, () => { action(i); })).ToList();
+            var options = values.Select((e, i) => new FloatMenuOption(e, () => { action(i); })).ToList();
             Find.WindowStack.Add(new FloatMenu(options));
         };
 
@@ -43,13 +40,11 @@ public class LandformGraphEditor : Window
         };
         
         NodeGridPreview.RegisterPreviewModel(new NodeOutputElevation.ElevationPreviewModel(), "Elevation");
-        
-        NodeEditor.ReInit(false);
     }
 
     private void Init()
     {
-        NodeEditor.checkInit(false);
+        NodeEditor.checkInit(true);
         AssureSetup();
         if (_canvasCache.nodeCanvas)
             _canvasCache.nodeCanvas.Validate();
@@ -171,8 +166,6 @@ public class LandformGraphEditor : Window
 
     public override void DoWindowContents(Rect inRect)
     {
-        // Initiation
-        NodeEditor.checkInit(true);
         if (NodeEditor.InitiationError)
         {
             GUILayout.Label("Node Editor Initiation failed! Check console for more information!");

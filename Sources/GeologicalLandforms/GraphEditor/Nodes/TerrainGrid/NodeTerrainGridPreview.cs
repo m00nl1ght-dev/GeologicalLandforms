@@ -101,6 +101,7 @@ public class NodeTerrainGridPreview : NodeDiscreteGridPreview<TerrainData>
 
     public Color GetTerrainColor(TerrainDef def, int selIdx)
     {
+        // TODO use map preview ttc instead
         return _terrainColors[selIdx % _terrainColors.Count];
     }
 }

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using GeologicalLandforms.Patches;
+using HarmonyLib;
 using NodeEditorFramework;
 using NodeEditorFramework.IO;
 using Verse;
@@ -13,39 +13,46 @@ public static class LandformManager
 {
     public const int CurrentVersion = 1;
     
-    public static string CoreLandformsDir => LandformsDir(ModInstance.ModContentPack, CurrentVersion);
     public static string LandformsDir(ModContentPack mod, int version) => Path.Combine(mod.RootDir, "Landforms-v" + version);
     public static string CustomLandformsDir(int version) => Path.Combine(GenFilePaths.ConfigFolderPath, "CustomLandforms-v" + version);
+    
+    private static List<string> _mcpLandformDirs = new();
     
     private static Dictionary<string, Landform> _landforms = new();
     public static IReadOnlyDictionary<string, Landform> Landforms => _landforms;
 
-    private static readonly List<string> _mcpLandformDirs = new();
-    
     private static ImportExportFormat IOFormat => ImportExportManager.ParseFormat("XML");
 
     public static void InitialLoad()
     {
+        NodeEditor.checkInit(false);
+        
+        Directory.CreateDirectory(CustomLandformsDir(CurrentVersion));
+
+        var landformSources = new List<string>();
+        _mcpLandformDirs = new();
+        
         foreach (var mcp in LoadedModManager.RunningMods)
         {
             if (mcp?.RootDir == null) continue;
-            if (mcp.PackageId == ModInstance.ModContentPack.PackageId) continue;
             var dir = LandformsDir(mcp, CurrentVersion);
             if (Directory.Exists(dir))
             {
                 _mcpLandformDirs.Add(dir);
-                Log.Message(ModInstance.LogPrefix + "Discovered additional landform data in mod " + mcp.Name + ".");
+                landformSources.Add(mcp.Name);
             }
         }
         
-        Directory.CreateDirectory(CustomLandformsDir(CurrentVersion));
+        Log.ResetMessageCount();
+        Log.Message(Main.LogPrefix + "Found landform data in the following mods: " + landformSources.Join());
+        
         _landforms = LoadAll();
     }
 
     public static Dictionary<string, Landform> LoadAll(string fileFilter = "*", bool includeCustom = true)
     {
-        var coreLandforms = LoadLandformsFromDirectory(CoreLandformsDir, null, fileFilter);
-        var mcpLandforms = _mcpLandformDirs.Aggregate(coreLandforms, (current, dir) => LoadLandformsFromDirectory(dir, current, fileFilter));
+        var mcpLandforms = _mcpLandformDirs.Aggregate<string, Dictionary<string,Landform>>(null, 
+            (current, dir) => LoadLandformsFromDirectory(dir, current, fileFilter));
         
         foreach (var landform in mcpLandforms.Values)
         {
@@ -63,10 +70,9 @@ public static class LandformManager
         int customCount = mergedLandforms.Values.Count(l => l.IsCustom);
         int editedCount = mergedLandforms.Values.Count(l => l.Manifest.IsEdited);
         
-        Log.ResetMessageCount();
-        Log.Message(ModInstance.LogPrefix + "Loaded " + mergedLandforms.Count + " landforms of which " + editedCount + " are edited and " + customCount + " are custom.");
+        Log.Message(Main.LogPrefix + "Loaded " + mergedLandforms.Count + " landforms of which " + editedCount + " are edited and " + customCount + " are custom.");
 
-        if (upgradableLandforms.Count > 0) RimWorld_Misc.OnMainMenu(() =>
+        if (upgradableLandforms.Count > 0) EventHooks.OnMainMenuOnce += () =>
         {
             string msg = "GeologicalLandforms.LandformManager.LandformUpgrade".Translate() + "\n";
             msg = upgradableLandforms.Aggregate(msg, (current, lf) => current + ("\n" + lf.TranslatedNameForSelection.CapitalizeFirst()));
@@ -86,7 +92,7 @@ public static class LandformManager
             Find.WindowStack.Add(new Dialog_MessageBox(msg, 
                 "GeologicalLandforms.LandformManager.LandformUpgradeYes".Translate(), UpgradeAction,
                 "GeologicalLandforms.LandformManager.LandformUpgradeNo".Translate(), KeepAction));
-        });
+        };
         
         return mergedLandforms;
     }
@@ -175,12 +181,11 @@ public static class LandformManager
                 {
                     if (landforms.ContainsKey(landform.Id)) landforms[landform.Id] = landform;
                     else landforms.Add(landform.Id, landform);
-                    // Log.Message($"Loaded landform {landform.Id} from file {file}.");
                 }
             }
             catch (Exception ex)
             {
-                Log.Warning(ModInstance.LogPrefix + $"Caught exception while loading landform from file {file}. The exception was: {ex}");
+                Log.Warning(Main.LogPrefix + $"Caught exception while loading landform from file {file}. The exception was: {ex}");
             }
         }
 

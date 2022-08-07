@@ -120,18 +120,17 @@
         <Compile Include="Patches\RimWorld_WildAnimalSpawner.cs" />
         <Compile Include="Patches\RimWorld_WildPlantSpawner.cs" />
         <Compile Include="Patches\RimWorld_World.cs" />
+        <Compile Include="Util\EventHooks.cs" />
+        <Compile Include="Util\ExtensionUtils.cs" />
         <Compile Include="Util\GuiUtils.cs" />
         <Compile Include="IWorldTileInfo.cs" />
         <Compile Include="Topology.cs" />
         <Compile Include="Main.cs" />
-        <Compile Include="ModInstance.cs" />
         <Compile Include="Patches\RimWorld_GenStep_ElevationFertility.cs" />
         <Compile Include="Patches\RimWorld_WITab_Terrain.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
-        <Compile Include="Settings.cs" />
         <Compile Include="Util\Rot6.cs" />
         <Compile Include="Util\StructRot4.cs" />
-        <Compile Include="WorldLayer_LocalBiomes.cs" />
         <Compile Include="WorldTileInfo.cs" />
     </ItemGroup>
     <ItemGroup>

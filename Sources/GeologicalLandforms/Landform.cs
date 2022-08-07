@@ -12,10 +12,15 @@ namespace GeologicalLandforms.GraphEditor;
 [NodeCanvasType("Landform")]
 public class Landform : TerrainCanvas
 {
+    public const int DefaultGridFullSize = 250;
+    public const int DefaultGridPreviewSize = 100;
+    
     public static IWorldTileInfo GeneratingTile { get; private set; }
     public static IReadOnlyList<Landform> GeneratingLandforms { get; private set; }
+    
     public static bool AnyGenerating => GeneratingLandforms is { Count: > 0 };
     public static Landform GeneratingMainLandform => GeneratingLandforms?.FirstOrDefault(v => !v.IsLayer);
+    
     public static int GeneratingMapSize { get; set; } = 250;
     public static int GeneratingSeed { get; private set; }
 
@@ -37,8 +42,8 @@ public class Landform : TerrainCanvas
     public NodeOutputBiomeGrid OutputBiomeGrid { get; internal set; }
     public NodeOutputScatterers OutputScatterers { get; internal set; }
 
-    public override int GridFullSize => ModInstance.Settings.EnableLandformScaling ? 250 : GeneratingMapSize;
-    public override int GridPreviewSize => 100;
+    public override int GridFullSize => EventHooks.LandformGridSizeFunction.Invoke();
+    public override int GridPreviewSize => DefaultGridPreviewSize;
 
     public override string canvasName => Id ?? "Landform";
     public Vector2 ScreenOrigin = new(-960f, -540f + LandformGraphInterface.ToolbarHeight);
@@ -66,7 +71,7 @@ public class Landform : TerrainCanvas
             .Where(l => l.WorldTileReq.CheckMapRequirements(mapSize))
             .ToList();
         
-        foreach (Landform landform in GeneratingLandforms)
+        foreach (var landform in GeneratingLandforms)
         {
             landform.RandSeed = seed;
             landform.TraverseAll();
@@ -81,7 +86,7 @@ public class Landform : TerrainCanvas
         GeneratingSeed = NodeBase.SeedSource.Next();
         if (GeneratingTile.Landforms == null) return;
         GeneratingLandforms = GeneratingTile.Landforms;
-        foreach (Landform landform in GeneratingLandforms) landform.RandSeed = GeneratingSeed;
+        foreach (var landform in GeneratingLandforms) landform.RandSeed = GeneratingSeed;
     }
 
     public static void CleanUp()

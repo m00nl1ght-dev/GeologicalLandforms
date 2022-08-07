@@ -9,11 +9,8 @@ using Verse;
 
 namespace GeologicalLandforms;
 
-public class WorldLayer_LocalBiomes : WorldLayer
+internal class WorldLayer_LocalBiomes : WorldLayer
 {
-    [TweakValue("Geological Landforms")]
-    public static bool Enabled = false;
-
     [TweakValue("Geological Landforms", 0, 1)]
     public static float Lerp = 0.5f;
     
@@ -26,7 +23,7 @@ public class WorldLayer_LocalBiomes : WorldLayer
     {
         foreach (object obj in base.Regenerate()) yield return obj;
         
-        if (!Enabled) yield break;
+        if (!BiomeTransition.UnidirectionalTransitions) yield break;
         
         var grid = Find.World.grid;
         var verts = grid.verts;

@@ -35,19 +35,23 @@ public class LandformData : WorldComponent
     {
         _entries[tileId] = new Entry { LandformId = landform?.Id, LandformDirectionInt = landformDirection.AsInt, Locked = locked };
         WorldTileInfo.InvalidateCache();
+        // TODO notify map preview
     }
 
     public void Reset(int tileId)
     {
         _entries.Remove(tileId);
         WorldTileInfo.InvalidateCache();
+        // TODO notify map preview
     }
-    
+
+    static LandformData() => ParseHelper.Parsers<Entry>.Register(Entry.FromString);
+
     public override void ExposeData()
     {
         Scribe_Collections.Look(ref _entries, "entries", LookMode.Value, LookMode.Value);
     }
-    
+
     public struct Entry
     {
         public string LandformId;

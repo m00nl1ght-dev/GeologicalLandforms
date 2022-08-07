@@ -1,10 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
+using NodeEditorFramework;
 using NodeEditorFramework.Utilities;
 using RimWorld;
-using RimWorld.Planet;
 using TerrainGraph;
 using Verse;
 
@@ -13,9 +14,26 @@ namespace GeologicalLandforms;
 [StaticConstructorOnStartup]
 public static class Main
 {
-    public static readonly IReadOnlyCollection<string> ExcludedBiomePrefixes = new HashSet<string>
+    public static Version LibVersion => typeof(Main).Assembly.GetName().Version;
+
+    public static string LogPrefix => "[Geological Landforms v" + LibVersion + "] ";
+
+    static Main()
     {
-        "BiomesIslands", // Biomes! Islands
+        new Harmony("Geological Landforms").PatchAll();
+        
+        ReflectionUtility.AddSearchableAssembly(typeof(Main).Assembly);
+        ReflectionUtility.AddSearchableAssembly(typeof(TerrainCanvas).Assembly);
+        
+        NodeEditor.ReInit(false);
+        
+        LandformGraphEditor.InitialSetup();
+        LandformManager.InitialLoad();
+    }
+    
+    private static readonly IReadOnlyCollection<string> ExcludedBiomePrefixes = new HashSet<string>
+    {
+        "BiomesIslands", // Biomes! Islands // TODO make islands be considered ocean tiles in topology calc
         "BMT_FungalForest", // Biomes! Caverns
         "BMT_ChromaticOasis", // Biomes! Oasis
         "Tunnelworld", "InfestedMountains", "DeepRavine", "FrozenLake", "Oasis", // Terra Project
@@ -23,50 +41,11 @@ public static class Main
         "Cave" // CaveBiome, Terra Project
     };
 
-    private static readonly HashSet<BiomeDef> ExcludedBiomes = new();
-
-    static Main()
-    {
-        new Harmony("Geological Landforms").PatchAll();
-        
-        ParseHelper.Parsers<LandformData.Entry>.Register(GeologicalLandforms.LandformData.Entry.FromString);
-        
-        ExcludedBiomes.AddRange(DefDatabase<BiomeDef>.AllDefsListForReading.Where(b => ExcludedBiomePrefixes.Any(b.defName.StartsWith)));
-        
-        ReflectionUtility.AddSearchableAssembly(typeof(Main).Assembly);
-        ReflectionUtility.AddSearchableAssembly(typeof(TerrainCanvas).Assembly);
-        LandformGraphEditor.InitialSetup();
-        LandformManager.InitialLoad();
-    }
-
-    public static Rot6 Random(this List<Rot6> rotList, int seed)
-    {
-        if (rotList.Count == 0) return Rot6.Invalid;
-        return rotList[Rand.RangeSeeded(0, rotList.Count, seed)];
-    }
-
+    private static HashSet<BiomeDef> _excludedBiomes;
+    
     public static bool IsBiomeExcluded(BiomeDef biome)
     {
-        return ExcludedBiomes.Contains(biome);
-    }
-
-    private static LandformData _landformDataCache;
-    
-    public static LandformData LandformData(this World world)
-    {
-        if (world == null) return null;
-        if (_landformDataCache?.world == world) return _landformDataCache;
-        _landformDataCache = world.GetComponent<LandformData>();
-        return _landformDataCache;
-    }
-    
-    private static BiomeGrid _biomeGridCache;
-    
-    public static BiomeGrid BiomeGrid(this Map map)
-    {
-        if (map == null) return null;
-        if (_biomeGridCache?.map == map) return _biomeGridCache;
-        _biomeGridCache = map.GetComponent<BiomeGrid>();
-        return _biomeGridCache;
+        _excludedBiomes ??= new(DefDatabase<BiomeDef>.AllDefsListForReading.Where(b => ExcludedBiomePrefixes.Any(b.defName.StartsWith)));
+        return _excludedBiomes.Contains(biome);
     }
 }

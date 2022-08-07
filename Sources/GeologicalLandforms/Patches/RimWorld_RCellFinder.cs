@@ -18,6 +18,9 @@ namespace GeologicalLandforms.Patches;
 [HarmonyPatch(typeof(RCellFinder))]
 internal static class RimWorld_RCellFinder
 {
+    [TweakValue("Geological Landforms")]
+    public static bool EnableDebugPawnActions = false;
+
     private static readonly Dictionary<Map, ushort[]> _cache = new();
 
     [HarmonyPatch("TryFindRandomExitSpot")]
@@ -25,8 +28,6 @@ internal static class RimWorld_RCellFinder
     [HarmonyPrefix]
     private static bool TryFindRandomExitSpot(ref bool __result, Pawn pawn, ref IntVec3 spot, TraverseMode mode)
     {
-        if (!ModInstance.Settings.EnableCellFinderOptimization) return true;
-        
         var map = pawn?.Map;
         if (map == null)
         {
@@ -34,6 +35,8 @@ internal static class RimWorld_RCellFinder
             spot = IntVec3.Invalid;
             return false;
         }
+        
+        if (!EventHooks.CellFinderOptimizationFilter.Invoke(map)) return true;
         
         var cache = GetOrBuildCacheForMap(map);
         if (cache.Length == 0) return true;
@@ -101,7 +104,7 @@ internal static class RimWorld_RCellFinder
         var underLimit = buffer.Count < 2 * mapSize;
         var vecs = underLimit ? buffer.ToArray() : Array.Empty<ushort>();
         
-        Log.Message(ModInstance.LogPrefix + "Found " + buffer.Count + " walkable map edge cells. Caching enabled: " + underLimit);
+        Log.Message(Main.LogPrefix + "Found " + buffer.Count + " walkable map edge cells. Caching enabled: " + underLimit);
         if (Prefs.DevMode) foreach (var cellval in buffer)
         {
             map.debugDrawer.FlashCell(ValToVec(map, cellval));
@@ -142,27 +145,27 @@ internal static class RimWorld_RCellFinder
     [HarmonyPostfix]
     private static void FloatMenuMakerMap_AddHumanlikeOrders(ref Vector3 clickPos, ref Pawn pawn, ref List<FloatMenuOption> opts)
     {
-        if (!ModInstance.Settings.ShowWorldTileDebugInfo) return;
-        foreach (LocalTargetInfo target in GenUI.TargetsAt(clickPos, TargetingParameters.ForSelf(pawn), true))
+        if (!EnableDebugPawnActions) return;
+        foreach (var target in GenUI.TargetsAt(clickPos, TargetingParameters.ForSelf(pawn), true))
         {
-            Pawn localpawn = pawn;
-            LocalTargetInfo dest = target;
-            Pawn pTarg = (Pawn)dest.Thing;
+            var localpawn = pawn;
+            var dest = target;
+            var pTarg = (Pawn)dest.Thing;
             
             void ActionBest()
             {
-                if (!RCellFinder.TryFindBestExitSpot(pTarg, out IntVec3 dest1))
+                if (!RCellFinder.TryFindBestExitSpot(pTarg, out var dest1))
                     dest1 = pTarg.Position;
-                Job job1 = JobMaker.MakeJob(JobDefOf.Goto, dest1);
+                var job1 = JobMaker.MakeJob(JobDefOf.Goto, dest1);
                 job1.exitMapOnArrival = false;
                 localpawn.jobs.TryTakeOrderedJob(job1);
             }
             
             void ActionRandom()
             {
-                if (!RCellFinder.TryFindRandomExitSpot(pTarg, out IntVec3 dest1))
+                if (!RCellFinder.TryFindRandomExitSpot(pTarg, out var dest1))
                     dest1 = pTarg.Position;
-                Job job1 = JobMaker.MakeJob(JobDefOf.Goto, dest1);
+                var job1 = JobMaker.MakeJob(JobDefOf.Goto, dest1);
                 job1.exitMapOnArrival = false;
                 localpawn.jobs.TryTakeOrderedJob(job1);
             }

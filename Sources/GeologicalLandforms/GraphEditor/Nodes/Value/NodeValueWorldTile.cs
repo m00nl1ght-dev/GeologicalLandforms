@@ -4,7 +4,6 @@ using RimWorld;
 using RimWorld.Planet;
 using TerrainGraph;
 using UnityEngine;
-using Verse;
 
 namespace GeologicalLandforms.GraphEditor;
 

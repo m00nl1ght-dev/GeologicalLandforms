@@ -15,6 +15,9 @@ namespace GeologicalLandforms;
 public static class BiomeTransition
 {
     [TweakValue("Geological Landforms")]
+    public static bool UnidirectionalTransitions = false;
+    
+    [TweakValue("Geological Landforms")]
     public static bool PostProcessBiomeTransitions = true;
     
     [TweakValue("Geological Landforms")]
@@ -32,7 +35,7 @@ public static class BiomeTransition
     {
         if (biome == nBiome || !nBiome.canBuildBase || Main.IsBiomeExcluded(nBiome)) return false;
 
-        if (!WorldLayer_LocalBiomes.Enabled) return true;
+        if (!UnidirectionalTransitions) return true;
         
         bool rev = tile > nTile;
         int min = rev ? nTile : tile;
