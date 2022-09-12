@@ -1,3 +1,4 @@
+using System;
 using Verse;
 
 namespace GeologicalLandforms;
@@ -8,6 +9,8 @@ public struct StructRot4<T>
     public T East;
     public T South;
     public T West;
+
+    public bool Any(Predicate<T> predicate) => predicate(North) || predicate(East) || predicate(South) || predicate(West);
 
     public StructRot4(T val = default)
     {

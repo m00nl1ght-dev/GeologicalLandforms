@@ -45,7 +45,7 @@ internal static class RimWorld_WildPlantSpawner
     private static bool CurrentWholeMapNumDesiredPlants(WildPlantSpawner __instance, Map ___map, ref float __result)
     {
         var biomeGrid = ___map.BiomeGrid();
-        if (biomeGrid is not { ShouldApply: true }) return true;
+        if (biomeGrid is not { ShouldApplyForPlantSpawning: true }) return true;
 
         var condFactor = AggregatePlantDensityFactor(___map.gameConditionManager, ___map);
 
@@ -53,7 +53,8 @@ internal static class RimWorld_WildPlantSpawner
         
         float numDesiredPlants = 0.0f;
         foreach (IntVec3 intVec3 in cellRect)
-            numDesiredPlants += __instance.GetDesiredPlantsCountAt(intVec3, intVec3, biomeGrid.BiomeAt(intVec3).plantDensity * condFactor);
+            numDesiredPlants += __instance.GetDesiredPlantsCountAt(intVec3, intVec3, 
+                biomeGrid.BiomeAt(intVec3, BiomeGrid.BiomeQuery.PlantSpawning).plantDensity * condFactor);
             
         __result = numDesiredPlants;
         return false;
@@ -71,7 +72,7 @@ internal static class RimWorld_WildPlantSpawner
         ref int ___cycleIndex)
     {
         var biomeGrid = ___map.BiomeGrid();
-        if (biomeGrid is not { ShouldApply: true }) return true;
+        if (biomeGrid is not { ShouldApplyForPlantSpawning: true }) return true;
         
         int area = ___map.Area;
         int num = Mathf.CeilToInt(area * 0.0001f);
@@ -91,7 +92,7 @@ internal static class RimWorld_WildPlantSpawner
             }
             
             IntVec3 intVec3 = ___map.cellsInRandomOrder.Get(___cycleIndex);
-            BiomeDef biome = biomeGrid.BiomeAt(intVec3);
+            BiomeDef biome = biomeGrid.BiomeAt(intVec3, BiomeGrid.BiomeQuery.PlantSpawning);
             float plantDensity = biome.plantDensity * condFactor;
             
             ___calculatedWholeMapNumDesiredPlantsTmp += __instance.GetDesiredPlantsCountAt(intVec3, intVec3, plantDensity);
@@ -121,7 +122,7 @@ internal static class RimWorld_WildPlantSpawner
     private static bool Generate(Map map)
     {
         var biomeGrid = map.BiomeGrid();
-        if (biomeGrid is not { HasMultipleBiomes: true }) return true;
+        if (biomeGrid is not { ShouldApplyForPlantSpawning: true }) return true;
         
         float condFactor = AggregatePlantDensityFactor(map.gameConditionManager, map);
         float desired = map.wildPlantSpawner.CurrentWholeMapNumDesiredPlants;
@@ -130,7 +131,7 @@ internal static class RimWorld_WildPlantSpawner
         {
             if (!Rand.Chance(1f / 1000f))
             {
-                BiomeDef biome = biomeGrid.BiomeAt(c);
+                BiomeDef biome = biomeGrid.BiomeAt(c, BiomeGrid.BiomeQuery.PlantSpawning);
                 float density = biome.plantDensity * condFactor;
 
                 if (biome == biomeGrid.PrimaryBiome || GoodRoofForCavePlant(map, c))
@@ -149,7 +150,7 @@ internal static class RimWorld_WildPlantSpawner
     private static bool IsPlantAvailable(ThingDef plantDef, Map map, ref bool __result)
     {
         var biomeGrid = map.BiomeGrid();
-        if (biomeGrid is not { ShouldApply: true }) return true;
+        if (biomeGrid is not { ShouldApplyForPlantSpawning: true }) return true;
 
         if (!plantDef.plant.mustBeWildToSow) return true;
 
@@ -174,7 +175,7 @@ internal static class RimWorld_WildPlantSpawner
         if (___cachedFixedAutoCutFilter != null) return;
         
         var biomeGrid = ___map.BiomeGrid();
-        if (biomeGrid is not { ShouldApply: true }) return;
+        if (biomeGrid is not { ShouldApplyForPlantSpawning: true }) return;
 
         ___cachedFixedAutoCutFilter = new ThingFilter();
         foreach (var allWildPlant in biomeGrid.CellCounts.Keys.SelectMany(b => b.AllWildPlants))

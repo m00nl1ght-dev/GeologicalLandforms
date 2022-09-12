@@ -75,7 +75,7 @@ public class WorldTileInfo : IWorldTileInfo
     [ThreadStatic]
     private static List<Landform> _tsc_eligible;
 
-    private static void DetermineLandforms(WorldTileInfo info)
+    private static void DetermineLandforms(WorldTileInfo info) // TODO something broken on seed "moose" bottom left swamp
     {
         var eligible = _tsc_eligible ??= new List<Landform>();
         eligible.Clear();
@@ -152,7 +152,7 @@ public class WorldTileInfo : IWorldTileInfo
 
         if (selfBiome == BiomeDefOf.Lake || selfBiome == BiomeDefOf.Ocean)
         {
-            info.Coast = new StructRot4<IWorldTileInfo.CoastType>(CoastTypeFromBiome(selfBiome));
+            info.Coast = new StructRot4<IWorldTileInfo.CoastType>(CoastTypeFromTile(info.Tile));
             info.Topology = Topology.Ocean;
             return;
         }
@@ -198,12 +198,13 @@ public class WorldTileInfo : IWorldTileInfo
             var nbTile = grid[nbId];
             var rot6 = new Rot6(i, grid.GetHeadingFromTo(tileId, nbId));
             var rot4 = rot6.AsRot4();
-
-            if (nbTile.biome == BiomeDefOf.Lake || nbTile.biome == BiomeDefOf.Ocean)
+            
+            var coastType = CoastTypeFromTile(nbTile, coast[rot4]);
+            if (coastType != IWorldTileInfo.CoastType.None)
             {
                 waterTiles.Add(rot6);
                 nonCliffTiles.Add(rot6);
-                coast[rot4] = CoastTypeFromBiome(nbTile.biome, coast[rot4]);
+                coast[rot4] = coastType;
             }
             else
             {
@@ -463,10 +464,11 @@ public class WorldTileInfo : IWorldTileInfo
         }
     }
     
-    public static IWorldTileInfo.CoastType CoastTypeFromBiome(BiomeDef biome, IWorldTileInfo.CoastType existing = IWorldTileInfo.CoastType.None)
+    public static IWorldTileInfo.CoastType CoastTypeFromTile(Tile tile, IWorldTileInfo.CoastType existing = IWorldTileInfo.CoastType.None)
     {
-        if (biome == BiomeDefOf.Ocean) return Ocean;
-        if (biome == BiomeDefOf.Lake) return existing == Ocean ? Ocean : Lake;
+        if (tile.biome == BiomeDefOf.Ocean) return Ocean;
+        if (tile.biome == BiomeDefOf.Lake) return existing == Ocean ? Ocean : Lake;
+        if (tile.WaterCovered && Main.IsBiomeOceanTopology(tile.biome)) return Ocean;
         return existing;
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using System.Linq;
 using GeologicalLandforms.GraphEditor;
+using GeologicalLandforms.ModCompat;
 using GeologicalLandforms.Patches;
 using UnityEngine;
 using Verse;
@@ -19,6 +20,9 @@ public class Settings : ModSettings
     public bool EnableGodMode;
     public bool IgnoreWorldTileReqInGodMode;
     public bool ShowWorldTileDebugInfo;
+
+    public bool ModCompat_BiomesIslands_CoastPlants;
+    public bool ModCompat_BiomesIslands_CoastAnimals;
 
     private static Vector2 _scrollPos = Vector2.zero;
 
@@ -79,6 +83,21 @@ public class Settings : ModSettings
             }
         }
 
+        if (ModCompat_BiomesIslands.IsActive)
+        {
+            listingStandard.Gap();
+            listingStandard.CheckboxLabeled("GeologicalLandforms.Integration.BiomesIslands.CoastPlants".Translate(), ref ModCompat_BiomesIslands_CoastPlants);
+            
+            if (ModCompat_BiomesIslands_CoastPlants)
+            {
+                listingStandard.CheckboxLabeled("GeologicalLandforms.Integration.BiomesIslands.CoastAnimals".Translate(), ref ModCompat_BiomesIslands_CoastAnimals);
+            }
+            else
+            {
+                ModCompat_BiomesIslands_CoastAnimals = false;
+            }
+        }
+
         Widgets.EndScrollView();
         
         RimWorld_Misc.RunOnMainMenuNow();
@@ -114,6 +133,8 @@ public class Settings : ModSettings
         Scribe_Values.Look(ref ShowWorldTileDebugInfo, "ShowWorldTileDebugInfo");
         Scribe_Values.Look(ref EnableGodMode, "EnableGodMode");
         Scribe_Values.Look(ref IgnoreWorldTileReqInGodMode, "IgnoreWorldTileReqInGodMode");
+        Scribe_Values.Look(ref ModCompat_BiomesIslands_CoastPlants, "ModCompat_BiomesIslands_CoastPlants");
+        Scribe_Values.Look(ref ModCompat_BiomesIslands_CoastAnimals, "ModCompat_BiomesIslands_CoastAnimals");
         base.ExposeData();
     }
     
@@ -127,5 +148,7 @@ public class Settings : ModSettings
         IgnoreWorldTileReqInGodMode = false;
         MaxLandformSearchRadius = 100;
         AnimalDensityFactorForSecludedAreas = 0.5f;
+        ModCompat_BiomesIslands_CoastPlants = false;
+        ModCompat_BiomesIslands_CoastAnimals = false;
     }
 }

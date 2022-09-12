@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using GeologicalLandforms.GraphEditor;
 using GeologicalLandforms.Patches;
@@ -19,8 +20,15 @@ public class BiomeGrid : MapComponent
     
     public bool HasMultipleBiomes => CellCounts.Count > 1;
     public bool ShouldApply => HasMultipleBiomes && PrimaryBiome == map.Biome;
+    public bool ShouldApplyForPlantSpawning => ShouldApply || _applyReplacementsForPlantSpawning;
+    public bool ShouldApplyForAnimalSpawning => ShouldApply || _applyReplacementsForAnimalSpawning;
     
     public float OpenGroundFraction { get; private set; } = 1f;
+
+    private BiomeDef[] _replacementKeys = Array.Empty<BiomeDef>();
+    private BiomeDef[] _replacementValues = Array.Empty<BiomeDef>();
+    private bool _applyReplacementsForPlantSpawning;
+    private bool _applyReplacementsForAnimalSpawning;
 
     private readonly IntVec3 _mapSize;
 
@@ -55,15 +63,26 @@ public class BiomeGrid : MapComponent
         _cellCounts[_primary] = _mapSize.x * _mapSize.z;
     }
 
-    public BiomeDef BiomeAt(int cell)
+    public BiomeDef BiomeAt(int cell, BiomeQuery query = BiomeQuery.Generic)
     {
         if (cell < 0 || cell >= _grid.Length) return PrimaryBiome;
-        return _grid[cell] ?? PrimaryBiome;
+        var biome = _grid[cell] ?? PrimaryBiome;
+
+        if ((query == BiomeQuery.PlantSpawning && _applyReplacementsForPlantSpawning) || 
+            (query == BiomeQuery.AnimalSpawning && _applyReplacementsForAnimalSpawning))
+        {
+            for (var i = 0; i < _replacementKeys.Length; i++)
+            {
+                if (_replacementKeys[i] == biome) return _replacementValues[i];
+            }
+        }
+
+        return biome;
     }
     
-    public BiomeDef BiomeAt(IntVec3 c)
+    public BiomeDef BiomeAt(IntVec3 c, BiomeQuery query = BiomeQuery.Generic)
     {
-        return BiomeAt(CellIndicesUtility.CellToIndex(c, _mapSize.x));
+        return BiomeAt(CellIndicesUtility.CellToIndex(c, _mapSize.x), query);
     }
 
     public void SetBiome(IntVec3 c, BiomeDef biomeDef)
@@ -92,6 +111,23 @@ public class BiomeGrid : MapComponent
         }
     }
 
+    public void SetReplacements(Dictionary<BiomeDef, BiomeDef> replacements, ICollection<BiomeQuery> applyTo)
+    {
+        _replacementKeys = new BiomeDef[replacements.Count];
+        _replacementValues = new BiomeDef[replacements.Count];
+
+        int i = 0;
+        foreach (var pair in replacements)
+        {
+            _replacementKeys[i] = pair.Key;
+            _replacementValues[i] = pair.Value;
+            i++;
+        }
+
+        _applyReplacementsForPlantSpawning = applyTo.Contains(BiomeQuery.PlantSpawning);
+        _applyReplacementsForAnimalSpawning = applyTo.Contains(BiomeQuery.AnimalSpawning);
+    }
+
     public void UpdateOpenGroundFraction()
     {
         if (map == null) return;
@@ -113,6 +149,19 @@ public class BiomeGrid : MapComponent
         var biomeDefsByShortHash = DefDatabase<BiomeDef>.AllDefs.ToDictionary(allDef => allDef.shortHash);
         ExposeBiomeArray(biomeDefsByShortHash, _grid, "biomeGrid");
         Scribe_Collections.Look(ref _cellCounts, "cellCounts", LookMode.Def, LookMode.Value);
+        
+        Scribe_Values.Look(ref _applyReplacementsForPlantSpawning, "applyReplacementsForPlantSpawning");
+        Scribe_Values.Look(ref _applyReplacementsForAnimalSpawning, "applyReplacementsForAnimalSpawning");
+
+        if (_applyReplacementsForAnimalSpawning || _applyReplacementsForPlantSpawning)
+        {
+            var keys = _replacementKeys.ToList();
+            var values = _replacementValues.ToList();
+            Scribe_Collections.Look(ref keys, "replacementKeys", LookMode.Def);
+            Scribe_Collections.Look(ref values, "replacementValues", LookMode.Def);
+            _replacementKeys = keys.ToArray();
+            _replacementValues = values.ToArray();
+        }
     }
 
     private void ExposeBiomeArray(Dictionary<ushort, BiomeDef> biomeDefsByShortHash, BiomeDef[] array, string name)
@@ -130,5 +179,10 @@ public class BiomeGrid : MapComponent
             biome ??= primary;
             array[map.cellIndices.CellToIndex(c)] = biome;
         }, name);
+    }
+
+    public enum BiomeQuery
+    {
+        Generic, PlantSpawning, AnimalSpawning
     }
 }

@@ -22,7 +22,7 @@ internal static class RimWorld_WildAnimalSpawner
         if (biomeGrid == null) return true;
 
         float total = 0f;
-        if (biomeGrid.ShouldApply)
+        if (biomeGrid.ShouldApplyForAnimalSpawning)
         {
             float cells = ___map.cellIndices.NumGridCells;
             foreach (var pair in biomeGrid.CellCounts)
@@ -53,9 +53,9 @@ internal static class RimWorld_WildAnimalSpawner
     private static bool SpawnRandomWildAnimalAt(Map ___map, ref bool __result, IntVec3 loc)
     {
         var biomeGrid = ___map.BiomeGrid();
-        if (biomeGrid is not { ShouldApply: true }) return true;
+        if (biomeGrid is not { ShouldApplyForAnimalSpawning: true }) return true;
 
-        BiomeDef biome = biomeGrid.BiomeAt(loc);
+        BiomeDef biome = biomeGrid.BiomeAt(loc, BiomeGrid.BiomeQuery.AnimalSpawning);
 
         PawnKindDef kindDef = biome.AllWildAnimals
             .Where(a => ___map.mapTemperature.SeasonAcceptableFor(a.race))

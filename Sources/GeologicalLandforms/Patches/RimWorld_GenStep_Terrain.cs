@@ -1,3 +1,4 @@
+using System;
 using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using RimWorld;
@@ -15,6 +16,8 @@ internal static class RimWorld_GenStep_Terrain
 
     public static bool UseVanillaTerrain { get; private set; } = true;
     public static bool DebugWarnedMissingTerrain { get; private set; }
+
+    public static event Action<WorldTileInfo, BiomeGrid> ApplyBiomeReplacements;
 
     private static BiomeGrid _biomeGrid;
 
@@ -78,6 +81,8 @@ internal static class RimWorld_GenStep_Terrain
             RimWorld_TerrainPatchMaker.UseStableSeed = true;
             BiomeTransition.PostProcessBiomeGrid(_biomeGrid, tile, mapSize);
         }
+        
+        ApplyBiomeReplacements?.Invoke(tile, _biomeGrid);
 
         UseVanillaTerrain = BaseFunction == null && StoneFunction == null && BiomeFunction == null;
     }

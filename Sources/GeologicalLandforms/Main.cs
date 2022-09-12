@@ -22,8 +22,15 @@ public static class Main
         "Archipelago", "VolcanicIsland", "TundraSkerries", "PackIce", "Atoll", // Terra Project
         "Cave" // CaveBiome, Terra Project
     };
+    
+    public static readonly IReadOnlyCollection<string> OceanTopologyBiomePrefixes = new HashSet<string>
+    {
+        "BiomesIslands", // Biomes! Islands
+        "Archipelago", "VolcanicIsland", "TundraSkerries", "Atoll" // Terra Project
+    };
 
     private static readonly HashSet<BiomeDef> ExcludedBiomes = new();
+    private static readonly HashSet<BiomeDef> OceanTopologyBiomes = new();
 
     static Main()
     {
@@ -32,6 +39,7 @@ public static class Main
         ParseHelper.Parsers<LandformData.Entry>.Register(GeologicalLandforms.LandformData.Entry.FromString);
         
         ExcludedBiomes.AddRange(DefDatabase<BiomeDef>.AllDefsListForReading.Where(b => ExcludedBiomePrefixes.Any(b.defName.StartsWith)));
+        OceanTopologyBiomes.AddRange(DefDatabase<BiomeDef>.AllDefsListForReading.Where(b => OceanTopologyBiomePrefixes.Any(b.defName.StartsWith)));
         
         ReflectionUtility.AddSearchableAssembly(typeof(Main).Assembly);
         ReflectionUtility.AddSearchableAssembly(typeof(TerrainCanvas).Assembly);
@@ -48,6 +56,11 @@ public static class Main
     public static bool IsBiomeExcluded(BiomeDef biome)
     {
         return ExcludedBiomes.Contains(biome);
+    }
+    
+    public static bool IsBiomeOceanTopology(BiomeDef biome)
+    {
+        return OceanTopologyBiomes.Contains(biome);
     }
 
     private static LandformData _landformDataCache;
