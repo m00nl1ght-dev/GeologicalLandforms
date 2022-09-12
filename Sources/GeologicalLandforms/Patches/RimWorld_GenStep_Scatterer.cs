@@ -15,7 +15,7 @@ internal static class RimWorld_GenStep_Scatterer
     {
         if (!Landform.AnyGenerating) return;
 
-        double? scatterAmount = Landform.GetFeature(l => l.OutputScatterers)?.GetMineables();
+        double? scatterAmount = Landform.GetFeature(l => l.OutputScatterers?.GetMineables());
         if (scatterAmount.HasValue)
         {
             ___countPer10kCellsRange = new FloatRange((float) scatterAmount.Value, (float) scatterAmount.Value);
