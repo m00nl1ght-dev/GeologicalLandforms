@@ -75,7 +75,7 @@ public class WorldTileInfo : IWorldTileInfo
     [ThreadStatic]
     private static List<Landform> _tsc_eligible;
 
-    private static void DetermineLandforms(WorldTileInfo info) // TODO something broken on seed "moose" bottom left swamp
+    private static void DetermineLandforms(WorldTileInfo info)
     {
         var eligible = _tsc_eligible ??= new List<Landform>();
         eligible.Clear();
