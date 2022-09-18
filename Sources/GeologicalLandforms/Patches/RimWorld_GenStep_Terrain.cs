@@ -59,7 +59,7 @@ internal static class RimWorld_GenStep_Terrain
         StoneFunction = Landform.GetFeature(l => l.OutputTerrain?.GetStone());
         BiomeFunction = Landform.GetFeature(l => l.OutputBiomeGrid?.GetBiomeGrid());
 
-        _biomeGrid = biomeGrid ?? new BiomeGrid(new IntVec3(mapSize, 0, mapSize), tile.Biome);
+        _biomeGrid = biomeGrid ?? new BiomeGrid(new IntVec3(mapSize.x, 1, mapSize.z), tile.Biome);
         
         bool hasBiomeTransition = false;
         if (tile.HasBorderingBiomes)

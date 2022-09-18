@@ -28,7 +28,7 @@ public abstract class NodeOutputBase : NodeBase
 
     public IGridFunction<T> ScaleWithMap<T>(IGridFunction<T> function)
     {
-        double mapScale = Landform.GeneratingMapSize / (double) Landform.GridFullSize;
+        double mapScale = Landform.GeneratingMapSizeMin / (double) Landform.GridFullSize;
         return new GridFunction.Transform<T>(function, 0, 0, 1 / mapScale, 1 / mapScale);
     }
 }

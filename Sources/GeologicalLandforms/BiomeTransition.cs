@@ -48,7 +48,7 @@ public static class BiomeTransition
         return flag ^ rev;
     }
     
-    public static void PostProcessBiomeGrid(BiomeGrid biomeGrid, WorldTileInfo tile, int mapSize)
+    public static void PostProcessBiomeGrid(BiomeGrid biomeGrid, WorldTileInfo tile, IntVec2 mapSize)
     {
         if (!PostProcessBiomeTransitions && !DebugBiomeTransitions) return;
         
@@ -56,7 +56,7 @@ public static class BiomeTransition
         var floodFiller = new FloodFiller(tempMap);
 
         _tpmProcessed = DebugBiomeTransitions ? new() : null;
-        for (int x = 0; x < mapSize; x++) for (int z = 0; z < mapSize; z++)
+        for (int x = 0; x < mapSize.x; x++) for (int z = 0; z < mapSize.z; z++)
         {
             var c = new IntVec3(x, 0, z);
             var cBiome = biomeGrid.BiomeAt(c);
@@ -123,17 +123,17 @@ public static class BiomeTransition
         return false;
     }
     
-    private static void ForEachAdjacent(this IntVec3 c, int mapSize, Action<IntVec3> action)
+    private static void ForEachAdjacent(this IntVec3 c, IntVec2 mapSize, Action<IntVec3> action)
     {
         if (c.x > 0) action(new IntVec3(c.x - 1, c.y, c.z));
         if (c.z > 0) action(new IntVec3(c.x, c.y, c.z - 1));
-        if (c.x < mapSize - 1) action(new IntVec3(c.x + 1, c.y, c.z));
-        if (c.z < mapSize - 1) action(new IntVec3(c.x, c.y, c.z + 1));
+        if (c.x < mapSize.x - 1) action(new IntVec3(c.x + 1, c.y, c.z));
+        if (c.z < mapSize.z - 1) action(new IntVec3(c.x, c.y, c.z + 1));
     }
     
-    private static Map CreateMinimalMap(int tile, int mapSize)
+    private static Map CreateMinimalMap(int tile, IntVec2 mapSize)
     {
-        var map = new Map { info = { parent = new MapParent {Tile = tile}, Size = new IntVec3(mapSize, 1, mapSize) } };
+        var map = new Map { info = { parent = new MapParent {Tile = tile}, Size = new IntVec3(mapSize.x, 1, mapSize.z) } };
         map.cellIndices = new CellIndices(map);
         map.floodFiller = new FloodFiller(map);
         return map;

@@ -3,6 +3,7 @@ using NodeEditorFramework;
 using RimWorld;
 using TerrainGraph;
 using UnityEngine;
+using Verse;
 
 namespace GeologicalLandforms.GraphEditor;
 
@@ -58,7 +59,7 @@ public class NodeOutputBiomeGrid : NodeOutputBase
         return function == null ? null : ScaleWithMap(function);
     }
     
-    public IGridFunction<BiomeData> ApplyBiomeTransitions(IWorldTileInfo tile, int mapSize, IGridFunction<BiomeData> landformBiomes)
+    public IGridFunction<BiomeData> ApplyBiomeTransitions(IWorldTileInfo tile, IntVec2 mapSize, IGridFunction<BiomeData> landformBiomes)
     {
         var transition = BiomeTransitionKnob.GetValue<ISupplier<IGridFunction<double>>>();
         if (transition == null) return null;
@@ -76,7 +77,7 @@ public class NodeOutputBiomeGrid : NodeOutputBase
         public BiomeBorderFunc(
             IGridFunction<BiomeData> preFunc, 
             ISupplier<IGridFunction<double>> selSupplier, 
-            IWorldTileInfo tile, int mapSize)
+            IWorldTileInfo tile, IntVec2 mapSize)
         {
             _preFunc = preFunc;
             _primary = tile.Biome;
@@ -90,7 +91,7 @@ public class NodeOutputBiomeGrid : NodeOutputBase
                 _biomes[i] = borderingBiome.Biome;
 
                 var func = selSupplier.Get();
-                func = new GridFunction.Rotate<double>(func, mapSize / 2f, mapSize / 2f, borderingBiome.Angle + 90f);
+                func = new GridFunction.Rotate<double>(func, mapSize.x / 2f, mapSize.z / 2f, borderingBiome.Angle + 90f);
                 _selFuncs[i] = func;
             }
         }

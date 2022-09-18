@@ -20,9 +20,11 @@ public class Landform : TerrainCanvas
     
     public static bool AnyGenerating => GeneratingLandforms is { Count: > 0 };
     public static Landform GeneratingMainLandform => GeneratingLandforms?.FirstOrDefault(v => !v.IsLayer);
-    
-    public static int GeneratingMapSize { get; set; } = 250;
+
+    public static IntVec2 GeneratingMapSize { get; set; } = new(250, 250);
     public static int GeneratingSeed { get; private set; }
+    
+    public static int GeneratingMapSizeMin => Math.Min(GeneratingMapSize.x, GeneratingMapSize.z);
 
     public string Id => Manifest?.Id;
     public bool IsCustom => Manifest?.IsCustom ?? false;
@@ -55,10 +57,10 @@ public class Landform : TerrainCanvas
         LandformGraphEditor.ActiveEditor?.Close();
         
         int seed = Find.World.info.Seed ^ map.Tile;
-        PrepareMapGen(Math.Min(map.Size.x, map.Size.z), map.Tile, seed);
+        PrepareMapGen(new IntVec2(map.Size.x, map.Size.z), map.Tile, seed);
     }
     
-    public static void PrepareMapGen(int mapSize, int worldTile, int seed)
+    public static void PrepareMapGen(IntVec2 mapSize, int worldTile, int seed)
     {
         CleanUp();
         GeneratingTile = WorldTileInfo.Get(worldTile);
@@ -82,7 +84,7 @@ public class Landform : TerrainCanvas
     {
         CleanUp();
         GeneratingTile = tileInfo;
-        GeneratingMapSize = 250;
+        GeneratingMapSize = new IntVec2(250, 250);
         GeneratingSeed = NodeBase.SeedSource.Next();
         if (GeneratingTile.Landforms == null) return;
         GeneratingLandforms = GeneratingTile.Landforms;

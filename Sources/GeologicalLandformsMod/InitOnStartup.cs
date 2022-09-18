@@ -12,7 +12,7 @@ public static class InitOnStartup
     {
         EventHooks.OnTerrainTab += TerrainTabUI.DoTerrainTabUI;
         EventHooks.PutCellFinderOptimizationFilter(_ => ModInstance.Settings.EnableCellFinderOptimization);
-        EventHooks.PutLandformGridSizeFunction(() => ModInstance.Settings.EnableLandformScaling ? Landform.DefaultGridFullSize : Landform.GeneratingMapSize);
+        EventHooks.PutLandformGridSizeFunction(() => ModInstance.Settings.EnableLandformScaling ? Landform.DefaultGridFullSize : Landform.GeneratingMapSizeMin);
         
         var assetBundle = ModInstance.ModContentPack.assetBundles.loadedAssetBundles.Find(b => b.name == "terraingraph");
         if (assetBundle == null) throw new Exception("terraingraph asset bundle is missing");

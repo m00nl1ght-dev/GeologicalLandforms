@@ -65,10 +65,10 @@ public class LandformGraphInterface
 
         if (Landform != null && Landform.Id != null)
         {
-            if (GUILayout.Button(Landform.GeneratingMapSize + "x" + Landform.GeneratingMapSize, GUI.skin.GetStyle("toolbarButton"), GUILayout.MinWidth(100f)))
+            if (GUILayout.Button(Landform.GeneratingMapSize.x + "x" + Landform.GeneratingMapSize.z, GUI.skin.GetStyle("toolbarButton"), GUILayout.MinWidth(100f)))
             {
                 var options = new[]{50, 100, 150, 200, 250, 300, 350, 400, 450, 500}
-                    .Select(e => new FloatMenuOption(e + "x" + e, () => { Landform.GeneratingMapSize = e; Landform.TraverseAll(); }))
+                    .Select(e => new FloatMenuOption(e + "x" + e, () => { Landform.GeneratingMapSize = new IntVec2(e, e); Landform.TraverseAll(); }))
                     .ToList();
                 Find.WindowStack.Add(new FloatMenu(options));
             }

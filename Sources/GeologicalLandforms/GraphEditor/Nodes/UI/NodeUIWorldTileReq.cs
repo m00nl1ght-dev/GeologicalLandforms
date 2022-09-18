@@ -73,10 +73,10 @@ public class NodeUIWorldTileReq : NodeUIBase
         return false;
     }
 
-    public bool CheckMapRequirements(int mapSize)
+    public bool CheckMapRequirements(IntVec2 mapSize)
     {
-        if (!MapSizeRequirement.Includes(mapSize)) return false;
-        
+        if (!MapSizeRequirement.Includes(mapSize.x)) return false;
+        if (!MapSizeRequirement.Includes(mapSize.z)) return false;
         return true;
     }
 

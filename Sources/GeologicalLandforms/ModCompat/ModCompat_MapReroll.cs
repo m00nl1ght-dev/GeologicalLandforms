@@ -52,7 +52,7 @@ internal static class ModCompat_MapReroll
     private static void GeneratePreviewForSeed_Prefix(string seed, int mapTile, int mapSize)
     {
         int landformSeed = GenText.StableStringHash(seed) ^ mapTile;
-        Landform.PrepareMapGen(mapSize, mapTile, landformSeed);
+        Landform.PrepareMapGen(new IntVec2(mapSize, mapSize), mapTile, landformSeed);
         RimWorld_TerrainPatchMaker.Reset();
         RimWorld_GenStep_Terrain.Init();
     }

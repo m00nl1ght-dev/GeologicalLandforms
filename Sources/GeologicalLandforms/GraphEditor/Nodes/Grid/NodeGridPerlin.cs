@@ -16,7 +16,7 @@ public class NodeGridPerlin : NodeGridNoise
 
     public override string Title => (DynamicSeed ? "Dynamic " : "") + "Perlin Noise";
 
-    protected override double TransformScale => Landform.GeneratingMapSize / (double) Landform.GridFullSize;
+    protected override double TransformScale => Landform.GeneratingMapSizeMin / (double) Landform.GridFullSize;
 
     protected override GridFunction.NoiseFunction NoiseFunction => PerlinNoise;
 
