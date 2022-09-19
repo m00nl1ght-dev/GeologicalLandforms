@@ -33,19 +33,34 @@ public static class Main
     
     private static readonly IReadOnlyCollection<string> ExcludedBiomePrefixes = new HashSet<string>
     {
-        "BiomesIslands", // Biomes! Islands // TODO make islands be considered ocean tiles in topology calc
+        "BiomesIslands", // Biomes! Islands
         "BMT_FungalForest", // Biomes! Caverns
         "BMT_ChromaticOasis", // Biomes! Oasis
         "Tunnelworld", "InfestedMountains", "DeepRavine", "FrozenLake", "Oasis", // Terra Project
         "Archipelago", "VolcanicIsland", "TundraSkerries", "PackIce", "Atoll", // Terra Project
         "Cave" // CaveBiome, Terra Project
     };
+    
+    public static readonly IReadOnlyCollection<string> OceanTopologyBiomePrefixes = new HashSet<string>
+    {
+        "BiomesIslands", // Biomes! Islands
+        "Archipelago", "VolcanicIsland", "TundraSkerries", "Atoll" // Terra Project
+    };
 
     private static HashSet<BiomeDef> _excludedBiomes;
+    private static HashSet<BiomeDef> _oceanTopologyBiomes;
     
     public static bool IsBiomeExcluded(BiomeDef biome)
     {
         _excludedBiomes ??= new(DefDatabase<BiomeDef>.AllDefsListForReading.Where(b => ExcludedBiomePrefixes.Any(b.defName.StartsWith)));
         return _excludedBiomes.Contains(biome);
     }
+    
+    public static bool IsBiomeOceanTopology(BiomeDef biome)
+    {
+        _oceanTopologyBiomes ??= new(DefDatabase<BiomeDef>.AllDefsListForReading.Where(b => OceanTopologyBiomePrefixes.Any(b.defName.StartsWith)));
+        return _oceanTopologyBiomes.Contains(biome);
+    }
+
+    public static Func<BiomeGrid, float> AnimalDensityFactorFunc { get; set; } = _ => 1f;
 }

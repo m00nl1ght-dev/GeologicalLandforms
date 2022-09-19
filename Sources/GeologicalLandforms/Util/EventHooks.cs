@@ -18,6 +18,12 @@ public static class EventHooks
     {
         OnTerrainTab?.Invoke(listing);
     }
+    
+    public static event Action<WorldTileInfo, BiomeGrid> ApplyBiomeReplacements;
+    public static void RunApplyBiomeReplacements(WorldTileInfo tile, BiomeGrid biomeGrid)
+    {
+        ApplyBiomeReplacements?.Invoke(tile, biomeGrid);
+    }
 
     public static Func<Map, bool> CellFinderOptimizationFilter { get; private set; } = _ => true;
     public static void PutCellFinderOptimizationFilter(Func<Map, bool> filter)
@@ -29,5 +35,11 @@ public static class EventHooks
     public static void PutLandformGridSizeFunction(Func<int> function)
     {
         LandformGridSizeFunction = function ?? (() => Landform.DefaultGridFullSize);
+    }
+
+    public static Func<BiomeGrid, float> AnimalDensityFactorFunction { get; private set; } = _ => 1f;
+    public static void PutAnimalDensityFactorFunction(Func<BiomeGrid, float> function)
+    {
+        AnimalDensityFactorFunction = function ?? (_ => 1f);
     }
 }

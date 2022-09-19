@@ -78,6 +78,8 @@ internal static class RimWorld_GenStep_Terrain
             RimWorld_TerrainPatchMaker.UseStableSeed = true;
             BiomeTransition.PostProcessBiomeGrid(_biomeGrid, tile, mapSize);
         }
+        
+        EventHooks.RunApplyBiomeReplacements(tile, _biomeGrid);
 
         UseVanillaTerrain = BaseFunction == null && StoneFunction == null && BiomeFunction == null;
     }

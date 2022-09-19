@@ -38,7 +38,7 @@ public class NodeOutputElevation : NodeOutputBase
     public IGridFunction<double> Get()
     {
         IGridFunction<double> function = InputKnob.GetValue<ISupplier<IGridFunction<double>>>()?.ResetAndGet();
-        return function == null ? GridFunction.Zero : ScaleWithMap(function);
+        return function == null ? null : ScaleWithMap(function);
     }
     
     public override bool Calculate()

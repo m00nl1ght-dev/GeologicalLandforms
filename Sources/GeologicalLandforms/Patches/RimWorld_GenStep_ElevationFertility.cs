@@ -19,8 +19,8 @@ internal static class RimWorld_GenStep_ElevationFertility
         // if there is no landform on this tile, let vanilla gen or other mods handle it
         if (!Landform.AnyGenerating) return true;
 
-        var elevationModule = Landform.GetFeature(l => l.OutputElevation)?.Get() ?? BuildDefaultElevationGrid(map);
-        var fertilityModule = Landform.GetFeature(l => l.OutputFertility)?.Get() ?? BuildDefaultFertilityGrid(map);
+        var elevationModule = Landform.GetFeature(l => l.OutputElevation?.Get());
+        var fertilityModule = Landform.GetFeature(l => l.OutputFertility?.Get());
 
         if (elevationModule == null && fertilityModule == null) return true;
         
@@ -70,7 +70,7 @@ internal static class RimWorld_GenStep_ElevationFertility
 
     public static IGridFunction<double> BuildDefaultElevationGrid(Map map)
     {
-        var seed = Landform.GeneratingSeed ^ 7365;
+        var seed = Landform.GeneratingSeed ^ 7365; // TODO maybe use vanilla seed instead
         IGridFunction<double> function = new NoiseGenerator(NodeGridPerlin.PerlinNoise, 0.021, 2, 0.5, 6, seed);
         function = new ScaleWithBias(function, 0.5, 0.5);
         function = new Multiply(function, Of(NodeValueWorldTile.GetHillinessFactor(map.TileInfo.hilliness)));
@@ -80,7 +80,7 @@ internal static class RimWorld_GenStep_ElevationFertility
     
     public static IGridFunction<double> BuildDefaultFertilityGrid(Map map)
     {
-        var seed = Landform.GeneratingSeed ^ 4385;
+        var seed = Landform.GeneratingSeed ^ 4385; // TODO maybe use vanilla seed instead
         IGridFunction<double> function = new NoiseGenerator(NodeGridPerlin.PerlinNoise, 0.021, 2, 0.5, 6, seed);
         function = new ScaleWithBias(function, 0.5, 0.5);
         return function;

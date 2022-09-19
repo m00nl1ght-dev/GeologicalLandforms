@@ -1,6 +1,8 @@
+using System;
 using System.Globalization;
 using System.Linq;
 using GeologicalLandforms.GraphEditor;
+using GeologicalLandforms.ModCompat;
 using UnityEngine;
 using Verse;
 
@@ -9,6 +11,7 @@ namespace GeologicalLandforms;
 public class Settings : ModSettings
 {
     public int MaxLandformSearchRadius = 100;
+    public float AnimalDensityFactorForSecludedAreas = 0.5f;
 
     public bool EnableCellFinderOptimization = true;
     public bool EnableLandformScaling = true;
@@ -16,6 +19,9 @@ public class Settings : ModSettings
     public bool EnableGodMode;
     public bool IgnoreWorldTileReqInGodMode;
     public bool ShowWorldTileDebugInfo;
+
+    public bool ModCompat_BiomesIslands_CoastPlants;
+    public bool ModCompat_BiomesIslands_CoastAnimals;
 
     private static Vector2 _scrollPos = Vector2.zero;
 
@@ -57,6 +63,9 @@ public class Settings : ModSettings
         GuiUtils.CenteredLabel(listingStandard, "GeologicalLandforms.Settings.MaxLandformSearchRadius".Translate(), MaxLandformSearchRadius.ToString(CultureInfo.InvariantCulture));
         MaxLandformSearchRadius = (int) listingStandard.Slider(MaxLandformSearchRadius, 10f, 500f);
         
+        GuiUtils.CenteredLabel(listingStandard, "GeologicalLandforms.Settings.AnimalDensityFactorForSecludedAreas".Translate(), Math.Round(AnimalDensityFactorForSecludedAreas, 2).ToString(CultureInfo.InvariantCulture));
+        AnimalDensityFactorForSecludedAreas = listingStandard.Slider(AnimalDensityFactorForSecludedAreas, 0.25f, 0.75f);
+        
         listingStandard.Gap();
         listingStandard.CheckboxLabeled("GeologicalLandforms.Settings.EnableGodMode".Translate(), ref EnableGodMode);
         listingStandard.CheckboxLabeled("GeologicalLandforms.Settings.EnableCellFinderOptimization".Translate(), ref EnableCellFinderOptimization);
@@ -70,6 +79,21 @@ public class Settings : ModSettings
             if (EnableGodMode)
             {
                 listingStandard.CheckboxLabeled("GeologicalLandforms.Settings.IgnoreWorldTileReqInGodMode".Translate(), ref IgnoreWorldTileReqInGodMode);
+            }
+        }
+
+        if (ModCompat_BiomesIslands.IsActive)
+        {
+            listingStandard.Gap();
+            listingStandard.CheckboxLabeled("GeologicalLandforms.Integration.BiomesIslands.CoastPlants".Translate(), ref ModCompat_BiomesIslands_CoastPlants);
+            
+            if (ModCompat_BiomesIslands_CoastPlants)
+            {
+                listingStandard.CheckboxLabeled("GeologicalLandforms.Integration.BiomesIslands.CoastAnimals".Translate(), ref ModCompat_BiomesIslands_CoastAnimals);
+            }
+            else
+            {
+                ModCompat_BiomesIslands_CoastAnimals = false;
             }
         }
 
@@ -102,11 +126,14 @@ public class Settings : ModSettings
     public override void ExposeData()
     {
         Scribe_Values.Look(ref MaxLandformSearchRadius, "MaxLandformSearchRadius", 100);
+        Scribe_Values.Look(ref AnimalDensityFactorForSecludedAreas, "AnimalDensityFactorForSecludedAreas", 0.5f);
         Scribe_Values.Look(ref EnableCellFinderOptimization, "EnableCellFinderOptimization", true);
         Scribe_Values.Look(ref EnableLandformScaling, "EnableLandformScaling", true);
         Scribe_Values.Look(ref ShowWorldTileDebugInfo, "ShowWorldTileDebugInfo");
         Scribe_Values.Look(ref EnableGodMode, "EnableGodMode");
         Scribe_Values.Look(ref IgnoreWorldTileReqInGodMode, "IgnoreWorldTileReqInGodMode");
+        Scribe_Values.Look(ref ModCompat_BiomesIslands_CoastPlants, "ModCompat_BiomesIslands_CoastPlants");
+        Scribe_Values.Look(ref ModCompat_BiomesIslands_CoastAnimals, "ModCompat_BiomesIslands_CoastAnimals");
         base.ExposeData();
     }
     
@@ -119,5 +146,8 @@ public class Settings : ModSettings
         EnableGodMode = false;
         IgnoreWorldTileReqInGodMode = false;
         MaxLandformSearchRadius = 100;
+        AnimalDensityFactorForSecludedAreas = 0.5f;
+        ModCompat_BiomesIslands_CoastPlants = false;
+        ModCompat_BiomesIslands_CoastAnimals = false;
     }
 }

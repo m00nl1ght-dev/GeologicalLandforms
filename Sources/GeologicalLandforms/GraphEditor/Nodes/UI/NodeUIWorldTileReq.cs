@@ -40,7 +40,8 @@ public class NodeUIWorldTileReq : NodeUIBase
         if (!HillinessRequirement.Includes((float) worldTile.Hilliness)) return false;
         if (!ElevationRequirement.Includes(worldTile.Elevation)) return false;
         if (!AvgTemperatureRequirement.Includes(worldTile.Temperature)) return false;
-        if (!RainfallRequirement.Includes(worldTile.Rainfall)) return false;
+        if (!RainfallRequirement.Includes(worldTile.Rainfall) 
+            && !(RainfallRequirement.max == 5000 && worldTile.Rainfall > 5000f)) return false;
         if (!SwampinessRequirement.Includes(worldTile.Swampiness)) return false;
 
         var mapParent = worldTile.WorldObject;
