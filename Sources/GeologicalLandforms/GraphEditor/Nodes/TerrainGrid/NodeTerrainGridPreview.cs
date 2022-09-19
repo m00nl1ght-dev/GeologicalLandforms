@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using MapPreview;
 using NodeEditorFramework;
 using TerrainGraph;
 using UnityEngine;
@@ -84,24 +84,9 @@ public class NodeTerrainGridPreview : NodeDiscreteGridPreview<TerrainData>
         return (isRock ? "Natural rock" : TerrainData.DislayString(value.Terrain)) + " ( " + Math.Round(x, 0) + " | " + Math.Round(y, 0) + " )";
     }
 
-    private static List<Color> _terrainColors = new()
-    {
-        new Color(0.2f, 0.2f, 0.2f),
-        new Color(0.4f, 0.4f, 0.4f),
-        new Color(0.6f, 0.6f, 0.6f),
-        new Color(0.8f, 0.8f, 0.8f),
-        new Color(1f, 1f, 1f)
-    };
-
     protected override Color GetColor(TerrainData value)
     {
         if (value.IsEmpty) return Color.black;
-        return GetTerrainColor(value.Terrain, value.SelectionIndex);
-    }
-
-    public Color GetTerrainColor(TerrainDef def, int selIdx)
-    {
-        // TODO use map preview ttc instead
-        return _terrainColors[selIdx % _terrainColors.Count];
+        return TrueTerrainColors.TrueColors.TryGetValue(value.Terrain.defName, out var color) ? color : Color.white;
     }
 }

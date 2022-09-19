@@ -36,7 +36,7 @@ internal static class RimWorld_RCellFinder
             return false;
         }
         
-        if (!EventHooks.CellFinderOptimizationFilter.Invoke(map)) return true;
+        if (!GeologicalLandformsAPI.CellFinderOptimizationFilter.Invoke(map)) return true;
         
         var cache = GetOrBuildCacheForMap(map);
         if (cache.Length == 0) return true;
@@ -104,7 +104,7 @@ internal static class RimWorld_RCellFinder
         var underLimit = buffer.Count < 2 * mapSize;
         var vecs = underLimit ? buffer.ToArray() : Array.Empty<ushort>();
         
-        Log.Message(GeologicalLandforms.LogPrefix + "Found " + buffer.Count + " walkable map edge cells. Caching enabled: " + underLimit);
+        GeologicalLandformsAPI.Logger.Log("Found " + buffer.Count + " walkable map edge cells. Caching enabled: " + underLimit);
         if (Prefs.DevMode) foreach (var cellval in buffer)
         {
             map.debugDrawer.FlashCell(ValToVec(map, cellval));

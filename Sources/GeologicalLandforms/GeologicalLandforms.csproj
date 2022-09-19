@@ -77,7 +77,6 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="BiomeTransition.cs" />
-        <Compile Include="EventHooks.cs" />
         <Compile Include="GraphEditor\BiomeData.cs" />
         <Compile Include="GraphEditor\EditorMockTileInfo.cs" />
         <Compile Include="GraphEditor\LandformGraphEditor.cs" />
@@ -116,9 +115,9 @@
         <Compile Include="LandformData.cs" />
         <Compile Include="LandformManager.cs" />
         <Compile Include="BiomeGrid.cs" />
-        <Compile Include="ModCompat\ModCompat_DubsMintMenus.cs" />
-        <Compile Include="ModCompat\ModCompat_MapReroll.cs" />
-        <Compile Include="ModCompat\ModCompat_PrepareLanding.cs" />
+        <Compile Include="Compatibility\ModCompat_DubsMintMenus.cs" />
+        <Compile Include="Compatibility\ModCompat_MapReroll.cs" />
+        <Compile Include="Compatibility\ModCompat_PrepareLanding.cs" />
         <Compile Include="Patches\RimWorld_Game.cs" />
         <Compile Include="Patches\RimWorld_GenStep_Scatterer.cs" />
         <Compile Include="Patches\RimWorld_Misc.cs" />
@@ -129,11 +128,12 @@
         <Compile Include="Patches\RimWorld_WildAnimalSpawner.cs" />
         <Compile Include="Patches\RimWorld_WildPlantSpawner.cs" />
         <Compile Include="Patches\RimWorld_World.cs" />
+        <Compile Include="Utility\BiomeUtils.cs" />
         <Compile Include="Utility\ExtensionUtils.cs" />
         <Compile Include="Utility\GuiUtils.cs" />
         <Compile Include="IWorldTileInfo.cs" />
         <Compile Include="Topology.cs" />
-        <Compile Include="GeologicalLandforms.cs" />
+        <Compile Include="GeologicalLandformsAPI.cs" />
         <Compile Include="Patches\RimWorld_GenStep_ElevationFertility.cs" />
         <Compile Include="Patches\RimWorld_WITab_Terrain.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />

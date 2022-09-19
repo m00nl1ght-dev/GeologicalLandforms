@@ -23,9 +23,12 @@ internal static class RimWorld_GenStep_ElevationFertility
         var fertilityModule = Landform.GetFeature(l => l.OutputFertility?.Get());
 
         if (elevationModule == null && fertilityModule == null) return true;
+
+        var elevationSeed = Rand.Range(0, int.MaxValue);
+        var fertilitySeed = Rand.Range(0, int.MaxValue);
         
-        elevationModule ??= BuildDefaultElevationGrid(map);
-        fertilityModule ??= BuildDefaultFertilityGrid(map);
+        elevationModule ??= BuildDefaultElevationGrid(map, elevationSeed);
+        fertilityModule ??= BuildDefaultFertilityGrid(map, fertilitySeed);
         
         if (map.TileInfo.WaterCovered) elevationModule = new Min(elevationModule, Of<double>(0f));
 
@@ -65,12 +68,11 @@ internal static class RimWorld_GenStep_ElevationFertility
         }
             
         if (patched == false)
-            Log.Error(GeologicalLandforms.LogPrefix + "Failed to patch RimWorld_GenStep_ElevationFertility");
+            GeologicalLandformsAPI.Logger.Fatal("Failed to patch RimWorld_GenStep_ElevationFertility");
     }
 
-    public static IGridFunction<double> BuildDefaultElevationGrid(Map map)
+    public static IGridFunction<double> BuildDefaultElevationGrid(Map map, int seed)
     {
-        var seed = Landform.GeneratingSeed ^ 7365; // TODO maybe use vanilla seed instead
         IGridFunction<double> function = new NoiseGenerator(NodeGridPerlin.PerlinNoise, 0.021, 2, 0.5, 6, seed);
         function = new ScaleWithBias(function, 0.5, 0.5);
         function = new Multiply(function, Of(NodeValueWorldTile.GetHillinessFactor(map.TileInfo.hilliness)));
@@ -78,9 +80,8 @@ internal static class RimWorld_GenStep_ElevationFertility
         return function;
     }
     
-    public static IGridFunction<double> BuildDefaultFertilityGrid(Map map)
+    public static IGridFunction<double> BuildDefaultFertilityGrid(Map map, int seed)
     {
-        var seed = Landform.GeneratingSeed ^ 4385; // TODO maybe use vanilla seed instead
         IGridFunction<double> function = new NoiseGenerator(NodeGridPerlin.PerlinNoise, 0.021, 2, 0.5, 6, seed);
         function = new ScaleWithBias(function, 0.5, 0.5);
         return function;

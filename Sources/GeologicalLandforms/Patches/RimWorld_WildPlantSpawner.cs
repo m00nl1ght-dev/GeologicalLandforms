@@ -155,13 +155,8 @@ internal static class RimWorld_WildPlantSpawner
         if (!plantDef.plant.mustBeWildToSow) return true;
 
         var researchPrerequisites = plantDef.plant.sowResearchPrerequisites;
-        if (researchPrerequisites != null)
-        {
-            foreach (ResearchProjectDef project in researchPrerequisites)
-            {
-                if (!project.IsFinished) return true;
-            }
-        }
+        if (researchPrerequisites != null && Enumerable.Any(researchPrerequisites, project => !project.IsFinished))
+            return true;
 
         __result = biomeGrid.CellCounts.Keys.SelectMany(b => b.AllWildPlants).Contains(plantDef);
         return false;
@@ -487,6 +482,6 @@ internal static class RimWorld_WildPlantSpawner
         Log.Message("current plant density: " + map.wildPlantSpawner.CurrentPlantDensity);
         Log.Message("desired density at pos: " + map.wildPlantSpawner.GetDesiredPlantsCountAt(pos, pos, map.wildPlantSpawner.CurrentPlantDensity));
         Log.Message("map open ground fraction: " + map.BiomeGrid()?.OpenGroundFraction);
-        Log.Message("map animal density factor: " + EventHooks.AnimalDensityFactorFunction(map.BiomeGrid()));
+        Log.Message("map animal density factor: " + GeologicalLandformsAPI.AnimalDensityFactorFunction(map.BiomeGrid()));
     }
 }

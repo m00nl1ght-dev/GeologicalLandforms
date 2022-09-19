@@ -1,16 +1,22 @@
 using System.Collections.Generic;
+using LunarFramework.Patching;
 using RimWorld;
 using Verse;
 using static GeologicalLandforms.BiomeGrid.BiomeQuery;
 
+// ReSharper disable RedundantAssignment
+// ReSharper disable UnusedType.Global
+// ReSharper disable UnusedMember.Local
 // ReSharper disable InconsistentNaming
 
-namespace GeologicalLandforms.ModCompat;
+namespace GeologicalLandforms.Compatibility;
 
-[StaticConstructorOnStartup]
-internal static class ModCompat_BiomesIslands
+internal class ModCompat_BiomesIslands : ModCompat
 {
-    public static readonly bool IsActive;
+    public override string TargetAssemblyName => "BiomesIslands";
+    public override string DisplayName => "Biomes! Islands";
+    
+    public static bool IsApplied { get; private set; }
 
     private static readonly Dictionary<string, string> BiomeMapping = new()
     {
@@ -26,30 +32,17 @@ internal static class ModCompat_BiomesIslands
         {"ExtremeDesert", "BiomesIslands_DesertIsland"}
     };
 
-    static ModCompat_BiomesIslands()
+    protected override bool OnApply()
     {
-        try
-        {
-            var biType = GenTypes.GetTypeInAnyAssembly("BiomesIslands.BiomesIslands");
-            if (biType != null)
-            {
-                Log.Message(GeologicalLandforms.LogPrefix + "Applying integration with Biomes! Islands.");
-
-                EventHooks.ApplyBiomeReplacements += ApplyBiomeReplacements;
-                
-                IsActive = true;
-            }
-        }
-        catch
-        {
-            Log.Error(GeologicalLandforms.LogPrefix + "Failed to apply integration with Biomes! Islands!");
-        }
+        GeologicalLandformsAPI.ApplyBiomeReplacements += ApplyBiomeReplacements;
+        IsApplied = true;
+        return true;
     }
 
     private static void ApplyBiomeReplacements(WorldTileInfo tile, BiomeGrid biomeGrid)
     {
-        if (!ModInstance.Settings.ModCompat_BiomesIslands_CoastPlants &&
-            !ModInstance.Settings.ModCompat_BiomesIslands_CoastAnimals) return;
+        if (!GeologicalLandformsMod.Settings.ModCompat_BiomesIslands_CoastPlants &&
+            !GeologicalLandformsMod.Settings.ModCompat_BiomesIslands_CoastAnimals) return;
         
         if (!tile.Coast.Any(c => c != IWorldTileInfo.CoastType.None)) return;
 
@@ -66,8 +59,8 @@ internal static class ModCompat_BiomesIslands
         if (replacements.Count > 0)
         {
             var biomeQueries = new List<BiomeGrid.BiomeQuery>();
-            if (ModInstance.Settings.ModCompat_BiomesIslands_CoastPlants) biomeQueries.Add(PlantSpawning);
-            if (ModInstance.Settings.ModCompat_BiomesIslands_CoastAnimals) biomeQueries.Add(AnimalSpawning);
+            if (GeologicalLandformsMod.Settings.ModCompat_BiomesIslands_CoastPlants) biomeQueries.Add(PlantSpawning);
+            if (GeologicalLandformsMod.Settings.ModCompat_BiomesIslands_CoastAnimals) biomeQueries.Add(AnimalSpawning);
             biomeGrid.SetReplacements(replacements, biomeQueries);
         }
     }

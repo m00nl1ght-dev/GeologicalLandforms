@@ -53,7 +53,7 @@ internal static class RimWorld_WITab_Terrain
         }
         
         if (patched == false)
-            Log.Error(GeologicalLandforms.LogPrefix + "Failed to patch RimWorld_WITab_Terrain");
+            GeologicalLandformsAPI.Logger.Fatal("Failed to patch RimWorld_WITab_Terrain");
     }
 
     private static void GetSpecialFeatures(Listing_Standard listingStandard, string str0, string str1, string str2 = null)
@@ -91,6 +91,7 @@ internal static class RimWorld_WITab_Terrain
             listingStandard.LabelDouble("SpecialFeatures".Translate(), sb.ToString().CapitalizeFirst());
 
         listingStandard.Gap();
-        EventHooks.RunOnTerrainTab(listingStandard);
+        
+        GeologicalLandformsAPI.RunOnTerrainTab(listingStandard);
     }
 }

@@ -35,10 +35,10 @@ internal static class TerrainTabUI
         
         listing.Gap();
         
-        if (ModInstance.Settings.EnableGodMode)
+        if (GeologicalLandformsMod.Settings.EnableGodMode)
         {
             var landformData = Find.World.LandformData();
-            bool ignoreReq = Prefs.DevMode && ModInstance.Settings.IgnoreWorldTileReqInGodMode;
+            bool ignoreReq = Prefs.DevMode && GeologicalLandformsMod.Settings.IgnoreWorldTileReqInGodMode;
             
             if (landformData != null && (ignoreReq || (!landformData.IsLocked(tileId) && WorldTileInfo.CanHaveLandform(worldTileInfo))))
             {
@@ -90,7 +90,7 @@ internal static class TerrainTabUI
             listing.Gap();
         }
         
-        if (Prefs.DevMode && ModInstance.Settings.ShowWorldTileDebugInfo)
+        if (Prefs.DevMode && GeologicalLandformsMod.Settings.ShowWorldTileDebugInfo)
         {
             listing.LabelDouble("GeologicalLandforms.WorldMap.Topology".Translate(), worldTileInfo.Topology.ToString());
             listing.LabelDouble("GeologicalLandforms.WorldMap.TopologyDirection".Translate(), worldTileInfo.LandformDirection.ToStringHuman());
@@ -116,7 +116,7 @@ internal static class TerrainTabUI
             return tileInfo.Landforms.Any(l => !l.IsLayer && (!requirePoi || l.IsPointOfInterest()));
         }
 
-        for (int i = 0; i < ModInstance.Settings.MaxLandformSearchRadius; i++)
+        for (int i = 0; i < GeologicalLandformsMod.Settings.MaxLandformSearchRadius; i++)
         {
             var copy = pending.ToList();
             pending.Clear();
@@ -146,6 +146,6 @@ internal static class TerrainTabUI
         }
         
         Find.WindowStack.Add(new Dialog_MessageBox(
-            "GeologicalLandforms.WorldMap.FindLandformFail".Translate() + ModInstance.Settings.MaxLandformSearchRadius));
+            "GeologicalLandforms.WorldMap.FindLandformFail".Translate() + GeologicalLandformsMod.Settings.MaxLandformSearchRadius));
     }
 }

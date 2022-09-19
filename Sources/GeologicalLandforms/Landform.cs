@@ -44,7 +44,7 @@ public class Landform : TerrainCanvas
     public NodeOutputBiomeGrid OutputBiomeGrid { get; internal set; }
     public NodeOutputScatterers OutputScatterers { get; internal set; }
 
-    public override int GridFullSize => EventHooks.LandformGridSizeFunction.Invoke();
+    public override int GridFullSize => GeologicalLandformsAPI.LandformGridSizeFunction.Invoke();
     public override int GridPreviewSize => DefaultGridPreviewSize;
 
     public override string canvasName => Id ?? "Landform";

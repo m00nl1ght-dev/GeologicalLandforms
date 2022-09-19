@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using GeologicalLandforms.ModCompat;
+using GeologicalLandforms.Compatibility;
 using NodeEditorFramework;
 using RimWorld;
 using TerrainGraph;

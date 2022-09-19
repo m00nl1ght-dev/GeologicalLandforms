@@ -11,13 +11,6 @@ namespace GeologicalLandforms.Patches;
 [HarmonyPatch]
 internal static class RimWorld_Misc
 {
-    [HarmonyPatch(typeof(MainMenuDrawer))]
-    [HarmonyPatch(nameof(MainMenuDrawer.Init))]
-    private static void Postfix()
-    {
-        EventHooks.RunOnMainMenuOnce();
-    }
-
     [HarmonyPatch(typeof(LearningReadout))]
     [HarmonyPatch(nameof(LearningReadout.LearningReadoutOnGUI))]
     private static bool Prefix()

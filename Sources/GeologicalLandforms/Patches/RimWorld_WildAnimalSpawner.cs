@@ -36,7 +36,7 @@ internal static class RimWorld_WildAnimalSpawner
             total = RawDesiredAnimalDensityForBiome(___map, ___map.TileInfo.biome);
         }
 
-        __result = total * EventHooks.AnimalDensityFactorFunction(biomeGrid) * AggregateAnimalDensityFactor(___map.gameConditionManager, ___map);
+        __result = total * GeologicalLandformsAPI.AnimalDensityFactorFunction(biomeGrid) * AggregateAnimalDensityFactor(___map.gameConditionManager, ___map);
         return false;
     }
 

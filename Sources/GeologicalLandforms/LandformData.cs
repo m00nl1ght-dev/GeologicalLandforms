@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using GeologicalLandforms.GraphEditor;
+using MapPreview;
 using RimWorld.Planet;
 using Verse;
 
@@ -35,14 +36,14 @@ public class LandformData : WorldComponent
     {
         _entries[tileId] = new Entry { LandformId = landform?.Id, LandformDirectionInt = landformDirection.AsInt, Locked = locked };
         WorldTileInfo.InvalidateCache();
-        // TODO notify map preview
+        MapPreviewAPI.NotifyWorldChanged();
     }
 
     public void Reset(int tileId)
     {
         _entries.Remove(tileId);
         WorldTileInfo.InvalidateCache();
-        // TODO notify map preview
+        MapPreviewAPI.NotifyWorldChanged();
     }
 
     static LandformData() => ParseHelper.Parsers<Entry>.Register(Entry.FromString);

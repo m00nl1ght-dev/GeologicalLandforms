@@ -39,7 +39,7 @@ internal class WorldLayer_LocalBiomes : WorldLayer
             var tile = grid[tileIdx];
             var biome = tile.biome;
             
-            if (!biome.canBuildBase || GeologicalLandforms.IsBiomeExcluded(biome)) continue;
+            if (!biome.canBuildBase || BiomeUtils.IsBiomeExcluded(biome)) continue;
             
             grid.GetTileNeighbors(tileIdx, _tmpNeighbors);
             

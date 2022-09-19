@@ -44,7 +44,7 @@ public static class LandformManager
         }
         
         Log.ResetMessageCount();
-        Log.Message(GeologicalLandforms.LogPrefix + "Found landform data in the following mods: " + landformSources.Join());
+        GeologicalLandformsAPI.Logger.Log("Found landform data in the following mods: " + landformSources.Join());
         
         _landforms = LoadAll();
     }
@@ -70,29 +70,29 @@ public static class LandformManager
         int customCount = mergedLandforms.Values.Count(l => l.IsCustom);
         int editedCount = mergedLandforms.Values.Count(l => l.Manifest.IsEdited);
         
-        Log.Message(GeologicalLandforms.LogPrefix + "Loaded " + mergedLandforms.Count + " landforms of which " + editedCount + " are edited and " + customCount + " are custom.");
+        GeologicalLandformsAPI.Logger.Log("Loaded " + mergedLandforms.Count + " landforms of which " + editedCount + " are edited and " + customCount + " are custom.");
 
-        if (upgradableLandforms.Count > 0) EventHooks.OnMainMenuOnce += () =>
+        if (upgradableLandforms.Count > 0) GeologicalLandformsAPI.LunarAPI.LifecycleHooks.DoOnceOnMainMenu(() =>
         {
             string msg = "GeologicalLandforms.LandformManager.LandformUpgrade".Translate() + "\n";
             msg = upgradableLandforms.Aggregate(msg, (current, lf) => current + ("\n" + lf.TranslatedNameForSelection.CapitalizeFirst()));
 
             void UpgradeAction()
             {
-                foreach (Landform lf in upgradableLandforms) Reset(lf);
+                foreach (var lf in upgradableLandforms) Reset(lf);
                 SaveAllEdited();
             }
             
             void KeepAction()
             {
-                foreach (Landform lf in upgradableLandforms) lf.Manifest.RevisionVersion += 1;
+                foreach (var lf in upgradableLandforms) lf.Manifest.RevisionVersion += 1;
                 SaveAllEdited();
             }
 
             Find.WindowStack.Add(new Dialog_MessageBox(msg, 
                 "GeologicalLandforms.LandformManager.LandformUpgradeYes".Translate(), UpgradeAction,
                 "GeologicalLandforms.LandformManager.LandformUpgradeNo".Translate(), KeepAction));
-        };
+        });
         
         return mergedLandforms;
     }
@@ -185,7 +185,7 @@ public static class LandformManager
             }
             catch (Exception ex)
             {
-                Log.Warning(GeologicalLandforms.LogPrefix + $"Caught exception while loading landform from file {file}. The exception was: {ex}");
+                GeologicalLandformsAPI.Logger.Warn($"Caught exception while loading landform from file {file}.", ex);
             }
         }
 

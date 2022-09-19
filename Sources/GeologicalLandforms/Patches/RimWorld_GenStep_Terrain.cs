@@ -79,7 +79,7 @@ internal static class RimWorld_GenStep_Terrain
             BiomeTransition.PostProcessBiomeGrid(_biomeGrid, tile, mapSize);
         }
         
-        EventHooks.RunApplyBiomeReplacements(tile, _biomeGrid);
+        GeologicalLandformsAPI.RunApplyBiomeReplacements(tile, _biomeGrid);
 
         UseVanillaTerrain = BaseFunction == null && StoneFunction == null && BiomeFunction == null;
     }

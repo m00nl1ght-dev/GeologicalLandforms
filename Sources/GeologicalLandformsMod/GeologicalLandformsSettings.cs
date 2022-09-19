@@ -2,13 +2,13 @@ using System;
 using System.Globalization;
 using System.Linq;
 using GeologicalLandforms.GraphEditor;
-using GeologicalLandforms.ModCompat;
+using GeologicalLandforms.Compatibility;
 using UnityEngine;
 using Verse;
 
 namespace GeologicalLandforms;
 
-public class Settings : ModSettings
+public class GeologicalLandformsSettings : ModSettings
 {
     public int MaxLandformSearchRadius = 100;
     public float AnimalDensityFactorForSecludedAreas = 0.5f;
@@ -82,7 +82,7 @@ public class Settings : ModSettings
             }
         }
 
-        if (ModCompat_BiomesIslands.IsActive)
+        if (ModCompat_BiomesIslands.IsApplied)
         {
             listingStandard.Gap();
             listingStandard.CheckboxLabeled("GeologicalLandforms.Integration.BiomesIslands.CoastPlants".Translate(), ref ModCompat_BiomesIslands_CoastPlants);
@@ -98,8 +98,6 @@ public class Settings : ModSettings
         }
 
         Widgets.EndScrollView();
-        
-        EventHooks.RunOnMainMenuOnce();
     }
 
     private void ReplaceNaturalRock(ThingDef thingDef)
