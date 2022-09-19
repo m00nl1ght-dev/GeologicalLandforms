@@ -33,7 +33,7 @@ internal static class ModCompat_BiomesIslands
             var biType = GenTypes.GetTypeInAnyAssembly("BiomesIslands.BiomesIslands");
             if (biType != null)
             {
-                Log.Message(Main.LogPrefix + "Applying integration with Biomes! Islands.");
+                Log.Message(GeologicalLandforms.LogPrefix + "Applying integration with Biomes! Islands.");
 
                 EventHooks.ApplyBiomeReplacements += ApplyBiomeReplacements;
                 
@@ -42,7 +42,7 @@ internal static class ModCompat_BiomesIslands
         }
         catch
         {
-            Log.Error(Main.LogPrefix + "Failed to apply integration with Biomes! Islands!");
+            Log.Error(GeologicalLandforms.LogPrefix + "Failed to apply integration with Biomes! Islands!");
         }
     }
 

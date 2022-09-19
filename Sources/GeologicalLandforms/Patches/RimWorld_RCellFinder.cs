@@ -104,7 +104,7 @@ internal static class RimWorld_RCellFinder
         var underLimit = buffer.Count < 2 * mapSize;
         var vecs = underLimit ? buffer.ToArray() : Array.Empty<ushort>();
         
-        Log.Message(Main.LogPrefix + "Found " + buffer.Count + " walkable map edge cells. Caching enabled: " + underLimit);
+        Log.Message(GeologicalLandforms.LogPrefix + "Found " + buffer.Count + " walkable map edge cells. Caching enabled: " + underLimit);
         if (Prefs.DevMode) foreach (var cellval in buffer)
         {
             map.debugDrawer.FlashCell(ValToVec(map, cellval));

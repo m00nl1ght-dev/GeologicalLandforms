@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Manifest>
+  <Name>Geological Landforms</Name>
+  <PackageId>m00nl1ght.GeologicalLandforms</PackageId>
+  <Authors>m00nl1ght</Authors>
+  <MinGameVersion>1.3</MinGameVersion>
+  <Components>
+    <Component>
+      <AssemblyName>HugsLogPublisher</AssemblyName>
+      <AllowNonLunarSource>true</AllowNonLunarSource>
+      <Aliases>
+        <string>HugsLib</string>
+      </Aliases>
+    </Component>
+    <Component>
+      <AssemblyName>MapPreview</AssemblyName>
+    </Component>
+    <Component>
+      <AssemblyName>TerrainGraph</AssemblyName>
+      <Aliases>
+        <string>0_TerrainGraph</string>
+      </Aliases>
+    </Component>
+    <Component>
+      <AssemblyName>GeologicalLandforms</AssemblyName>
+      <Aliases>
+        <string>1_GeologicalLandforms</string>
+      </Aliases>
+    </Component>
+    <Component>
+      <AssemblyName>GeologicalLandformsMod</AssemblyName>
+      <Aliases>
+        <string>2_GeologicalLandformsMod</string>
+      </Aliases>
+    </Component>
+  </Components>
+  <Compatibility>
+    <Lunar>
+    </Lunar>
+  </Compatibility>
+</Manifest>

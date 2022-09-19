@@ -33,7 +33,7 @@ public static class BiomeTransition
 
     public static bool IsTransition(int tile, int nTile, BiomeDef biome, BiomeDef nBiome)
     {
-        if (biome == nBiome || !nBiome.canBuildBase || Main.IsBiomeExcluded(nBiome)) return false;
+        if (biome == nBiome || !nBiome.canBuildBase || GeologicalLandforms.IsBiomeExcluded(nBiome)) return false;
 
         if (!UnidirectionalTransitions) return true;
         

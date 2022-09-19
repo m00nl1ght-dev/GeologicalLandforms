@@ -44,7 +44,7 @@ public static class LandformManager
         }
         
         Log.ResetMessageCount();
-        Log.Message(Main.LogPrefix + "Found landform data in the following mods: " + landformSources.Join());
+        Log.Message(GeologicalLandforms.LogPrefix + "Found landform data in the following mods: " + landformSources.Join());
         
         _landforms = LoadAll();
     }
@@ -70,7 +70,7 @@ public static class LandformManager
         int customCount = mergedLandforms.Values.Count(l => l.IsCustom);
         int editedCount = mergedLandforms.Values.Count(l => l.Manifest.IsEdited);
         
-        Log.Message(Main.LogPrefix + "Loaded " + mergedLandforms.Count + " landforms of which " + editedCount + " are edited and " + customCount + " are custom.");
+        Log.Message(GeologicalLandforms.LogPrefix + "Loaded " + mergedLandforms.Count + " landforms of which " + editedCount + " are edited and " + customCount + " are custom.");
 
         if (upgradableLandforms.Count > 0) EventHooks.OnMainMenuOnce += () =>
         {
@@ -185,7 +185,7 @@ public static class LandformManager
             }
             catch (Exception ex)
             {
-                Log.Warning(Main.LogPrefix + $"Caught exception while loading landform from file {file}. The exception was: {ex}");
+                Log.Warning(GeologicalLandforms.LogPrefix + $"Caught exception while loading landform from file {file}. The exception was: {ex}");
             }
         }
 

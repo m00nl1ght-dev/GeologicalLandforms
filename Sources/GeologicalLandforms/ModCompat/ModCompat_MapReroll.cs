@@ -18,7 +18,7 @@ internal static class ModCompat_MapReroll
             var mapGen = GenTypes.GetTypeInAnyAssembly("MapReroll.MapPreviewGenerator");
             if (mapGen != null)
             {
-                Log.Message(Main.LogPrefix + "Applying compatibility patches for MapReroll.");
+                Log.Message(GeologicalLandforms.LogPrefix + "Applying compatibility patches for MapReroll.");
                 Harmony harmony = new("Geological Landforms MapReroll Compat");
                 
                 var mapPreviews = GenTypes.GetTypeInAnyAssembly("MapReroll.UI.Dialog_MapPreviews");
@@ -45,7 +45,7 @@ internal static class ModCompat_MapReroll
         }
         catch
         {
-            Log.Error(Main.LogPrefix + "Failed to apply compatibility patches for MapReroll!");
+            Log.Error(GeologicalLandforms.LogPrefix + "Failed to apply compatibility patches for MapReroll!");
         }
     }
     

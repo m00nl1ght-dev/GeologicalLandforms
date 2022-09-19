@@ -123,7 +123,7 @@ public class WorldTileInfo : IWorldTileInfo
     public static bool CanHaveLandform(IWorldTileInfo info)
     {
         if (!info.Biome.canBuildBase || info.Hilliness == Hilliness.Impassable) return false; 
-        if (Main.IsBiomeExcluded(info.Biome)) return false;
+        if (GeologicalLandforms.IsBiomeExcluded(info.Biome)) return false;
         return true;
     }
     
@@ -173,7 +173,7 @@ public class WorldTileInfo : IWorldTileInfo
             info.MainRoad = roadLink.road;
         }
 
-        if (Main.IsBiomeExcluded(selfBiome))
+        if (GeologicalLandforms.IsBiomeExcluded(selfBiome))
         {
             info.Topology = Topology.Any;
             return;
@@ -468,7 +468,7 @@ public class WorldTileInfo : IWorldTileInfo
     {
         if (tile.biome == BiomeDefOf.Ocean) return Ocean;
         if (tile.biome == BiomeDefOf.Lake) return existing == Ocean ? Ocean : Lake;
-        if (tile.WaterCovered && Main.IsBiomeOceanTopology(tile.biome)) return Ocean;
+        if (tile.WaterCovered && GeologicalLandforms.IsBiomeOceanTopology(tile.biome)) return Ocean;
         return existing;
     }
 }

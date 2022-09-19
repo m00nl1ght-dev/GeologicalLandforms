@@ -17,7 +17,7 @@ internal static class ModCompat_DubsMintMenus
             var psType = GenTypes.GetTypeInAnyAssembly("DubsMintMenus.Dialog_FancyDanPlantSetterBob");
             if (psType != null)
             {
-                Log.Message(Main.LogPrefix + "Applying compatibility patches for Dubs Mint Menus.");
+                Log.Message(GeologicalLandforms.LogPrefix + "Applying compatibility patches for Dubs Mint Menus.");
                 Harmony harmony = new("Geological Landforms DubsMintMenus Compat");
                 
                 var methodIpa = AccessTools.Method(psType, "IsPlantAvailable");
@@ -31,7 +31,7 @@ internal static class ModCompat_DubsMintMenus
         }
         catch
         {
-            Log.Error(Main.LogPrefix + "Failed to apply compatibility patches for Dubs Mint Menus!");
+            Log.Error(GeologicalLandforms.LogPrefix + "Failed to apply compatibility patches for Dubs Mint Menus!");
         }
     }
 }

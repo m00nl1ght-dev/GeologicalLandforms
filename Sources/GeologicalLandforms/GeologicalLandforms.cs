@@ -12,17 +12,17 @@ using Verse;
 namespace GeologicalLandforms;
 
 [StaticConstructorOnStartup]
-public static class Main
+public static class GeologicalLandforms
 {
-    public static Version LibVersion => typeof(Main).Assembly.GetName().Version;
+    public static Version LibVersion => typeof(GeologicalLandforms).Assembly.GetName().Version;
 
     public static string LogPrefix => "[Geological Landforms v" + LibVersion + "] ";
 
-    static Main()
+    static GeologicalLandforms()
     {
         new Harmony("Geological Landforms").PatchAll();
         
-        ReflectionUtility.AddSearchableAssembly(typeof(Main).Assembly);
+        ReflectionUtility.AddSearchableAssembly(typeof(GeologicalLandforms).Assembly);
         ReflectionUtility.AddSearchableAssembly(typeof(TerrainCanvas).Assembly);
         
         NodeEditor.ReInit(false);

@@ -26,7 +26,7 @@ internal static class ModCompat_PrepareLanding
             Type tabType = GenTypes.GetTypeInAnyAssembly("PrepareLanding.TabTemperature");
             if (tabType != null)
             {
-                Log.Message(Main.LogPrefix + "Applying compatibility patches for PrepareLanding.");
+                Log.Message(GeologicalLandforms.LogPrefix + "Applying compatibility patches for PrepareLanding.");
                 Harmony harmony = new("Geological Landforms PrepareLanding Compat");
                 
                 Type utilType = GenTypes.GetTypeInAnyAssembly("PrepareLanding.Core.Gui.Tab.TabGuiUtility");
@@ -57,7 +57,7 @@ internal static class ModCompat_PrepareLanding
         }
         catch
         {
-            Log.Error(Main.LogPrefix + "Failed to apply compatibility patches for PrepareLanding!");
+            Log.Error(GeologicalLandforms.LogPrefix + "Failed to apply compatibility patches for PrepareLanding!");
         }
     }
 
