@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using GeologicalLandforms.GraphEditor;
-using GeologicalLandforms.Patches;
+using LunarFramework.Utility;
 using RimWorld;
 using TerrainGraph;
 using UnityEngine;

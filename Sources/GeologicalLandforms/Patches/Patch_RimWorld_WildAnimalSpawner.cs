@@ -1,21 +1,27 @@
 using System.Linq;
 using HarmonyLib;
+using LunarFramework.Patching;
 using RimWorld;
 using UnityEngine;
 using Verse;
 
 // ReSharper disable ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
 // ReSharper disable LoopCanBeConvertedToQuery
+// ReSharper disable RedundantAssignment
+// ReSharper disable UnusedParameter.Local
+// ReSharper disable UnusedType.Global
+// ReSharper disable UnusedMember.Local
 // ReSharper disable InconsistentNaming
 
 namespace GeologicalLandforms.Patches;
 
+[PatchGroup("Main")]
 [HarmonyPatch(typeof(WildAnimalSpawner))]
-internal static class RimWorld_WildAnimalSpawner
+internal static class Patch_RimWorld_WildAnimalSpawner
 {
+    [HarmonyPrefix]
     [HarmonyPatch("DesiredAnimalDensity", MethodType.Getter)]
     [HarmonyPriority(Priority.VeryHigh)]
-    [HarmonyPrefix]
     private static bool DesiredAnimalDensity(Map ___map, ref float __result)
     {
         var biomeGrid = ___map.BiomeGrid();
@@ -40,17 +46,17 @@ internal static class RimWorld_WildAnimalSpawner
         return false;
     }
 
+    [HarmonyPrefix]
     [HarmonyPatch("SpawnRandomWildAnimalAt")]
     [HarmonyPriority(Priority.VeryHigh)]
-    [HarmonyPrefix]
     private static bool SpawnRandomWildAnimalAt(Map ___map, ref bool __result, IntVec3 loc)
     {
         var biomeGrid = ___map.BiomeGrid();
         if (biomeGrid is not { ShouldApplyForAnimalSpawning: true }) return true;
 
-        BiomeDef biome = biomeGrid.BiomeAt(loc, BiomeGrid.BiomeQuery.AnimalSpawning);
+        var biome = biomeGrid.BiomeAt(loc, BiomeGrid.BiomeQuery.AnimalSpawning);
 
-        PawnKindDef kindDef = biome.AllWildAnimals
+        var kindDef = biome.AllWildAnimals
             .Where(a => ___map.mapTemperature.SeasonAcceptableFor(a.race))
             .RandomElementByWeight(def => biome.CommonalityOfAnimal(def) / def.wildGroupSize.Average);
         
@@ -65,7 +71,7 @@ internal static class RimWorld_WildAnimalSpawner
         int radius = Mathf.CeilToInt(Mathf.Sqrt(kindDef.wildGroupSize.max));
         for (int index = 0; index < randomInRange; ++index)
         {
-            IntVec3 loc1 = CellFinder.RandomClosewalkCellNear(loc, ___map, radius);
+            var loc1 = CellFinder.RandomClosewalkCellNear(loc, ___map, radius);
             GenSpawn.Spawn(PawnGenerator.GeneratePawn(kindDef), loc1, ___map);
         }
 
@@ -79,7 +85,7 @@ internal static class RimWorld_WildAnimalSpawner
         float num1 = 0.0f;
         float num2 = 0.0f;
         
-        foreach (PawnKindDef allWildAnimal in biome.AllWildAnimals)
+        foreach (var allWildAnimal in biome.AllWildAnimals)
         {
             float num3 = biome.CommonalityOfAnimal(allWildAnimal);
             num2 += num3;
@@ -93,7 +99,7 @@ internal static class RimWorld_WildAnimalSpawner
     private static float AggregateAnimalDensityFactor(GameConditionManager manager, Map map)
     {
         float num = 1f;
-        foreach (GameCondition t in manager.ActiveConditions)
+        foreach (var t in manager.ActiveConditions)
             num *= t.AnimalDensityFactor(map);
         if (manager.Parent != null)
             num *= AggregateAnimalDensityFactor(manager.Parent, map);

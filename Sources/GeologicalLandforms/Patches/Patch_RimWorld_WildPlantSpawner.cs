@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
+using LunarFramework.Patching;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -14,8 +15,9 @@ using Verse;
 
 namespace GeologicalLandforms.Patches;
 
+[PatchGroup("Main")]
 [HarmonyPatch(typeof(WildPlantSpawner))]
-internal static class RimWorld_WildPlantSpawner
+internal static class Patch_RimWorld_WildPlantSpawner
 {
     // ### Thread static caches for good ol RimThreaded ###
     
@@ -39,9 +41,9 @@ internal static class RimWorld_WildPlantSpawner
     
     // ### Patches ###
     
+    [HarmonyPrefix]
     [HarmonyPatch("CurrentWholeMapNumDesiredPlants", MethodType.Getter)]
     [HarmonyPriority(Priority.VeryHigh)]
-    [HarmonyPrefix]
     private static bool CurrentWholeMapNumDesiredPlants(WildPlantSpawner __instance, Map ___map, ref float __result)
     {
         var biomeGrid = ___map.BiomeGrid();
@@ -49,10 +51,10 @@ internal static class RimWorld_WildPlantSpawner
 
         var condFactor = AggregatePlantDensityFactor(___map.gameConditionManager, ___map);
 
-        CellRect cellRect = CellRect.WholeMap(___map);
+        var cellRect = CellRect.WholeMap(___map);
         
         float numDesiredPlants = 0.0f;
-        foreach (IntVec3 intVec3 in cellRect)
+        foreach (var intVec3 in cellRect)
             numDesiredPlants += __instance.GetDesiredPlantsCountAt(intVec3, intVec3, 
                 biomeGrid.BiomeAt(intVec3, BiomeGrid.BiomeQuery.PlantSpawning).plantDensity * condFactor);
             
@@ -60,9 +62,9 @@ internal static class RimWorld_WildPlantSpawner
         return false;
     }
 
+    [HarmonyPrefix]
     [HarmonyPatch("WildPlantSpawnerTickInternal")]
     [HarmonyPriority(Priority.VeryHigh)]
-    [HarmonyPrefix]
     private static bool WildPlantSpawnerTickInternal(
         WildPlantSpawner __instance, Map ___map,
         ref float ___calculatedWholeMapNumDesiredPlants,
@@ -91,8 +93,8 @@ internal static class RimWorld_WildPlantSpawner
                 ___cycleIndex = 0;
             }
             
-            IntVec3 intVec3 = ___map.cellsInRandomOrder.Get(___cycleIndex);
-            BiomeDef biome = biomeGrid.BiomeAt(intVec3, BiomeGrid.BiomeQuery.PlantSpawning);
+            var intVec3 = ___map.cellsInRandomOrder.Get(___cycleIndex);
+            var biome = biomeGrid.BiomeAt(intVec3, BiomeGrid.BiomeQuery.PlantSpawning);
             float plantDensity = biome.plantDensity * condFactor;
             
             ___calculatedWholeMapNumDesiredPlantsTmp += __instance.GetDesiredPlantsCountAt(intVec3, intVec3, plantDensity);
@@ -116,9 +118,9 @@ internal static class RimWorld_WildPlantSpawner
         return false;
     }
 
+    [HarmonyPrefix]
     [HarmonyPatch(typeof(GenStep_Plants), "Generate")]
     [HarmonyPriority(Priority.VeryHigh)]
-    [HarmonyPrefix]
     private static bool Generate(Map map)
     {
         var biomeGrid = map.BiomeGrid();
@@ -127,11 +129,11 @@ internal static class RimWorld_WildPlantSpawner
         float condFactor = AggregatePlantDensityFactor(map.gameConditionManager, map);
         float desired = map.wildPlantSpawner.CurrentWholeMapNumDesiredPlants;
         
-        foreach (IntVec3 c in map.cellsInRandomOrder.GetAll())
+        foreach (var c in map.cellsInRandomOrder.GetAll())
         {
             if (!Rand.Chance(1f / 1000f))
             {
-                BiomeDef biome = biomeGrid.BiomeAt(c, BiomeGrid.BiomeQuery.PlantSpawning);
+                var biome = biomeGrid.BiomeAt(c, BiomeGrid.BiomeQuery.PlantSpawning);
                 float density = biome.plantDensity * condFactor;
 
                 if (biome == biomeGrid.PrimaryBiome || GoodRoofForCavePlant(map, c))
@@ -144,9 +146,9 @@ internal static class RimWorld_WildPlantSpawner
         return false;
     }
 
+    [HarmonyPrefix]
     [HarmonyPatch(typeof(Command_SetPlantToGrow), "IsPlantAvailable")]
     [HarmonyPriority(Priority.VeryHigh)]
-    [HarmonyPrefix]
     private static bool IsPlantAvailable(ThingDef plantDef, Map map, ref bool __result)
     {
         var biomeGrid = map.BiomeGrid();
@@ -162,9 +164,9 @@ internal static class RimWorld_WildPlantSpawner
         return false;
     }
     
+    [HarmonyPrefix]
     [HarmonyPatch(typeof(AnimalPenManager), "GetFixedAutoCutFilter")]
     [HarmonyPriority(Priority.VeryHigh)]
-    [HarmonyPrefix]
     private static void GetFixedAutoCutFilter(Map ___map, ref ThingFilter ___cachedFixedAutoCutFilter)
     {
         if (___cachedFixedAutoCutFilter != null) return;
@@ -209,7 +211,7 @@ internal static class RimWorld_WildPlantSpawner
         CalculateDistancesToNearbyClusters_Patched(biome, map, c);
         _tsc_possiblePlantsWithWeight.Clear();
         
-        foreach (ThingDef plant in _tsc_possiblePlants)
+        foreach (var plant in _tsc_possiblePlants)
         {
             float num = PlantChoiceWeight_Patched(instance, biome, map, plant, c, 
                 _tsc_distanceSqToNearbyClusters, wholeMapNumDesiredPlants, plantDensity);
@@ -319,7 +321,7 @@ internal static class RimWorld_WildPlantSpawner
         outPlants.Clear();
         
         var allWildPlants = biome.AllWildPlants;
-        foreach (ThingDef plantDef in allWildPlants)
+        foreach (var plantDef in allWildPlants)
         {
             if (plantDef.CanEverPlantAt(c, map))
             {
@@ -349,7 +351,7 @@ internal static class RimWorld_WildPlantSpawner
         _tsc_plantDefsLowerOrder.Clear();
         
         var allWildPlants = biome.AllWildPlants;
-        foreach (ThingDef def in allWildPlants)
+        foreach (var def in allWildPlants)
         {
             if (def.plant.wildOrder < (double)plantDef.plant.wildOrder)
             {
@@ -364,7 +366,7 @@ internal static class RimWorld_WildPlantSpawner
             (_, to) => c.InHorDistOf(to.extentsClose.ClosestCellTo(c), radiusToScan), reg =>
             {
                 numDesiredPlantsLocally += instance.GetDesiredPlantsCountIn(reg, c, plantDensity);
-                foreach (ThingDef def in _tsc_plantDefsLowerOrder)
+                foreach (var def in _tsc_plantDefsLowerOrder)
                     numPlantsLowerOrder += reg.ListerThings.ThingsOfDef(def).Count;
                 return false;
             });
@@ -411,11 +413,11 @@ internal static class RimWorld_WildPlantSpawner
         int num1 = GenRadial.NumCellsInRadius(biome.MaxWildAndCavePlantsClusterRadius * 2);
         for (int index1 = 0; index1 < num1; ++index1)
         {
-            IntVec3 intVec3 = c + GenRadial.RadialPattern[index1];
+            var intVec3 = c + GenRadial.RadialPattern[index1];
             if (intVec3.InBounds(map))
             {
                 var thingList = map.thingGrid.ThingsListAtFast(intVec3);
-                foreach (Thing thing in thingList)
+                foreach (var thing in thingList)
                 {
                     if (thing.def.category == ThingCategory.Plant && thing.def.plant.GrowsInClusters)
                     {
@@ -465,7 +467,7 @@ internal static class RimWorld_WildPlantSpawner
     private static float AggregatePlantDensityFactor(GameConditionManager manager, Map map)
     {
         float num = 1f;
-        foreach (GameCondition t in manager.ActiveConditions)
+        foreach (var t in manager.ActiveConditions)
             num *= t.PlantDensityFactor(map);
         if (manager.Parent != null)
             num *= AggregatePlantDensityFactor(manager.Parent, map);

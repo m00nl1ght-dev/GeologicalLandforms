@@ -3,6 +3,7 @@ using GeologicalLandforms.GraphEditor;
 using LunarFramework;
 using LunarFramework.Logging;
 using LunarFramework.Patching;
+using MapPreview;
 using NodeEditorFramework;
 using NodeEditorFramework.Utilities;
 using TerrainGraph;
@@ -33,8 +34,13 @@ public static class GeologicalLandformsAPI
 
         ModCompat.ApplyAll(LunarAPI, CompatPatchGroup);
         
+        MapPreviewAPI.AddStableSeedCondition(map => WorldTileInfo.Get(map.Tile).HasLandforms);
+        
         ReflectionUtility.AddSearchableAssembly(typeof(GeologicalLandformsAPI).Assembly);
         ReflectionUtility.AddSearchableAssembly(typeof(TerrainCanvas).Assembly);
+        
+        ReflectionUtility.AddIdentifierReplacement("0_TerrainGraph", "TerrainGraph");
+        ReflectionUtility.AddIdentifierReplacement("1_GeologicalLandforms", "GeologicalLandforms");
         
         NodeEditor.ReInit(false);
         

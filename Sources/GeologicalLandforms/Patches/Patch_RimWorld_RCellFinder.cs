@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using HarmonyLib;
+using LunarFramework.Patching;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -8,6 +9,7 @@ using Verse.AI;
 using Verse.Profile;
 
 // ReSharper disable UnusedMember.Local
+// ReSharper disable UnusedType.Global
 // ReSharper disable RedundantAssignment
 // ReSharper disable ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
 // ReSharper disable LoopCanBeConvertedToQuery
@@ -15,17 +17,18 @@ using Verse.Profile;
 
 namespace GeologicalLandforms.Patches;
 
+[PatchGroup("Main")]
 [HarmonyPatch(typeof(RCellFinder))]
-internal static class RimWorld_RCellFinder
+internal static class Patch_RimWorld_RCellFinder
 {
     [TweakValue("Geological Landforms")]
     public static bool EnableDebugPawnActions = false;
 
     private static readonly Dictionary<Map, ushort[]> _cache = new();
 
+    [HarmonyPrefix]
     [HarmonyPatch("TryFindRandomExitSpot")]
     [HarmonyPriority(Priority.High)]
-    [HarmonyPrefix]
     private static bool TryFindRandomExitSpot(ref bool __result, Pawn pawn, ref IntVec3 spot, TraverseMode mode)
     {
         var map = pawn?.Map;
@@ -65,9 +68,9 @@ internal static class RimWorld_RCellFinder
         return false;
     }
     
+    [HarmonyPostfix]
     [HarmonyPatch("TryFindBestExitSpot")]
     [HarmonyPriority(Priority.Low)]
-    [HarmonyPostfix]
     private static void TryFindBestExitSpot(ref bool __result, Pawn pawn, ref IntVec3 spot, TraverseMode mode)
     {
         if (__result) return; // vanilla algorithm already found an exit, no need to do anything
@@ -124,25 +127,25 @@ internal static class RimWorld_RCellFinder
         return IntVec3.Invalid;
     }
     
+    [HarmonyPostfix]
     [HarmonyPatch(typeof(Game), "DeinitAndRemoveMap")]
     [HarmonyPriority(Priority.Low)]
-    [HarmonyPostfix]
     private static void DeinitAndRemoveMap(Map map)
     {
         _cache.Remove(map);
     }
     
+    [HarmonyPostfix]
     [HarmonyPatch(typeof(MemoryUtility), "ClearAllMapsAndWorld")]
     [HarmonyPriority(Priority.Low)]
-    [HarmonyPostfix]
     private static void ClearAllMapsAndWorld()
     {
         _cache.Clear();
     }
     
+    [HarmonyPostfix]
     [HarmonyPatch(typeof(FloatMenuMakerMap), "AddHumanlikeOrders")]
     [HarmonyPriority(Priority.High)]
-    [HarmonyPostfix]
     private static void FloatMenuMakerMap_AddHumanlikeOrders(ref Vector3 clickPos, ref Pawn pawn, ref List<FloatMenuOption> opts)
     {
         if (!EnableDebugPawnActions) return;
@@ -172,7 +175,7 @@ internal static class RimWorld_RCellFinder
             
             void ActionMapInfo()
             {
-                RimWorld_WildPlantSpawner.LogInfo(localpawn.Map, localpawn.Position);
+                Patch_RimWorld_WildPlantSpawner.LogInfo(localpawn.Map, localpawn.Position);
             }
             
             opts.Add(FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption("[debug] Find best map exit", ActionBest, MenuOptionPriority.InitiateSocial, null, dest.Thing), pawn, pTarg));

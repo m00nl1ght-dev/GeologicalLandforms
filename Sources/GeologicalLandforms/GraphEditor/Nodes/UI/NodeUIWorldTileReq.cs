@@ -30,6 +30,7 @@ public class NodeUIWorldTileReq : NodeUIBase
     public FloatRange RainfallRequirement = new(0f, 5000f);
     public FloatRange SwampinessRequirement = new(0f, 1f);
     public FloatRange MapSizeRequirement = new(250f, 1000f);
+    public FloatRange BiomeTransitionsRequirement = new(0f, 6f);
     
     public bool AllowSettlements;
     public bool AllowSites;
@@ -43,6 +44,7 @@ public class NodeUIWorldTileReq : NodeUIBase
         if (!RainfallRequirement.Includes(worldTile.Rainfall) 
             && !(RainfallRequirement.max == 5000 && worldTile.Rainfall > 5000f)) return false;
         if (!SwampinessRequirement.Includes(worldTile.Swampiness)) return false;
+        if (!BiomeTransitionsRequirement.Includes(worldTile.BorderingBiomes?.Count ?? 0)) return false;
 
         var mapParent = worldTile.WorldObject;
         bool isPlayer = mapParent?.Faction is { IsPlayer: true };
@@ -60,7 +62,7 @@ public class NodeUIWorldTileReq : NodeUIBase
         
         if (!RoadRequirement.Includes(1f - mainRoadMultiplier) && 
             !RiverRequirement.Includes(riverWidth)) return false;
-        
+
         return true;
     }
 
@@ -105,6 +107,7 @@ public class NodeUIWorldTileReq : NodeUIBase
         GuiUtils.FloatRangeSlider(listing, ref RainfallRequirement, "GeologicalLandforms.Settings.Landform.RainfallRequirement".Translate(), 0f, 5000f);
         GuiUtils.FloatRangeSlider(listing, ref SwampinessRequirement, "GeologicalLandforms.Settings.Landform.SwampinessRequirement".Translate(), 0f, 1f);
         GuiUtils.FloatRangeSlider(listing, ref MapSizeRequirement, "GeologicalLandforms.Settings.Landform.MapSizeRequirement".Translate(), 50f, 1000f);
+        GuiUtils.FloatRangeSlider(listing, ref BiomeTransitionsRequirement, "GeologicalLandforms.Settings.Landform.BiomeTransitionsRequirement".Translate(), 0f, 6f);
         listing.Gap();
         
         listing.CheckboxLabeled("GeologicalLandforms.Settings.Landform.AllowSettlements".Translate(), ref AllowSettlements);
@@ -120,7 +123,7 @@ public class NodeUIWorldTileReq : NodeUIBase
 
     public override void OnCreate(bool fromGUI)
     {
-        NodeUIWorldTileReq existing = Landform.WorldTileReq;
+        var existing = Landform.WorldTileReq;
         if (existing != null && existing != this && canvas.nodes.Contains(existing)) existing.Delete();
         Landform.WorldTileReq = this;
     }

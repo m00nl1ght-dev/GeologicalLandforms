@@ -30,7 +30,7 @@ internal class ModCompat_MapReroll : ModCompat
     {
         int landformSeed = GenText.StableStringHash(seed) ^ mapTile;
         Landform.PrepareMapGen(new IntVec2(mapSize, mapSize), mapTile, landformSeed);
-        RimWorld_GenStep_Terrain.Init();
+        Patch_RimWorld_GenStep_Terrain.Init();
     }
     
     [HarmonyPostfix]
@@ -38,7 +38,7 @@ internal class ModCompat_MapReroll : ModCompat
     [HarmonyPatch("MapReroll.MapPreviewGenerator", "GeneratePreviewForSeed")]
     private static void MapPreviewGenerator_GeneratePreviewForSeed_Postfix()
     {
-        RimWorld_GenStep_Terrain.CleanUp();
+        Patch_RimWorld_GenStep_Terrain.CleanUp();
         Landform.CleanUp();
     }
     
@@ -48,10 +48,10 @@ internal class ModCompat_MapReroll : ModCompat
     private static bool MapPreviewGenerator_TerrainFrom(ref TerrainDef __result, IntVec3 c, Map map, 
         float elevation, float fertility, MulticastDelegate riverTerrainAt, bool preferSolid)
     {
-        if (RimWorld_GenStep_Terrain.UseVanillaTerrain) return true;
+        if (Patch_RimWorld_GenStep_Terrain.UseVanillaTerrain) return true;
 
         var tRiver = (TerrainDef) riverTerrainAt?.DynamicInvoke(c, true);
-        __result = RimWorld_GenStep_Terrain.TerrainAt(c, map, elevation, fertility, tRiver, preferSolid);
+        __result = Patch_RimWorld_GenStep_Terrain.TerrainAt(c, map, elevation, fertility, tRiver, preferSolid);
         
         return false;
     }

@@ -8,7 +8,7 @@
 		<Node name="Custom Landform" ID="1945271936" type="landformManifest" pos="-950,-517">
 			<string name="Id">BiomeTransitions</string>
 			<boolean name="IsCustom">false</boolean>
-			<int name="RevisionVersion">2</int>
+			<int name="RevisionVersion">3</int>
 			<long name="TimeCreated">1653353880100</long>
 			<boolean name="IsEdited">false</boolean>
 			<string name="DisplayName" />
@@ -50,6 +50,10 @@
 			<FloatRange xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="MapSizeRequirement">
 				<min>50</min>
 				<max>1000</max>
+			</FloatRange>
+			<FloatRange xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="BiomeTransitionsRequirement">
+				<min>0.5</min>
+				<max>6</max>
 			</FloatRange>
 			<boolean name="AllowSettlements">true</boolean>
 			<boolean name="AllowSites">true</boolean>

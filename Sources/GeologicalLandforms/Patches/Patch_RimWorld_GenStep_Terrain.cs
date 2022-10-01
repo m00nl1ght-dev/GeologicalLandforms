@@ -1,13 +1,22 @@
 using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
+using LunarFramework.Patching;
+using LunarFramework.Utility;
 using RimWorld;
 using TerrainGraph;
 using Verse;
 
+// ReSharper disable RedundantAssignment
+// ReSharper disable UnusedParameter.Local
+// ReSharper disable UnusedType.Global
+// ReSharper disable UnusedMember.Local
+// ReSharper disable InconsistentNaming
+
 namespace GeologicalLandforms.Patches;
 
+[PatchGroup("Main")]
 [HarmonyPatch(typeof(GenStep_Terrain))]
-internal static class RimWorld_GenStep_Terrain
+internal static class Patch_RimWorld_GenStep_Terrain
 {
     public static IGridFunction<TerrainData> BaseFunction { get; private set; }
     public static IGridFunction<TerrainData> StoneFunction { get; private set; }
@@ -18,25 +27,28 @@ internal static class RimWorld_GenStep_Terrain
 
     private static BiomeGrid _biomeGrid;
 
+    [HarmonyPrefix]
+    [HarmonyPatch("Generate")]
     [HarmonyPriority(Priority.VeryHigh)]
-    [HarmonyPatch(nameof(GenStep_Terrain.Generate))]
-    private static void Prefix(Map map, GenStepParams parms)
+    private static void Generate_Prefix(Map map, GenStepParams parms)
     {
         Init(map.BiomeGrid());
     }
     
+    [HarmonyPostfix]
+    [HarmonyPatch("Generate")]
     [HarmonyPriority(Priority.Last)]
-    [HarmonyPatch(nameof(GenStep_Terrain.Generate))]
-    private static void Postfix(Map map, GenStepParams parms)
+    private static void Generate_Postfix(Map map, GenStepParams parms)
     {
         CleanUp();
         BiomeTransition.DrawDebug(map.debugDrawer);
         map.BiomeGrid()?.UpdateOpenGroundFraction();
     }
     
-    [HarmonyPriority(Priority.VeryHigh)]
+    [HarmonyPrefix]
     [HarmonyPatch("TerrainFrom")]
-    private static bool Prefix(ref TerrainDef __result, IntVec3 c, Map map, float elevation, float fertility, RiverMaker river, bool preferSolid)
+    [HarmonyPriority(Priority.VeryHigh)]
+    private static bool TerrainFrom(ref TerrainDef __result, IntVec3 c, Map map, float elevation, float fertility, RiverMaker river, bool preferSolid)
     {
         if (UseVanillaTerrain) return true;
 
@@ -75,7 +87,6 @@ internal static class RimWorld_GenStep_Terrain
         if (BiomeFunction != null) _biomeGrid.SetBiomes(BiomeFunction);
         if (hasBiomeTransition)
         {
-            RimWorld_TerrainPatchMaker.UseStableSeed = true;
             BiomeTransition.PostProcessBiomeGrid(_biomeGrid, tile, mapSize);
         }
         
@@ -86,7 +97,6 @@ internal static class RimWorld_GenStep_Terrain
 
     public static void CleanUp()
     {
-        RimWorld_TerrainPatchMaker.UseStableSeed = false;
         UseVanillaTerrain = true;
         BaseFunction = null;
         StoneFunction = null;
@@ -136,15 +146,5 @@ internal static class RimWorld_GenStep_Terrain
         if (elevation < 0.55) return null;
         if (elevation < 0.61) return TerrainDefOf.Gravel;
         return GenStep_RocksFromGrid.RockDefAt(c).building.naturalTerrain;
-    }
-
-    public static bool IsDeepWater(this TerrainDef def)
-    {
-        return def == TerrainDefOf.WaterDeep || def == TerrainDefOf.WaterOceanDeep;
-    }
-    
-    public static bool IsNormalWater(this TerrainDef def)
-    {
-        return IsDeepWater(def) || def == TerrainDefOf.WaterShallow || def == TerrainDefOf.WaterOceanShallow;
     }
 }

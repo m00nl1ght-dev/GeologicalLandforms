@@ -25,6 +25,7 @@
   <GeologicalLandforms.Settings.Landform.RainfallRequirement>Rainfall requirement</GeologicalLandforms.Settings.Landform.RainfallRequirement>
   <GeologicalLandforms.Settings.Landform.SwampinessRequirement>Swampiness requirement</GeologicalLandforms.Settings.Landform.SwampinessRequirement>
   <GeologicalLandforms.Settings.Landform.MapSizeRequirement>Map size requirement</GeologicalLandforms.Settings.Landform.MapSizeRequirement>
+  <GeologicalLandforms.Settings.Landform.BiomeTransitionsRequirement>Biome transitions requirement</GeologicalLandforms.Settings.Landform.BiomeTransitionsRequirement>
   <GeologicalLandforms.Settings.Landform.AllowSettlements>Allow non-player settlements</GeologicalLandforms.Settings.Landform.AllowSettlements>
   <GeologicalLandforms.Settings.Landform.AllowSites>Allow quest sites</GeologicalLandforms.Settings.Landform.AllowSites>
   <GeologicalLandforms.Settings.Landform.CaveChance>Cave chance</GeologicalLandforms.Settings.Landform.CaveChance>

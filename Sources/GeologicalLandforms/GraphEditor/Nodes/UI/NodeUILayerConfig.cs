@@ -36,7 +36,7 @@ public class NodeUILayerConfig : NodeUIBase
 
     public override void OnCreate(bool fromGUI)
     {
-        NodeUILayerConfig existing = Landform.LayerConfig;
+        var existing = Landform.LayerConfig;
         if (existing != null && existing != this && canvas.nodes.Contains(existing)) existing.Delete();
         Landform.LayerConfig = this;
     }

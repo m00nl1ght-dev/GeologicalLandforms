@@ -91,7 +91,7 @@ public static class BiomeTransition
             Log.Message("TPM postprocessor changed biome of " + _tpmProcessed.Count + " tiles.");
         }
         
-        if (!PostProcessBiomeTransitions) biomeGrid.SetBiomes(RimWorld_GenStep_Terrain.BiomeFunction);
+        if (!PostProcessBiomeTransitions) biomeGrid.SetBiomes(Patch_RimWorld_GenStep_Terrain.BiomeFunction);
     }
 
     private static bool ShouldPostProcessTpm(TerrainPatchMaker tpm, TerrainDef output)

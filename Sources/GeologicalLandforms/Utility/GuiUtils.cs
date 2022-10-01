@@ -12,8 +12,8 @@ public static class GuiUtils
     public static void FloatRangeSlider(Listing_Standard listingStandard, ref FloatRange floatRange, string name, float min, float max)
     {
         CenteredLabel(listingStandard, "", name);
-        Rect rect = listingStandard.GetRect(28f);
-        FloatRange before = floatRange;
+        var rect = listingStandard.GetRect(28f);
+        var before = floatRange;
         
         if (!listingStandard.BoundingRectCached.HasValue || rect.Overlaps(listingStandard.BoundingRectCached.Value))
             Widgets.FloatRange(rect, (int) listingStandard.CurHeight, ref floatRange, min, max);
@@ -25,7 +25,7 @@ public static class GuiUtils
 
     public static string TextEntry(Listing_Standard listingStandard, string name, string value, float labelWidth = 200f)
     {
-        Rect rect = listingStandard.GetRect(28f);
+        var rect = listingStandard.GetRect(28f);
         if (!listingStandard.BoundingRectCached.HasValue || rect.Overlaps(listingStandard.BoundingRectCached.Value))
         {
             Widgets.Label(rect.LeftPartPixels(labelWidth), name);
@@ -38,7 +38,7 @@ public static class GuiUtils
     
     public static void IntEntry(Listing_Standard listingStandard, string name, ref int value, ref string editBuffer, int min, int max, float labelWidth = 200f)
     {
-        Rect rect = listingStandard.GetRect(28f);
+        var rect = listingStandard.GetRect(28f);
         if (!listingStandard.BoundingRectCached.HasValue || rect.Overlaps(listingStandard.BoundingRectCached.Value))
         {
             Widgets.Label(rect.LeftPartPixels(labelWidth), name);
@@ -51,14 +51,14 @@ public static class GuiUtils
     public static void Dropdown<T>(Listing_Standard listingStandard, string name, T value, List<T> potentialValues, 
         Action<T> action, float labelWidth = 200f, Func<T, string> textFunc = null)
     {
-        Rect rect = listingStandard.GetRect(28f);
+        var rect = listingStandard.GetRect(28f);
         if (!listingStandard.BoundingRectCached.HasValue || rect.Overlaps(listingStandard.BoundingRectCached.Value))
         {
             Widgets.Label(rect.LeftPartPixels(labelWidth), name);
-            Rect right = rect.RightPartPixels(rect.width - labelWidth);
+            var right = rect.RightPartPixels(rect.width - labelWidth);
             if (Widgets.ButtonText(right, textFunc != null ? textFunc.Invoke(value) : value.ToString()))
             {
-                List<FloatMenuOption> options = potentialValues.Select(e => 
+                var options = potentialValues.Select(e => 
                     new FloatMenuOption(textFunc != null ? textFunc.Invoke(e) : e.ToString(), () => { action(e); GUI.changed = true; })).ToList();
                 Find.WindowStack.Add(new FloatMenu(options));
             }
@@ -75,9 +75,9 @@ public static class GuiUtils
 
     public static void CenteredLabel(Listing_Standard listingStandard, string left, string center)
     {
-        Vector2 labelSize = Text.CalcSize(center);
-        Rect rect = listingStandard.GetRect(28f);
-        Rect centerRect = rect.RightHalf();
+        var labelSize = Text.CalcSize(center);
+        var rect = listingStandard.GetRect(28f);
+        var centerRect = rect.RightHalf();
         centerRect.xMin -= labelSize.x * 0.5f;
         Widgets.Label(centerRect, center);
         Widgets.Label(rect, left);
@@ -87,15 +87,15 @@ public static class GuiUtils
     public static void Checkboxes<T>(Listing_Standard listingStandard, string label, ref HashSet<T> values, 
         float rectSize, float labelWidth, string translationKeyPrefix = null) where T : Enum
     {
-        Rect rect = listingStandard.GetRect(28f);
+        var rect = listingStandard.GetRect(28f);
         
         if (!listingStandard.BoundingRectCached.HasValue || rect.Overlaps(listingStandard.BoundingRectCached.Value))
         {
             Widgets.Label(rect.LeftPartPixels(labelWidth), label);
             rect = rect.RightPartPixels(rect.width - labelWidth);
-            foreach (T value in typeof(T).GetEnumValues().Cast<T>())
+            foreach (var value in typeof(T).GetEnumValues().Cast<T>())
             {
-                bool selected = values.Contains(value);
+                var selected = values.Contains(value);
                 Widgets.Checkbox(rect.min, ref selected);
                 rect.xMin += 35f;
                 Widgets.Label(rect, translationKeyPrefix == null ? value.ToString() : (string)(translationKeyPrefix + "." + value).Translate());
@@ -109,7 +109,7 @@ public static class GuiUtils
 
     public static void Checkboxes(Listing_Standard listingStandard, string label, float rectSize, float labelWidth, ref bool[] values, params string[] labels)
     {
-        Rect rect = listingStandard.GetRect(28f);
+        var rect = listingStandard.GetRect(28f);
         
         if (!listingStandard.BoundingRectCached.HasValue || rect.Overlaps(listingStandard.BoundingRectCached.Value))
         {
@@ -117,7 +117,7 @@ public static class GuiUtils
             rect = rect.RightPartPixels(rect.width - labelWidth);
             for (var i = 0; i < values.Length; i++)
             {
-                bool selected = values[i];
+                var selected = values[i];
                 Widgets.Checkbox(rect.min, ref selected);
                 rect.xMin += 35f;
                 Widgets.Label(rect, labels[i]);
@@ -133,13 +133,13 @@ public static class GuiUtils
     public static void RadioButtons<T>(Listing_Standard listingStandard, string label, ref T currentValue, 
         float rectSize, float labelWidth, string translationKeyPrefix = null) where T : Enum
     {
-        Rect rect = listingStandard.GetRect(28f);
+        var rect = listingStandard.GetRect(28f);
         
         if (!listingStandard.BoundingRectCached.HasValue || rect.Overlaps(listingStandard.BoundingRectCached.Value))
         {
             Widgets.Label(rect.LeftPartPixels(labelWidth), label);
             rect = rect.RightPartPixels(rect.width - labelWidth);
-            foreach (T value in typeof(T).GetEnumValues().Cast<T>())
+            foreach (var value in typeof(T).GetEnumValues().Cast<T>())
             {
                 if (Widgets.RadioButton(rect.xMin, rect.yMin, value.Equals(currentValue))) currentValue = value;
                 rect.xMin += 35f;
@@ -155,7 +155,7 @@ public static class GuiUtils
     {
         if (Event.current.type == EventType.Repaint)
         {
-            Rect lastRect = GUILayoutUtility.GetLastRect();
+            var lastRect = GUILayoutUtility.GetLastRect();
             TooltipHandler.TipRegion(lastRect, new TipSignal(tooltip));
         }
     }

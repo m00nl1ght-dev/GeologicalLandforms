@@ -1,32 +1,37 @@
 using System.Linq;
-using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
+using LunarFramework.Patching;
 using RimWorld.Planet;
 using Verse;
 
-// ReSharper disable UnusedMember.Local
 // ReSharper disable RedundantAssignment
+// ReSharper disable UnusedParameter.Local
+// ReSharper disable UnusedType.Global
+// ReSharper disable UnusedMember.Local
 // ReSharper disable InconsistentNaming
 
 namespace GeologicalLandforms.Patches;
 
+[PatchGroup("Main")]
 [HarmonyPatch(typeof(World))]
-internal static class RimWorld_World
+internal static class Patch_RimWorld_World
 {
     public static int LastKnownInitialWorldSeed { get; private set; }
     
-    [HarmonyPatch(nameof(World.ConstructComponents))]
-    private static void Postfix(WorldInfo ___info)
+    [HarmonyPostfix]
+    [HarmonyPatch("ConstructComponents")]
+    private static void ConstructComponents(WorldInfo ___info)
     {
         LastKnownInitialWorldSeed = ___info.Seed;
     }
     
-    [HarmonyAfter("zylle.MapDesigner")]
+    [HarmonyPrefix]
     [HarmonyPatch(nameof(World.HasCaves))]
-    private static bool Prefix(ref bool __result, int tile)
+    [HarmonyAfter("zylle.MapDesigner")]
+    private static bool HasCaves(ref bool __result, int tile)
     {
-        WorldTileInfo worldTileInfo = WorldTileInfo.Get(tile);
-        Landform landform = worldTileInfo.Landforms?.FirstOrDefault(l => !l.IsLayer);
+        var worldTileInfo = WorldTileInfo.Get(tile);
+        var landform = worldTileInfo.Landforms?.FirstOrDefault(l => !l.IsLayer);
         if (landform == null) return true;
 
         int seed = worldTileInfo.MakeSeed(8266);

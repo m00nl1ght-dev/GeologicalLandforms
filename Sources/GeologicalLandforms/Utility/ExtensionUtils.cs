@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using RimWorld.Planet;
 using Verse;
 
@@ -24,11 +23,5 @@ public static class ExtensionUtils
         if (_biomeGridCache?.map == map) return _biomeGridCache;
         _biomeGridCache = map.GetComponent<BiomeGrid>();
         return _biomeGridCache;
-    }
-    
-    public static Rot6 Random(this List<Rot6> rotList, int seed)
-    {
-        if (rotList.Count == 0) return Rot6.Invalid;
-        return rotList[Rand.RangeSeeded(0, rotList.Count, seed)];
     }
 }

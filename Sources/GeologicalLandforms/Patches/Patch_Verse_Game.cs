@@ -1,17 +1,21 @@
 using HarmonyLib;
+using LunarFramework.Patching;
 using Verse;
 
-// ReSharper disable UnusedMember.Local
 // ReSharper disable RedundantAssignment
+// ReSharper disable UnusedParameter.Local
+// ReSharper disable UnusedType.Global
+// ReSharper disable UnusedMember.Local
 // ReSharper disable InconsistentNaming
 
 namespace GeologicalLandforms.Patches;
 
+[PatchGroup("Main")]
 [HarmonyPatch(typeof(Game))]
-public class RimWorld_Game
+internal static class Patch_Verse_Game
 {
-    [HarmonyPatch("AddMap")]
     [HarmonyPostfix]
+    [HarmonyPatch("AddMap")]
     private static void AddMap(Map map)
     {
         var world = Find.World;

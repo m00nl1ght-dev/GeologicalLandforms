@@ -4,24 +4,30 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 using HarmonyLib;
+using LunarFramework.Patching;
 using RimWorld.Planet;
 using Verse;
 
-// ReSharper disable UnusedMember.Local
 // ReSharper disable RedundantAssignment
+// ReSharper disable UnusedParameter.Local
+// ReSharper disable UnusedType.Global
+// ReSharper disable UnusedMember.Local
 // ReSharper disable InconsistentNaming
 
 namespace GeologicalLandforms.Patches;
 
-[HarmonyPatch(typeof (WITab_Terrain), "FillTab")]
-internal static class RimWorld_WITab_Terrain
+[PatchGroup("Main")]
+[HarmonyPatch(typeof(WITab_Terrain))]
+internal static class Patch_RimWorld_WITab_Terrain
 {
     private static readonly MethodInfo Method_AppendWithComma = AccessTools.Method(typeof(GenText), "AppendWithComma");
     private static readonly MethodInfo Method_LabelDouble = AccessTools.Method(typeof(Listing_Standard), "LabelDouble");
-    private static readonly MethodInfo Method_GetSpecialFeatures = AccessTools.Method(typeof(RimWorld_WITab_Terrain), "GetSpecialFeatures");
+    private static readonly MethodInfo Method_GetSpecialFeatures = AccessTools.Method(typeof(Patch_RimWorld_WITab_Terrain), "GetSpecialFeatures");
     
+    [HarmonyTranspiler]
+    [HarmonyPatch("FillTab")]
     [HarmonyPriority(Priority.Low)]
-    private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+    private static IEnumerable<CodeInstruction> FillTab(IEnumerable<CodeInstruction> instructions)
     {
         var foundAWC = false;
         var patched = false;

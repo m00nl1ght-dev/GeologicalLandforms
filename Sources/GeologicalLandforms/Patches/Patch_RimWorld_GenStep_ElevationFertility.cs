@@ -2,19 +2,29 @@ using System.Collections.Generic;
 using System.Reflection.Emit;
 using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
+using LunarFramework.Patching;
 using RimWorld;
 using TerrainGraph;
 using Verse;
 using static TerrainGraph.GridFunction;
 
+// ReSharper disable RedundantAssignment
+// ReSharper disable UnusedParameter.Local
+// ReSharper disable UnusedType.Global
+// ReSharper disable UnusedMember.Local
+// ReSharper disable InconsistentNaming
+
 namespace GeologicalLandforms.Patches;
 
-[HarmonyPatch(typeof(GenStep_ElevationFertility), nameof(GenStep_ElevationFertility.Generate))]
-internal static class RimWorld_GenStep_ElevationFertility
+[PatchGroup("Main")]
+[HarmonyPatch(typeof(GenStep_ElevationFertility))]
+internal static class Patch_RimWorld_GenStep_ElevationFertility
 {
+    [HarmonyPrefix]
+    [HarmonyPatch("Generate")]
     [HarmonyPriority(Priority.VeryHigh)]
     [HarmonyBefore("com.configurablemaps.rimworld.mod")]
-    private static bool Prefix(Map map, GenStepParams parms)
+    private static bool Generate_Prefix(Map map, GenStepParams parms)
     {
         // if there is no landform on this tile, let vanilla gen or other mods handle it
         if (!Landform.AnyGenerating) return true;
@@ -47,8 +57,10 @@ internal static class RimWorld_GenStep_ElevationFertility
     /// <summary>
     /// Disables vanilla cliff generation on mountainous tiles.
     /// </summary>
+    [HarmonyTranspiler]
+    [HarmonyPatch("Generate")]
     [HarmonyPriority(Priority.First)]
-    private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+    private static IEnumerable<CodeInstruction> Generate_Transpiler(IEnumerable<CodeInstruction> instructions)
     {
         var lastOpCode = OpCodes.Nop;
         var patched = false;
@@ -71,7 +83,7 @@ internal static class RimWorld_GenStep_ElevationFertility
             GeologicalLandformsAPI.Logger.Fatal("Failed to patch RimWorld_GenStep_ElevationFertility");
     }
 
-    public static IGridFunction<double> BuildDefaultElevationGrid(Map map, int seed)
+    private static IGridFunction<double> BuildDefaultElevationGrid(Map map, int seed)
     {
         IGridFunction<double> function = new NoiseGenerator(NodeGridPerlin.PerlinNoise, 0.021, 2, 0.5, 6, seed);
         function = new ScaleWithBias(function, 0.5, 0.5);
@@ -80,7 +92,7 @@ internal static class RimWorld_GenStep_ElevationFertility
         return function;
     }
     
-    public static IGridFunction<double> BuildDefaultFertilityGrid(Map map, int seed)
+    private static IGridFunction<double> BuildDefaultFertilityGrid(Map map, int seed)
     {
         IGridFunction<double> function = new NoiseGenerator(NodeGridPerlin.PerlinNoise, 0.021, 2, 0.5, 6, seed);
         function = new ScaleWithBias(function, 0.5, 0.5);
