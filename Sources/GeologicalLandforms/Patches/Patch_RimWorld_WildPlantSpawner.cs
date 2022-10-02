@@ -106,7 +106,7 @@ internal static class Patch_RimWorld_WildPlantSpawner
             float mtb = cavePlant ? 130f : biome.wildPlantRegrowDays;
             if (Rand.Chance(chanceFromDensity) && Rand.MTBEventOccurs(mtb, 60000f, checkDuration) && CanRegrowAt(___map, intVec3))
             {
-                if (cavePlant || biome == biomeGrid.PrimaryBiome)
+                if (cavePlant)
                     __instance.CheckSpawnWildPlantAt(intVec3, plantDensity, ___calculatedWholeMapNumDesiredPlants);
                 else
                     CheckSpawnWildPlantAt_Patched_NonCave(__instance, biome, ___map, intVec3, plantDensity, ___calculatedWholeMapNumDesiredPlants);
@@ -136,7 +136,7 @@ internal static class Patch_RimWorld_WildPlantSpawner
                 var biome = biomeGrid.BiomeAt(c, BiomeGrid.BiomeQuery.PlantSpawning);
                 float density = biome.plantDensity * condFactor;
 
-                if (biome == biomeGrid.PrimaryBiome || GoodRoofForCavePlant(map, c))
+                if (GoodRoofForCavePlant(map, c))
                     map.wildPlantSpawner.CheckSpawnWildPlantAt(c, density, desired, true);
                 else
                     CheckSpawnWildPlantAt_Patched_NonCave(map.wildPlantSpawner, biome, map, c, density, desired, true);
@@ -382,7 +382,8 @@ internal static class Patch_RimWorld_WildPlantSpawner
         float wholeMapNumDesiredPlants)
     {
         int num = GenRadial.NumCellsInRadius(20f);
-        if (wholeMapNumDesiredPlants * (num / (double)map.Area) <= 4.0 || !biome.wildPlantsCareAboutLocalFertility)
+        if (wholeMapNumDesiredPlants * (num / (double)map.Area) <= 4.0 
+            || (!biome.wildPlantsCareAboutLocalFertility && Rand.ChanceSeeded(BiomeTransition.PlantLowDensityPassChance, c.GetHashCode() ^ map.Tile)))
             return map.listerThings.ThingsInGroup(ThingRequestGroup.Plant).Count >= (double)wholeMapNumDesiredPlants;
         
         float numDesiredPlantsLocally = 0.0f;
@@ -480,9 +481,15 @@ internal static class Patch_RimWorld_WildPlantSpawner
 
     public static void LogInfo(Map map, IntVec3 pos)
     {
+        var biomeGrid = map.BiomeGrid();
+        var biomeG = biomeGrid.BiomeAt(pos);
+        var biomeAS = biomeGrid.BiomeAt(pos, BiomeGrid.BiomeQuery.AnimalSpawning);
+        var biomePS = biomeGrid.BiomeAt(pos, BiomeGrid.BiomeQuery.PlantSpawning);
+        float plantDensity = biomePS.plantDensity * AggregatePlantDensityFactor(map.gameConditionManager, map);
+        Log.Message("pos: " + pos);
+        Log.Message("biome: g=" + biomeG.defName + " as=" + biomeAS.defName + " ps=" + biomePS.defName);
         Log.Message("whole map desired: " + map.wildPlantSpawner.CurrentWholeMapNumDesiredPlants);
-        Log.Message("current plant density: " + map.wildPlantSpawner.CurrentPlantDensity);
-        Log.Message("desired density at pos: " + map.wildPlantSpawner.GetDesiredPlantsCountAt(pos, pos, map.wildPlantSpawner.CurrentPlantDensity));
+        Log.Message("desired density at pos: " + plantDensity);
         Log.Message("map open ground fraction: " + map.BiomeGrid()?.OpenGroundFraction);
         Log.Message("map animal density factor: " + GeologicalLandformsAPI.AnimalDensityFactorFunction(map.BiomeGrid()));
     }

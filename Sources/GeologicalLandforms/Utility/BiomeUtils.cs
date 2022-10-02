@@ -10,7 +10,7 @@ public static class BiomeUtils
     private static readonly IReadOnlyCollection<string> ExcludedBiomePrefixes = new HashSet<string>
     {
         "BiomesIslands", // Biomes! Islands
-        "BMT_FungalForest", // Biomes! Caverns
+        "BMT_FungalForest", "BMT_ShallowCave", "BMT_CrystalCaverns", // Biomes! Caverns
         "BMT_ChromaticOasis", // Biomes! Oasis
         "Tunnelworld", "InfestedMountains", "DeepRavine", "FrozenLake", "Oasis", // Terra Project
         "Archipelago", "VolcanicIsland", "TundraSkerries", "PackIce", "Atoll", // Terra Project

@@ -29,6 +29,9 @@ public static class BiomeTransition
     [TweakValue("Geological Landforms", -1f, 1f)]
     public static float ThresholdForRoot = 0.25f;
     
+    [TweakValue("Geological Landforms", 0f, 1f)]
+    public static float PlantLowDensityPassChance = 0.01f;
+    
     private static HashSet<IntVec3> _tpmProcessed;
 
     public static bool IsTransition(int tile, int nTile, BiomeDef biome, BiomeDef nBiome)
