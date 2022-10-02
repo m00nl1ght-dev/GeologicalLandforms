@@ -13,6 +13,7 @@ using Verse;
 
 namespace GeologicalLandforms.Compatibility;
 
+[HarmonyPatch]
 internal class ModCompat_PrepareLanding : ModCompat
 {
     public override string TargetAssemblyName => "PrepareLanding";

@@ -7,8 +7,8 @@ using LunarFramework.Utility;
 using RimWorld;
 using RimWorld.Planet;
 using Verse;
-using static GeologicalLandforms.IWorldTileInfo.CoastType;
 using static Verse.RotationDirection;
+using static GeologicalLandforms.IWorldTileInfo;
 
 namespace GeologicalLandforms;
 
@@ -22,14 +22,14 @@ public class WorldTileInfo : IWorldTileInfo
     private List<Landform> _landforms;
     public bool HasLandforms => Landforms?.Count > 0;
     
-    public IReadOnlyList<IWorldTileInfo.BorderingBiome> BorderingBiomes => _borderingBiomes;
-    private List<IWorldTileInfo.BorderingBiome> _borderingBiomes;
+    public IReadOnlyList<BorderingBiome> BorderingBiomes => _borderingBiomes;
+    private List<BorderingBiome> _borderingBiomes;
     public bool HasBorderingBiomes => BorderingBiomes?.Count > 0;
 
     public Topology Topology { get; private set; } = Topology.Any;
     public Rot4 LandformDirection { get; private set; }
     
-    public StructRot4<IWorldTileInfo.CoastType> Coast { get; private set; }
+    public StructRot4<CoastType> Coast { get; private set; }
     
     public MapParent WorldObject => World.worldObjects.MapParentAt(TileId);
     public BiomeDef Biome => Tile.biome;
@@ -155,7 +155,7 @@ public class WorldTileInfo : IWorldTileInfo
 
         if (selfBiome == BiomeDefOf.Lake || selfBiome == BiomeDefOf.Ocean)
         {
-            info.Coast = new StructRot4<IWorldTileInfo.CoastType>(CoastTypeFromTile(info.Tile));
+            info.Coast = new StructRot4<CoastType>(CoastTypeFromTile(info.Tile));
             info.Topology = Topology.Ocean;
             return;
         }
@@ -193,7 +193,7 @@ public class WorldTileInfo : IWorldTileInfo
         
         waterTiles.Clear(); landTiles.Clear(); cliffTiles.Clear(); nonCliffTiles.Clear();
 
-        var coast = new StructRot4<IWorldTileInfo.CoastType>();
+        var coast = new StructRot4<CoastType>();
 
         for (var i = 0; i < nb.Count; i++)
         {
@@ -202,19 +202,19 @@ public class WorldTileInfo : IWorldTileInfo
             var rot6 = new Rot6(i, grid.GetHeadingFromTo(tileId, nbId));
             var rot4 = rot6.AsRot4();
             
-            var coastType = CoastTypeFromTile(nbTile, coast[rot4]);
-            if (coastType != IWorldTileInfo.CoastType.None)
+            var coastType = CoastTypeFromTile(nbTile);
+            if (coastType != CoastType.None)
             {
                 waterTiles.Add(rot6);
                 nonCliffTiles.Add(rot6);
-                coast[rot4] = coastType;
+                coast[rot4] = CombineCoastTypes(coastType, coast[rot4]);
             }
             else
             {
                 if (BiomeTransition.IsTransition(tileId, nbId, selfBiome, nbTile.biome))
                 {
-                    info._borderingBiomes ??= new List<IWorldTileInfo.BorderingBiome>();
-                    info._borderingBiomes.Add(new IWorldTileInfo.BorderingBiome(nbTile.biome, rot6.Angle));
+                    info._borderingBiomes ??= new List<BorderingBiome>();
+                    info._borderingBiomes.Add(new BorderingBiome(nbTile.biome, rot6.Angle));
                 }
 
                 if ((int) nbTile.hilliness >= 3 && nbTile.hilliness - info.Tile.hilliness > 0) cliffTiles.Add(rot6);
@@ -471,11 +471,16 @@ public class WorldTileInfo : IWorldTileInfo
         }
     }
     
-    public static IWorldTileInfo.CoastType CoastTypeFromTile(Tile tile, IWorldTileInfo.CoastType existing = IWorldTileInfo.CoastType.None)
+    public static CoastType CoastTypeFromTile(Tile tile)
     {
-        if (tile.biome == BiomeDefOf.Ocean) return Ocean;
-        if (tile.biome == BiomeDefOf.Lake) return existing == Ocean ? Ocean : Lake;
-        if (tile.WaterCovered && BiomeUtils.IsBiomeOceanTopology(tile.biome)) return Ocean;
-        return existing;
+        if (tile.biome == BiomeDefOf.Ocean) return CoastType.Ocean;
+        if (tile.biome == BiomeDefOf.Lake) return CoastType.Lake;
+        if (tile.WaterCovered && BiomeUtils.IsBiomeOceanTopology(tile.biome)) return CoastType.Ocean;
+        return CoastType.None;
+    }
+    
+    public static CoastType CombineCoastTypes(CoastType a, CoastType b)
+    {
+        return (CoastType) Math.Max((int) a, (int) b);
     }
 }
