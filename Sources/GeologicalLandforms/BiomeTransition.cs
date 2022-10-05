@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using GeologicalLandforms.Patches;
 using RimWorld;
 using RimWorld.Planet;
+using UnityEngine;
 using Verse;
 
 // ReSharper disable ConvertToConstant.Global
@@ -15,7 +16,7 @@ namespace GeologicalLandforms;
 public static class BiomeTransition
 {
     [TweakValue("Geological Landforms")]
-    public static bool UnidirectionalTransitions = false;
+    public static bool UnidirectionalTransitions = true;
     
     [TweakValue("Geological Landforms")]
     public static bool PostProcessBiomeTransitions = true;
@@ -34,9 +35,9 @@ public static class BiomeTransition
     
     private static HashSet<IntVec3> _tpmProcessed;
 
-    public static bool IsTransition(int tile, int nTile, BiomeDef biome, BiomeDef nBiome)
+    public static bool IsTransition(int tile, int nTile, BiomeDef biome, BiomeDef nBiome, bool requireCanBuildBase = true)
     {
-        if (biome == nBiome || !nBiome.canBuildBase || BiomeUtils.IsBiomeExcluded(nBiome)) return false;
+        if (biome == nBiome || (!nBiome.canBuildBase && requireCanBuildBase) || BiomeUtils.IsBiomeExcluded(nBiome)) return false;
 
         if (!UnidirectionalTransitions) return true;
         
@@ -45,10 +46,24 @@ public static class BiomeTransition
         int max = rev ? tile : nTile;
         
         Rand.PushState(Gen.HashCombineInt(min, max));
-        bool flag = Rand.Bool;
+        
+        bool flag = Rand.Bool ^ rev;
+        var rTile = flag ? nTile : tile;
+
+        var grid = Find.WorldGrid;
+        var hilliness = grid[rTile].hilliness;
+        var pos = Vector3.Lerp(grid.GetTileCenter(min), grid.GetTileCenter(max), 0.5f);
+        
+        var tTileInfo = Patch_RimWorld_WorldGenStep_Terrain.GenerateTileFor(pos, hilliness);
+
+        var diff = nBiome.Worker.GetScore(tTileInfo, rTile) - biome.Worker.GetScore(tTileInfo, rTile);
+        
         Rand.PopState();
         
-        return flag ^ rev;
+        if (diff > 0) return true;
+        if (diff < 0) return false;
+
+        return flag;
     }
     
     public static void PostProcessBiomeGrid(BiomeGrid biomeGrid, WorldTileInfo tile, IntVec2 mapSize)

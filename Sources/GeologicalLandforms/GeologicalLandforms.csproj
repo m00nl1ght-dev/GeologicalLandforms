@@ -118,6 +118,7 @@
         <Compile Include="Compatibility\ModCompat_DubsMintMenus.cs" />
         <Compile Include="Compatibility\ModCompat_MapReroll.cs" />
         <Compile Include="Compatibility\ModCompat_PrepareLanding.cs" />
+        <Compile Include="Patches\Patch_RimWorld_WorldGenStep_Terrain.cs" />
         <Compile Include="Patches\Patch_Verse_Game.cs" />
         <Compile Include="Patches\Patch_RimWorld_GenStep_ScatterLumpsMineable.cs" />
         <Compile Include="Patches\Patch_RimWorld_LearningReadout.cs" />
