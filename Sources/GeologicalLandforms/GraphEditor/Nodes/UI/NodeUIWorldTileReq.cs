@@ -16,7 +16,7 @@ public class NodeUIWorldTileReq : NodeUIBase
     public override string GetID => ID;
 
     public override string Title => "World Tile Requirements";
-    public override Vector2 DefaultSize => new(400, 875);
+    public override Vector2 DefaultSize => new(400, 950);
     
     public Topology Topology = Inland;
     public float Commonness = 1f;
