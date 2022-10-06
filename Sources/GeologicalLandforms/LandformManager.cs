@@ -13,39 +13,46 @@ public static class LandformManager
 {
     public const int CurrentVersion = 1;
     
-    public static string CoreLandformsDir => LandformsDir(ModInstance.ModContentPack, CurrentVersion);
-    public static string LandformsDir(ModContentPack mod, int version) => Path.Combine(mod.RootDir, "Landforms-v" + version);
+    public static string LandformsDir(string loadFolder, int version) => Path.Combine(loadFolder, "Landforms-v" + version);
     public static string CustomLandformsDir(int version) => Path.Combine(GenFilePaths.ConfigFolderPath, "CustomLandforms-v" + version);
+    
+    private static List<string> _mcpLandformDirs = new();
     
     private static Dictionary<string, Landform> _landforms = new();
     public static IReadOnlyDictionary<string, Landform> Landforms => _landforms;
 
-    private static readonly List<string> _mcpLandformDirs = new();
-    
     private static ImportExportFormat IOFormat => ImportExportManager.ParseFormat("XML");
 
     public static void InitialLoad()
     {
+        Directory.CreateDirectory(CustomLandformsDir(CurrentVersion));
+
+        var landformSources = new HashSet<string>();
+        _mcpLandformDirs = new();
+        
         foreach (var mcp in LoadedModManager.RunningMods)
         {
             if (mcp?.RootDir == null) continue;
-            if (mcp.PackageId == ModInstance.ModContentPack.PackageId) continue;
-            var dir = LandformsDir(mcp, CurrentVersion);
-            if (Directory.Exists(dir))
+
+            foreach (var dir in mcp.foldersToLoadDescendingOrder
+                         .Select(loadFolder => LandformsDir(loadFolder, CurrentVersion))
+                         .Reverse().Where(Directory.Exists))
             {
                 _mcpLandformDirs.Add(dir);
-                Log.Message(ModInstance.LogPrefix + "Discovered additional landform data in mod " + mcp.Name + ".");
+                landformSources.Add(mcp.Name);
             }
         }
         
-        Directory.CreateDirectory(CustomLandformsDir(CurrentVersion));
+        Log.ResetMessageCount();
+        Log.Message(ModInstance.LogPrefix + "Found landform data in the following mods: " + string.Join(", ", landformSources));
+        
         _landforms = LoadAll();
     }
 
     public static Dictionary<string, Landform> LoadAll(string fileFilter = "*", bool includeCustom = true)
     {
-        var coreLandforms = LoadLandformsFromDirectory(CoreLandformsDir, null, fileFilter);
-        var mcpLandforms = _mcpLandformDirs.Aggregate(coreLandforms, (current, dir) => LoadLandformsFromDirectory(dir, current, fileFilter));
+        var mcpLandforms = _mcpLandformDirs.Aggregate<string, Dictionary<string,Landform>>(null, 
+            (current, dir) => LoadLandformsFromDirectory(dir, current, fileFilter));
         
         foreach (var landform in mcpLandforms.Values)
         {
