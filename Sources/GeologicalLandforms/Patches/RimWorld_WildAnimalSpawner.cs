@@ -42,7 +42,9 @@ internal static class RimWorld_WildAnimalSpawner
 
     public static float BaseDensityFactorForMap(BiomeGrid biomeGrid)
     {
-        var openGroundFraction = biomeGrid?.OpenGroundFraction ?? 1f;
+        var primaryBiome = biomeGrid?.PrimaryBiome;
+        if (primaryBiome == null || Main.IsVanillaBodyOfWater(primaryBiome) || Main.IsBiomeExcluded(primaryBiome)) return 1f;
+        var openGroundFraction = biomeGrid.OpenGroundFraction;
         var scaleFactor = 2f - ModInstance.Settings.AnimalDensityFactorForSecludedAreas * 2f;
         return 1f + (openGroundFraction - 1f) * scaleFactor;
     }

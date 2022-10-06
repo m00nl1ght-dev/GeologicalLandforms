@@ -62,6 +62,11 @@ public static class Main
     {
         return OceanTopologyBiomes.Contains(biome);
     }
+    
+    public static bool IsVanillaBodyOfWater(BiomeDef biome)
+    {
+        return biome == BiomeDefOf.Ocean || biome == BiomeDefOf.Lake;
+    }
 
     private static LandformData _landformDataCache;
     
