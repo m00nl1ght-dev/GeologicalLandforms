@@ -13,7 +13,7 @@ public static class LandformManager
 {
     public const int CurrentVersion = 1;
     
-    public static string LandformsDir(ModContentPack mod, int version) => Path.Combine(mod.RootDir, "Landforms-v" + version);
+    public static string LandformsDir(string loadFolder, int version) => Path.Combine(loadFolder, "Landforms-v" + version);
     public static string CustomLandformsDir(int version) => Path.Combine(GenFilePaths.ConfigFolderPath, "CustomLandforms-v" + version);
     
     private static List<string> _mcpLandformDirs = new();
@@ -29,14 +29,16 @@ public static class LandformManager
         
         Directory.CreateDirectory(CustomLandformsDir(CurrentVersion));
 
-        var landformSources = new List<string>();
+        var landformSources = new HashSet<string>();
         _mcpLandformDirs = new();
         
         foreach (var mcp in LoadedModManager.RunningMods)
         {
             if (mcp?.RootDir == null) continue;
-            var dir = LandformsDir(mcp, CurrentVersion);
-            if (Directory.Exists(dir))
+
+            foreach (var dir in mcp.foldersToLoadDescendingOrder
+                         .Select(loadFolder => LandformsDir(loadFolder, CurrentVersion))
+                         .Reverse().Where(Directory.Exists))
             {
                 _mcpLandformDirs.Add(dir);
                 landformSources.Add(mcp.Name);

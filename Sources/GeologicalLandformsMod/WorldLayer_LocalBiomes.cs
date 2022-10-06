@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
 using Verse;
@@ -52,7 +51,7 @@ internal class WorldLayer_LocalBiomes : WorldLayer
                 bool isWater = nBiome.IsVanillaBodyOfWater();
                 if (BiomeTransition.IsTransition(tileIdx, nIdx, biome, nBiome, i))
                 {
-                    var subMesh = GetSubMesh(nTile.biome.DrawMaterial);
+                    var subMesh = GetSubMesh(nBiome.DrawMaterial);
                     int existingVertCount = subMesh.verts.Count;
 
                     var tileCenter = grid.GetTileCenter(tileIdx);
