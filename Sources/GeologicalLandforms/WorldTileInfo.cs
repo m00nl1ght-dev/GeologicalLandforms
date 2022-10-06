@@ -199,12 +199,12 @@ public class WorldTileInfo : IWorldTileInfo
             var rot6 = new Rot6(i, grid.GetHeadingFromTo(tileId, nbId));
             var rot4 = rot6.AsRot4();
             
-            var coastType = CoastTypeFromTile(nbTile, coast[rot4]);
+            var coastType = CoastTypeFromTile(nbTile);
             if (coastType != IWorldTileInfo.CoastType.None)
             {
                 waterTiles.Add(rot6);
                 nonCliffTiles.Add(rot6);
-                coast[rot4] = coastType;
+                coast[rot4] = CombineCoastTypes(coastType, coast[rot4]);
             }
             else
             {
@@ -464,11 +464,16 @@ public class WorldTileInfo : IWorldTileInfo
         }
     }
     
-    public static IWorldTileInfo.CoastType CoastTypeFromTile(Tile tile, IWorldTileInfo.CoastType existing = IWorldTileInfo.CoastType.None)
+    public static IWorldTileInfo.CoastType CoastTypeFromTile(Tile tile)
     {
         if (tile.biome == BiomeDefOf.Ocean) return Ocean;
-        if (tile.biome == BiomeDefOf.Lake) return existing == Ocean ? Ocean : Lake;
+        if (tile.biome == BiomeDefOf.Lake) return Lake;
         if (tile.WaterCovered && Main.IsBiomeOceanTopology(tile.biome)) return Ocean;
-        return existing;
+        return IWorldTileInfo.CoastType.None;
+    }
+    
+    public static IWorldTileInfo.CoastType CombineCoastTypes(IWorldTileInfo.CoastType a, IWorldTileInfo.CoastType b)
+    {
+        return (IWorldTileInfo.CoastType) Math.Max((int) a, (int) b);
     }
 }
