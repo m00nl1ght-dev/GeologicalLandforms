@@ -26,15 +26,20 @@ public static class BiomeUtils
     private static HashSet<BiomeDef> _excludedBiomes;
     private static HashSet<BiomeDef> _oceanTopologyBiomes;
     
-    public static bool IsBiomeExcluded(BiomeDef biome)
+    public static bool IsExcluded(this BiomeDef biome)
     {
         _excludedBiomes ??= new(DefDatabase<BiomeDef>.AllDefsListForReading.Where(b => ExcludedBiomePrefixes.Any(b.defName.StartsWith)));
         return _excludedBiomes.Contains(biome);
     }
     
-    public static bool IsBiomeOceanTopology(BiomeDef biome)
+    public static bool IsOceanTopology(this BiomeDef biome)
     {
         _oceanTopologyBiomes ??= new(DefDatabase<BiomeDef>.AllDefsListForReading.Where(b => OceanTopologyBiomePrefixes.Any(b.defName.StartsWith)));
         return _oceanTopologyBiomes.Contains(biome);
+    }
+    
+    public static bool IsVanillaBodyOfWater(this BiomeDef biome)
+    {
+        return biome == BiomeDefOf.Ocean || biome == BiomeDefOf.Lake;
     }
 }

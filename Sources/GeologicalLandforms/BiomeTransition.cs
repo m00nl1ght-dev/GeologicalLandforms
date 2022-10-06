@@ -64,8 +64,8 @@ public static class BiomeTransition
 
     public static bool CanBePartOfTransition(BiomeDef biome)
     {
-        if (biome == BiomeDefOf.Ocean || biome == BiomeDefOf.Lake) return false;
-        return !BiomeUtils.IsBiomeExcluded(biome);
+        if (biome.IsVanillaBodyOfWater()) return false;
+        return !biome.IsExcluded();
     }
     
     public static void PostProcessBiomeGrid(BiomeGrid biomeGrid, WorldTileInfo tile, IntVec2 mapSize)

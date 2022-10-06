@@ -126,7 +126,7 @@ public class WorldTileInfo : IWorldTileInfo
     public static bool CanHaveLandform(IWorldTileInfo info)
     {
         if (!info.Biome.canBuildBase || info.Hilliness == Hilliness.Impassable) return false; 
-        if (BiomeUtils.IsBiomeExcluded(info.Biome)) return false;
+        if (info.Biome.IsExcluded()) return false;
         return true;
     }
     
@@ -153,7 +153,7 @@ public class WorldTileInfo : IWorldTileInfo
 
         info.LandformDirection = new Rot4(Rand.RangeInclusiveSeeded(0, 3, info.MakeSeed(0087)));
 
-        if (selfBiome == BiomeDefOf.Lake || selfBiome == BiomeDefOf.Ocean)
+        if (selfBiome.IsVanillaBodyOfWater())
         {
             info.Coast = new StructRot4<CoastType>(CoastTypeFromTile(info.Tile));
             info.Topology = Topology.Ocean;
@@ -176,7 +176,7 @@ public class WorldTileInfo : IWorldTileInfo
             info.MainRoad = roadLink.road;
         }
 
-        if (BiomeUtils.IsBiomeExcluded(selfBiome))
+        if (selfBiome.IsExcluded())
         {
             info.Topology = Topology.Any;
             return;
@@ -475,7 +475,7 @@ public class WorldTileInfo : IWorldTileInfo
     {
         if (tile.biome == BiomeDefOf.Ocean) return CoastType.Ocean;
         if (tile.biome == BiomeDefOf.Lake) return CoastType.Lake;
-        if (tile.WaterCovered && BiomeUtils.IsBiomeOceanTopology(tile.biome)) return CoastType.Ocean;
+        if (tile.WaterCovered && tile.biome.IsOceanTopology()) return CoastType.Ocean;
         return CoastType.None;
     }
     

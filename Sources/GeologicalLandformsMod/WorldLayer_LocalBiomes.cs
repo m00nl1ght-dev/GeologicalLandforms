@@ -49,7 +49,7 @@ internal class WorldLayer_LocalBiomes : WorldLayer
                 var nTile = grid[nIdx];
                 var nBiome = nTile.biome;
 
-                bool isWater = nBiome == BiomeDefOf.Ocean || nBiome == BiomeDefOf.Lake;
+                bool isWater = nBiome.IsVanillaBodyOfWater();
                 if (BiomeTransition.IsTransition(tileIdx, nIdx, biome, nBiome, i))
                 {
                     var subMesh = GetSubMesh(nTile.biome.DrawMaterial);

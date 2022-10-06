@@ -137,9 +137,9 @@ public class BiomeGrid : MapComponent
 
     private float GetOpenGroundFractionFor(IntVec3 cell)
     {
-        if (map.terrainGrid.TerrainAt(cell).IsNormalWater()) return 0f;
+        if (map.terrainGrid.TerrainAt(cell).IsNormalWater()) return 0.1f;
         if (cell.Walkable(map)) return 1f;
-        return 0.25f;
+        return 0.35f;
     }
 
     public override void ExposeData()
