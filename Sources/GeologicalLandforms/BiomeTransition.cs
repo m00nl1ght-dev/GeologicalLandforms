@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using GeologicalLandforms.Patches;
 using RimWorld;
 using RimWorld.Planet;
-using UnityEngine;
 using Verse;
 
 // ReSharper disable ConvertToConstant.Global
@@ -16,7 +15,7 @@ namespace GeologicalLandforms;
 public static class BiomeTransition
 {
     [TweakValue("Geological Landforms")]
-    public static bool UnidirectionalTransitions = true;
+    public static bool UnidirectionalTransitions = false;
     
     [TweakValue("Geological Landforms")]
     public static bool PostProcessBiomeTransitions = true;
@@ -35,12 +34,21 @@ public static class BiomeTransition
     
     private static HashSet<IntVec3> _tpmProcessed;
 
-    public static bool IsTransition(int tile, int nTile, BiomeDef biome, BiomeDef nBiome, bool requireCanBuildBase = true)
+    public static bool IsTransition(int tile, int nTile, BiomeDef biome, BiomeDef nBiome, int nbId = -1)
     {
-        if (biome == nBiome || (!nBiome.canBuildBase && requireCanBuildBase) || BiomeUtils.IsBiomeExcluded(nBiome)) return false;
+        if (biome == nBiome || !CanBePartOfTransition(nBiome)) return false;
 
         if (!UnidirectionalTransitions) return true;
+
+        var world = Find.World;
+        var landformData = world.LandformData();
         
+        if (landformData != null && landformData.HasBiomeTransitions())
+        {
+            if (nbId < 0) nbId = world.grid.GetNeighborId(tile, nTile);
+            return landformData.GetBiomeTransition(tile, nbId);
+        }
+
         bool rev = tile > nTile;
         int min = rev ? nTile : tile;
         int max = rev ? tile : nTile;
@@ -48,22 +56,16 @@ public static class BiomeTransition
         Rand.PushState(Gen.HashCombineInt(min, max));
         
         bool flag = Rand.Bool ^ rev;
-        var rTile = flag ? nTile : tile;
-
-        var grid = Find.WorldGrid;
-        var hilliness = grid[rTile].hilliness;
-        var pos = Vector3.Lerp(grid.GetTileCenter(min), grid.GetTileCenter(max), 0.5f);
-        
-        var tTileInfo = Patch_RimWorld_WorldGenStep_Terrain.GenerateTileFor(pos, hilliness);
-
-        var diff = nBiome.Worker.GetScore(tTileInfo, rTile) - biome.Worker.GetScore(tTileInfo, rTile);
         
         Rand.PopState();
-        
-        if (diff > 0) return true;
-        if (diff < 0) return false;
 
         return flag;
+    }
+
+    public static bool CanBePartOfTransition(BiomeDef biome)
+    {
+        if (biome == BiomeDefOf.Ocean || biome == BiomeDefOf.Lake) return false;
+        return !BiomeUtils.IsBiomeExcluded(biome);
     }
     
     public static void PostProcessBiomeGrid(BiomeGrid biomeGrid, WorldTileInfo tile, IntVec2 mapSize)
@@ -106,7 +108,7 @@ public static class BiomeTransition
 
         if (_tpmProcessed != null)
         {
-            Log.Message("TPM postprocessor changed biome of " + _tpmProcessed.Count + " tiles.");
+            GeologicalLandformsAPI.Logger.Debug("TPM postprocessor changed biome of " + _tpmProcessed.Count + " tiles.");
         }
         
         if (!PostProcessBiomeTransitions) biomeGrid.SetBiomes(Patch_RimWorld_GenStep_Terrain.BiomeFunction);

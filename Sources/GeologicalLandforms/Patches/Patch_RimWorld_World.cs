@@ -20,9 +20,20 @@ internal static class Patch_RimWorld_World
     
     [HarmonyPostfix]
     [HarmonyPatch("ConstructComponents")]
-    private static void ConstructComponents(WorldInfo ___info)
+    private static void ConstructComponents(WorldInfo ___info, World __instance)
     {
         LastKnownInitialWorldSeed = ___info.Seed;
+        
+        var landformData = __instance.GetComponent<LandformData>();
+        var lastWorld = Patch_RimWorld_WorldGenStep_Terrain.LastWorld;
+        var biomeTransitions = Patch_RimWorld_WorldGenStep_Terrain.BiomeTransitions;
+        
+        if (biomeTransitions != null && landformData != null && lastWorld == __instance)
+        {
+            landformData.SetBiomeTransitions(biomeTransitions);
+            Patch_RimWorld_WorldGenStep_Terrain.BiomeTransitions = null;
+            Patch_RimWorld_WorldGenStep_Terrain.LastWorld = null;
+        }
     }
     
     [HarmonyPrefix]

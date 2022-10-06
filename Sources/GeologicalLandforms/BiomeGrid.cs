@@ -161,6 +161,8 @@ public class BiomeGrid : MapComponent
             _replacementKeys = keys.ToArray();
             _replacementValues = values.ToArray();
         }
+        
+        ExtensionUtils.ClearCaches();
     }
 
     private void ExposeBiomeArray(Dictionary<ushort, BiomeDef> biomeDefsByShortHash, BiomeDef[] array, string name)

@@ -24,4 +24,10 @@ public static class ExtensionUtils
         _biomeGridCache = map.GetComponent<BiomeGrid>();
         return _biomeGridCache;
     }
+
+    public static void ClearCaches()
+    {
+        _landformDataCache = null;
+        _biomeGridCache = null;
+    }
 }

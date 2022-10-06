@@ -13,6 +13,7 @@ namespace GeologicalLandforms;
 public class LandformData : WorldComponent
 {
     private Dictionary<int, Entry> _entries = new();
+    private bool[] _biomeTransitions = Array.Empty<bool>();
 
     public LandformData(World world) : base(world) {}
 
@@ -46,11 +47,40 @@ public class LandformData : WorldComponent
         MapPreviewAPI.NotifyWorldChanged();
     }
 
+    public bool HasBiomeTransitions()
+    {
+        return _biomeTransitions.Length > 0;
+    }
+    
+    public bool GetBiomeTransition(int tileId, int nbId)
+    {
+        if (tileId < 0 || tileId >= world.grid.TilesCount || nbId is < 0 or > 5) return false;
+        return _biomeTransitions[tileId * 6 + nbId];
+    }
+
+    public void SetBiomeTransitions(bool[] transitions)
+    {
+        _biomeTransitions = transitions;
+    }
+
     static LandformData() => ParseHelper.Parsers<Entry>.Register(Entry.FromString);
 
     public override void ExposeData()
     {
         Scribe_Collections.Look(ref _entries, "entries", LookMode.Value, LookMode.Value);
+
+        var hasBiomeTransitions = HasBiomeTransitions();
+        
+        Scribe_Values.Look(ref hasBiomeTransitions, "hasBiomeTransitions");
+
+        if (hasBiomeTransitions)
+        {
+            var elements = world.grid.TilesCount * 6;
+            if (_biomeTransitions.Length != elements) _biomeTransitions = new bool[elements];
+            DataExposeUtility.BoolArray(ref _biomeTransitions, elements, "biomeTransitions");
+        }
+        
+        ExtensionUtils.ClearCaches();
     }
 
     public struct Entry

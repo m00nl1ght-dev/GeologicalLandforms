@@ -1,6 +1,7 @@
 using System;
 using GeologicalLandforms.GraphEditor;
 using LunarFramework;
+using LunarFramework.Logging;
 using LunarFramework.Patching;
 using NodeEditorFramework.Utilities;
 using UnityEngine;
@@ -11,6 +12,8 @@ namespace GeologicalLandforms;
 public class GeologicalLandformsMod : Mod
 {
     internal static readonly LunarAPI LunarAPI = LunarAPI.Create("Geological Landforms Mod", Init, Cleanup);
+    
+    internal static LogContext Logger => LunarAPI.LogContext;
     
     internal static PatchGroup MainPatchGroup;
     internal static PatchGroup CompatPatchGroup;

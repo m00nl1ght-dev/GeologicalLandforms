@@ -177,7 +177,6 @@ internal static class Patch_RimWorld_WildPlantSpawner
         ___cachedFixedAutoCutFilter = new ThingFilter();
         foreach (var allWildPlant in biomeGrid.CellCounts.Keys.SelectMany(b => b.AllWildPlants))
         {
-            Log.Message("adding: " + allWildPlant.defName);
             if (allWildPlant.plant.allowAutoCut)
                 ___cachedFixedAutoCutFilter.SetAllow(allWildPlant, true);
         }
