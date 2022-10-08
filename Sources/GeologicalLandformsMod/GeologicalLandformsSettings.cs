@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Linq;
 using GeologicalLandforms.GraphEditor;
 using GeologicalLandforms.Compatibility;
+using LunarFramework.Utility;
 using UnityEngine;
 using Verse;
 
@@ -27,6 +28,12 @@ public class GeologicalLandformsSettings : ModSettings
 
     public void DoSettingsWindowContents(Rect inRect)
     {
+        if (!GeologicalLandformsMod.LunarAPI.IsInitialized())
+        {
+            DoLoadFailMessage(inRect);
+            return;
+        }
+        
         Rect rect = new(0.0f, 0.0f, inRect.width, 500f);
         rect.xMax *= 0.95f;
         
@@ -98,6 +105,14 @@ public class GeologicalLandformsSettings : ModSettings
         }
 
         Widgets.EndScrollView();
+    }
+    
+    private void DoLoadFailMessage(Rect rect)
+    {
+        Listing_Standard listingStandard = new();
+        listingStandard.Begin(rect);
+        listingStandard.Label("An error occured whie loading this mod. Check the log file for more information.");
+        listingStandard.End();
     }
 
     private void ReplaceNaturalRock(ThingDef thingDef)

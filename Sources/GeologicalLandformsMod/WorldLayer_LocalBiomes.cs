@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using LunarFramework.Utility;
 using RimWorld.Planet;
 using UnityEngine;
 using Verse;
@@ -22,7 +23,7 @@ internal class WorldLayer_LocalBiomes : WorldLayer
     {
         foreach (object obj in base.Regenerate()) yield return obj;
         
-        if (!BiomeTransition.UnidirectionalTransitions) yield break;
+        if (!BiomeTransition.UnidirectionalTransitions || !GeologicalLandformsMod.LunarAPI.IsInitialized()) yield break;
         
         var grid = Find.World.grid;
         var verts = grid.verts;
