@@ -45,7 +45,7 @@
     <Lunar>
       <Entry>
         <PackageId>m00nl1ght.MapPreview</PackageId>
-        <MinVersion>1.11.0</MinVersion>
+        <MinVersion>1.10.0</MinVersion>
       </Entry>
     </Lunar>
     <Refuse>
