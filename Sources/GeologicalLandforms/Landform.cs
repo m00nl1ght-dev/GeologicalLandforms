@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MapPreview;
 using NodeEditorFramework;
 using TerrainGraph;
 using UnityEngine;
@@ -56,7 +57,10 @@ public class Landform : TerrainCanvas
     {
         LandformGraphEditor.ActiveEditor?.Close();
         
-        int seed = Find.World.info.Seed ^ map.Tile;
+        var world = Find.World;
+        bool rerolled = SeedRerollData.IsMapSeedRerolled(world, map.Tile, out var savedSeed);
+        int seed = rerolled ? savedSeed : world.info.Seed ^ map.Tile;
+        
         PrepareMapGen(new IntVec2(map.Size.x, map.Size.z), map.Tile, seed);
     }
     
