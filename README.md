@@ -79,6 +79,9 @@ ReGrowth Collection, Alpha Biomes and other biome mods
 [KV] Configurable Maps or Map Designer
 - Compatible, but not all settings from those mods will still apply if there is a landform present, and some will override landforms.
 
+Geological Landforms provides a XML DefModExtension that authors of biome mods can use to control which landforms are allowed to spawn in their biomes.
+More details and an example are available on the [Wiki page](https://github.com/m00nl1ght-dev/GeologicalLandforms/wiki).
+
 
 # Credit
 
