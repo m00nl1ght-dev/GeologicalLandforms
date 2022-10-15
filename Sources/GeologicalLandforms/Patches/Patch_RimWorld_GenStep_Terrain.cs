@@ -65,7 +65,7 @@ internal static class Patch_RimWorld_GenStep_Terrain
         var tile = Landform.GeneratingTile as WorldTileInfo;
         var mapSize = Landform.GeneratingMapSize;
         
-        if (!Landform.AnyGenerating || tile == null) return;
+        if (tile == null) return;
 
         BaseFunction = Landform.GetFeature(l => l.OutputTerrain?.GetBase());
         StoneFunction = Landform.GetFeature(l => l.OutputTerrain?.GetStone());
@@ -92,7 +92,14 @@ internal static class Patch_RimWorld_GenStep_Terrain
         
         GeologicalLandformsAPI.RunApplyBiomeReplacements(tile, _biomeGrid);
 
-        UseVanillaTerrain = BaseFunction == null && StoneFunction == null && BiomeFunction == null;
+        UseVanillaTerrain = ShouldUseVanillaTerrain(tile);
+    }
+
+    private static bool ShouldUseVanillaTerrain(WorldTileInfo tile)
+    {
+        if (BaseFunction != null || StoneFunction != null || BiomeFunction != null) return false;
+        if (tile.Biome.Properties().gravelTerrain != null) return false;
+        return true;
     }
 
     public static void CleanUp()
@@ -126,7 +133,7 @@ internal static class Patch_RimWorld_GenStep_Terrain
             if (tPatch != null) return tPatch;
         }
         
-        var tStone = StoneFunction == null ? DefaultElevationTerrain(c, elevation) : StoneFunction.ValueAt(c.x, c.z).Terrain;
+        var tStone = StoneFunction == null ? DefaultElevationTerrain(c, biome, elevation) : StoneFunction.ValueAt(c.x, c.z).Terrain;
         if (tStone != null) return tStone;
 
         var tBiome = TerrainThreshold.TerrainAtValue(biome.terrainsByFertility, fertility);
@@ -141,10 +148,10 @@ internal static class Patch_RimWorld_GenStep_Terrain
         return TerrainDefOf.Sand;
     }
 
-    private static TerrainDef DefaultElevationTerrain(IntVec3 c, float elevation)
+    private static TerrainDef DefaultElevationTerrain(IntVec3 c, BiomeDef biome, float elevation)
     {
         if (elevation < 0.55) return null;
-        if (elevation < 0.61) return TerrainDefOf.Gravel;
+        if (elevation < 0.61) return biome.Properties().gravelTerrain ?? TerrainDefOf.Gravel;
         return GenStep_RocksFromGrid.RockDefAt(c).building.naturalTerrain;
     }
 }

@@ -80,6 +80,8 @@ public class WorldTileInfo : IWorldTileInfo
 
     private static void DetermineLandforms(WorldTileInfo info)
     {
+        if (!CanHaveLandform(info)) return;
+        
         var eligible = _tsc_eligible ??= new List<Landform>();
         eligible.Clear();
         
@@ -98,8 +100,6 @@ public class WorldTileInfo : IWorldTileInfo
         }
         else
         {
-            if (!CanHaveLandform(info)) return;
-            
             var eligibleForMain = eligible.Where(e => !e.IsLayer);
 
             float sum = Math.Max(1f, eligibleForMain.Sum(e => e.WorldTileReq.Commonness));
@@ -119,15 +119,19 @@ public class WorldTileInfo : IWorldTileInfo
             
             if (main != null) landforms = landforms.Append(main);
         }
+
+        var disallowedLandforms = info.Biome.Properties().disallowedLandforms;
+        if (disallowedLandforms != null)
+        {
+            landforms = landforms.Where(lf => !disallowedLandforms.Contains(lf.Id));
+        }
         
         info._landforms = landforms.OrderByDescending(e => e.Priority).ToList();
     }
 
     public static bool CanHaveLandform(IWorldTileInfo info)
     {
-        if (!info.Biome.canBuildBase || info.Hilliness == Hilliness.Impassable) return false; 
-        if (info.Biome.IsExcluded()) return false;
-        return true;
+        return info.Hilliness != Hilliness.Impassable && info.Biome.Properties().allowLandforms;
     }
     
     [ThreadStatic]
@@ -153,7 +157,7 @@ public class WorldTileInfo : IWorldTileInfo
 
         info.LandformDirection = new Rot4(Rand.RangeInclusiveSeeded(0, 3, info.MakeSeed(0087)));
 
-        if (selfBiome.IsVanillaBodyOfWater())
+        if (selfBiome.Properties().isWaterCovered)
         {
             info.Coast = new StructRot4<CoastType>(CoastTypeFromTile(info.Tile));
             info.Topology = Topology.Ocean;
@@ -174,12 +178,6 @@ public class WorldTileInfo : IWorldTileInfo
             var roadLink = roads.OrderBy(r => r.road.movementCostMultiplier).First();
             info.MainRoadAngle = info.World.grid.GetHeadingFromTo(info.TileId, roadLink.neighbor);
             info.MainRoad = roadLink.road;
-        }
-
-        if (selfBiome.IsExcluded())
-        {
-            info.Topology = Topology.Any;
-            return;
         }
 
         var nb = _tsc_nbIds ??= new List<int>();
@@ -475,7 +473,7 @@ public class WorldTileInfo : IWorldTileInfo
     {
         if (tile.biome == BiomeDefOf.Ocean) return CoastType.Ocean;
         if (tile.biome == BiomeDefOf.Lake) return CoastType.Lake;
-        if (tile.WaterCovered && tile.biome.IsOceanTopology()) return CoastType.Ocean;
+        if (tile.WaterCovered && tile.biome.Properties().isWaterCovered) return CoastType.Ocean;
         return CoastType.None;
     }
     

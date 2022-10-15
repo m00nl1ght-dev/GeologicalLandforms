@@ -1,3 +1,4 @@
+using RimWorld;
 using RimWorld.Planet;
 using Verse;
 
@@ -23,6 +24,25 @@ public static class ExtensionUtils
         if (_biomeGridCache?.map == map) return _biomeGridCache;
         _biomeGridCache = map.GetComponent<BiomeGrid>();
         return _biomeGridCache;
+    }
+    
+    private static BiomeProperties[] _biomeProperties;
+    
+    public static BiomeProperties Properties(this BiomeDef biomeDef)
+    {
+        try
+        {
+            return _biomeProperties[biomeDef.index];
+        }
+        catch
+        {
+            return new BiomeProperties();
+        }
+    }
+
+    public static void Init()
+    {
+        _biomeProperties = BiomeProperties.GetAll();
     }
 
     public static void ClearCaches()

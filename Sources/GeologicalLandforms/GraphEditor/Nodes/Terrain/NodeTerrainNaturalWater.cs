@@ -69,7 +69,7 @@ public class NodeTerrainNaturalWater : NodeBase
     {
         var angle = Landform.GeneratingTile.LandformDirection.AsAngle + (float) NodeGridRotateToMapSides.MapSideToWorldAngle(MapSide);
         var coastType = Landform.GeneratingTile.Coast[Rot4.FromAngleFlat(angle)];
-        var beach = Landform.GeneratingTile.Temperature < -20f ? TerrainDefOf.Ice : TerrainDefOf.Sand;
+        var beach = Landform.GeneratingTile.Biome.Properties().beachTerrain ?? TerrainDefOf.Sand;
         var shallow = coastType == Ocean ? TerrainDefOf.WaterOceanShallow : TerrainDefOf.WaterShallow;
         var deep = coastType == Ocean ? TerrainDefOf.WaterOceanDeep : TerrainDefOf.WaterDeep;
         BeachOutputKnob.SetValue<ISupplier<TerrainData>>(Supplier.Of(new TerrainData(beach, 3)));

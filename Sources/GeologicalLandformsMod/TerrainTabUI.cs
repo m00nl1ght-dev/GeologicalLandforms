@@ -40,7 +40,7 @@ internal static class TerrainTabUI
             var landformData = Find.World.LandformData();
             bool ignoreReq = Prefs.DevMode && GeologicalLandformsMod.Settings.IgnoreWorldTileReqInGodMode;
             
-            if (landformData != null && (ignoreReq || (!landformData.IsLocked(tileId) && WorldTileInfo.CanHaveLandform(worldTileInfo))))
+            if (landformData != null && !landformData.IsLocked(tileId) && WorldTileInfo.CanHaveLandform(worldTileInfo))
             {
                 rect = listing.GetRect(28f);
                 if (!listing.BoundingRectCached.HasValue || rect.Overlaps(listing.BoundingRectCached.Value))
@@ -51,6 +51,12 @@ internal static class TerrainTabUI
                             .Where(e => ignoreReq || (e.WorldTileReq?.CheckRequirements(worldTileInfo, true) ?? false))
                             .Where(e => !e.IsLayer)
                             .ToList();
+                        
+                        var disallowedLandforms = worldTileInfo.Biome.Properties().disallowedLandforms;
+                        if (disallowedLandforms != null)
+                        {
+                            eligible = eligible.Where(lf => !disallowedLandforms.Contains(lf.Id)).ToList();
+                        }
                     
                         var options = new List<FloatMenuOption>
                         {

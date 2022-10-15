@@ -38,6 +38,12 @@ public static class BiomeTransition
     {
         if (biome == nBiome || !CanBePartOfTransition(nBiome)) return false;
 
+        var disallowedBiomes = biome.Properties().disallowedBiomeTransitions;
+        if (disallowedBiomes != null && disallowedBiomes.Contains(nBiome)) return false;
+        
+        var nDisallowedBiomes = nBiome.Properties().disallowedBiomeTransitions;
+        if (nDisallowedBiomes != null && nDisallowedBiomes.Contains(biome)) return false;
+
         if (!UnidirectionalTransitions) return true;
 
         var world = Find.World;
@@ -64,8 +70,7 @@ public static class BiomeTransition
 
     public static bool CanBePartOfTransition(BiomeDef biome)
     {
-        if (biome.IsVanillaBodyOfWater()) return false;
-        return !biome.IsExcluded();
+        return biome.Properties().allowBiomeTransitions;
     }
     
     public static void PostProcessBiomeGrid(BiomeGrid biomeGrid, WorldTileInfo tile, IntVec2 mapSize)

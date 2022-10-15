@@ -44,6 +44,7 @@ public static class GeologicalLandformsAPI
         
         NodeEditor.ReInit(false);
         
+        ExtensionUtils.Init();
         LandformGraphEditor.InitialSetup();
         LandformManager.InitialLoad();
     }

@@ -49,7 +49,6 @@ internal class WorldLayer_LocalBiomes : WorldLayer
                 var nTile = grid[nIdx];
                 var nBiome = nTile.biome;
 
-                bool isWater = nBiome.IsVanillaBodyOfWater();
                 if (BiomeTransition.IsTransition(tileIdx, nIdx, biome, nBiome, i))
                 {
                     var subMesh = GetSubMesh(nBiome.DrawMaterial);
@@ -57,6 +56,7 @@ internal class WorldLayer_LocalBiomes : WorldLayer
 
                     var tileCenter = grid.GetTileCenter(tileIdx);
                     var vertsOffset = tileIDToVertsOffsets[tileIdx];
+                    bool isWater = nBiome.Properties().isWaterCovered;
                     
                     var elev = isWater ? Math.Min(tile.elevation, 0) : Math.Max(tile.elevation, 0);
                     var nElev = isWater ? Math.Min(tile.elevation, 0) : Math.Max(nTile.elevation, 0);
