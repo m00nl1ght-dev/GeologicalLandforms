@@ -72,6 +72,14 @@ public class BiomeProperties : DefModExtension
                 allowLandforms = false,
                 allowBiomeTransitions = false
             }
+        },
+        {
+            "sindre0830.RimNauts2", new BiomeProperties
+            {
+                isWaterCovered = true,
+                allowLandforms = false,
+                allowBiomeTransitions = false
+            }
         }
     };
     
