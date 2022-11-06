@@ -6,6 +6,7 @@ using LunarFramework.Patching;
 using MapPreview;
 using NodeEditorFramework;
 using NodeEditorFramework.Utilities;
+using RimWorld;
 using TerrainGraph;
 using Verse;
 
@@ -33,7 +34,8 @@ public static class GeologicalLandformsAPI
         CompatPatchGroup.Subscribe();
 
         ModCompat.ApplyAll(LunarAPI, CompatPatchGroup);
-        
+
+        MapPreviewAPI.OnWorldChanged += WorldTileInfo.InvalidateCache;
         MapPreviewAPI.AddStableSeedCondition(map => WorldTileInfo.Get(map.Tile).HasLandforms);
         
         ReflectionUtility.AddSearchableAssembly(typeof(GeologicalLandformsAPI).Assembly);
@@ -57,16 +59,25 @@ public static class GeologicalLandformsAPI
     
     // ### Public API ###
 
+    public static event Action<BiomeDef, BiomeProperties> BiomePropertiesHook;
+    public static BiomeProperties ApplyBiomePropertiesHook(BiomeDef biome, BiomeProperties properties)
+    {
+        if (BiomePropertiesHook == null) return properties;
+        properties = new BiomeProperties(properties);
+        BiomePropertiesHook.Invoke(biome, properties);
+        return properties;
+    }
+    
+    public static event Action<WorldTileInfoPrimer> WorldTileInfoHook;
+    public static void ApplyWorldTileInfoHook(WorldTileInfoPrimer worldTileInfo)
+    {
+        WorldTileInfoHook?.Invoke(worldTileInfo);
+    }
+
     public static event Action<Listing_Standard> OnTerrainTab;
     public static void RunOnTerrainTab(Listing_Standard listing)
     {
         OnTerrainTab?.Invoke(listing);
-    }
-    
-    public static event Action<WorldTileInfo, BiomeGrid> ApplyBiomeReplacements;
-    public static void RunApplyBiomeReplacements(WorldTileInfo tile, BiomeGrid biomeGrid)
-    {
-        ApplyBiomeReplacements?.Invoke(tile, biomeGrid);
     }
 
     public static Func<Map, bool> CellFinderOptimizationFilter { get; private set; } = _ => true;

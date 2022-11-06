@@ -12,119 +12,73 @@ namespace GeologicalLandforms;
 
 public class BiomeGrid : MapComponent
 {
-    private readonly BiomeDef[] _grid;
+    private readonly Entry[] _grid;
 
-    private Dictionary<BiomeDef, int> _cellCounts = new();
-    public IReadOnlyDictionary<BiomeDef, int> CellCounts => PrimaryBiome == null ? new() : _cellCounts;
-    
-    public bool HasMultipleBiomes => CellCounts.Count > 1;
-    public bool ShouldApply => HasMultipleBiomes && PrimaryBiome == map.Biome;
-    public bool ShouldApplyForPlantSpawning => ShouldApply || _applyReplacementsForPlantSpawning;
-    public bool ShouldApplyForAnimalSpawning => ShouldApply || _applyReplacementsForAnimalSpawning;
+    private List<Entry> _entries = new();
+    public IReadOnlyList<Entry> Entries => _entries;
+    public Entry Primary => _entries[0];
+
+    private bool _enabled;
+    public bool Enabled => _enabled;
+    public void Enable() => _enabled = true;
     
     public float OpenGroundFraction { get; private set; } = 1f;
 
-    private BiomeDef[] _replacementKeys = Array.Empty<BiomeDef>();
-    private BiomeDef[] _replacementValues = Array.Empty<BiomeDef>();
-    private bool _applyReplacementsForPlantSpawning;
-    private bool _applyReplacementsForAnimalSpawning;
-
     private readonly IntVec3 _mapSize;
 
-    private BiomeDef _primary;
-    public BiomeDef PrimaryBiome
-    {
-        get
-        {
-            if (_primary != null) return _primary;
-            var parent = map?.info?.parent;
-            var worldGrid = Find.WorldGrid;
-            if (parent == null || worldGrid == null) return BiomeDefOf.TemperateForest;
-            var tile = worldGrid[parent.Tile];
-            if (tile == null) return BiomeDefOf.TemperateForest;
-            _primary = tile.biome;
-            _cellCounts[_primary] = _mapSize.x * _mapSize.z;
-            return _primary;
-        }
-    }
+    internal object LoadId = new();
 
-    public BiomeGrid(Map map) : base(map)
-    {
-        _mapSize = map.Size;
-        _grid = new BiomeDef[_mapSize.x * _mapSize.z];
-    }
+    public BiomeGrid(Map map) : this(map, map.Size, map.Parent == null ? BiomeDefOf.TemperateForest : map.Biome) {}
     
-    public BiomeGrid(IntVec3 mapSize, BiomeDef primary) : base(null)
+    public BiomeGrid(Map map, IntVec3 mapSize, BiomeDef worldBiome) : base(map)
     {
         _mapSize = mapSize;
-        _primary = primary;
-        _grid = new BiomeDef[_mapSize.x * _mapSize.z];
-        _cellCounts[_primary] = _mapSize.x * _mapSize.z;
+        _grid = new Entry[_mapSize.x * _mapSize.z];
+        var primary = MakeEntry(worldBiome);
+        primary.CellCount = _mapSize.x * _mapSize.z;
     }
 
-    public BiomeDef BiomeAt(int cell, BiomeQuery query = BiomeQuery.Generic)
+    public Entry EntryAt(int cell)
     {
-        if (cell < 0 || cell >= _grid.Length) return PrimaryBiome;
-        var biome = _grid[cell] ?? PrimaryBiome;
-
-        if ((query == BiomeQuery.PlantSpawning && _applyReplacementsForPlantSpawning) || 
-            (query == BiomeQuery.AnimalSpawning && _applyReplacementsForAnimalSpawning))
-        {
-            for (var i = 0; i < _replacementKeys.Length; i++)
-            {
-                if (_replacementKeys[i] == biome) return _replacementValues[i];
-            }
-        }
-
-        return biome;
+        if (cell < 0 || cell >= _grid.Length) return Primary;
+        return _grid[cell] ?? Primary;
     }
     
-    public BiomeDef BiomeAt(IntVec3 c, BiomeQuery query = BiomeQuery.Generic)
+    public Entry EntryAt(IntVec3 c)
     {
-        return BiomeAt(CellIndicesUtility.CellToIndex(c, _mapSize.x), query);
+        return EntryAt(CellIndicesUtility.CellToIndex(c, _mapSize.x));
     }
 
-    public void SetBiome(IntVec3 c, BiomeDef biomeDef)
+    public BiomeDef BiomeAt(int cell) => EntryAt(cell).Biome;
+    public BiomeDef BiomeAt(IntVec3 c) => EntryAt(c).Biome;
+
+    public void SetEntry(IntVec3 c, Entry entry)
     {
+        if (entry.LoadId != LoadId) throw new Exception("LoadId mismatch");
         int i = CellIndicesUtility.CellToIndex(c, _mapSize.x);
-        var old = BiomeAt(i);
-        _cellCounts.TryGetValue(old, out var oldCount); 
-        _cellCounts[old] = Math.Max(0, oldCount - 1);
-        _grid[i] = biomeDef;
-        _cellCounts.TryGetValue(biomeDef, out var newCount); 
-        _cellCounts[biomeDef] = newCount + 1;
+        var old = EntryAt(i);
+        _grid[i] = entry;
+        old.CellCount--;
+        entry.CellCount++;
     }
+
+    public void SetBiome(IntVec3 c, BiomeDef biome) => SetEntry(c, MakeEntry(biome));
 
     public void SetBiomes(IGridFunction<BiomeData> biomeFunction)
     {
-        var primaryBiome = PrimaryBiome;
-        _cellCounts.Clear();
+        var primary = Primary;
+        var last = primary;
+        
+        foreach (var entry in _entries) entry.CellCount = 0;
+
         for (int x = 0; x < _mapSize.x; x++) for (int z = 0; z < _mapSize.z; z++)
         {
             var c = new IntVec3(x, 0, z);
-            var biomeDef = biomeFunction.ValueAt(c.x, c.z).Biome ?? primaryBiome;
+            var biomeDef = biomeFunction.ValueAt(c.x, c.z).Biome;
             int i = CellIndicesUtility.CellToIndex(c, _mapSize.x);
-            _grid[i] = biomeDef;
-            _cellCounts.TryGetValue(biomeDef, out var newCount); 
-            _cellCounts[biomeDef] = newCount + 1;
+            _grid[i] = last = last.Biome == biomeDef ? last : MakeEntry(biomeDef);
+            last.CellCount++;
         }
-    }
-
-    public void SetReplacements(Dictionary<BiomeDef, BiomeDef> replacements, ICollection<BiomeQuery> applyTo)
-    {
-        _replacementKeys = new BiomeDef[replacements.Count];
-        _replacementValues = new BiomeDef[replacements.Count];
-
-        int i = 0;
-        foreach (var pair in replacements)
-        {
-            _replacementKeys[i] = pair.Key;
-            _replacementValues[i] = pair.Value;
-            i++;
-        }
-
-        _applyReplacementsForPlantSpawning = applyTo.Contains(BiomeQuery.PlantSpawning);
-        _applyReplacementsForAnimalSpawning = applyTo.Contains(BiomeQuery.AnimalSpawning);
     }
 
     public void UpdateOpenGroundFraction()
@@ -142,48 +96,137 @@ public class BiomeGrid : MapComponent
         return 0.35f;
     }
 
+    public Entry MakeEntry(BiomeDef biomeBase, List<BiomeVariantDef> biomeVariants = null)
+    {
+        if (biomeBase == null) return Primary;
+        
+        // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
+        foreach (var entry in _entries) if (entry.IsEquivalent(biomeBase, biomeVariants)) return entry;
+
+        var newEntry = new Entry { Index = (ushort) _entries.Count, LoadId = LoadId };
+        _entries.Add(newEntry);
+        
+        newEntry.Update(biomeBase, biomeVariants);
+        return newEntry;
+    }
+
     public override void ExposeData()
     {
-        Scribe_Defs.Look(ref _primary, "primary");
-        var biomeDefsByShortHash = DefDatabase<BiomeDef>.AllDefs.ToDictionary(allDef => allDef.shortHash);
-        ExposeBiomeArray(biomeDefsByShortHash, _grid, "biomeGrid");
-        Scribe_Collections.Look(ref _cellCounts, "cellCounts", LookMode.Def, LookMode.Value);
-        
-        Scribe_Values.Look(ref _applyReplacementsForPlantSpawning, "applyReplacementsForPlantSpawning");
-        Scribe_Values.Look(ref _applyReplacementsForAnimalSpawning, "applyReplacementsForAnimalSpawning");
+        if (map == null) return;
 
-        if (_applyReplacementsForAnimalSpawning || _applyReplacementsForPlantSpawning)
+        if (Scribe.mode == LoadSaveMode.LoadingVars) LoadId = new();
+
+        Scribe_Values.Look(ref _enabled, "enabled");
+        Scribe_Collections.Look(ref _entries, "entries", LookMode.Deep);
+
+        var isLegacy = _entries == null || _entries.Count == 0;
+        Dictionary<ushort, BiomeDef> biomeDefsByShortHash = null;
+        
+        if (Scribe.mode == LoadSaveMode.LoadingVars)
         {
-            var keys = _replacementKeys.ToList();
-            var values = _replacementValues.ToList();
-            Scribe_Collections.Look(ref keys, "replacementKeys", LookMode.Def);
-            Scribe_Collections.Look(ref values, "replacementValues", LookMode.Def);
-            _replacementKeys = keys.ToArray();
-            _replacementValues = values.ToArray();
+            if (isLegacy)
+            {
+                GeologicalLandformsAPI.Logger.Log("Upgrading BiomeGrid data from old version.");
+                biomeDefsByShortHash = DefDatabase<BiomeDef>.AllDefs.ToDictionary(allDef => allDef.shortHash);
+                _entries = new List<Entry>();
+                BiomeDef primaryBiome = null;
+                Scribe_Defs.Look(ref primaryBiome, "primary");
+                MakeEntry(primaryBiome ?? BiomeDefOf.TemperateForest);
+            }
+            else
+            {
+                foreach (var entry in _entries)
+                {
+                    entry.LoadId = LoadId;
+                    entry.Refresh();
+                }
+            }
         }
+
+        var primary = Primary;
+
+        ushort ShortReader(IntVec3 c)
+        {
+            var entry = _grid[map.cellIndices.CellToIndex(c)];
+            return entry?.Index ?? 0;
+        }
+
+        void ShortWriter(IntVec3 c, ushort val)
+        {
+            var entry = val >= _entries.Count ? primary : _entries[val];
+            _grid[map.cellIndices.CellToIndex(c)] = entry;
+            entry.CellCount++;
+        }
+        
+        void LegacyShortWriter(IntVec3 c, ushort val)
+        {
+            var biome = biomeDefsByShortHash.TryGetValue(val);
+            var entry = biome == null ? Primary : MakeEntry(biome);
+            _grid[map.cellIndices.CellToIndex(c)] = entry;
+            if (entry != Primary) _enabled = true;
+            entry.CellCount++;
+        }
+
+        MapExposeUtility.ExposeUshort(map, ShortReader, isLegacy ? LegacyShortWriter : ShortWriter, "biomeGrid");
         
         ExtensionUtils.ClearCaches();
     }
 
-    private void ExposeBiomeArray(Dictionary<ushort, BiomeDef> biomeDefsByShortHash, BiomeDef[] array, string name)
+    public override void FinalizeInit()
     {
-        if (map == null) return;
-        MapExposeUtility.ExposeUshort(map, c => array[map.cellIndices.CellToIndex(c)]?.shortHash ?? 0, (c, val) =>
-        {
-            var primary = PrimaryBiome;
-            var biome = biomeDefsByShortHash.TryGetValue(val);
-            if (biome == null && val != 0)
-            {
-                Log.Error("Did not find biome def with short hash " + val + " for cell " + c + ".");
-                biomeDefsByShortHash.Add(val, primary);
-            }
-            biome ??= primary;
-            array[map.cellIndices.CellToIndex(c)] = biome;
-        }, name);
+        UpdateOpenGroundFraction();
     }
 
-    public enum BiomeQuery
+    public class Entry : IExposable
     {
-        Generic, PlantSpawning, AnimalSpawning
+        public ushort Index { get; internal set; }
+        public int CellCount { get; internal set; }
+
+        public BiomeDef BiomeBase => _biomeBase;
+        private BiomeDef _biomeBase;
+        
+        public IReadOnlyList<BiomeVariantDef> BiomeVariants => _biomeVariants;
+        public bool HasVariants => BiomeVariants?.Count > 0;
+        private List<BiomeVariantDef> _biomeVariants;
+        
+        public BiomeDef Biome { get; private set; }
+
+        internal object LoadId;
+
+        public void Update(BiomeDef biomeBase, IEnumerable<BiomeVariantDef> biomeVariants = null)
+        {
+            _biomeBase = biomeBase;
+            _biomeVariants = biomeVariants?.ToList();
+            Refresh();
+        }
+
+        public void Refresh()
+        {
+            _biomeBase ??= BiomeDefOf.TemperateForest;
+            Biome = HasVariants ? BiomeVariantDef.ApplyVariants(_biomeBase, _biomeVariants) : BiomeBase;
+        }
+
+        public void ExposeData()
+        {
+            Scribe_Defs.Look(ref _biomeBase, "biomeBase");
+            Scribe_Collections.Look(ref _biomeVariants, "biomeVariants", LookMode.Def);
+        }
+
+        public bool IsEquivalent(BiomeDef biomeBase, List<BiomeVariantDef> biomeVariants = null)
+        {
+            if (BiomeBase != biomeBase) return false;
+            
+            var cntEntry = BiomeVariants?.Count ?? 0;
+            var cntGiven = biomeVariants?.Count ?? 0;
+            
+            if (cntEntry != cntGiven) return false;
+            
+            for (int i = 0; i < cntEntry; i++)
+            {
+                if (BiomeVariants![i] != biomeVariants![i]) return false;
+            }
+
+            return true;
+        }
     }
 }

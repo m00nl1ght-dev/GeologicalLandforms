@@ -77,6 +77,7 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="BiomeTransition.cs" />
+        <Compile Include="Compatibility\ModCompat_MapDesigner.cs" />
         <Compile Include="GraphEditor\BiomeData.cs" />
         <Compile Include="GraphEditor\EditorMockTileInfo.cs" />
         <Compile Include="GraphEditor\LandformGraphEditor.cs" />
@@ -92,6 +93,7 @@
         <Compile Include="GraphEditor\Nodes\Grid\NodeGridRotateToMapSides.cs" />
         <Compile Include="GraphEditor\Nodes\Output\NodeOutputBase.cs" />
         <Compile Include="GraphEditor\Nodes\Output\NodeOutputBiomeGrid.cs" />
+        <Compile Include="GraphEditor\Nodes\Output\NodeOutputCaves.cs" />
         <Compile Include="GraphEditor\Nodes\Output\NodeOutputElevation.cs" />
         <Compile Include="GraphEditor\Nodes\Output\NodeOutputFertility.cs" />
         <Compile Include="GraphEditor\Nodes\Output\NodeOutputScatterers.cs" />
@@ -118,6 +120,7 @@
         <Compile Include="Compatibility\ModCompat_DubsMintMenus.cs" />
         <Compile Include="Compatibility\ModCompat_MapReroll.cs" />
         <Compile Include="Compatibility\ModCompat_PrepareLanding.cs" />
+        <Compile Include="Patches\Patch_RimWorld_GenStep_Caves.cs" />
         <Compile Include="Patches\Patch_RimWorld_WorldGenStep_Terrain.cs" />
         <Compile Include="Patches\Patch_Verse_Game.cs" />
         <Compile Include="Patches\Patch_RimWorld_GenStep_ScatterLumpsMineable.cs" />
@@ -137,7 +140,9 @@
         <Compile Include="Patches\Patch_RimWorld_WITab_Terrain.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
         <Compile Include="WorldTileInfo.cs" />
+        <Compile Include="WorldTileInfoPrimer.cs" />
         <Compile Include="XML\BiomeProperties.cs" />
+        <Compile Include="XML\BiomeVariantDef.cs" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\TerrainGraph\TerrainGraph.csproj">

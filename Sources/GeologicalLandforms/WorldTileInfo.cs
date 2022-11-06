@@ -18,18 +18,16 @@ public class WorldTileInfo : IWorldTileInfo
     public readonly Tile Tile;
     public readonly World World;
 
-    public IReadOnlyList<Landform> Landforms => _landforms;
-    private List<Landform> _landforms;
+    public IReadOnlyList<Landform> Landforms { get; protected set; }
     public bool HasLandforms => Landforms?.Count > 0;
     
-    public IReadOnlyList<BorderingBiome> BorderingBiomes => _borderingBiomes;
-    private List<BorderingBiome> _borderingBiomes;
+    public IReadOnlyList<BorderingBiome> BorderingBiomes { get; protected set; }
     public bool HasBorderingBiomes => BorderingBiomes?.Count > 0;
 
-    public Topology Topology { get; private set; } = Topology.Any;
-    public Rot4 LandformDirection { get; private set; }
+    public Topology Topology { get; protected set; } = Topology.Any;
+    public Rot4 LandformDirection { get; protected set; }
     
-    public StructRot4<CoastType> Coast { get; private set; }
+    public StructRot4<CoastType> Coast { get; protected set; }
     
     public MapParent WorldObject => World.worldObjects.MapParentAt(TileId);
     public BiomeDef Biome => Tile.biome;
@@ -40,32 +38,41 @@ public class WorldTileInfo : IWorldTileInfo
     public float Rainfall => Tile.rainfall;
     public float Swampiness => Tile.swampiness;
 
-    public RiverDef MainRiver { get; private set; }
-    public float MainRiverAngle { get; private set; }
+    public Tile.RiverLink? MainRiverLink => Tile.Rivers?.OrderBy(r => -r.river.degradeThreshold).FirstOrDefault();
+    public Tile.RoadLink? MainRoadLink => Tile.Roads?.OrderBy(r => r.road.movementCostMultiplier).FirstOrDefault();
     
-    public RoadDef MainRoad { get; private set; }
-    public float MainRoadAngle { get; private set; }
+    public RiverDef MainRiver => MainRiverLink?.river;
+    public float MainRiverAngle => World.grid.GetHeadingFromTo(TileId, MainRiverLink?.neighbor ?? 0);
+
+    public RoadDef MainRoad => MainRoadLink?.road;
+    public float MainRoadAngle => World.grid.GetHeadingFromTo(TileId, MainRoadLink?.neighbor ?? 0);
 
     public int MakeSeed(int hash) => Patch_RimWorld_World.LastKnownInitialWorldSeed ^ TileId ^ hash;
 
-    public WorldTileInfo(int tileId, Tile tile, World world)
+    protected WorldTileInfo(int tileId, Tile tile, World world)
     {
         TileId = tileId;
         Tile = tile;
         World = world;
     }
     
-    private static WorldTileInfo _cache;
+    private static WorldTileInfoPrimer _cache;
     
     public static WorldTileInfo Get(int tileId)
     {
         var cache = _cache;
         var world = Find.World;
+        
         if (cache != null && cache.TileId == tileId && cache.World == world) return cache;
         if (tileId < 0) return new WorldTileInfo(tileId, new Tile(), world);
-        cache = new WorldTileInfo(tileId, world.grid[tileId], world);
+        
+        cache = new WorldTileInfoPrimer(tileId, world.grid[tileId], world);
+        
         DetermineTopology(cache);
         DetermineLandforms(cache);
+        
+        GeologicalLandformsAPI.ApplyWorldTileInfoHook(cache);
+        
         _cache = cache;
         return cache;
     }
@@ -126,7 +133,7 @@ public class WorldTileInfo : IWorldTileInfo
             landforms = landforms.Where(lf => !disallowedLandforms.Contains(lf.Id));
         }
         
-        info._landforms = landforms.OrderByDescending(e => e.Priority).ToList();
+        info.Landforms = landforms.OrderByDescending(e => e.Priority).ToList();
     }
 
     public static bool CanHaveLandform(IWorldTileInfo info)
@@ -163,22 +170,6 @@ public class WorldTileInfo : IWorldTileInfo
             info.Topology = Topology.Ocean;
             return;
         }
-        
-        var rivers = info.Tile.Rivers;
-        if (rivers?.Count > 0)
-        {
-            var riverLink = rivers.OrderBy(r => -r.river.degradeThreshold).First();
-            info.MainRiverAngle = info.World.grid.GetHeadingFromTo(info.TileId, riverLink.neighbor);
-            info.MainRiver = riverLink.river;
-        }
-        
-        var roads = info.Tile.Roads;
-        if (roads?.Count > 0)
-        {
-            var roadLink = roads.OrderBy(r => r.road.movementCostMultiplier).First();
-            info.MainRoadAngle = info.World.grid.GetHeadingFromTo(info.TileId, roadLink.neighbor);
-            info.MainRoad = roadLink.road;
-        }
 
         var nb = _tsc_nbIds ??= new List<int>();
         grid.GetTileNeighbors(info.TileId, nb);
@@ -191,6 +182,7 @@ public class WorldTileInfo : IWorldTileInfo
         
         waterTiles.Clear(); landTiles.Clear(); cliffTiles.Clear(); nonCliffTiles.Clear();
 
+        List<BorderingBiome> borderingBiomes = null;
         var coast = new StructRot4<CoastType>();
 
         for (var i = 0; i < nb.Count; i++)
@@ -211,8 +203,8 @@ public class WorldTileInfo : IWorldTileInfo
             {
                 if (BiomeTransition.IsTransition(tileId, nbId, selfBiome, nbTile.biome))
                 {
-                    info._borderingBiomes ??= new List<BorderingBiome>();
-                    info._borderingBiomes.Add(new BorderingBiome(nbTile.biome, rot6.Angle));
+                    borderingBiomes ??= new List<BorderingBiome>();
+                    borderingBiomes.Add(new BorderingBiome(nbTile.biome, rot6.Angle));
                 }
 
                 if ((int) nbTile.hilliness >= 3 && nbTile.hilliness - info.Tile.hilliness > 0) cliffTiles.Add(rot6);
@@ -221,6 +213,7 @@ public class WorldTileInfo : IWorldTileInfo
             }
         }
 
+        info.BorderingBiomes = borderingBiomes;
         info.Coast = coast;
 
         if (waterTiles.Count == 0)

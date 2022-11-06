@@ -51,7 +51,7 @@ public class GeologicalLandformsMod : Mod
     
     private static float AnimalDensityFactorForMap(BiomeGrid biomeGrid)
     {
-        var primaryBiome = biomeGrid?.PrimaryBiome;
+        var primaryBiome = biomeGrid?.Primary.Biome;
         if (primaryBiome == null || !primaryBiome.Properties().allowLandforms) return 1f;
         var openGroundFraction = biomeGrid.OpenGroundFraction;
         var scaleFactor = 2f - Settings.AnimalDensityFactorForSecludedAreas * 2f;

@@ -47,7 +47,7 @@ internal static class Patch_RimWorld_WildPlantSpawner
     private static bool CurrentWholeMapNumDesiredPlants(WildPlantSpawner __instance, Map ___map, ref float __result)
     {
         var biomeGrid = ___map.BiomeGrid();
-        if (biomeGrid is not { ShouldApplyForPlantSpawning: true }) return true;
+        if (biomeGrid is not { Enabled: true }) return true;
 
         var condFactor = AggregatePlantDensityFactor(___map.gameConditionManager, ___map);
 
@@ -56,7 +56,7 @@ internal static class Patch_RimWorld_WildPlantSpawner
         float numDesiredPlants = 0.0f;
         foreach (var intVec3 in cellRect)
             numDesiredPlants += __instance.GetDesiredPlantsCountAt(intVec3, intVec3, 
-                biomeGrid.BiomeAt(intVec3, BiomeGrid.BiomeQuery.PlantSpawning).plantDensity * condFactor);
+                biomeGrid.BiomeAt(intVec3).plantDensity * condFactor);
             
         __result = numDesiredPlants;
         return false;
@@ -74,7 +74,7 @@ internal static class Patch_RimWorld_WildPlantSpawner
         ref int ___cycleIndex)
     {
         var biomeGrid = ___map.BiomeGrid();
-        if (biomeGrid is not { ShouldApplyForPlantSpawning: true }) return true;
+        if (biomeGrid is not { Enabled: true }) return true;
         
         int area = ___map.Area;
         int num = Mathf.CeilToInt(area * 0.0001f);
@@ -94,12 +94,12 @@ internal static class Patch_RimWorld_WildPlantSpawner
             }
             
             var intVec3 = ___map.cellsInRandomOrder.Get(___cycleIndex);
-            var biome = biomeGrid.BiomeAt(intVec3, BiomeGrid.BiomeQuery.PlantSpawning);
+            var biome = biomeGrid.BiomeAt(intVec3);
             float plantDensity = biome.plantDensity * condFactor;
             
             ___calculatedWholeMapNumDesiredPlantsTmp += __instance.GetDesiredPlantsCountAt(intVec3, intVec3, plantDensity);
             
-            if (intVec3.GetTerrain(___map).fertility > 0.0)
+            if (intVec3.GetFertility(___map) > 0.0)
                 ++___calculatedWholeMapNumNonZeroFertilityCellsTmp;
 
             bool cavePlant = GoodRoofForCavePlant(___map, intVec3);
@@ -124,7 +124,7 @@ internal static class Patch_RimWorld_WildPlantSpawner
     private static bool Generate(Map map)
     {
         var biomeGrid = map.BiomeGrid();
-        if (biomeGrid is not { ShouldApplyForPlantSpawning: true }) return true;
+        if (biomeGrid is not { Enabled: true }) return true;
         
         float condFactor = AggregatePlantDensityFactor(map.gameConditionManager, map);
         float desired = map.wildPlantSpawner.CurrentWholeMapNumDesiredPlants;
@@ -133,7 +133,7 @@ internal static class Patch_RimWorld_WildPlantSpawner
         {
             if (!Rand.Chance(1f / 1000f))
             {
-                var biome = biomeGrid.BiomeAt(c, BiomeGrid.BiomeQuery.PlantSpawning);
+                var biome = biomeGrid.BiomeAt(c);
                 float density = biome.plantDensity * condFactor;
 
                 if (GoodRoofForCavePlant(map, c))
@@ -152,7 +152,7 @@ internal static class Patch_RimWorld_WildPlantSpawner
     private static bool IsPlantAvailable(ThingDef plantDef, Map map, ref bool __result)
     {
         var biomeGrid = map.BiomeGrid();
-        if (biomeGrid is not { ShouldApplyForPlantSpawning: true }) return true;
+        if (biomeGrid is not { Enabled: true }) return true;
 
         if (!plantDef.plant.mustBeWildToSow) return true;
 
@@ -160,7 +160,7 @@ internal static class Patch_RimWorld_WildPlantSpawner
         if (researchPrerequisites != null && Enumerable.Any(researchPrerequisites, project => !project.IsFinished))
             return true;
 
-        __result = biomeGrid.CellCounts.Keys.SelectMany(b => b.AllWildPlants).Contains(plantDef);
+        __result = biomeGrid.Entries.SelectMany(b => b.Biome.AllWildPlants).Contains(plantDef);
         return false;
     }
     
@@ -172,10 +172,10 @@ internal static class Patch_RimWorld_WildPlantSpawner
         if (___cachedFixedAutoCutFilter != null) return;
         
         var biomeGrid = ___map.BiomeGrid();
-        if (biomeGrid is not { ShouldApplyForPlantSpawning: true }) return;
+        if (biomeGrid is not { Enabled: true }) return;
 
         ___cachedFixedAutoCutFilter = new ThingFilter();
-        foreach (var allWildPlant in biomeGrid.CellCounts.Keys.SelectMany(b => b.AllWildPlants))
+        foreach (var allWildPlant in biomeGrid.Entries.SelectMany(b => b.Biome.AllWildPlants))
         {
             if (allWildPlant.plant.allowAutoCut)
                 ___cachedFixedAutoCutFilter.SetAllow(allWildPlant, true);
@@ -246,10 +246,10 @@ internal static class Patch_RimWorld_WildPlantSpawner
         if (num1 <= 0.0) return num1;
 
         float x1 = 0.5f;
-        if (map.listerThings.ThingsInGroup(ThingRequestGroup.Plant).Count > wholeMapNumDesiredPlants / 2.0 && !plantDef.plant.cavePlant)
+        if (map.listerThings.ThingsInGroup(ThingRequestGroup.NonStumpPlant).Count > wholeMapNumDesiredPlants / 2.0 && !plantDef.plant.cavePlant)
         {
             x1 = map.listerThings.ThingsOfDef(plantDef).Count /
-                 (float)map.listerThings.ThingsInGroup(ThingRequestGroup.Plant).Count / commPct;
+                 (float)map.listerThings.ThingsInGroup(ThingRequestGroup.NonStumpPlant).Count / commPct;
             num1 *= GlobalPctSelectionWeightBias.Evaluate(x1);
         }
 
@@ -302,7 +302,7 @@ internal static class Patch_RimWorld_WildPlantSpawner
             (_, to) => c.InHorDistOf(to.extentsClose.ClosestCellTo(c), radiusToScan), reg =>
             {
                 numDesiredPlantsLocally += instance.GetDesiredPlantsCountIn(reg, c, plantDensity);
-                numPlants += reg.ListerThings.ThingsInGroup(ThingRequestGroup.Plant).Count;
+                numPlants += reg.ListerThings.ThingsInGroup(ThingRequestGroup.NonStumpPlant).Count;
                 numPlantsThisDef += reg.ListerThings.ThingsOfDef(plantDef).Count;
                 return false;
             });
@@ -383,7 +383,7 @@ internal static class Patch_RimWorld_WildPlantSpawner
         int num = GenRadial.NumCellsInRadius(20f);
         if (wholeMapNumDesiredPlants * (num / (double)map.Area) <= 4.0 
             || (!biome.wildPlantsCareAboutLocalFertility && Rand.ChanceSeeded(BiomeTransition.PlantLowDensityPassChance, c.GetHashCode() ^ map.Tile)))
-            return map.listerThings.ThingsInGroup(ThingRequestGroup.Plant).Count >= (double)wholeMapNumDesiredPlants;
+            return map.listerThings.ThingsInGroup(ThingRequestGroup.NonStumpPlant).Count >= (double)wholeMapNumDesiredPlants;
         
         float numDesiredPlantsLocally = 0.0f;
         int numPlants = 0;
@@ -392,7 +392,7 @@ internal static class Patch_RimWorld_WildPlantSpawner
             reg =>
             {
                 numDesiredPlantsLocally += instance.GetDesiredPlantsCountIn(reg, c, plantDensity);
-                numPlants += reg.ListerThings.ThingsInGroup(ThingRequestGroup.Plant).Count;
+                numPlants += reg.ListerThings.ThingsInGroup(ThingRequestGroup.NonStumpPlant).Count;
                 return false;
             });
         
@@ -481,12 +481,10 @@ internal static class Patch_RimWorld_WildPlantSpawner
     public static void LogInfo(Map map, IntVec3 pos)
     {
         var biomeGrid = map.BiomeGrid();
-        var biomeG = biomeGrid.BiomeAt(pos);
-        var biomeAS = biomeGrid.BiomeAt(pos, BiomeGrid.BiomeQuery.AnimalSpawning);
-        var biomePS = biomeGrid.BiomeAt(pos, BiomeGrid.BiomeQuery.PlantSpawning);
-        float plantDensity = biomePS.plantDensity * AggregatePlantDensityFactor(map.gameConditionManager, map);
+        var biome = biomeGrid.BiomeAt(pos);
+        float plantDensity = biome.plantDensity * AggregatePlantDensityFactor(map.gameConditionManager, map);
         Log.Message("pos: " + pos);
-        Log.Message("biome: g=" + biomeG.defName + " as=" + biomeAS.defName + " ps=" + biomePS.defName);
+        Log.Message("biome: " + biome.defName);
         Log.Message("whole map desired: " + map.wildPlantSpawner.CurrentWholeMapNumDesiredPlants);
         Log.Message("desired density at pos: " + plantDensity);
         Log.Message("map open ground fraction: " + map.BiomeGrid()?.OpenGroundFraction);

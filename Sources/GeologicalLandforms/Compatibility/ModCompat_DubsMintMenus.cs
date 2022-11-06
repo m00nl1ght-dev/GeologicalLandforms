@@ -20,7 +20,7 @@ internal class ModCompat_DubsMintMenus : ModCompat
     private static bool Dialog_FancyDanPlantSetterBob_IsPlantAvailable(ThingDef plantDef, Map map, ref bool __result)
     {
         var biomeGrid = map.BiomeGrid();
-        if (biomeGrid is not { ShouldApplyForPlantSpawning: true }) return true;
+        if (biomeGrid is not { Enabled: true }) return true;
 
         if (!plantDef.plant.mustBeWildToSow) return true;
 
@@ -28,7 +28,7 @@ internal class ModCompat_DubsMintMenus : ModCompat
         if (researchPrerequisites != null && Enumerable.Any(researchPrerequisites, project => !project.IsFinished))
             return true;
 
-        __result = biomeGrid.CellCounts.Keys.SelectMany(b => b.AllWildPlants).Contains(plantDef);
+        __result = biomeGrid.Entries.SelectMany(b => b.Biome.AllWildPlants).Contains(plantDef);
         return false;
     }
 }

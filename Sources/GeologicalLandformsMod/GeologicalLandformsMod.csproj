@@ -75,7 +75,6 @@
         </Reference>
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="ModCompat\ModCompat_BiomesIslands.cs" />
         <Compile Include="GeologicalLandformsMod.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
         <Compile Include="GeologicalLandformsSettings.cs" />

@@ -36,14 +36,12 @@ public class LandformData : WorldComponent
     public void Commit(int tileId, Landform landform, Rot4 landformDirection, bool locked = false)
     {
         _entries[tileId] = new Entry { LandformId = landform?.Id, LandformDirectionInt = landformDirection.AsInt, Locked = locked };
-        WorldTileInfo.InvalidateCache();
         MapPreviewAPI.NotifyWorldChanged();
     }
 
     public void Reset(int tileId)
     {
         _entries.Remove(tileId);
-        WorldTileInfo.InvalidateCache();
         MapPreviewAPI.NotifyWorldChanged();
     }
 

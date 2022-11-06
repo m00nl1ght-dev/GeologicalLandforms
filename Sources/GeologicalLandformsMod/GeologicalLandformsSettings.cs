@@ -2,7 +2,6 @@ using System;
 using System.Globalization;
 using System.Linq;
 using GeologicalLandforms.GraphEditor;
-using GeologicalLandforms.Compatibility;
 using LunarFramework.Utility;
 using UnityEngine;
 using Verse;
@@ -86,21 +85,6 @@ public class GeologicalLandformsSettings : ModSettings
             if (EnableGodMode)
             {
                 listingStandard.CheckboxLabeled("GeologicalLandforms.Settings.IgnoreWorldTileReqInGodMode".Translate(), ref IgnoreWorldTileReqInGodMode);
-            }
-        }
-
-        if (ModCompat_BiomesIslands.IsApplied)
-        {
-            listingStandard.Gap();
-            listingStandard.CheckboxLabeled("GeologicalLandforms.Integration.BiomesIslands.CoastPlants".Translate(), ref ModCompat_BiomesIslands_CoastPlants);
-            
-            if (ModCompat_BiomesIslands_CoastPlants)
-            {
-                listingStandard.CheckboxLabeled("GeologicalLandforms.Integration.BiomesIslands.CoastAnimals".Translate(), ref ModCompat_BiomesIslands_CoastAnimals);
-            }
-            else
-            {
-                ModCompat_BiomesIslands_CoastAnimals = false;
             }
         }
 

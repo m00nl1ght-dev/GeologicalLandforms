@@ -43,6 +43,7 @@ public class Landform : TerrainCanvas
     public NodeOutputFertility OutputFertility { get; internal set; }
     public NodeOutputTerrain OutputTerrain { get; internal set; }
     public NodeOutputBiomeGrid OutputBiomeGrid { get; internal set; }
+    public NodeOutputCaves OutputCaves { get; internal set; }
     public NodeOutputScatterers OutputScatterers { get; internal set; }
 
     public override int GridFullSize => GeologicalLandformsAPI.LandformGridSizeFunction.Invoke();

@@ -28,13 +28,13 @@ internal static class Patch_RimWorld_WildAnimalSpawner
         if (biomeGrid == null) return true;
 
         float total = 0f;
-        if (biomeGrid.ShouldApplyForAnimalSpawning)
+        if (biomeGrid.Enabled)
         {
             float cells = ___map.cellIndices.NumGridCells;
-            foreach (var pair in biomeGrid.CellCounts)
+            foreach (var entry in biomeGrid.Entries)
             {
-                var val = RawDesiredAnimalDensityForBiome(___map, pair.Key);
-                total += val * (pair.Value / cells);
+                var val = RawDesiredAnimalDensityForBiome(___map, entry.Biome);
+                total += val * (entry.CellCount / cells);
             }
         }
         else
@@ -43,6 +43,12 @@ internal static class Patch_RimWorld_WildAnimalSpawner
         }
 
         __result = total * GeologicalLandformsAPI.AnimalDensityFactorFunction(biomeGrid) * AggregateAnimalDensityFactor(___map.gameConditionManager, ___map);
+        
+        if (ModsConfig.BiotechActive)
+        {
+            __result *= PollutionToAnimalDensityFactorCurve.Evaluate(Find.WorldGrid[___map.Tile].pollution);
+        }
+            
         return false;
     }
 
@@ -52,17 +58,16 @@ internal static class Patch_RimWorld_WildAnimalSpawner
     private static bool SpawnRandomWildAnimalAt(Map ___map, ref bool __result, IntVec3 loc)
     {
         var biomeGrid = ___map.BiomeGrid();
-        if (biomeGrid is not { ShouldApplyForAnimalSpawning: true }) return true;
+        if (biomeGrid is not { Enabled: true }) return true;
 
-        var biome = biomeGrid.BiomeAt(loc, BiomeGrid.BiomeQuery.AnimalSpawning);
+        var biome = biomeGrid.BiomeAt(loc);
 
         var kindDef = biome.AllWildAnimals
             .Where(a => ___map.mapTemperature.SeasonAcceptableFor(a.race))
-            .RandomElementByWeight(def => biome.CommonalityOfAnimal(def) / def.wildGroupSize.Average);
+            .RandomElementByWeight(def => CommonalityOfAnimalNow(def, biome, ___map.TileInfo.pollution));
         
         if (kindDef == null)
         {
-            Log.Error("No spawnable animals right now.");
             __result = false;
             return false;
         }
@@ -106,4 +111,10 @@ internal static class Patch_RimWorld_WildAnimalSpawner
         return num;
     }
     
+    private static float CommonalityOfAnimalNow(PawnKindDef def, BiomeDef biome, float pollution) =>
+        (!ModsConfig.BiotechActive || Rand.Value >= PollutionAnimalSpawnChanceFromPollutionCurve.Evaluate(pollution)
+            ? biome.CommonalityOfAnimal(def) : biome.CommonalityOfPollutionAnimal(def)) / def.wildGroupSize.Average;
+
+    private static readonly SimpleCurve PollutionToAnimalDensityFactorCurve = new() { new(0.1f, 1f), new(1f, 0.25f) };
+    private static readonly SimpleCurve PollutionAnimalSpawnChanceFromPollutionCurve = new() { new(0.0f, 0.0f), new(0.25f, 0.1f), new(0.75f, 0.9f), new(1f, 1f) };
 }

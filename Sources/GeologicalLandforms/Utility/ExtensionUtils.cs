@@ -1,5 +1,7 @@
+using System;
 using RimWorld;
 using RimWorld.Planet;
+using UnityEngine;
 using Verse;
 
 namespace GeologicalLandforms;
@@ -32,10 +34,11 @@ public static class ExtensionUtils
     {
         try
         {
-            return _biomeProperties[biomeDef.index];
+            return GeologicalLandformsAPI.ApplyBiomePropertiesHook(biomeDef, _biomeProperties[biomeDef.index]);
         }
-        catch
+        catch (Exception e)
         {
+            Debug.LogException(e);
             return new BiomeProperties();
         }
     }

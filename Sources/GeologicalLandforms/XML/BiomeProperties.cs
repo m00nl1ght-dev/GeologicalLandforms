@@ -1,7 +1,9 @@
 using System.Collections.Generic;
+using System.Linq;
 using RimWorld;
 using Verse;
 
+// ReSharper disable FieldCanBeMadeReadOnly.Global
 // ReSharper disable InconsistentNaming
 
 namespace GeologicalLandforms;
@@ -18,6 +20,19 @@ public class BiomeProperties : DefModExtension
 
     public TerrainDef beachTerrain;
     public TerrainDef gravelTerrain;
+    
+    public BiomeProperties() {}
+
+    public BiomeProperties(BiomeProperties other)
+    {
+        isWaterCovered = other.isWaterCovered;
+        allowLandforms = other.allowLandforms;
+        allowBiomeTransitions = other.allowBiomeTransitions;
+        disallowedLandforms = other.disallowedLandforms?.ToList();
+        disallowedBiomeTransitions = other.disallowedBiomeTransitions?.ToList();
+        beachTerrain = other.beachTerrain;
+        gravelTerrain = other.gravelTerrain;
+    }
 
     public static BiomeProperties[] GetAll()
     {

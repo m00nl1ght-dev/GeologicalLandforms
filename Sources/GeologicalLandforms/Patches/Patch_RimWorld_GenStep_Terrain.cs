@@ -71,7 +71,7 @@ internal static class Patch_RimWorld_GenStep_Terrain
         StoneFunction = Landform.GetFeature(l => l.OutputTerrain?.GetStone());
         BiomeFunction = Landform.GetFeature(l => l.OutputBiomeGrid?.GetBiomeGrid());
 
-        _biomeGrid = biomeGrid ?? new BiomeGrid(new IntVec3(mapSize.x, 1, mapSize.z), tile.Biome);
+        _biomeGrid = biomeGrid ?? new BiomeGrid(null, new IntVec3(mapSize.x, 1, mapSize.z), tile.Biome);
         
         bool hasBiomeTransition = false;
         if (tile.HasBorderingBiomes)
@@ -84,13 +84,16 @@ internal static class Patch_RimWorld_GenStep_Terrain
             }
         }
 
-        if (BiomeFunction != null) _biomeGrid.SetBiomes(BiomeFunction);
-        if (hasBiomeTransition)
+        if (BiomeFunction != null)
         {
-            BiomeTransition.PostProcessBiomeGrid(_biomeGrid, tile, mapSize);
+            _biomeGrid.Enable();
+            _biomeGrid.SetBiomes(BiomeFunction);
+
+            if (hasBiomeTransition)
+            {
+                BiomeTransition.PostProcessBiomeGrid(_biomeGrid, tile, mapSize);
+            }
         }
-        
-        GeologicalLandformsAPI.RunApplyBiomeReplacements(tile, _biomeGrid);
 
         UseVanillaTerrain = ShouldUseVanillaTerrain(tile);
     }
