@@ -23,7 +23,6 @@ public class Landform : TerrainCanvas
     public static IReadOnlyList<Landform> GeneratingLandforms { get; private set; }
     
     public static bool AnyGenerating => GeneratingLandforms is { Count: > 0 };
-    public static Landform GeneratingMainLandform => GeneratingLandforms?.FirstOrDefault(v => !v.IsLayer);
 
     public static IntVec2 GeneratingMapSize { get; set; } = new(250, 250);
     public static int GeneratingSeed { get; private set; }
@@ -41,6 +40,11 @@ public class Landform : TerrainCanvas
     public NodeUILandformManifest Manifest { get; internal set; }
     public NodeUIWorldTileReq WorldTileReq { get; internal set; }
     public NodeUILayerConfig LayerConfig { get; internal set; }
+    
+    public NodeInputElevation InputElevation { get; internal set; }
+    public NodeInputFertility InputFertility { get; internal set; }
+    public NodeInputBiomeGrid InputBiomeGrid { get; internal set; }
+    public NodeInputCaves InputCaves { get; internal set; }
     
     public NodeOutputElevation OutputElevation { get; internal set; }
     public NodeOutputFertility OutputFertility { get; internal set; }
@@ -77,15 +81,15 @@ public class Landform : TerrainCanvas
         GeneratingSeed = seed;
 
         if (GeneratingTile.Landforms == null) return;
-        GeneratingLandforms = GeneratingTile.Landforms
-            .OrderByDescending(l => l.Priority)
-            .Where(l => l.WorldTileReq.CheckMapRequirements(mapSize))
-            .ToList();
         
-        foreach (var landform in GeneratingLandforms)
+        var landformStack = new List<Landform>();
+        GeneratingLandforms = landformStack;
+        
+        foreach (var landform in GeneratingTile.Landforms.Where(l => l.WorldTileReq.CheckMapRequirements(mapSize)))
         {
             landform.RandSeed = seed;
             landform.TraverseAll();
+            landformStack.Add(landform);
         }
     }
 
@@ -110,7 +114,7 @@ public class Landform : TerrainCanvas
     public static T GetFeature<T>(Func<Landform, T> func)
     {
         if (GeneratingLandforms == null) return default;
-        return GeneratingLandforms.Select(func).FirstOrDefault(v => v != null);
+        return GeneratingLandforms.Select(func).LastOrDefault(v => v != null);
     }
     
     public static IGridFunction<T> GetFeatureScaled<T>(Func<Landform, IGridFunction<T>> func)

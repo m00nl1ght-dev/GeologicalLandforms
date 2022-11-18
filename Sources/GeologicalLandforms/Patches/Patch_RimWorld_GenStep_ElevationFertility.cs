@@ -4,9 +4,7 @@ using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using LunarFramework.Patching;
 using RimWorld;
-using TerrainGraph;
 using Verse;
-using static TerrainGraph.GridFunction;
 
 // ReSharper disable RedundantAssignment
 // ReSharper disable UnusedParameter.Local
@@ -37,10 +35,8 @@ internal static class Patch_RimWorld_GenStep_ElevationFertility
         var elevationSeed = Rand.Range(0, int.MaxValue);
         var fertilitySeed = Rand.Range(0, int.MaxValue);
         
-        elevationModule ??= BuildDefaultElevationGrid(map, elevationSeed);
-        fertilityModule ??= BuildDefaultFertilityGrid(map, fertilitySeed);
-        
-        if (map.TileInfo.WaterCovered) elevationModule = new Min(elevationModule, Of<double>(0f));
+        elevationModule ??= NodeOutputElevation.BuildVanillaElevationGrid(Landform.GeneratingTile, elevationSeed);
+        fertilityModule ??= NodeOutputFertility.BuildVanillaFertilityGrid(Landform.GeneratingTile, fertilitySeed);
 
         var elevation = MapGenerator.Elevation;
         var fertility = MapGenerator.Fertility;
@@ -81,21 +77,5 @@ internal static class Patch_RimWorld_GenStep_ElevationFertility
             
         if (patched == false)
             GeologicalLandformsAPI.Logger.Fatal("Failed to patch RimWorld_GenStep_ElevationFertility");
-    }
-
-    private static IGridFunction<double> BuildDefaultElevationGrid(Map map, int seed)
-    {
-        IGridFunction<double> function = new NoiseGenerator(NodeGridPerlin.PerlinNoise, 0.021, 2, 0.5, 6, seed);
-        function = new ScaleWithBias(function, 0.5, 0.5);
-        function = new Multiply(function, Of(NodeValueWorldTile.GetHillinessFactor(map.TileInfo.hilliness)));
-        if (map.TileInfo.WaterCovered) function = new Min(function, Of<double>(0f));
-        return function;
-    }
-    
-    private static IGridFunction<double> BuildDefaultFertilityGrid(Map map, int seed)
-    {
-        IGridFunction<double> function = new NoiseGenerator(NodeGridPerlin.PerlinNoise, 0.021, 2, 0.5, 6, seed);
-        function = new ScaleWithBias(function, 0.5, 0.5);
-        return function;
     }
 }

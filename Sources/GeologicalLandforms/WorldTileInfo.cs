@@ -133,7 +133,7 @@ public class WorldTileInfo : IWorldTileInfo
             landforms = landforms.Where(lf => !disallowedLandforms.Contains(lf.Id));
         }
         
-        info.Landforms = landforms.OrderByDescending(e => e.Priority).ToList();
+        info.Landforms = landforms.OrderBy(e => e.Priority).ToList();
     }
 
     public static bool CanHaveLandform(IWorldTileInfo info)

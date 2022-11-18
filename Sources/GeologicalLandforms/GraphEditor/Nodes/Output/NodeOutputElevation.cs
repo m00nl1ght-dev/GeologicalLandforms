@@ -2,6 +2,7 @@ using System;
 using NodeEditorFramework;
 using TerrainGraph;
 using UnityEngine;
+using static TerrainGraph.GridFunction;
 
 namespace GeologicalLandforms.GraphEditor;
 
@@ -44,6 +45,15 @@ public class NodeOutputElevation : NodeOutputBase
     {
         OutputKnob.SetValue(InputKnob.GetValue<ISupplier<IGridFunction<double>>>());
         return true;
+    }
+    
+    public static IGridFunction<double> BuildVanillaElevationGrid(IWorldTileInfo tile, int seed)
+    {
+        IGridFunction<double> function = new NoiseGenerator(NodeGridPerlin.PerlinNoise, 0.021, 2, 0.5, 6, seed);
+        function = new ScaleWithBias(function, 0.5, 0.5);
+        function = new Multiply(function, Of(NodeValueWorldTile.GetHillinessFactor(tile.Hilliness)));
+        if (tile.Elevation <= 0) function = new Min(function, Of<double>(0f));
+        return function;
     }
 
     public class ElevationPreviewModel : NodeGridPreview.IPreviewModel

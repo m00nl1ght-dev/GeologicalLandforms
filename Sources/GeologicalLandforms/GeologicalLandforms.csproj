@@ -91,6 +91,11 @@
         <Compile Include="GraphEditor\Nodes\Grid\NodeGridSelectTerrain.cs" />
         <Compile Include="GraphEditor\Nodes\Grid\NodeGridSelectTerrainGrid.cs" />
         <Compile Include="GraphEditor\Nodes\Grid\NodeGridRotateToMapSides.cs" />
+        <Compile Include="GraphEditor\Nodes\Input\NodeInputBase.cs" />
+        <Compile Include="GraphEditor\Nodes\Input\NodeInputBiomeGrid.cs" />
+        <Compile Include="GraphEditor\Nodes\Input\NodeInputCaves.cs" />
+        <Compile Include="GraphEditor\Nodes\Input\NodeInputElevation.cs" />
+        <Compile Include="GraphEditor\Nodes\Input\NodeInputFertility.cs" />
         <Compile Include="GraphEditor\Nodes\Output\NodeOutputBase.cs" />
         <Compile Include="GraphEditor\Nodes\Output\NodeOutputBiomeGrid.cs" />
         <Compile Include="GraphEditor\Nodes\Output\NodeOutputCaves.cs" />

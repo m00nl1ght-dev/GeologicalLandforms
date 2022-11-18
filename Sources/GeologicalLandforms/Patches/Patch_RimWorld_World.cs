@@ -42,7 +42,7 @@ internal static class Patch_RimWorld_World
     private static bool HasCaves(ref bool __result, int tile)
     {
         var worldTileInfo = WorldTileInfo.Get(tile);
-        var landform = worldTileInfo.Landforms?.FirstOrDefault(l => !l.IsLayer);
+        var landform = worldTileInfo.Landforms?.LastOrDefault(l => !l.IsLayer);
         if (landform == null) return true;
 
         int seed = worldTileInfo.MakeSeed(8266);
