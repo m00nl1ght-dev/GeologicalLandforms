@@ -10,8 +10,6 @@ namespace GeologicalLandforms;
 
 public class TunnelGenerator
 {
-    private ModuleBase _directionNoise;
-    
     public float OpenTunnelsPer10K = 5.8f;
     public float ClosedTunnelsPer10K = 2.5f;
     public int MaxOpenTunnelsPerRockGroup = 3;
@@ -33,21 +31,33 @@ public class TunnelGenerator
     private static readonly HashSet<IntVec3> GroupVisited = new();
     private static readonly List<IntVec3> SubGroup = new();
 
-    public void Generate(Map map)
+    private ModuleBase _directionNoise;
+
+    private float[,] _elevationGrid;
+    private float[,] _cavesGrid;
+
+    public float[,] Generate(float[,] elevationGrid)
     {
-        _directionNoise = new Perlin(DirectionNoiseFrequency, 2.0, 0.5, 4, Rand.Int, QualityMode.Medium);
+        var map = new Map { info = new MapInfo { Size = new IntVec3(elevationGrid.GetLength(0), 1, elevationGrid.GetLength(1)) } };
+        var cavesGrid = new float[map.Size.x, map.Size.z];
         
-        var elevation = MapGenerator.Elevation;
+        map.cellIndices = new CellIndices(map);
+        map.floodFiller = new FloodFiller(map);
+
+        _directionNoise = new Perlin(DirectionNoiseFrequency, 2.0, 0.5, 4, Rand.Int, QualityMode.Medium);
+        _elevationGrid = elevationGrid;
+        _cavesGrid = cavesGrid;
+        
         var visited = new BoolGrid(map);
         var group = new List<IntVec3>();
         
         foreach (var allCell in map.AllCells)
         {
-            if (!visited[allCell] && IsRock(allCell, elevation, map))
+            if (!visited[allCell] && IsRock(allCell, map))
             {
                 group.Clear();
                 
-                map.floodFiller.FloodFill(allCell, x => IsRock(x, elevation, map), x =>
+                map.floodFiller.FloodFill(allCell, x => IsRock(x, map), x =>
                 {
                     visited[x] = true;
                     group.Add(x);
@@ -63,11 +73,17 @@ public class TunnelGenerator
                 }
             }
         }
+
+        _directionNoise = null;
+        _elevationGrid = null;
+        _cavesGrid = null;
+        
+        return cavesGrid;
     }
 
     private void Trim(List<IntVec3> group, Map map) => GenMorphology.Open(group, 6, map);
 
-    private bool IsRock(IntVec3 c, MapGenFloatGrid elevation, Map map) => c.InBounds(map) && elevation[c] > 0.7;
+    private bool IsRock(IntVec3 c, Map map) => c.InBounds(map) && _elevationGrid.Get(c) > 0.7;
 
     private void DoOpenTunnels(List<IntVec3> group, Map map)
     {
@@ -134,7 +150,6 @@ public class TunnelGenerator
 
     private IntVec3 FindRandomEdgeCellForTunnel(List<IntVec3> group, Map map)
     {
-        var caves = MapGenerator.Caves;
         var cardinalDirections = GenAdj.CardinalDirections;
         
         TmpCells.Clear();
@@ -143,7 +158,7 @@ public class TunnelGenerator
         
         for (int index1 = 0; index1 < group.Count; ++index1)
         {
-            if (group[index1].DistanceToEdge(map) >= 3 && caves[group[index1]] <= 0.0)
+            if (group[index1].DistanceToEdge(map) >= 3 && _cavesGrid.Get(group[index1]) <= 0.0)
             {
                 for (int index2 = 0; index2 < 4; ++index2)
                 {
@@ -198,9 +213,6 @@ public class TunnelGenerator
         var intVec3 = start;
         float num1 = 0.0f;
         
-        var elevation = MapGenerator.Elevation;
-        var caves = MapGenerator.Caves;
-        
         bool flag1 = false;
         bool flag2 = false;
         visited ??= new HashSet<IntVec3>();
@@ -217,7 +229,7 @@ public class TunnelGenerator
                 for (int index = 0; index < num3; ++index)
                 {
                     var c = intVec3 + GenRadial.RadialPattern[index];
-                    if (!visited.Contains(c) && (!TmpGroupSet.Contains(c) || caves[c] > 0.0)) return;
+                    if (!visited.Contains(c) && (!TmpGroupSet.Contains(c) || _cavesGrid.Get(c) > 0.0)) return;
                 }
             }
             
@@ -250,9 +262,9 @@ public class TunnelGenerator
                 {
                     var c = new IntVec3(intVec3.x, 0, vector3Shifted.ToIntVec3().z);
                     
-                    if (IsRock(c, elevation, map))
+                    if (IsRock(c, map))
                     {
-                        caves[c] = Mathf.Max(caves[c], width);
+                        _cavesGrid.Set(c, Mathf.Max(_cavesGrid.Get(c), width));
                         visited.Add(c);
                     }
                     
@@ -308,16 +320,13 @@ public class TunnelGenerator
         hitAnotherTunnel = false;
         int num = GenRadial.NumCellsInRadius(tunnelWidth / 2f);
         
-        var elevation = MapGenerator.Elevation;
-        var caves = MapGenerator.Caves;
-        
         for (int index = 0; index < num; ++index)
         {
             var c = around + GenRadial.RadialPattern[index];
-            if (IsRock(c, elevation, map))
+            if (IsRock(c, map))
             {
-                if (caves[c] > 0.0 && !visited.Contains(c)) hitAnotherTunnel = true;
-                caves[c] = Mathf.Max(caves[c], tunnelWidth);
+                if (_cavesGrid.Get(c) > 0.0 && !visited.Contains(c)) hitAnotherTunnel = true;
+                _cavesGrid.Set(c, Mathf.Max(_cavesGrid.Get(c), tunnelWidth));
                 visited.Add(c);
             }
         }
@@ -357,8 +366,6 @@ public class TunnelGenerator
         Map map, float maxDist,
         bool treatOpenSpaceAsCave)
     {
-        var caves = MapGenerator.Caves;
-        
         TmpGroupSet.Clear();
         TmpGroupSet.AddRange(group);
         
@@ -368,7 +375,7 @@ public class TunnelGenerator
         for (int index = 0; index < num; ++index)
         {
             var intVec3 = cell + radialPattern[index];
-            if (treatOpenSpaceAsCave && !TmpGroupSet.Contains(intVec3) || intVec3.InBounds(map) && caves[intVec3] > 0.0)
+            if (treatOpenSpaceAsCave && !TmpGroupSet.Contains(intVec3) || intVec3.InBounds(map) && _cavesGrid.Get(intVec3) > 0.0)
                 return cell.DistanceTo(intVec3);
         }
         
