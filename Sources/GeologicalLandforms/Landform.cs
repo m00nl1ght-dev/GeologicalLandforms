@@ -15,6 +15,9 @@ public class Landform : TerrainCanvas
 {
     public const int DefaultGridFullSize = 250;
     public const int DefaultGridPreviewSize = 100;
+
+    public static int GeneratingGridFullSize { get; private set; } = DefaultGridFullSize;
+    public static int GeneratingGridPreviewSize { get; private set; } = DefaultGridPreviewSize;
     
     public static IWorldTileInfo GeneratingTile { get; private set; }
     public static IReadOnlyList<Landform> GeneratingLandforms { get; private set; }
@@ -24,7 +27,7 @@ public class Landform : TerrainCanvas
 
     public static IntVec2 GeneratingMapSize { get; set; } = new(250, 250);
     public static int GeneratingSeed { get; private set; }
-    
+
     public static int GeneratingMapSizeMin => Math.Min(GeneratingMapSize.x, GeneratingMapSize.z);
 
     public string Id => Manifest?.Id;
@@ -46,8 +49,8 @@ public class Landform : TerrainCanvas
     public NodeOutputCaves OutputCaves { get; internal set; }
     public NodeOutputScatterers OutputScatterers { get; internal set; }
 
-    public override int GridFullSize => GeologicalLandformsAPI.LandformGridSizeFunction.Invoke();
-    public override int GridPreviewSize => DefaultGridPreviewSize;
+    public override int GridFullSize => GeneratingGridFullSize;
+    public override int GridPreviewSize => GeneratingGridPreviewSize;
 
     public override string canvasName => Id ?? "Landform";
     public Vector2 ScreenOrigin = new(-960f, -540f + LandformGraphInterface.ToolbarHeight);
@@ -69,6 +72,7 @@ public class Landform : TerrainCanvas
     {
         CleanUp();
         GeneratingTile = WorldTileInfo.Get(worldTile);
+        GeneratingGridFullSize = GeologicalLandformsAPI.LandformGridSizeFunction.Invoke();
         GeneratingMapSize = mapSize;
         GeneratingSeed = seed;
 
@@ -89,6 +93,7 @@ public class Landform : TerrainCanvas
     {
         CleanUp();
         GeneratingTile = tileInfo;
+        GeneratingGridFullSize = GeologicalLandformsAPI.LandformGridSizeFunction.Invoke();
         GeneratingMapSize = new IntVec2(250, 250);
         GeneratingSeed = NodeBase.SeedSource.Next();
         if (GeneratingTile.Landforms == null) return;
@@ -106,6 +111,14 @@ public class Landform : TerrainCanvas
     {
         if (GeneratingLandforms == null) return default;
         return GeneratingLandforms.Select(func).FirstOrDefault(v => v != null);
+    }
+    
+    public static IGridFunction<T> GetFeatureScaled<T>(Func<Landform, IGridFunction<T>> func)
+    {
+        var gridFunction = GetFeature(func);
+        if (gridFunction == null) return null;
+        double mapScale = GeneratingMapSizeMin / (double) GeneratingGridFullSize;
+        return new GridFunction.Transform<T>(gridFunction, 0, 0, 1 / mapScale, 1 / mapScale);
     }
 
     protected override void ValidateSelf()

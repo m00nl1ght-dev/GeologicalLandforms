@@ -25,7 +25,7 @@ public class NodeOutputElevation : NodeOutputBase
 
     public override void OnCreate(bool fromGUI)
     {
-        NodeOutputElevation existing = Landform.OutputElevation;
+        var existing = Landform.OutputElevation;
         if (existing != null && existing != this && canvas.nodes.Contains(existing)) existing.Delete();
         Landform.OutputElevation = this;
     }
@@ -37,8 +37,7 @@ public class NodeOutputElevation : NodeOutputBase
 
     public IGridFunction<double> Get()
     {
-        IGridFunction<double> function = InputKnob.GetValue<ISupplier<IGridFunction<double>>>()?.ResetAndGet();
-        return function == null ? null : ScaleWithMap(function);
+        return InputKnob.GetValue<ISupplier<IGridFunction<double>>>()?.ResetAndGet();
     }
     
     public override bool Calculate()

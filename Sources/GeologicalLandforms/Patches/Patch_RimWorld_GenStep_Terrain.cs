@@ -67,9 +67,9 @@ internal static class Patch_RimWorld_GenStep_Terrain
         
         if (tile == null) return;
 
-        BaseFunction = Landform.GetFeature(l => l.OutputTerrain?.GetBase());
-        StoneFunction = Landform.GetFeature(l => l.OutputTerrain?.GetStone());
-        BiomeFunction = Landform.GetFeature(l => l.OutputBiomeGrid?.GetBiomeGrid());
+        BaseFunction = Landform.GetFeatureScaled(l => l.OutputTerrain?.GetBase());
+        StoneFunction = Landform.GetFeatureScaled(l => l.OutputTerrain?.GetStone());
+        BiomeFunction = Landform.GetFeatureScaled(l => l.OutputBiomeGrid?.GetBiomeGrid());
 
         _biomeGrid = biomeGrid ?? new BiomeGrid(null, new IntVec3(mapSize.x, 1, mapSize.z), tile.Biome);
         

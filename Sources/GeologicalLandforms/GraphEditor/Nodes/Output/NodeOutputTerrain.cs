@@ -41,7 +41,7 @@ public class NodeOutputTerrain : NodeOutputBase
 
     public override void OnCreate(bool fromGUI)
     {
-        NodeOutputTerrain existing = Landform.OutputTerrain;
+        var existing = Landform.OutputTerrain;
         if (existing != null && existing != this && canvas.nodes.Contains(existing)) existing.Delete();
         Landform.OutputTerrain = this;
     }
@@ -53,13 +53,11 @@ public class NodeOutputTerrain : NodeOutputBase
 
     public IGridFunction<TerrainData> GetBase()
     {
-        IGridFunction<TerrainData> function = BaseKnob.GetValue<ISupplier<IGridFunction<TerrainData>>>()?.ResetAndGet();
-        return function == null ? null : ScaleWithMap(function);
+        return BaseKnob.GetValue<ISupplier<IGridFunction<TerrainData>>>()?.ResetAndGet();
     }
     
     public IGridFunction<TerrainData> GetStone()
     {
-        IGridFunction<TerrainData> function = StoneKnob.GetValue<ISupplier<IGridFunction<TerrainData>>>()?.ResetAndGet();
-        return function == null ? null : ScaleWithMap(function);
+        return StoneKnob.GetValue<ISupplier<IGridFunction<TerrainData>>>()?.ResetAndGet();
     }
 }

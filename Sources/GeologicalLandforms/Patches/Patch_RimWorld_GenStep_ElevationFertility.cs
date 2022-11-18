@@ -29,8 +29,8 @@ internal static class Patch_RimWorld_GenStep_ElevationFertility
         // if there is no landform on this tile, let vanilla gen or other mods handle it
         if (!Landform.AnyGenerating) return true;
 
-        var elevationModule = Landform.GetFeature(l => l.OutputElevation?.Get());
-        var fertilityModule = Landform.GetFeature(l => l.OutputFertility?.Get());
+        var elevationModule = Landform.GetFeatureScaled(l => l.OutputElevation?.Get());
+        var fertilityModule = Landform.GetFeatureScaled(l => l.OutputFertility?.Get());
 
         if (elevationModule == null && fertilityModule == null) return true;
 

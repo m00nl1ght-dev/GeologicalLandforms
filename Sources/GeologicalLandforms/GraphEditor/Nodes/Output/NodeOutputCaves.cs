@@ -36,8 +36,7 @@ public class NodeOutputCaves : NodeOutputBase
     
     public IGridFunction<double> Get()
     {
-        var function = InputKnob.GetValue<ISupplier<IGridFunction<double>>>()?.ResetAndGet();
-        return function == null ? GridFunction.Zero : ScaleWithMap(function);
+        return InputKnob.GetValue<ISupplier<IGridFunction<double>>>()?.ResetAndGet();
     }
     
     public override bool Calculate()

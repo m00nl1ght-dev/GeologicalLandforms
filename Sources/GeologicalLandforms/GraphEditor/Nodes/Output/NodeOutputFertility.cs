@@ -24,7 +24,7 @@ public class NodeOutputFertility : NodeOutputBase
 
     public override void OnCreate(bool fromGUI)
     {
-        NodeOutputFertility exiting = Landform.OutputFertility;
+        var exiting = Landform.OutputFertility;
         if (exiting != null && exiting != this && canvas.nodes.Contains(exiting)) exiting.Delete();
         Landform.OutputFertility = this;
     }
@@ -36,8 +36,7 @@ public class NodeOutputFertility : NodeOutputBase
     
     public IGridFunction<double> Get()
     {
-        IGridFunction<double> function = InputKnob.GetValue<ISupplier<IGridFunction<double>>>()?.ResetAndGet();
-        return function == null ? GridFunction.Zero : ScaleWithMap(function);
+        return InputKnob.GetValue<ISupplier<IGridFunction<double>>>()?.ResetAndGet();
     }
     
     public override bool Calculate()

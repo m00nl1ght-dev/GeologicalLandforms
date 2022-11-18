@@ -43,7 +43,7 @@ public class NodeOutputBiomeGrid : NodeOutputBase
 
     public override void OnCreate(bool fromGUI)
     {
-        NodeOutputBiomeGrid existing = Landform.OutputBiomeGrid;
+        var existing = Landform.OutputBiomeGrid;
         if (existing != null && existing != this && canvas.nodes.Contains(existing)) existing.Delete();
         Landform.OutputBiomeGrid = this;
     }
@@ -55,8 +55,7 @@ public class NodeOutputBiomeGrid : NodeOutputBase
 
     public IGridFunction<BiomeData> GetBiomeGrid()
     {
-        var function = BiomeGridKnob.GetValue<ISupplier<IGridFunction<BiomeData>>>()?.ResetAndGet();
-        return function == null ? null : ScaleWithMap(function);
+        return BiomeGridKnob.GetValue<ISupplier<IGridFunction<BiomeData>>>()?.ResetAndGet();
     }
     
     public IGridFunction<BiomeData> ApplyBiomeTransitions(IWorldTileInfo tile, IntVec2 mapSize, IGridFunction<BiomeData> landformBiomes)

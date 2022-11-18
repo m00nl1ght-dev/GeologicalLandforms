@@ -25,7 +25,7 @@ internal static class Patch_RimWorld_GenStep_Caves
         // if there is no landform on this tile, let vanilla gen or other mods handle it
         if (!Landform.AnyGenerating) return true;
 
-        var cavesModule = Landform.GetFeature(l => l.OutputCaves?.Get());
+        var cavesModule = Landform.GetFeatureScaled(l => l.OutputCaves?.Get());
 
         if (cavesModule == null) return true;
 

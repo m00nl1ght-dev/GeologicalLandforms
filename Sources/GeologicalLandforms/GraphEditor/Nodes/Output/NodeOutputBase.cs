@@ -25,10 +25,4 @@ public abstract class NodeOutputBase : NodeBase
 
         GUILayout.EndVertical();
     }
-
-    public IGridFunction<T> ScaleWithMap<T>(IGridFunction<T> function)
-    {
-        double mapScale = Landform.GeneratingMapSizeMin / (double) Landform.GridFullSize;
-        return new GridFunction.Transform<T>(function, 0, 0, 1 / mapScale, 1 / mapScale);
-    }
 }
