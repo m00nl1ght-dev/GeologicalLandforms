@@ -36,8 +36,16 @@ public class NodeInputCaves : NodeInputBase
 
         if (func == null)
         {
-            // TODO vanilla
-            func = GridFunction.Zero;
+            if (Landform.GeneratingTile is WorldTileInfo tile)
+            {
+                if (!tile.World.HasCaves(tile.TileId))
+                {
+                    Knob.SetValue(GridFunction.Zero);
+                    return true;
+                }
+            }
+            
+            func = GridFunction.Zero; // TODO vanilla gen
         }
         
         Knob.SetValue(func);
