@@ -32,23 +32,30 @@ public class NodeInputCaves : NodeInputBase
 
     public override bool Calculate()
     {
-        var func = Landform.GetFeature(l => l.OutputCaves?.Get());
-
-        if (func == null)
+        var supplier = Landform.GetFeature(l => l.OutputCaves?.InputKnob.GetValue<ISupplier<IGridFunction<double>>>());
+        if (supplier != null)
         {
-            if (Landform.GeneratingTile is WorldTileInfo tile)
-            {
-                if (!tile.World.HasCaves(tile.TileId))
-                {
-                    Knob.SetValue(GridFunction.Zero);
-                    return true;
-                }
-            }
-            
-            func = GridFunction.Zero; // TODO vanilla gen
+            Knob.SetValue(supplier);
+            return true;
         }
         
-        Knob.SetValue(func);
+        if (Landform.GeneratingTile is WorldTileInfo tile)
+        {
+            if (!tile.World.HasCaves(tile.TileId))
+            {
+                Knob.SetValue(Supplier.Of(GridFunction.Zero));
+                return true;
+            }
+        }
+        else // temp for now, allow vanilla input in editor once previews there are async
+        {
+            Knob.SetValue(Supplier.Of(GridFunction.Zero));
+            return true;
+        }
+        
+        Knob.SetValue(BuildVanillaCaveGridSupplier());
         return true;
     }
+    
+    
 }

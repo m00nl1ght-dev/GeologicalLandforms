@@ -32,15 +32,9 @@ public class NodeInputFertility : NodeInputBase
 
     public override bool Calculate()
     {
-        var func = Landform.GetFeature(l => l.OutputFertility?.Get());
-
-        if (func == null)
-        {
-            var seed = TryGetVanillaGenStepRandValue(826504671, 1);
-            func = NodeOutputFertility.BuildVanillaFertilityGrid(Landform.GeneratingTile, seed);
-        }
-        
-        Knob.SetValue(func);
+        var supplier = Landform.GetFeature(l => l.OutputFertility?.InputKnob.GetValue<ISupplier<IGridFunction<double>>>());
+        supplier ??= BuildVanillaFertilityGridSupplier();
+        Knob.SetValue(supplier);
         return true;
     }
 }

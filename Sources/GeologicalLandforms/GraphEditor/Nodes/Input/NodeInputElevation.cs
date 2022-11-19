@@ -32,15 +32,9 @@ public class NodeInputElevation : NodeInputBase
 
     public override bool Calculate()
     {
-        var func = Landform.GetFeature(l => l.OutputElevation?.Get());
-
-        if (func == null)
-        {
-            var seed = TryGetVanillaGenStepRandValue(826504671, 0);
-            func = NodeOutputElevation.BuildVanillaElevationGrid(Landform.GeneratingTile, seed);
-        }
-        
-        Knob.SetValue(func);
+        var supplier = Landform.GetFeature(l => l.OutputElevation?.InputKnob.GetValue<ISupplier<IGridFunction<double>>>());
+        supplier ??= BuildVanillaElevationGridSupplier();
+        Knob.SetValue(supplier);
         return true;
     }
 }

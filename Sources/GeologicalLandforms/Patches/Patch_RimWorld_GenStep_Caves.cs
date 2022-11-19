@@ -29,11 +29,12 @@ internal static class Patch_RimWorld_GenStep_Caves
 
         if (cavesModule == null) return true;
 
+        var elevation = MapGenerator.Elevation;
         var caves = MapGenerator.Caves;
 
         foreach (var cell in map.AllCells)
         {
-            caves[cell] = (float) cavesModule.ValueAt(cell.x, cell.z);
+            caves[cell] = elevation[cell] > 0.7f ? (float) cavesModule.ValueAt(cell.x, cell.z) : 0f;
         }
         
         return false;

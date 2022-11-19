@@ -1,8 +1,10 @@
 using System;
+using MapPreview;
 using NodeEditorFramework;
 using TerrainGraph;
 using UnityEngine;
 using Verse;
+using static TerrainGraph.GridFunction;
 
 namespace GeologicalLandforms.GraphEditor;
 
@@ -29,18 +31,160 @@ public abstract class NodeInputBase : NodeBase
     {
         if (Landform.GeneratingTile is WorldTileInfo tile)
         {
-            return Gen.HashCombineInt(Gen.HashCombineInt(tile.World.info.Seed, tile.TileId), seedPart);
+            return Gen.HashCombineInt(SeedRerollData.GetMapSeed(tile.World, tile.TileId), seedPart);
         }
 
         return Gen.HashCombineInt(CombinedSeed, seedPart);
     }
 
-    protected int TryGetVanillaGenStepRandValue(int seedPart, int iteration)
+    protected T TryGetVanillaGenStepRandValue<T>(int seedPart, int iteration, Func<T> func)
     {
         Rand.PushState();
         Rand.Seed = TryGetVanillaGenStepSeed(seedPart);
-        var val = 0; for (int i = 0; i <= iteration; i++) val = Rand.Int;
+        T val = default; for (int i = 0; i <= iteration; i++) val = func.Invoke();
         Rand.PopState();
         return val;
+    }
+
+    /// <summary>
+    /// Returns a vanilla elevation grid for the given tile in map space.
+    /// </summary>
+    public static IGridFunction<double> BuildVanillaElevationGrid(IWorldTileInfo tile, int seed)
+    {
+        IGridFunction<double> function = new NoiseGenerator(NodeGridPerlin.PerlinNoise, 0.021, 2, 0.5, 6, seed);
+        function = new ScaleWithBias(function, 0.5, 0.5);
+        function = new Multiply(function, Of(NodeValueWorldTile.GetHillinessFactor(tile.Hilliness)));
+        if (tile.Elevation <= 0) function = new Min(function, Of<double>(0f));
+        return function;
+    }
+
+    /// <summary>
+    /// Returns a supplier that produces a vanilla elevation grid in node space.
+    /// Uses the vanilla seed if an actual world tile is generating, otherwise the node seed.
+    /// </summary>
+    protected ISupplier<IGridFunction<double>> BuildVanillaElevationGridSupplier()
+    {
+        var seed = TryGetVanillaGenStepRandValue(826504671, 0, () => Rand.Range(0, int.MaxValue));
+        return new VanillaElevationGridSupplier(Landform.GeneratingTile, Landform.MapSpaceToNodeSpaceFactor, seed);
+    }
+    
+    private class VanillaElevationGridSupplier : ISupplier<IGridFunction<double>>
+    {
+        private readonly IWorldTileInfo _tile;
+        private readonly double _transformScale;
+        private readonly int _seed;
+
+        public VanillaElevationGridSupplier(IWorldTileInfo tile, double transformScale, int seed)
+        {
+            _tile = tile;
+            _transformScale = transformScale;
+            _seed = seed;
+        }
+  
+        public IGridFunction<double> Get()
+        {
+            return new Transform<double>(BuildVanillaElevationGrid(_tile, _seed), _transformScale);
+        }
+
+        public void ResetState() {}
+    }
+
+    /// <summary>
+    /// Returns a vanilla fertility grid for the given tile in map space.
+    /// </summary>
+    public static IGridFunction<double> BuildVanillaFertilityGrid(IWorldTileInfo tile, int seed)
+    {
+        IGridFunction<double> function = new NoiseGenerator(NodeGridPerlin.PerlinNoise, 0.021, 2, 0.5, 6, seed);
+        function = new ScaleWithBias(function, 0.5, 0.5);
+        return function;
+    }
+    
+    /// <summary>
+    /// Returns a supplier that produces a vanilla fertility grid in node space.
+    /// Uses the vanilla seed if an actual world tile is generating, otherwise the node seed.
+    /// </summary>
+    protected ISupplier<IGridFunction<double>> BuildVanillaFertilityGridSupplier()
+    {
+        var seed = TryGetVanillaGenStepRandValue(826504671, 1, () => Rand.Range(0, int.MaxValue));
+        return new VanillaFertilityGridSupplier(Landform.GeneratingTile, Landform.MapSpaceToNodeSpaceFactor, seed);
+    }
+    
+    private class VanillaFertilityGridSupplier : ISupplier<IGridFunction<double>>
+    {
+        private readonly IWorldTileInfo _tile;
+        private readonly double _transformScale;
+        private readonly int _seed;
+
+        public VanillaFertilityGridSupplier(IWorldTileInfo tile, double transformScale, int seed)
+        {
+            _tile = tile;
+            _transformScale = transformScale;
+            _seed = seed;
+        }
+  
+        public IGridFunction<double> Get()
+        {
+            return new Transform<double>(BuildVanillaFertilityGrid(_tile, _seed), _transformScale);
+        }
+
+        public void ResetState() {}
+    }
+    
+    /// <summary>
+    /// Returns a supplier that produces a vanilla cave grid in node space.
+    /// Elevation values are pulled from the output of the full landform stack.
+    /// This can lead to infinite loops in the landform stack. Safeguards against this are implemented in the supplier.
+    /// Uses the vanilla seed if an actual world tile is generating, otherwise the node seed.
+    /// </summary>
+    protected ISupplier<IGridFunction<double>> BuildVanillaCaveGridSupplier()
+    {
+        var caveGenSeed = TryGetVanillaGenStepSeed(647814558);
+        var vanillaElevationSupplier = BuildVanillaElevationGridSupplier();
+        return new VanillaCaveGridSupplier(vanillaElevationSupplier, Landform.MapSpaceToNodeSpaceFactor, Landform.GeneratingMapSize, caveGenSeed);
+    }
+    
+    private class VanillaCaveGridSupplier : ISupplier<IGridFunction<double>>
+    {
+        private readonly ISupplier<IGridFunction<double>> _fallbackElevation;
+        private readonly double _transformScale;
+        private readonly IntVec2 _caveGridSize;
+        private readonly int _seed;
+
+        private bool _reentryFlag;
+
+        public VanillaCaveGridSupplier(ISupplier<IGridFunction<double>> fallbackElevation, double transformScale, IntVec2 caveGridSize, int seed)
+        {
+            _fallbackElevation = fallbackElevation;
+            _transformScale = transformScale;
+            _caveGridSize = caveGridSize;
+            _seed = seed;
+        }
+  
+        public IGridFunction<double> Get()
+        {
+            IGridFunction<double> elevation = null;
+            if (_reentryFlag)
+            {
+                GeologicalLandformsAPI.Logger.Error("Detected infinite loop in node graph! Using vanilla elevation as fallback.");
+            }
+            else
+            {
+                _reentryFlag = true;
+                elevation = Landform.GetFeature(l => l.OutputElevation?.Get());
+                _reentryFlag = false;
+            }
+
+            elevation ??= _fallbackElevation.Get();
+            
+            var generator = new TunnelGenerator();
+            var elevationGrid = new Transform<double>(elevation, 1 / _transformScale);
+            var cavesGrid = generator.Generate(_caveGridSize, _seed, c => elevationGrid.ValueAt(c.x, c.z) > 0.7);
+            return new Transform<double>(new Cache<double>(cavesGrid), _transformScale);
+        }
+
+        public void ResetState()
+        {
+            _fallbackElevation.ResetState();
+        }
     }
 }

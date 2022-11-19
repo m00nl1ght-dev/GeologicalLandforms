@@ -35,8 +35,8 @@ internal static class Patch_RimWorld_GenStep_ElevationFertility
         var elevationSeed = Rand.Range(0, int.MaxValue);
         var fertilitySeed = Rand.Range(0, int.MaxValue);
         
-        elevationModule ??= NodeOutputElevation.BuildVanillaElevationGrid(Landform.GeneratingTile, elevationSeed);
-        fertilityModule ??= NodeOutputFertility.BuildVanillaFertilityGrid(Landform.GeneratingTile, fertilitySeed);
+        elevationModule ??= NodeInputBase.BuildVanillaElevationGrid(Landform.GeneratingTile, elevationSeed);
+        fertilityModule ??= NodeInputBase.BuildVanillaFertilityGrid(Landform.GeneratingTile, fertilitySeed);
 
         var elevation = MapGenerator.Elevation;
         var fertility = MapGenerator.Fertility;

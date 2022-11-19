@@ -38,10 +38,9 @@ public class NodeGridTransformByMapSize : NodeBase
 
     public override bool Calculate()
     {
-        double mapScale = Landform.GeneratingMapSizeMin / (double) Landform.GridFullSize;
         OutputKnob.SetValue<ISupplier<IGridFunction<double>>>(new Output(
             SupplierOrGridFixed(InputKnob, GridFunction.Zero), 
-            mapScale
+            Landform.MapSpaceToNodeSpaceFactor
         ));
         return true;
     }
@@ -59,7 +58,7 @@ public class NodeGridTransformByMapSize : NodeBase
 
         public IGridFunction<double> Get()
         {
-            return new GridFunction.Transform<double>(_input.Get(), 0, 0, _mapScale, _mapScale);
+            return new GridFunction.Transform<double>(_input.Get(), _mapScale);
         }
 
         public void ResetState()

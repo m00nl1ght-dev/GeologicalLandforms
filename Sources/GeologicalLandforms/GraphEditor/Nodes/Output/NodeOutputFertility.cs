@@ -44,11 +44,4 @@ public class NodeOutputFertility : NodeOutputBase
         OutputKnob.SetValue(InputKnob.GetValue<ISupplier<IGridFunction<double>>>());
         return true;
     }
-    
-    public static IGridFunction<double> BuildVanillaFertilityGrid(IWorldTileInfo tile, int seed)
-    {
-        IGridFunction<double> function = new GridFunction.NoiseGenerator(NodeGridPerlin.PerlinNoise, 0.021, 2, 0.5, 6, seed);
-        function = new GridFunction.ScaleWithBias(function, 0.5, 0.5);
-        return function;
-    }
 }

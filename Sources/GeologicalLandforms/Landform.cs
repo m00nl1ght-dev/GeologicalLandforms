@@ -28,6 +28,8 @@ public class Landform : TerrainCanvas
     public static int GeneratingSeed { get; private set; }
 
     public static int GeneratingMapSizeMin => Math.Min(GeneratingMapSize.x, GeneratingMapSize.z);
+    public static double MapSpaceToNodeSpaceFactor => GeneratingMapSizeMin / (double) GeneratingGridFullSize;
+    public static double NodeSpaceToMapSpaceFactor => GeneratingGridFullSize / (double) GeneratingMapSizeMin;
 
     public string Id => Manifest?.Id;
     public bool IsCustom => Manifest?.IsCustom ?? false;
@@ -120,9 +122,17 @@ public class Landform : TerrainCanvas
     public static IGridFunction<T> GetFeatureScaled<T>(Func<Landform, IGridFunction<T>> func)
     {
         var gridFunction = GetFeature(func);
-        if (gridFunction == null) return null;
-        double mapScale = GeneratingMapSizeMin / (double) GeneratingGridFullSize;
-        return new GridFunction.Transform<T>(gridFunction, 0, 0, 1 / mapScale, 1 / mapScale);
+        return gridFunction == null ? null : TransformIntoMapSpace(gridFunction);
+    }
+
+    public static IGridFunction<T> TransformIntoMapSpace<T>(IGridFunction<T> gridInNodeSpace)
+    {
+        return new GridFunction.Transform<T>(gridInNodeSpace, NodeSpaceToMapSpaceFactor);
+    }
+    
+    public static IGridFunction<T> TransformIntoNodeSpace<T>(IGridFunction<T> gridInMapSpace)
+    {
+        return new GridFunction.Transform<T>(gridInMapSpace, MapSpaceToNodeSpaceFactor);
     }
 
     protected override void ValidateSelf()

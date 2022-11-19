@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Verse;
@@ -10,17 +11,56 @@ namespace GeologicalLandforms;
 
 public class TunnelGenerator
 {
+    /*
+    
+    [TweakValue("TunnelGenerator", 0, 50)]
+    public static float OpenTunnelsPer10K = 5.8f;
+    [TweakValue("TunnelGenerator", 0, 50)]
+    public static float ClosedTunnelsPer10K = 2.5f;
+    
+    [TweakValue("TunnelGenerator", 0, 50)]
+    public static int MaxOpenTunnelsPerRockGroup = 3;
+    [TweakValue("TunnelGenerator", 0, 50)]
+    public static int MaxClosedTunnelsPerRockGroup = 1;
+    
+    [TweakValue("TunnelGenerator", 0, 5)]
+    public static float TunnelWidthMultiplier = 1f;
+    [TweakValue("TunnelGenerator", 0, 10)]
+    public static float TunnelWidthMin = 1.4f;
+    [TweakValue("TunnelGenerator", 0, 0.1f)]
+    public static float WidthReductionPerCell = 0.034f;
+    [TweakValue("TunnelGenerator", 0, 1)]
+    public static float BranchChance = 0.1f;
+    [TweakValue("TunnelGenerator", 0, 50)]
+    public static int BranchMinDistanceFromStart = 15;
+    [TweakValue("TunnelGenerator", 0, 5)]
+    public static float BranchWidthOffsetMultiplier = 1f;
+
+    [TweakValue("TunnelGenerator", 0, 50)]
+    public static float DirectionChangeSpeed = 8f;
+    
+    */
+
     public float OpenTunnelsPer10K = 5.8f;
     public float ClosedTunnelsPer10K = 2.5f;
+    
     public int MaxOpenTunnelsPerRockGroup = 3;
     public int MaxClosedTunnelsPerRockGroup = 1;
-    public float DirectionChangeSpeed = 8f;
-    public float DirectionNoiseFrequency = 0.00205f;
-    public int MinRocksToGenerateAnyTunnel = 300;
-    public int AllowBranchingAfterThisManyCells = 15;
-    public float MinTunnelWidth = 1.4f;
-    public float WidthOffsetPerCell = 0.034f;
+    
+    public float TunnelWidthMultiplier = 1;
+    public float TunnelWidthMin = 1.4f;
+    public float WidthReductionPerCell = 0.034f;
+    
     public float BranchChance = 0.1f;
+    public int BranchMinDistanceFromStart = 15;
+    public float BranchWidthOffsetMultiplier = 1;
+    
+    public float DirectionChangeSpeed = 8;
+    
+    [TweakValue("TunnelGenerator", 0, 0.01f)]
+    public static float DirectionNoiseFrequency = 0.00205f;
+    [TweakValue("TunnelGenerator", 0, 1000)]
+    public static int MinRocksToGenerateAnyTunnel = 300;
     
     public FloatRange BranchedTunnelWidthOffset = new(0.2f, 0.4f);
     public SimpleCurve TunnelsWidthPerRockCount = new() { new(100f, 2f), new(300f, 4f), new(3000f, 5.5f) };
@@ -32,65 +72,74 @@ public class TunnelGenerator
     private static readonly List<IntVec3> SubGroup = new();
 
     private ModuleBase _directionNoise;
+    private Predicate<IntVec2> _cellCondition;
+    private double[,] _cavesGrid;
 
-    private float[,] _elevationGrid;
-    private float[,] _cavesGrid;
-
-    public float[,] Generate(float[,] elevationGrid)
+    public double[,] Generate(IntVec2 gridSize, int seed, Predicate<IntVec2> cellCondition)
     {
-        var map = new Map { info = new MapInfo { Size = new IntVec3(elevationGrid.GetLength(0), 1, elevationGrid.GetLength(1)) } };
-        var cavesGrid = new float[map.Size.x, map.Size.z];
-        
+        var map = new Map { info = new MapInfo { Size = new IntVec3(gridSize.x, 1, gridSize.z) } };
+        var cavesGrid = new double[map.Size.x, map.Size.z];
+
         map.cellIndices = new CellIndices(map);
         map.floodFiller = new FloodFiller(map);
+        
+        Rand.PushState();
+        Rand.Seed = seed;
 
-        _directionNoise = new Perlin(DirectionNoiseFrequency, 2.0, 0.5, 4, Rand.Int, QualityMode.Medium);
-        _elevationGrid = elevationGrid;
-        _cavesGrid = cavesGrid;
-        
-        var visited = new BoolGrid(map);
-        var group = new List<IntVec3>();
-        
-        foreach (var allCell in map.AllCells)
+        try
         {
-            if (!visited[allCell] && IsRock(allCell, map))
+            _directionNoise = new Perlin(DirectionNoiseFrequency, 2.0, 0.5, 4, Rand.Int, QualityMode.Medium);
+            _cellCondition = cellCondition;
+            _cavesGrid = cavesGrid;
+
+            var visited = new BoolGrid(map);
+            var group = new List<IntVec3>();
+
+            foreach (var allCell in map.AllCells)
             {
-                group.Clear();
-                
-                map.floodFiller.FloodFill(allCell, x => IsRock(x, map), x =>
+                if (!visited[allCell] && MatchesCellCondition(allCell, map))
                 {
-                    visited[x] = true;
-                    group.Add(x);
-                });
-                
-                Trim(group, map);
-                RemoveSmallDisconnectedSubGroups(group, map);
-                
-                if (group.Count >= MinRocksToGenerateAnyTunnel)
-                {
-                    DoOpenTunnels(group, map);
-                    DoClosedTunnels(group, map);
+                    group.Clear();
+
+                    map.floodFiller.FloodFill(allCell, x => MatchesCellCondition(x, map), x =>
+                    {
+                        visited[x] = true;
+                        group.Add(x);
+                    });
+
+                    Trim(group, map);
+                    RemoveSmallDisconnectedSubGroups(group, map);
+
+                    if (group.Count >= MinRocksToGenerateAnyTunnel)
+                    {
+                        DoOpenTunnels(group, map);
+                        DoClosedTunnels(group, map);
+                    }
                 }
             }
-        }
 
-        _directionNoise = null;
-        _elevationGrid = null;
-        _cavesGrid = null;
-        
-        return cavesGrid;
+            _directionNoise = null;
+            _cellCondition = null;
+            _cavesGrid = null;
+
+            return cavesGrid;
+        }
+        finally
+        {
+            Rand.PopState();
+        }
     }
 
     private void Trim(List<IntVec3> group, Map map) => GenMorphology.Open(group, 6, map);
 
-    private bool IsRock(IntVec3 c, Map map) => c.InBounds(map) && _elevationGrid.Get(c) > 0.7;
+    private bool MatchesCellCondition(IntVec3 c, Map map) => c.InBounds(map) && _cellCondition.Invoke(new IntVec2(c.x, c.z));
 
     private void DoOpenTunnels(List<IntVec3> group, Map map)
     {
         int max1 = Mathf.Min(GenMath.RoundRandom((float) (group.Count * (double) Rand.Range(0.9f, 1.1f) * OpenTunnelsPer10K / 10000.0)), MaxOpenTunnelsPerRockGroup);
         if (max1 > 0) max1 = Rand.RangeInclusive(1, max1);
         
-        float max2 = TunnelsWidthPerRockCount.Evaluate(group.Count);
+        float max2 = TunnelsWidthPerRockCount.Evaluate(group.Count) * TunnelWidthMultiplier;
         
         for (int index1 = 0; index1 < max1; ++index1)
         {
@@ -124,7 +173,7 @@ public class TunnelGenerator
         int max1 = Mathf.Min(GenMath.RoundRandom((float) (group.Count * (double) Rand.Range(0.9f, 1.1f) * ClosedTunnelsPer10K / 10000.0)), MaxClosedTunnelsPerRockGroup);
         if (max1 > 0) max1 = Rand.RangeInclusive(0, max1);
         
-        float max2 = TunnelsWidthPerRockCount.Evaluate(group.Count);
+        float max2 = TunnelsWidthPerRockCount.Evaluate(group.Count) * TunnelWidthMultiplier;
         
         for (int index1 = 0; index1 < max1; ++index1)
         {
@@ -233,17 +282,19 @@ public class TunnelGenerator
                 }
             }
             
-            if (num2 >= AllowBranchingAfterThisManyCells && width > MinTunnelWidth + BranchedTunnelWidthOffset.max)
+            if (num2 >= BranchMinDistanceFromStart && width > TunnelWidthMin + BranchedTunnelWidthOffset.max * BranchWidthOffsetMultiplier)
             {
                 if (!flag1 && Rand.Chance(BranchChance))
                 {
-                    DigInBestDirection(intVec3, dir, new FloatRange(40f, 90f), width - BranchedTunnelWidthOffset.RandomInRange, group, map, closed, visited);
+                    DigInBestDirection(intVec3, dir, new FloatRange(40f, 90f), 
+                        width - BranchedTunnelWidthOffset.RandomInRange * BranchWidthOffsetMultiplier, group, map, closed, visited);
                     flag1 = true;
                 }
                 
                 if (!flag2 && Rand.Chance(BranchChance))
                 {
-                    DigInBestDirection(intVec3, dir, new FloatRange(-90f, -40f), width - BranchedTunnelWidthOffset.RandomInRange, group, map, closed, visited);
+                    DigInBestDirection(intVec3, dir, new FloatRange(-90f, -40f), 
+                        width - BranchedTunnelWidthOffset.RandomInRange * BranchWidthOffsetMultiplier, group, map, closed, visited);
                     flag2 = true;
                 }
             }
@@ -262,17 +313,17 @@ public class TunnelGenerator
                 {
                     var c = new IntVec3(intVec3.x, 0, vector3Shifted.ToIntVec3().z);
                     
-                    if (IsRock(c, map))
+                    if (MatchesCellCondition(c, map))
                     {
-                        _cavesGrid.Set(c, Mathf.Max(_cavesGrid.Get(c), width));
+                        _cavesGrid.Set(c, Math.Max(_cavesGrid.Get(c), width));
                         visited.Add(c);
                     }
                     
                     intVec3 = vector3Shifted.ToIntVec3();
                     dir += (float) _directionNoise.GetValue(num1 * 60.0, start.x * 200.0, start.z * 200.0) * DirectionChangeSpeed;
-                    width -= WidthOffsetPerCell;
+                    width -= WidthReductionPerCell;
                     
-                    if (width >= MinTunnelWidth) ++num2;
+                    if (width >= TunnelWidthMin) ++num2;
                     else return;
                 }
                 else
@@ -323,10 +374,10 @@ public class TunnelGenerator
         for (int index = 0; index < num; ++index)
         {
             var c = around + GenRadial.RadialPattern[index];
-            if (IsRock(c, map))
+            if (MatchesCellCondition(c, map))
             {
                 if (_cavesGrid.Get(c) > 0.0 && !visited.Contains(c)) hitAnotherTunnel = true;
-                _cavesGrid.Set(c, Mathf.Max(_cavesGrid.Get(c), tunnelWidth));
+                _cavesGrid.Set(c, Math.Max(_cavesGrid.Get(c), tunnelWidth));
                 visited.Add(c);
             }
         }

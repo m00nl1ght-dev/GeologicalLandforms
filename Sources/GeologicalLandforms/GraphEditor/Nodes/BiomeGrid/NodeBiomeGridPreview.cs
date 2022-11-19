@@ -8,7 +8,7 @@ using UnityEngine;
 namespace GeologicalLandforms.GraphEditor;
 
 [Serializable]
-[Node(false, "Biome/Preview", 360)]
+[Node(false, "Biome/Preview", 340)]
 public class NodeBiomeGridPreview : NodeDiscreteGridPreview<BiomeData>
 {
     public const string ID = "biomeGridPreview";

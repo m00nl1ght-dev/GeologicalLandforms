@@ -15,7 +15,7 @@ public class NodeInputBiomeGrid : NodeInputBase
 
     public override ValueConnectionKnob KnobRef => Knob;
 
-    [ValueConnectionKnob("Biome Grid", Direction.Out, GridFunctionConnection.Id)]
+    [ValueConnectionKnob("Biome Grid", Direction.Out, BiomeGridFunctionConnection.Id)]
     public ValueConnectionKnob Knob;
 
     public override void OnCreate(bool fromGUI)
@@ -32,9 +32,9 @@ public class NodeInputBiomeGrid : NodeInputBase
 
     public override bool Calculate()
     {
-        var func = Landform.GetFeature(l => l.OutputBiomeGrid?.GetBiomeGrid());
-        func ??= GridFunction.Of(new BiomeData(Landform.GeneratingTile.Biome));
-        Knob.SetValue(func);
+        var supplier = Landform.GetFeature(l => l.OutputBiomeGrid?.BiomeGridKnob.GetValue<ISupplier<IGridFunction<BiomeData>>>());
+        supplier ??= Supplier.Of(GridFunction.Of(new BiomeData(Landform.GeneratingTile.Biome)));
+        Knob.SetValue(supplier);
         return true;
     }
 }

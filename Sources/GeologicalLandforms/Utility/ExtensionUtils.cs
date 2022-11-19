@@ -54,7 +54,7 @@ public static class ExtensionUtils
         _biomeGridCache = null;
     }
     
-    public static float Get(this float[,] grid, IntVec3 c) => grid[c.x, c.z];
+    public static T Get<T>(this T[,] grid, IntVec3 c) => grid[c.x, c.z];
 
-    public static void Set(this float[,] grid, IntVec3 c, float value) => grid[c.x, c.z] = value;
+    public static void Set<T>(this T[,] grid, IntVec3 c, T value) => grid[c.x, c.z] = value;
 }
