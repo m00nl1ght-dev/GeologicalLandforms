@@ -61,6 +61,8 @@ public class Landform : TerrainCanvas
     public override string canvasName => Id ?? "Landform";
     public Vector2 ScreenOrigin = new(-960f, -540f + LandformGraphInterface.ToolbarHeight);
     
+    public override IPreviewScheduler PreviewScheduler => LandformPreviewScheduler.Instance;
+
     public bool IsCornerVariant => WorldTileReq?.Topology is Topology.CoastTwoSides or Topology.CliffTwoSides;
 
     public static void PrepareMapGen(Map map)

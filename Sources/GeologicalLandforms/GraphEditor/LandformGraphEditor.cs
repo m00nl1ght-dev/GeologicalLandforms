@@ -45,6 +45,7 @@ public class LandformGraphEditor : Window
     private void Init()
     {
         NodeEditor.checkInit(true);
+        LandformPreviewScheduler.Instance.Init();
         AssureSetup();
         if (_canvasCache.nodeCanvas)
             _canvasCache.nodeCanvas.Validate();
@@ -58,6 +59,7 @@ public class LandformGraphEditor : Window
         Landform.CleanUpGUI();
         LandformManager.SaveAllEdited();
         WorldTileInfo.InvalidateCache();
+        LandformPreviewScheduler.Instance.Shutdown();
     }
     
     private void AssureSetup()

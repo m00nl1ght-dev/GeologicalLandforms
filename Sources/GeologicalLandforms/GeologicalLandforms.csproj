@@ -86,6 +86,7 @@
         <Compile Include="GraphEditor\EditorMockTileInfo.cs" />
         <Compile Include="GraphEditor\LandformGraphEditor.cs" />
         <Compile Include="GraphEditor\LandformGraphInterface.cs" />
+        <Compile Include="GraphEditor\LandformPreviewScheduler.cs" />
         <Compile Include="GraphEditor\Nodes\BiomeGrid\BiomeGridFunctionConnection.cs" />
         <Compile Include="GraphEditor\Nodes\BiomeGrid\NodeBiomeGridPreview.cs" />
         <Compile Include="GraphEditor\Nodes\Biome\BiomeFunctionConnection.cs" />

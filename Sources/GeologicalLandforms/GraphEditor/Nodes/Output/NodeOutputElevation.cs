@@ -2,7 +2,6 @@ using System;
 using NodeEditorFramework;
 using TerrainGraph;
 using UnityEngine;
-using static TerrainGraph.GridFunction;
 
 namespace GeologicalLandforms.GraphEditor;
 

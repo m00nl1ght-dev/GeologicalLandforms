@@ -1,4 +1,5 @@
 using System;
+using LunarFramework.Utility;
 using MapPreview;
 using NodeEditorFramework;
 using TerrainGraph;
@@ -27,23 +28,14 @@ public abstract class NodeInputBase : NodeBase
         GUILayout.EndVertical();
     }
 
-    protected int TryGetVanillaGenStepSeed(int seedPart)
+    protected RandInstance TryGetVanillaGenStepRand(int seedPart, uint iteration = 0U)
     {
         if (Landform.GeneratingTile is WorldTileInfo tile)
         {
-            return Gen.HashCombineInt(SeedRerollData.GetMapSeed(tile.World, tile.TileId), seedPart);
+            return new RandInstance(Gen.HashCombineInt(SeedRerollData.GetMapSeed(tile.World, tile.TileId), seedPart), iteration);
         }
 
-        return Gen.HashCombineInt(CombinedSeed, seedPart);
-    }
-
-    protected T TryGetVanillaGenStepRandValue<T>(int seedPart, int iteration, Func<T> func)
-    {
-        Rand.PushState();
-        Rand.Seed = TryGetVanillaGenStepSeed(seedPart);
-        T val = default; for (int i = 0; i <= iteration; i++) val = func.Invoke();
-        Rand.PopState();
-        return val;
+        return new RandInstance(Gen.HashCombineInt(CombinedSeed, seedPart), iteration);
     }
 
     /// <summary>
@@ -64,7 +56,7 @@ public abstract class NodeInputBase : NodeBase
     /// </summary>
     protected ISupplier<IGridFunction<double>> BuildVanillaElevationGridSupplier()
     {
-        var seed = TryGetVanillaGenStepRandValue(826504671, 0, () => Rand.Range(0, int.MaxValue));
+        var seed = TryGetVanillaGenStepRand(826504671).Range(0, int.MaxValue);
         return new VanillaElevationGridSupplier(Landform.GeneratingTile, Landform.MapSpaceToNodeSpaceFactor, seed);
     }
     
@@ -105,7 +97,7 @@ public abstract class NodeInputBase : NodeBase
     /// </summary>
     protected ISupplier<IGridFunction<double>> BuildVanillaFertilityGridSupplier()
     {
-        var seed = TryGetVanillaGenStepRandValue(826504671, 1, () => Rand.Range(0, int.MaxValue));
+        var seed = TryGetVanillaGenStepRand(826504671, 1).Range(0, int.MaxValue);
         return new VanillaFertilityGridSupplier(Landform.GeneratingTile, Landform.MapSpaceToNodeSpaceFactor, seed);
     }
     
@@ -138,9 +130,9 @@ public abstract class NodeInputBase : NodeBase
     /// </summary>
     protected ISupplier<IGridFunction<double>> BuildVanillaCaveGridSupplier()
     {
-        var caveGenSeed = TryGetVanillaGenStepSeed(647814558);
+        var caveGenRand = TryGetVanillaGenStepRand(647814558);
         var vanillaElevationSupplier = BuildVanillaElevationGridSupplier();
-        return new VanillaCaveGridSupplier(vanillaElevationSupplier, Landform.MapSpaceToNodeSpaceFactor, Landform.GeneratingMapSize, caveGenSeed);
+        return new VanillaCaveGridSupplier(vanillaElevationSupplier, Landform.MapSpaceToNodeSpaceFactor, Landform.GeneratingMapSize, caveGenRand);
     }
     
     private class VanillaCaveGridSupplier : ISupplier<IGridFunction<double>>
@@ -148,16 +140,16 @@ public abstract class NodeInputBase : NodeBase
         private readonly ISupplier<IGridFunction<double>> _fallbackElevation;
         private readonly double _transformScale;
         private readonly IntVec2 _caveGridSize;
-        private readonly int _seed;
+        private readonly RandInstance _rand;
 
         private bool _reentryFlag;
 
-        public VanillaCaveGridSupplier(ISupplier<IGridFunction<double>> fallbackElevation, double transformScale, IntVec2 caveGridSize, int seed)
+        public VanillaCaveGridSupplier(ISupplier<IGridFunction<double>> fallbackElevation, double transformScale, IntVec2 caveGridSize, RandInstance rand)
         {
             _fallbackElevation = fallbackElevation;
             _transformScale = transformScale;
             _caveGridSize = caveGridSize;
-            _seed = seed;
+            _rand = rand;
         }
   
         public IGridFunction<double> Get()
@@ -178,7 +170,7 @@ public abstract class NodeInputBase : NodeBase
             
             var generator = new TunnelGenerator();
             var elevationGrid = new Transform<double>(elevation, 1 / _transformScale);
-            var cavesGrid = generator.Generate(_caveGridSize, _seed, c => elevationGrid.ValueAt(c.x, c.z) > 0.7);
+            var cavesGrid = generator.Generate(_caveGridSize, _rand, c => elevationGrid.ValueAt(c.x, c.z) > 0.7);
             return new Transform<double>(new Cache<double>(cavesGrid), _transformScale);
         }
 

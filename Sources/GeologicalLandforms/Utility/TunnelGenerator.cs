@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using LunarFramework.Utility;
 using UnityEngine;
 using Verse;
 using Verse.Noise;
@@ -11,36 +12,6 @@ namespace GeologicalLandforms;
 
 public class TunnelGenerator
 {
-    /*
-    
-    [TweakValue("TunnelGenerator", 0, 50)]
-    public static float OpenTunnelsPer10K = 5.8f;
-    [TweakValue("TunnelGenerator", 0, 50)]
-    public static float ClosedTunnelsPer10K = 2.5f;
-    
-    [TweakValue("TunnelGenerator", 0, 50)]
-    public static int MaxOpenTunnelsPerRockGroup = 3;
-    [TweakValue("TunnelGenerator", 0, 50)]
-    public static int MaxClosedTunnelsPerRockGroup = 1;
-    
-    [TweakValue("TunnelGenerator", 0, 5)]
-    public static float TunnelWidthMultiplier = 1f;
-    [TweakValue("TunnelGenerator", 0, 10)]
-    public static float TunnelWidthMin = 1.4f;
-    [TweakValue("TunnelGenerator", 0, 0.1f)]
-    public static float WidthReductionPerCell = 0.034f;
-    [TweakValue("TunnelGenerator", 0, 1)]
-    public static float BranchChance = 0.1f;
-    [TweakValue("TunnelGenerator", 0, 50)]
-    public static int BranchMinDistanceFromStart = 15;
-    [TweakValue("TunnelGenerator", 0, 5)]
-    public static float BranchWidthOffsetMultiplier = 1f;
-
-    [TweakValue("TunnelGenerator", 0, 50)]
-    public static float DirectionChangeSpeed = 8f;
-    
-    */
-
     public float OpenTunnelsPer10K = 5.8f;
     public float ClosedTunnelsPer10K = 2.5f;
     
@@ -57,10 +28,8 @@ public class TunnelGenerator
     
     public float DirectionChangeSpeed = 8;
     
-    [TweakValue("TunnelGenerator", 0, 0.01f)]
-    public static float DirectionNoiseFrequency = 0.00205f;
-    [TweakValue("TunnelGenerator", 0, 1000)]
-    public static int MinRocksToGenerateAnyTunnel = 300;
+    public float DirectionNoiseFrequency = 0.00205f;
+    public int MinRocksToGenerateAnyTunnel = 300;
     
     public FloatRange BranchedTunnelWidthOffset = new(0.2f, 0.4f);
     public SimpleCurve TunnelsWidthPerRockCount = new() { new(100f, 2f), new(300f, 4f), new(3000f, 5.5f) };
@@ -74,8 +43,9 @@ public class TunnelGenerator
     private ModuleBase _directionNoise;
     private Predicate<IntVec2> _cellCondition;
     private double[,] _cavesGrid;
+    private RandInstance _rand;
 
-    public double[,] Generate(IntVec2 gridSize, int seed, Predicate<IntVec2> cellCondition)
+    public double[,] Generate(IntVec2 gridSize, RandInstance rand, Predicate<IntVec2> cellCondition)
     {
         var map = new Map { info = new MapInfo { Size = new IntVec3(gridSize.x, 1, gridSize.z) } };
         var cavesGrid = new double[map.Size.x, map.Size.z];
@@ -83,51 +53,42 @@ public class TunnelGenerator
         map.cellIndices = new CellIndices(map);
         map.floodFiller = new FloodFiller(map);
         
-        Rand.PushState();
-        Rand.Seed = seed;
+        _directionNoise = new Perlin(DirectionNoiseFrequency, 2.0, 0.5, 4, rand.Int, QualityMode.Medium);
+        _cellCondition = cellCondition;
+        _cavesGrid = cavesGrid;
+        _rand = rand;
 
-        try
+        var visited = new BoolGrid(map);
+        var group = new List<IntVec3>();
+
+        foreach (var allCell in map.AllCells)
         {
-            _directionNoise = new Perlin(DirectionNoiseFrequency, 2.0, 0.5, 4, Rand.Int, QualityMode.Medium);
-            _cellCondition = cellCondition;
-            _cavesGrid = cavesGrid;
-
-            var visited = new BoolGrid(map);
-            var group = new List<IntVec3>();
-
-            foreach (var allCell in map.AllCells)
+            if (!visited[allCell] && MatchesCellCondition(allCell, map))
             {
-                if (!visited[allCell] && MatchesCellCondition(allCell, map))
+                group.Clear();
+
+                map.floodFiller.FloodFill(allCell, x => MatchesCellCondition(x, map), x =>
                 {
-                    group.Clear();
+                    visited[x] = true;
+                    group.Add(x);
+                });
 
-                    map.floodFiller.FloodFill(allCell, x => MatchesCellCondition(x, map), x =>
-                    {
-                        visited[x] = true;
-                        group.Add(x);
-                    });
+                Trim(group, map);
+                RemoveSmallDisconnectedSubGroups(group, map);
 
-                    Trim(group, map);
-                    RemoveSmallDisconnectedSubGroups(group, map);
-
-                    if (group.Count >= MinRocksToGenerateAnyTunnel)
-                    {
-                        DoOpenTunnels(group, map);
-                        DoClosedTunnels(group, map);
-                    }
+                if (group.Count >= MinRocksToGenerateAnyTunnel)
+                {
+                    DoOpenTunnels(group, map);
+                    DoClosedTunnels(group, map);
                 }
             }
-
-            _directionNoise = null;
-            _cellCondition = null;
-            _cavesGrid = null;
-
-            return cavesGrid;
         }
-        finally
-        {
-            Rand.PopState();
-        }
+
+        _directionNoise = null;
+        _cellCondition = null;
+        _cavesGrid = null;
+
+        return cavesGrid;
     }
 
     private void Trim(List<IntVec3> group, Map map) => GenMorphology.Open(group, 6, map);
@@ -136,8 +97,8 @@ public class TunnelGenerator
 
     private void DoOpenTunnels(List<IntVec3> group, Map map)
     {
-        int max1 = Mathf.Min(GenMath.RoundRandom((float) (group.Count * (double) Rand.Range(0.9f, 1.1f) * OpenTunnelsPer10K / 10000.0)), MaxOpenTunnelsPerRockGroup);
-        if (max1 > 0) max1 = Rand.RangeInclusive(1, max1);
+        int max1 = Mathf.Min(_rand.RoundRandom((float) (group.Count * (double) _rand.Range(0.9f, 1.1f) * OpenTunnelsPer10K / 10000.0)), MaxOpenTunnelsPerRockGroup);
+        if (max1 > 0) max1 = _rand.RangeInclusive(1, max1);
         
         float max2 = TunnelsWidthPerRockCount.Evaluate(group.Count) * TunnelWidthMultiplier;
         
@@ -163,15 +124,15 @@ public class TunnelGenerator
                 }
             }
             
-            float width = Rand.Range(max2 * 0.8f, max2);
+            float width = _rand.Range(max2 * 0.8f, max2);
             Dig(start, dir, width, group, map, false);
         }
     }
 
     private void DoClosedTunnels(List<IntVec3> group, Map map)
     {
-        int max1 = Mathf.Min(GenMath.RoundRandom((float) (group.Count * (double) Rand.Range(0.9f, 1.1f) * ClosedTunnelsPer10K / 10000.0)), MaxClosedTunnelsPerRockGroup);
-        if (max1 > 0) max1 = Rand.RangeInclusive(0, max1);
+        int max1 = Mathf.Min(_rand.RoundRandom((float) (group.Count * (double) _rand.Range(0.9f, 1.1f) * ClosedTunnelsPer10K / 10000.0)), MaxClosedTunnelsPerRockGroup);
+        if (max1 > 0) max1 = _rand.RangeInclusive(0, max1);
         
         float max2 = TunnelsWidthPerRockCount.Evaluate(group.Count) * TunnelWidthMultiplier;
         
@@ -182,7 +143,7 @@ public class TunnelGenerator
             
             for (int index2 = 0; index2 < 7; ++index2)
             {
-                var cell = group.RandomElement();
+                var cell = _rand.RandomElement(group);
                 float distToCave = GetDistToCave(cell, group, map, 30f, true);
                 
                 if (!start.IsValid || distToCave > (double) num)
@@ -192,8 +153,8 @@ public class TunnelGenerator
                 }
             }
             
-            float width = Rand.Range(max2 * 0.8f, max2);
-            Dig(start, Rand.Range(0.0f, 360f), width, group, map, true);
+            float width = _rand.Range(max2 * 0.8f, max2);
+            Dig(start, _rand.Range(0.0f, 360f), width, group, map, true);
         }
     }
 
@@ -221,10 +182,10 @@ public class TunnelGenerator
             }
         }
         
-        if (TmpCells.Any()) return TmpCells.RandomElement();
+        if (TmpCells.Any()) return _rand.RandomElement(TmpCells);
         
         Log.Warning("Could not find any valid edge cell.");
-        return group.RandomElement();
+        return _rand.RandomElement(group);
     }
 
     private float FindBestInitialDir(IntVec3 start, List<IntVec3> group, out float dist)
@@ -240,7 +201,7 @@ public class TunnelGenerator
         
         dist = Mathf.Max(distToNonRock1, distToNonRock2, distToNonRock3, distToNonRock4, distToNonRock5, distToNonRock6, distToNonRock7, distToNonRock8);
         
-        return GenMath.MaxByRandomIfEqual(0.0f, 
+        return _rand.MaxByRandomIfEqual(0.0f, 
             (float) (distToNonRock1 + distToNonRock8 / 2.0 + distToNonRock6 / 2.0), 45f, 
             (float) (distToNonRock8 + distToNonRock3 / 2.0 + distToNonRock1 / 2.0), 90f, 
             (float) (distToNonRock3 + distToNonRock8 / 2.0 + distToNonRock7 / 2.0), 135f, 
@@ -284,17 +245,19 @@ public class TunnelGenerator
             
             if (num2 >= BranchMinDistanceFromStart && width > TunnelWidthMin + BranchedTunnelWidthOffset.max * BranchWidthOffsetMultiplier)
             {
-                if (!flag1 && Rand.Chance(BranchChance))
+                if (!flag1 && _rand.Chance(BranchChance))
                 {
                     DigInBestDirection(intVec3, dir, new FloatRange(40f, 90f), 
-                        width - BranchedTunnelWidthOffset.RandomInRange * BranchWidthOffsetMultiplier, group, map, closed, visited);
+                        width - _rand.Range(BranchedTunnelWidthOffset.min, BranchedTunnelWidthOffset.max) * BranchWidthOffsetMultiplier, 
+                        group, map, closed, visited);
                     flag1 = true;
                 }
                 
-                if (!flag2 && Rand.Chance(BranchChance))
+                if (!flag2 && _rand.Chance(BranchChance))
                 {
                     DigInBestDirection(intVec3, dir, new FloatRange(-90f, -40f), 
-                        width - BranchedTunnelWidthOffset.RandomInRange * BranchWidthOffsetMultiplier, group, map, closed, visited);
+                        width - _rand.Range(BranchedTunnelWidthOffset.min, BranchedTunnelWidthOffset.max) * BranchWidthOffsetMultiplier, 
+                        group, map, closed, visited);
                     flag2 = true;
                 }
             }
@@ -349,7 +312,7 @@ public class TunnelGenerator
         
         for (int index = 0; index < 6; ++index)
         {
-            float dir2 = curDir + dirOffset.RandomInRange;
+            float dir2 = curDir + _rand.Range(dirOffset.min, dirOffset.max);
             int distToNonRock = GetDistToNonRock(curIntVec, group, dir2, 50);
             
             if (distToNonRock > num)

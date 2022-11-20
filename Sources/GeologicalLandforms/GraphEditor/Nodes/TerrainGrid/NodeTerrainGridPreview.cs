@@ -54,21 +54,30 @@ public class NodeTerrainGridPreview : NodeDiscreteGridPreview<TerrainData>
     public override void RefreshPreview()
     {
         var previewRatio = TerrainCanvas.GridPreviewRatio;
-        PreviewFunction = InputKnob.connected() ? InputKnobRef.GetValue<ISupplier<IGridFunction<TerrainData>>>().ResetAndGet() : Default;
-        ElevationFunction = ElevationInputKnob.connected() ? ElevationInputKnob.GetValue<ISupplier<IGridFunction<double>>>().ResetAndGet() : GridFunction.Zero;
         
-        for (int x = 0; x < TerrainCanvas.GridPreviewSize; x++)
+        var supplier = InputKnob.connected() ? InputKnobRef.GetValue<ISupplier<IGridFunction<TerrainData>>>() : null;
+        var elevSupplier = ElevationInputKnob.connected() ? ElevationInputKnob.GetValue<ISupplier<IGridFunction<double>>>() : null;
+        
+        TerrainCanvas.PreviewScheduler.ScheduleTask(new PreviewTask(this, () => 
         {
-            for (int y = 0; y < TerrainCanvas.GridPreviewSize; y++)
+            PreviewFunction = supplier != null ? supplier.ResetAndGet() : Default;
+            ElevationFunction = elevSupplier != null ? elevSupplier.ResetAndGet() : GridFunction.Zero;
+            
+            for (int x = 0; x < PreviewSize; x++)
             {
-                var value = PreviewFunction.ValueAt(x * previewRatio, y * previewRatio);
-                var elevation = ElevationFunction.ValueAt(x * previewRatio, y * previewRatio);
-                var color = elevation > 0.7f ? RockColor : GetColor(value);
-                PreviewTexture.SetPixel(x, y, color);
+                for (int y = 0; y < PreviewSize; y++)
+                {
+                    var value = PreviewFunction.ValueAt(x * previewRatio, y * previewRatio);
+                    var elevation = ElevationFunction.ValueAt(x * previewRatio, y * previewRatio);
+                    var color = elevation > 0.7f ? RockColor : GetColor(value);
+                    PreviewBuffer[y * PreviewSize + x] = color;
+                }
             }
-        }
-        
-        PreviewTexture.Apply();
+        }, () =>
+        {
+            PreviewTexture.SetPixels(PreviewBuffer);
+            PreviewTexture.Apply();
+        }));
     }
     
     public override bool Calculate()

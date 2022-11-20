@@ -1,4 +1,5 @@
 using System;
+using LunarFramework.Utility;
 using NodeEditorFramework;
 using TerrainGraph;
 using UnityEngine;
@@ -120,14 +121,9 @@ public class NodeGridTunnels : NodeBase
 
         public IGridFunction<double> Get()
         {
-            if (Landform.GeneratingTile is WorldTileInfo || Input.GetKey(KeyCode.LeftShift))
-            {
-                var input = new Transform<double>(_input.Get(), 1 / _transformScale);
-                var grid = _generator.Generate(_targetGridSize, _seed, c => input.ValueAt(c.x, c.z) > _inputThreshold);
-                return new Transform<double>(new Cache<double>(grid), _transformScale);
-            }
-
-            return One; // TODO allow in editor once async previews are implemented
+            var input = new Transform<double>(_input.Get(), 1 / _transformScale);
+            var grid = _generator.Generate(_targetGridSize, new RandInstance(_seed), c => input.ValueAt(c.x, c.z) > _inputThreshold);
+            return new Transform<double>(new Cache<double>(grid), _transformScale);
         }
 
         public void ResetState()

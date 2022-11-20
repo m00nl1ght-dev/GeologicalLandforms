@@ -47,11 +47,6 @@ public class NodeInputCaves : NodeInputBase
                 return true;
             }
         }
-        else // temp for now, allow vanilla input in editor once previews there are async
-        {
-            Knob.SetValue(Supplier.Of(GridFunction.Zero));
-            return true;
-        }
         
         Knob.SetValue(BuildVanillaCaveGridSupplier());
         return true;

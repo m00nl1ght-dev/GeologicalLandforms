@@ -49,6 +49,21 @@ public static class GeologicalLandformsAPI
         ExtensionUtils.Init();
         LandformGraphEditor.InitialSetup();
         LandformManager.InitialLoad();
+
+        /*
+        bool done = false;
+        LunarAPI.LifecycleHooks.DoOnceOnMainMenu(() =>
+        {
+            LunarAPI.LifecycleHooks.DoOnGUI(() =>
+            {
+                if (done) return;
+                var landformGraphEditor = new LandformGraphEditor();
+                Find.WindowStack.Add(landformGraphEditor);
+                landformGraphEditor.OpenLandform(LandformManager.FindById("SurfaceCaves"));
+                done = true;
+            });
+        });
+        */
     }
     
     private static void Cleanup()
