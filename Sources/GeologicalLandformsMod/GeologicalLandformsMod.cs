@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using GeologicalLandforms.GraphEditor;
 using LunarFramework;
 using LunarFramework.Logging;
@@ -31,10 +32,11 @@ public class GeologicalLandformsMod : Mod
 
         ModCompat.ApplyAll(LunarAPI, CompatPatchGroup);
         
+        GeologicalLandformsAPI.WorldTileInfoHook += WorldTileInfoHook;
         GeologicalLandformsAPI.OnTerrainTab += TerrainTabUI.DoTerrainTabUI;
+        GeologicalLandformsAPI.PutLandformGridSizeFunction(GridSizeProvider);
         GeologicalLandformsAPI.PutAnimalDensityFactorFunction(AnimalDensityFactorForMap);
         GeologicalLandformsAPI.PutCellFinderOptimizationFilter(_ => Settings.EnableCellFinderOptimization);
-        GeologicalLandformsAPI.PutLandformGridSizeFunction(() => Settings.EnableLandformScaling ? Landform.DefaultGridFullSize : Landform.GeneratingMapSizeMin);
 
         var modContentPack = LunarAPI.Component.LatestVersionProvidedBy.ModContentPack;
         var assetBundle = modContentPack.assetBundles.loadedAssetBundles.Find(b => b.name == "terraingraph");
@@ -49,6 +51,16 @@ public class GeologicalLandformsMod : Mod
         CompatPatchGroup?.UnsubscribeAll();
     }
     
+    private static void WorldTileInfoHook(WorldTileInfoPrimer info)
+    {
+        info.Landforms = info.Landforms?.Where(IsLandformEnabled).ToList();
+    }
+
+    private static int GridSizeProvider()
+    {
+        return Settings.EnableLandformScaling ? Landform.DefaultGridFullSize : Landform.GeneratingMapSizeMin;
+    }
+
     private static float AnimalDensityFactorForMap(BiomeGrid biomeGrid)
     {
         var primaryBiome = biomeGrid?.Primary.Biome;
@@ -56,6 +68,12 @@ public class GeologicalLandformsMod : Mod
         var openGroundFraction = biomeGrid.OpenGroundFraction;
         var scaleFactor = 2f - Settings.AnimalDensityFactorForSecludedAreas * 2f;
         return 1f + (openGroundFraction - 1f) * scaleFactor;
+    }
+
+    public static bool IsLandformEnabled(Landform landform)
+    {
+        if (!Settings.EnableExperimentalLandforms && landform.Manifest.IsExperimental) return false;
+        return true;
     }
 
     public GeologicalLandformsMod(ModContentPack content) : base(content)

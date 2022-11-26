@@ -11,6 +11,7 @@
 			<int name="RevisionVersion">1</int>
 			<long name="TimeCreated">1668983206163</long>
 			<boolean name="IsEdited">false</boolean>
+			<boolean name="IsExperimental">true</boolean>
 			<string name="DisplayName" />
 			<boolean name="DisplayNameHasDirection">true</boolean>
 			<int name="RandSeed">1333644392</int>

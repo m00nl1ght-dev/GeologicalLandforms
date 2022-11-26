@@ -26,7 +26,7 @@ internal static class TerrainTabUI
                     new("GeologicalLandforms.WorldMap.FindLandformAnyPOI".Translate(), () => FindLandform(null, true))
                 };
                 options.AddRange(LandformManager.Landforms.Values
-                    .Where(e => !e.IsLayer)
+                    .Where(e => !e.IsLayer && GeologicalLandformsMod.IsLandformEnabled(e))
                     .OrderBy(e => e.TranslatedNameForSelection)
                     .Select(e => new FloatMenuOption(e.TranslatedNameForSelection.CapitalizeFirst(), () => FindLandform(e))));
                 Find.WindowStack.Add(new FloatMenu(options));
@@ -49,7 +49,7 @@ internal static class TerrainTabUI
                     {
                         var eligible = LandformManager.Landforms.Values
                             .Where(e => ignoreReq || (e.WorldTileReq?.CheckRequirements(worldTileInfo, true) ?? false))
-                            .Where(e => !e.IsLayer)
+                            .Where(e => !e.IsLayer && GeologicalLandformsMod.IsLandformEnabled(e))
                             .ToList();
                         
                         var disallowedLandforms = worldTileInfo.Biome.Properties().disallowedLandforms;

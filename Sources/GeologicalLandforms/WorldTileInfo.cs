@@ -47,7 +47,7 @@ public class WorldTileInfo : IWorldTileInfo
     public RoadDef MainRoad => MainRoadLink?.road;
     public float MainRoadAngle => World.grid.GetHeadingFromTo(TileId, MainRoadLink?.neighbor ?? 0);
 
-    public int MakeSeed(int hash) => Patch_RimWorld_World.LastKnownInitialWorldSeed ^ TileId ^ hash;
+    public int MakeSeed(int hash) => Patch_RimWorld_World.LastKnownInitialWorldSeed ^ TileId ^ hash; // TODO use proper hash
 
     protected WorldTileInfo(int tileId, Tile tile, World world)
     {
@@ -208,6 +208,7 @@ public class WorldTileInfo : IWorldTileInfo
                 }
 
                 if ((int) nbTile.hilliness >= 3 && nbTile.hilliness - info.Tile.hilliness > 0) cliffTiles.Add(rot6);
+                // if ((int) nbTile.hilliness >= 3 && nbTile.hilliness > info.Tile.hilliness) cliffTiles.Add(rot6); TODO apply this fix on next major update
                 else nonCliffTiles.Add(rot6);
                 landTiles.Add(rot6);
             }

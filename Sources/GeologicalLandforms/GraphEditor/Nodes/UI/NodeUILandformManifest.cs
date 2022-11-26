@@ -19,6 +19,7 @@ public class NodeUILandformManifest : NodeUIBase
     
     public string Id;
     public bool IsCustom = true;
+    public bool IsExperimental;
     
     public int RevisionVersion = 1;
     public long TimeCreated = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();

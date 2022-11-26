@@ -71,7 +71,7 @@ public class Landform : TerrainCanvas
         
         var world = Find.World;
         bool rerolled = SeedRerollData.IsMapSeedRerolled(world, map.Tile, out var savedSeed);
-        int seed = rerolled ? savedSeed : world.info.Seed ^ map.Tile;
+        int seed = rerolled ? savedSeed : world.info.Seed ^ map.Tile; // TODO use proper hash
         
         PrepareMapGen(new IntVec2(map.Size.x, map.Size.z), map.Tile, seed);
     }

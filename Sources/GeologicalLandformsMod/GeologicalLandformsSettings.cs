@@ -15,13 +15,11 @@ public class GeologicalLandformsSettings : ModSettings
 
     public bool EnableCellFinderOptimization = true;
     public bool EnableLandformScaling = true;
+    public bool EnableExperimentalLandforms;
     
     public bool EnableGodMode;
     public bool IgnoreWorldTileReqInGodMode;
     public bool ShowWorldTileDebugInfo;
-
-    public bool ModCompat_BiomesIslands_CoastPlants;
-    public bool ModCompat_BiomesIslands_CoastAnimals;
 
     private static Vector2 _scrollPos = Vector2.zero;
 
@@ -73,6 +71,7 @@ public class GeologicalLandformsSettings : ModSettings
         AnimalDensityFactorForSecludedAreas = listingStandard.Slider(AnimalDensityFactorForSecludedAreas, 0.25f, 0.75f);
         
         listingStandard.Gap();
+        listingStandard.CheckboxLabeled("GeologicalLandforms.Settings.EnableExperimentalLandforms".Translate(), ref EnableExperimentalLandforms);
         listingStandard.CheckboxLabeled("GeologicalLandforms.Settings.EnableGodMode".Translate(), ref EnableGodMode);
         listingStandard.CheckboxLabeled("GeologicalLandforms.Settings.EnableCellFinderOptimization".Translate(), ref EnableCellFinderOptimization);
         listingStandard.CheckboxLabeled("GeologicalLandforms.Settings.EnableLandformScaling".Translate(), ref EnableLandformScaling);
@@ -126,11 +125,10 @@ public class GeologicalLandformsSettings : ModSettings
         Scribe_Values.Look(ref AnimalDensityFactorForSecludedAreas, "AnimalDensityFactorForSecludedAreas", 0.5f);
         Scribe_Values.Look(ref EnableCellFinderOptimization, "EnableCellFinderOptimization", true);
         Scribe_Values.Look(ref EnableLandformScaling, "EnableLandformScaling", true);
+        Scribe_Values.Look(ref EnableExperimentalLandforms, "EnableExperimentalLandforms");
         Scribe_Values.Look(ref ShowWorldTileDebugInfo, "ShowWorldTileDebugInfo");
         Scribe_Values.Look(ref EnableGodMode, "EnableGodMode");
         Scribe_Values.Look(ref IgnoreWorldTileReqInGodMode, "IgnoreWorldTileReqInGodMode");
-        Scribe_Values.Look(ref ModCompat_BiomesIslands_CoastPlants, "ModCompat_BiomesIslands_CoastPlants");
-        Scribe_Values.Look(ref ModCompat_BiomesIslands_CoastAnimals, "ModCompat_BiomesIslands_CoastAnimals");
         base.ExposeData();
     }
     
@@ -140,11 +138,10 @@ public class GeologicalLandformsSettings : ModSettings
         ShowWorldTileDebugInfo = false;
         EnableCellFinderOptimization = true;
         EnableLandformScaling = true;
+        EnableExperimentalLandforms = false;
         EnableGodMode = false;
         IgnoreWorldTileReqInGodMode = false;
         MaxLandformSearchRadius = 100;
         AnimalDensityFactorForSecludedAreas = 0.5f;
-        ModCompat_BiomesIslands_CoastPlants = false;
-        ModCompat_BiomesIslands_CoastAnimals = false;
     }
 }
