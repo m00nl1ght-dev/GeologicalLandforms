@@ -35,9 +35,11 @@ public class NodeUIWorldTileReq : NodeUIBase
     public bool AllowSettlements;
     public bool AllowSites;
     
+    // private List<Predicate<WorldTileInfo>> _requirements = new(); // TODO
+    
     public bool CheckRequirements(IWorldTileInfo worldTile, bool lenientTopology)
     {
-        if (!IsTopologyCompatible(Topology, worldTile.Topology, lenientTopology)) return false;
+        if (!Topology.IsCompatible(worldTile.Topology, lenientTopology)) return false;
         if (!HillinessRequirement.Includes((float) worldTile.Hilliness)) return false;
         if (!ElevationRequirement.Includes(worldTile.Elevation)) return false;
         if (!AvgTemperatureRequirement.Includes(worldTile.Temperature)) return false;
@@ -66,16 +68,6 @@ public class NodeUIWorldTileReq : NodeUIBase
         return true;
     }
 
-    public static bool IsTopologyCompatible(Topology req, Topology tile, bool lenient)
-    {
-        if (req == Any || tile == req) return true;
-        if (!lenient) return false;
-        if (req.IsCoast() && tile.IsCoast(true)) return true;
-        if (req.IsCliff() && tile.IsCliff(true)) return true;
-        if (req == Inland && tile.IsCliff(true)) return true;
-        return false;
-    }
-
     public bool CheckMapRequirements(IntVec2 mapSize)
     {
         if (!MapSizeRequirement.Includes(mapSize.x)) return false;
@@ -83,6 +75,8 @@ public class NodeUIWorldTileReq : NodeUIBase
         return true;
     }
 
+    // TODO evetually refactor this to use WorldTileConditions
+    
     protected override void DoWindowContents(Listing_Standard listing)
     {
         GuiUtils.CenteredLabel(listing, "GeologicalLandforms.Settings.Landform.Commonness".Translate(), Math.Round(Commonness, 2).ToString(CultureInfo.InvariantCulture));

@@ -10,6 +10,7 @@ using Verse;
 
 namespace GeologicalLandforms;
 
+[LunarComponentEntrypoint]
 public class GeologicalLandformsMod : Mod
 {
     internal static readonly LunarAPI LunarAPI = LunarAPI.Create("Geological Landforms Mod", Init, Cleanup);

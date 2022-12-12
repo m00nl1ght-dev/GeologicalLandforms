@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using GeologicalLandforms.Defs;
 using GeologicalLandforms.GraphEditor;
 using GeologicalLandforms.Patches;
 using LunarFramework.Utility;
@@ -23,6 +24,9 @@ public class WorldTileInfo : IWorldTileInfo
     
     public IReadOnlyList<BorderingBiome> BorderingBiomes { get; protected set; }
     public bool HasBorderingBiomes => BorderingBiomes?.Count > 0;
+    
+    public IReadOnlyList<BiomeVariantDef> BiomeVariants { get; protected set; }
+    public bool HasBiomeVariants => BiomeVariants?.Count > 0;
 
     public Topology Topology { get; protected set; } = Topology.Any;
     public Rot4 LandformDirection { get; protected set; }
@@ -70,6 +74,7 @@ public class WorldTileInfo : IWorldTileInfo
         
         DetermineTopology(cache);
         DetermineLandforms(cache);
+        DetermineBiomeVariants(cache);
         
         GeologicalLandformsAPI.ApplyWorldTileInfoHook(cache);
         
@@ -139,6 +144,22 @@ public class WorldTileInfo : IWorldTileInfo
     public static bool CanHaveLandform(IWorldTileInfo info)
     {
         return info.Hilliness != Hilliness.Impassable && info.Biome.Properties().allowLandforms;
+    }
+    
+    private static void DetermineBiomeVariants(WorldTileInfoPrimer info)
+    {
+        List<BiomeVariantDef> variants = null;
+        
+        foreach (var variant in DefDatabase<BiomeVariantDef>.AllDefsListForReading)
+        {
+            if (variant.worldTileConditions.Evaluate(info))
+            {
+                variants ??= new();
+                variants.Add(variant);
+            }
+        }
+
+        info.BiomeVariants = variants;
     }
     
     [ThreadStatic]

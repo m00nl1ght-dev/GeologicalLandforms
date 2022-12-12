@@ -1,7 +1,10 @@
+using System;
+using System.Linq;
 using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using LunarFramework.Patching;
 using LunarFramework.Utility;
+using MapPreview;
 using RimWorld;
 using TerrainGraph;
 using Verse;
@@ -41,8 +44,10 @@ internal static class Patch_RimWorld_GenStep_Terrain
     private static void Generate_Postfix(Map map, GenStepParams parms)
     {
         CleanUp();
+        var biomeGrid = map.BiomeGrid();
+        if (biomeGrid != null && !MapPreviewAPI.IsGeneratingPreview) ApplyBiomeVariants(biomeGrid);
         BiomeTransition.DrawDebug(map.debugDrawer);
-        map.BiomeGrid()?.UpdateOpenGroundFraction();
+        biomeGrid?.UpdateOpenGroundFraction();
     }
     
     [HarmonyPrefix]
@@ -103,6 +108,22 @@ internal static class Patch_RimWorld_GenStep_Terrain
         if (BaseFunction != null || StoneFunction != null || BiomeFunction != null) return false;
         if (tile.Biome.Properties().gravelTerrain != null) return false;
         return true;
+    }
+
+    public static void ApplyBiomeVariants(BiomeGrid biomeGrid)
+    {
+        if (Landform.GeneratingTile is not WorldTileInfo { HasBiomeVariants: true }) return;
+        biomeGrid.Enable();
+
+        try
+        {
+            var layers = Landform.GeneratingTile.BiomeVariants.SelectMany(v => v.layers).OrderByDescending(l => l.priority).ToList();
+            biomeGrid.ApplyVariantLayers(layers);
+        }
+        catch (Exception e)
+        {
+            GeologicalLandformsAPI.Logger.Error("Failed to apply biome variants!", e);
+        }
     }
 
     public static void CleanUp()

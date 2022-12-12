@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using GeologicalLandforms.Defs;
 using GeologicalLandforms.GraphEditor;
 using LunarFramework.Utility;
 using RimWorld;
@@ -11,6 +12,7 @@ public interface IWorldTileInfo
 {
     public IReadOnlyList<Landform> Landforms { get; }
     public IReadOnlyList<BorderingBiome> BorderingBiomes { get; }
+    public IReadOnlyList<BiomeVariantDef> BiomeVariants { get; }
 
     public Topology Topology { get; }
     public Rot4 LandformDirection  { get; }

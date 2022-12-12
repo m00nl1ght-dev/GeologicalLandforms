@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using GeologicalLandforms.Defs;
 using GeologicalLandforms.GraphEditor;
+using HarmonyLib;
 using LunarFramework.Utility;
 using RimWorld;
 using TerrainGraph;
@@ -81,6 +83,39 @@ public class BiomeGrid : MapComponent
         }
     }
 
+    public void ApplyVariantLayers(IEnumerable<BiomeVariantLayer> layers)
+    {
+        foreach (var layer in layers)
+        {
+            if (layer.mapGridConditions.HasConditions)
+            {
+                var entryCache = new Entry[_entries.Count];
+                layer.mapGridConditions.Evaluate(map, pos =>
+                {
+                    var oldEntry = EntryAt(pos);
+                    var newEntry = entryCache[oldEntry.Index];
+                    int cellIdx = CellIndicesUtility.CellToIndex(pos, _mapSize.x);
+                    newEntry ??= entryCache[oldEntry.Index] = MakeEntry(oldEntry.BiomeBase, oldEntry.VariantLayers.Append(layer).ToList());
+                    _grid[cellIdx] = newEntry;
+                    oldEntry.CellCount--;
+                    newEntry.CellCount++;
+                });
+            }
+            else
+            {
+                foreach (var entry in _entries)
+                {
+                    entry.Add(layer);
+                }
+            }
+        }
+
+        foreach (var entry in _entries)
+        {
+            entry.Refresh();
+        }
+    }
+
     public void UpdateOpenGroundFraction()
     {
         if (map == null) return;
@@ -96,17 +131,18 @@ public class BiomeGrid : MapComponent
         return 0.35f;
     }
 
-    public Entry MakeEntry(BiomeDef biomeBase, List<BiomeVariantDef> biomeVariants = null)
+    public Entry MakeEntry(BiomeDef biomeBase, List<BiomeVariantLayer> variantLayers = null)
     {
         if (biomeBase == null) return Primary;
         
         // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
-        foreach (var entry in _entries) if (entry.IsEquivalent(biomeBase, biomeVariants)) return entry;
+        foreach (var entry in _entries) if (entry.IsEquivalent(biomeBase, variantLayers)) return entry;
 
         var newEntry = new Entry { Index = (ushort) _entries.Count, LoadId = LoadId };
         _entries.Add(newEntry);
         
-        newEntry.Update(biomeBase, biomeVariants);
+        newEntry.Set(biomeBase, variantLayers);
+        newEntry.Refresh();
         return newEntry;
     }
 
@@ -177,6 +213,11 @@ public class BiomeGrid : MapComponent
         UpdateOpenGroundFraction();
     }
 
+    public override string ToString()
+    {
+        return "BiomeGrid\n" + _entries.Join(e => e.ToString(), "\n");
+    }
+
     public class Entry : IExposable
     {
         public ushort Index { get; internal set; }
@@ -185,48 +226,63 @@ public class BiomeGrid : MapComponent
         public BiomeDef BiomeBase => _biomeBase;
         private BiomeDef _biomeBase;
         
-        public IReadOnlyList<BiomeVariantDef> BiomeVariants => _biomeVariants;
-        public bool HasVariants => BiomeVariants?.Count > 0;
-        private List<BiomeVariantDef> _biomeVariants;
+        public IReadOnlyList<BiomeVariantLayer> VariantLayers => _variantLayers;
+        public bool HasVariants => VariantLayers.Count > 0;
+        private List<BiomeVariantLayer> _variantLayers = new();
         
         public BiomeDef Biome { get; private set; }
+        public bool ApplyToCaveSpawns { get; private set; }
 
         internal object LoadId;
 
-        public void Update(BiomeDef biomeBase, IEnumerable<BiomeVariantDef> biomeVariants = null)
+        public void Set(BiomeDef biomeBase, IEnumerable<BiomeVariantLayer> variantLayers = null)
         {
             _biomeBase = biomeBase;
-            _biomeVariants = biomeVariants?.ToList();
-            Refresh();
+            _variantLayers = variantLayers?.ToList() ?? new();
+        }
+        
+        public void Add(BiomeVariantLayer layer)
+        {
+            _variantLayers.AddDistinct(layer);
         }
 
         public void Refresh()
         {
             _biomeBase ??= BiomeDefOf.TemperateForest;
-            Biome = HasVariants ? BiomeVariantDef.ApplyVariants(_biomeBase, _biomeVariants) : BiomeBase;
+            Biome = HasVariants ? BiomeVariantLayer.Apply(_biomeBase, _variantLayers) : BiomeBase;
+            ApplyToCaveSpawns = _variantLayers.Any(l => l.applyToCaveSpawns);
         }
 
         public void ExposeData()
         {
             Scribe_Defs.Look(ref _biomeBase, "biomeBase");
-            Scribe_Collections.Look(ref _biomeVariants, "biomeVariants", LookMode.Def);
+
+            List<string> list = null;
+            if (Scribe.mode == LoadSaveMode.Saving) list = _variantLayers.Select(l => l.ToString()).ToList();
+            Scribe_Collections.Look(ref list, "biomeLayers", LookMode.Value);
+            if (Scribe.mode == LoadSaveMode.LoadingVars) _variantLayers = list.Select(BiomeVariantLayer.FindFromString).ToList();
         }
 
-        public bool IsEquivalent(BiomeDef biomeBase, List<BiomeVariantDef> biomeVariants = null)
+        public bool IsEquivalent(BiomeDef biomeBase, List<BiomeVariantLayer> variantLayers = null)
         {
             if (BiomeBase != biomeBase) return false;
             
-            var cntEntry = BiomeVariants?.Count ?? 0;
-            var cntGiven = biomeVariants?.Count ?? 0;
+            var cntEntry = VariantLayers?.Count ?? 0;
+            var cntGiven = variantLayers?.Count ?? 0;
             
             if (cntEntry != cntGiven) return false;
             
             for (int i = 0; i < cntEntry; i++)
             {
-                if (BiomeVariants![i] != biomeVariants![i]) return false;
+                if (VariantLayers![i] != variantLayers![i]) return false;
             }
 
             return true;
+        }
+
+        public override string ToString()
+        {
+            return $"{CellCount} x {BiomeBase.defName} [{VariantLayers.Join(l => l.ToString())}]";
         }
     }
 }

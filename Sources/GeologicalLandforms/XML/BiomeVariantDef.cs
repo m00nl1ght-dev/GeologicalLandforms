@@ -1,31 +1,23 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using RimWorld;
+using System.Text.RegularExpressions;
 using RimWorld.Planet;
 using UnityEngine;
 using Verse;
 
-// ReSharper disable UnusedMember.Local
-// ReSharper disable FieldCanBeMadeReadOnly.Local
-// ReSharper disable CollectionNeverUpdated.Local
-// ReSharper disable FieldCanBeMadeReadOnly.Global
-// ReSharper disable ConvertToConstant.Global
-// ReSharper disable UnusedMember.Global
 // ReSharper disable InconsistentNaming
 
-namespace GeologicalLandforms;
+namespace GeologicalLandforms.Defs;
 
+[Serializable]
 public class BiomeVariantDef : Def
 {
-    public float animalDensity;
-    public float plantDensity;
+    public WorldTileConditions worldTileConditions;
+    public List<BiomeVariantLayer> layers;
     
-    public bool wildPlantsCareAboutLocalFertility = true;
-    public float wildPlantRegrowDays = 25f;
-    
-    private List<BiomePlantRecord> wildPlants = new();
-    private List<BiomeAnimalRecord> wildAnimals = new();
-    private List<BiomeAnimalRecord> pollutionWildAnimals = new();
+    public LabelDisplayMode labelDisplayMode = LabelDisplayMode.AppendPara;
+    public DescriptionDisplayMode descriptionDisplayMode = DescriptionDisplayMode.Append;
     
     [NoTranslate]
     public string texture;
@@ -46,32 +38,62 @@ public class BiomeVariantDef : Def
         }
     }
     
-    public static BiomeDef ApplyVariants(BiomeDef biomeBase, List<BiomeVariantDef> biomeVariants)
+    public TaggedString ApplyLabel(TaggedString baseLabel)
     {
-        // TODO
-        return biomeBase;
+        return labelDisplayMode switch
+        {
+            LabelDisplayMode.None => baseLabel,
+            LabelDisplayMode.AppendPara => baseLabel + " (" + label + ")",
+            LabelDisplayMode.Append => baseLabel + " " + label,
+            LabelDisplayMode.Prepend => LabelCap + " " + baseLabel,
+            LabelDisplayMode.PrependPara => LabelCap + " (" + baseLabel.ToLower() + ")",
+            LabelDisplayMode.Replace => LabelCap,
+            _ => throw new ArgumentOutOfRangeException()
+        };
+    }
+    
+    public string ApplyDescription(string baseDescription)
+    {
+        return descriptionDisplayMode switch
+        {
+            DescriptionDisplayMode.None => baseDescription,
+            DescriptionDisplayMode.Append => baseDescription + "\n\n" + description,
+            DescriptionDisplayMode.Prepend => description + "\n\n" + baseDescription,
+            DescriptionDisplayMode.Replace => description,
+            _ => throw new ArgumentOutOfRangeException()
+        }; 
+    }
+    
+    private static Regex AllowedIdRegex = new("^[a-zA-Z0-9\\-_]*$");
+
+    public override void PostLoad()
+    {
+        foreach (var layer in layers)
+        {
+            layer.def = this;
+            if (string.IsNullOrEmpty(layer.id)) throw new Exception("layer id can not be empty");
+            if (!AllowedIdRegex.IsMatch(layer.id)) throw new Exception("layer id " + layer.id + " in invalid");
+            if (layers.Any(l => l.id == layer.id && l != layer)) throw new Exception("layer id duplicate: " + layer);
+        }
+    }
+
+    public static void InitialLoad()
+    {
+        foreach (var grp in DefDatabase<BiomeVariantDef>.AllDefsListForReading.GroupBy(def => def.modContentPack))
+        {
+            GeologicalLandformsAPI.Logger.Log($"Found {grp.Count()} biome variants in mod {grp.Key.Name}.");
+        }
     }
 
     public static BiomeVariantDef Named(string defName) => DefDatabase<BiomeVariantDef>.GetNamed(defName);
-    
-    public override IEnumerable<string> ConfigErrors()
-    {
-        foreach (string configError in base.ConfigErrors()) yield return configError;
-        
-        if (Prefs.DevMode)
-        {
-            foreach (var wa in wildAnimals.Where(wa => wildAnimals.Count(a => a.animal == wa.animal) > 1))
-            {
-                yield return "Duplicate animal record: " + wa.animal.defName;
-            }
 
-            if (ModsConfig.BiotechActive)
-            {
-                foreach (var pa in pollutionWildAnimals.Where(pa => pollutionWildAnimals.Count(a => a.animal == pa.animal) > 1))
-                {
-                    yield return "Duplicate pollution animal record: " + pa.animal.defName;
-                }
-            }
-        }
+    public enum LabelDisplayMode
+    {
+        None, Append, AppendPara, Prepend, PrependPara, Replace
+    }
+    
+    public enum DescriptionDisplayMode
+    {
+        None, Append, Prepend, Replace
     }
 }

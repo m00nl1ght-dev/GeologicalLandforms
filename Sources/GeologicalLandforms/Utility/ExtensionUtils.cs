@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Xml;
 using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
@@ -57,4 +60,10 @@ public static class ExtensionUtils
     public static T Get<T>(this T[,] grid, IntVec3 c) => grid[c.x, c.z];
 
     public static void Set<T>(this T[,] grid, IntVec3 c, T value) => grid[c.x, c.z] = value;
+
+    public static IEnumerable<string> AsStringList(this XmlNode node) =>
+        node.HasChildNodes ? node.ChildNodes.Cast<XmlNode>().Select(n => n.InnerText) : new []{ node.InnerText };
+    
+    public static IEnumerable<T> AsObjectList<T>(this XmlNode node, Func<string, T> parser) =>
+        AsStringList(node).Select(parser).Where(n => n != null);
 }

@@ -1,4 +1,5 @@
 using System;
+using GeologicalLandforms.Defs;
 using GeologicalLandforms.GraphEditor;
 using LunarFramework;
 using LunarFramework.Logging;
@@ -12,7 +13,7 @@ using Verse;
 
 namespace GeologicalLandforms;
 
-[StaticConstructorOnStartup]
+[LunarComponentEntrypoint]
 public static class GeologicalLandformsAPI
 {
     // ### Init ###
@@ -23,6 +24,11 @@ public static class GeologicalLandformsAPI
     
     internal static PatchGroup MainPatchGroup;
     internal static PatchGroup CompatPatchGroup;
+
+    static GeologicalLandformsAPI()
+    {
+        GenTypes.IgnoredNamespaceNames.AddDistinct("GeologicalLandforms.Defs");
+    }
     
     private static void Init()
     {
@@ -49,6 +55,7 @@ public static class GeologicalLandformsAPI
         ExtensionUtils.Init();
         LandformGraphEditor.InitialSetup();
         LandformManager.InitialLoad();
+        BiomeVariantDef.InitialLoad();
 
         /*
         bool done = false;

@@ -136,6 +136,11 @@ public class Landform : TerrainCanvas
     {
         return new GridFunction.Transform<T>(gridInMapSpace, MapSpaceToNodeSpaceFactor);
     }
+    
+    public static IGridFunction<float> GetNamedGrid(string name)
+    {
+        return null; // TODO
+    }
 
     protected override void ValidateSelf()
     {

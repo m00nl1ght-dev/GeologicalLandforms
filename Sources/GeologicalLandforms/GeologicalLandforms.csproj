@@ -81,6 +81,7 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="BiomeTransition.cs" />
+        <Compile Include="Compatibility\ModCompat_BiomesCore.cs" />
         <Compile Include="Compatibility\ModCompat_MapDesigner.cs" />
         <Compile Include="GraphEditor\BiomeData.cs" />
         <Compile Include="GraphEditor\EditorMockTileInfo.cs" />
@@ -155,6 +156,11 @@
         <Compile Include="WorldTileInfoPrimer.cs" />
         <Compile Include="XML\BiomeProperties.cs" />
         <Compile Include="XML\BiomeVariantDef.cs" />
+        <Compile Include="XML\BiomeVariantLayer.cs" />
+        <Compile Include="XML\MapGridConditions.cs" />
+        <Compile Include="XML\WorldTileConditions.cs" />
+        <Compile Include="XML\XmlListModifier.cs" />
+        <Compile Include="XML\XmlValueModifier.cs" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\TerrainGraph\TerrainGraph.csproj">

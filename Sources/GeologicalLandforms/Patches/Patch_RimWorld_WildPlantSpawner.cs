@@ -94,22 +94,22 @@ internal static class Patch_RimWorld_WildPlantSpawner
             }
             
             var intVec3 = ___map.cellsInRandomOrder.Get(___cycleIndex);
-            var biome = biomeGrid.BiomeAt(intVec3);
-            float plantDensity = biome.plantDensity * condFactor;
+            var biomeEntry = biomeGrid.EntryAt(intVec3);
+            float plantDensity = biomeEntry.Biome.plantDensity * condFactor;
             
             ___calculatedWholeMapNumDesiredPlantsTmp += __instance.GetDesiredPlantsCountAt(intVec3, intVec3, plantDensity);
             
             if (intVec3.GetFertility(___map) > 0.0)
                 ++___calculatedWholeMapNumNonZeroFertilityCellsTmp;
 
-            bool cavePlant = GoodRoofForCavePlant(___map, intVec3);
-            float mtb = cavePlant ? 130f : biome.wildPlantRegrowDays;
+            bool asCavePlant = GoodRoofForCavePlant(___map, intVec3)  && !biomeEntry.ApplyToCaveSpawns;
+            float mtb = asCavePlant ? 130f : biomeEntry.Biome.wildPlantRegrowDays;
             if (Rand.Chance(chanceFromDensity) && Rand.MTBEventOccurs(mtb, 60000f, checkDuration) && CanRegrowAt(___map, intVec3))
             {
-                if (cavePlant)
+                if (asCavePlant)
                     __instance.CheckSpawnWildPlantAt(intVec3, plantDensity, ___calculatedWholeMapNumDesiredPlants);
                 else
-                    CheckSpawnWildPlantAt_Patched_NonCave(__instance, biome, ___map, intVec3, plantDensity, ___calculatedWholeMapNumDesiredPlants);
+                    CheckSpawnWildPlantAt_Patched_NonCave(__instance, biomeEntry.Biome, ___map, intVec3, plantDensity, ___calculatedWholeMapNumDesiredPlants);
             }
 
             ++___cycleIndex;
@@ -133,13 +133,13 @@ internal static class Patch_RimWorld_WildPlantSpawner
         {
             if (!Rand.Chance(1f / 1000f))
             {
-                var biome = biomeGrid.BiomeAt(c);
-                float density = biome.plantDensity * condFactor;
+                var biomeEntry = biomeGrid.EntryAt(c);
+                float density = biomeEntry.Biome.plantDensity * condFactor;
 
-                if (GoodRoofForCavePlant(map, c))
+                if (GoodRoofForCavePlant(map, c) && !biomeEntry.ApplyToCaveSpawns)
                     map.wildPlantSpawner.CheckSpawnWildPlantAt(c, density, desired, true);
                 else
-                    CheckSpawnWildPlantAt_Patched_NonCave(map.wildPlantSpawner, biome, map, c, density, desired, true);
+                    CheckSpawnWildPlantAt_Patched_NonCave(map.wildPlantSpawner, biomeEntry.Biome, map, c, density, desired, true);
             }
         }
         
@@ -239,14 +239,14 @@ internal static class Patch_RimWorld_WildPlantSpawner
         float wholeMapNumDesiredPlants,
         float plantDensity)
     {
-        float comm = GetCommonalityOfPlant(biome, plantDef);
-        float commPct = GetCommonalityPctOfPlant(instance, biome, plantDef);
+        float comm = biome.CommonalityOfPlant(plantDef);
+        float commPct = biome.CommonalityPctOfPlant(plantDef);
         
         float num1 = comm;
         if (num1 <= 0.0) return num1;
 
         float x1 = 0.5f;
-        if (map.listerThings.ThingsInGroup(ThingRequestGroup.NonStumpPlant).Count > wholeMapNumDesiredPlants / 2.0 && !plantDef.plant.cavePlant)
+        if (map.listerThings.ThingsInGroup(ThingRequestGroup.NonStumpPlant).Count > wholeMapNumDesiredPlants / 2.0)
         {
             x1 = map.listerThings.ThingsOfDef(plantDef).Count /
                  (float)map.listerThings.ThingsInGroup(ThingRequestGroup.NonStumpPlant).Count / commPct;
@@ -255,7 +255,7 @@ internal static class Patch_RimWorld_WildPlantSpawner
 
         if (plantDef.plant.GrowsInClusters && x1 < 1.1)
         {
-            float num2 = plantDef.plant.cavePlant ? instance.CavePlantsCommonalitiesSum : biome.PlantCommonalitiesSum;
+            float num2 = biome.PlantCommonalitiesSum;
             float x2 = (float)(comm * (double)plantDef.plant.wildClusterWeight / (num2 - (double)comm + comm * (double)plantDef.plant.wildClusterWeight));
             float outTo1 = (float)(1.0 / (3.14159274101257 * plantDef.plant.wildClusterRadius * plantDef.plant.wildClusterRadius));
             
@@ -354,7 +354,7 @@ internal static class Patch_RimWorld_WildPlantSpawner
         {
             if (def.plant.wildOrder < (double)plantDef.plant.wildOrder)
             {
-                num1 += GetCommonalityPctOfPlant(instance, biome, def);
+                num1 += biome.CommonalityPctOfPlant(def);
                 _tsc_plantDefsLowerOrder.Add(def);
             }
         }
@@ -452,18 +452,6 @@ internal static class Patch_RimWorld_WildPlantSpawner
     
     private static readonly SimpleCurve GlobalPctSelectionWeightBias = new() { new(0.0f, 3f), new(1f, 1f), new(1.5f, 0.25f), new(3f, 0.02f) };
     
-    private static float GetCommonalityOfPlant(BiomeDef biome, ThingDef plant)
-    {
-        return !plant.plant.cavePlant ? biome.CommonalityOfPlant(plant) : plant.plant.cavePlantWeight;
-    }
-
-    private static float GetCommonalityPctOfPlant(WildPlantSpawner instance, BiomeDef biome, ThingDef plant)
-    {
-        return !plant.plant.cavePlant
-            ? biome.CommonalityPctOfPlant(plant)
-            : GetCommonalityOfPlant(biome, plant) / instance.CavePlantsCommonalitiesSum;
-    }
-    
     private static float AggregatePlantDensityFactor(GameConditionManager manager, Map map)
     {
         float num = 1f;
@@ -481,10 +469,12 @@ internal static class Patch_RimWorld_WildPlantSpawner
     public static void LogInfo(Map map, IntVec3 pos)
     {
         var biomeGrid = map.BiomeGrid();
-        var biome = biomeGrid.BiomeAt(pos);
-        float plantDensity = biome.plantDensity * AggregatePlantDensityFactor(map.gameConditionManager, map);
+        var entry = biomeGrid.EntryAt(pos);
+        float plantDensity = entry.Biome.plantDensity * AggregatePlantDensityFactor(map.gameConditionManager, map);
         Log.Message("pos: " + pos);
-        Log.Message("biome: " + biome.defName);
+        Log.Message("biome entry: " + entry);
+        Log.Message("biome grid: " + biomeGrid);
+        Log.Message("potential plants:\n" + entry.Biome.AllWildPlants.Join(p => p.defName, "\n"));
         Log.Message("whole map desired: " + map.wildPlantSpawner.CurrentWholeMapNumDesiredPlants);
         Log.Message("desired density at pos: " + plantDensity);
         Log.Message("map open ground fraction: " + map.BiomeGrid()?.OpenGroundFraction);

@@ -36,13 +36,15 @@ public class BiomeProperties : DefModExtension
 
     public static BiomeProperties[] GetAll()
     {
+        var defaultsByDefName = DefaultsByDefName;
+        var defaultsByPackageId = DefaultsByPackageId;
         var all = new BiomeProperties[DefDatabase<BiomeDef>.DefCount];
         
         foreach (var biomeDef in DefDatabase<BiomeDef>.AllDefs)
         {
             var properties = biomeDef.GetModExtension<BiomeProperties>();
-            properties ??= DefaultsByDefName.TryGetValue(biomeDef.defName);
-            properties ??= DefaultsByPackageId.TryGetValue(biomeDef.modContentPack.ModMetaData.PackageIdNonUnique);
+            properties ??= defaultsByDefName.TryGetValue(biomeDef.defName);
+            properties ??= defaultsByPackageId.TryGetValue(biomeDef.modContentPack.ModMetaData.PackageIdNonUnique);
             properties ??= new BiomeProperties();
             all[biomeDef.index] = properties;
         }
@@ -50,7 +52,7 @@ public class BiomeProperties : DefModExtension
         return all;
     }
 
-    private static readonly Dictionary<string, BiomeProperties> DefaultsByPackageId = new()
+    private static Dictionary<string, BiomeProperties> DefaultsByPackageId => new()
     {
         {
             "biomesteam.biomesislands", new BiomeProperties
@@ -98,7 +100,7 @@ public class BiomeProperties : DefModExtension
         }
     };
     
-    private static readonly Dictionary<string, BiomeProperties> DefaultsByDefName = new()
+    private static Dictionary<string, BiomeProperties> DefaultsByDefName => new()
     {
         {
             "Ocean", new BiomeProperties

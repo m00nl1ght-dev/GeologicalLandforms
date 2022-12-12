@@ -6,6 +6,7 @@ using System.Text;
 using HarmonyLib;
 using LunarFramework.Patching;
 using RimWorld.Planet;
+using UnityEngine;
 using Verse;
 
 // ReSharper disable RedundantAssignment
@@ -21,8 +22,24 @@ namespace GeologicalLandforms.Patches;
 internal static class Patch_RimWorld_WITab_Terrain
 {
     private static readonly MethodInfo Method_AppendWithComma = AccessTools.Method(typeof(GenText), "AppendWithComma");
-    private static readonly MethodInfo Method_LabelDouble = AccessTools.Method(typeof(Listing_Standard), "LabelDouble");
-    private static readonly MethodInfo Method_GetSpecialFeatures = AccessTools.Method(typeof(Patch_RimWorld_WITab_Terrain), "GetSpecialFeatures");
+    private static readonly MethodInfo Method_Label = AccessTools.Method(typeof(Listing_Standard), "Label", new []{typeof(string), typeof(float), typeof(string)});
+    private static readonly MethodInfo Method_WLabel = AccessTools.Method(typeof(Widgets), "Label", new []{typeof(Rect), typeof(TaggedString)});
+    private static readonly MethodInfo Method_LabelDouble = AccessTools.Method(typeof(Listing_Standard), "LabelDouble", new []{typeof(string), typeof(string), typeof(string)});
+    private static readonly MethodInfo Method_GetBiomeLabel = AccessTools.Method(typeof(Patch_RimWorld_WITab_Terrain), nameof(GetBiomeLabel));
+    private static readonly MethodInfo Method_GetBiomeDescription = AccessTools.Method(typeof(Patch_RimWorld_WITab_Terrain), nameof(GetBiomeDescription));
+    private static readonly MethodInfo Method_GetSpecialFeatures = AccessTools.Method(typeof(Patch_RimWorld_WITab_Terrain), nameof(GetSpecialFeatures));
+
+    private static int _tileId;
+    private static WorldTileInfo _tile;
+    
+    [HarmonyPrefix]
+    [HarmonyPatch("FillTab")]
+    [HarmonyPriority(Priority.Low)]
+    private static void FillTabPrefix()
+    {
+        _tileId = Find.WorldSelector.selectedTile;
+        _tile = WorldTileInfo.Get(_tileId);
+    }
     
     [HarmonyTranspiler]
     [HarmonyPatch("FillTab")]
@@ -30,11 +47,33 @@ internal static class Patch_RimWorld_WITab_Terrain
     private static IEnumerable<CodeInstruction> FillTab(IEnumerable<CodeInstruction> instructions)
     {
         var foundAWC = false;
-        var patched = false;
+        var patchedBL = false;
+        var patchedBD = false;
+        var patchedSF = false;
 
         foreach (var instruction in instructions)
         {
-            if (foundAWC && !patched)
+            if (!foundAWC && !patchedBL)
+            {
+                if (instruction.Calls(Method_WLabel))
+                {
+                    yield return new CodeInstruction(OpCodes.Call, Method_GetBiomeLabel);
+                    patchedBL = true;
+                    continue;
+                }
+            }
+            
+            if (!foundAWC && !patchedBD)
+            {
+                if (instruction.Calls(Method_Label))
+                {
+                    yield return new CodeInstruction(OpCodes.Call, Method_GetBiomeDescription);
+                    patchedBD = true;
+                    continue;
+                }
+            }
+            
+            if (foundAWC && !patchedSF)
             {
                 if (instruction.opcode == OpCodes.Ldc_I4_0)
                 {
@@ -45,7 +84,7 @@ internal static class Patch_RimWorld_WITab_Terrain
                 if (instruction.Calls(Method_LabelDouble))
                 {
                     yield return new CodeInstruction(OpCodes.Call, Method_GetSpecialFeatures);
-                    patched = true;
+                    patchedSF = true;
                     continue;
                 }
             }
@@ -58,29 +97,52 @@ internal static class Patch_RimWorld_WITab_Terrain
             yield return instruction;
         }
         
-        if (patched == false)
-            GeologicalLandformsAPI.Logger.Fatal("Failed to patch RimWorld_WITab_Terrain");
+        if (patchedBL == false)
+            GeologicalLandformsAPI.Logger.Fatal("Failed to patch RimWorld_WITab_Terrain biome label");
+        if (patchedBD == false)
+            GeologicalLandformsAPI.Logger.Fatal("Failed to patch RimWorld_WITab_Terrain biome description");
+        if (patchedSF == false)
+            GeologicalLandformsAPI.Logger.Fatal("Failed to patch RimWorld_WITab_Terrain special features");
+    }
+    
+    private static void GetBiomeLabel(Rect rect, TaggedString label)
+    {
+        if (_tile.BiomeVariants != null)
+        {
+            label = _tile.BiomeVariants.OrderByDescending(v => (byte) v.labelDisplayMode)
+                .Aggregate(label, (current, biomeVariant) => biomeVariant.ApplyLabel(current));
+        }
+        
+        Widgets.Label(rect, label);
+    }
+
+    private static Rect GetBiomeDescription(Listing_Standard listingStandard, string description, float float0 = -1f, string str0 = null)
+    {
+        if (_tile.BiomeVariants != null)
+        {
+            description = _tile.BiomeVariants.OrderByDescending(v => (byte) v.descriptionDisplayMode)
+                .Aggregate(description, (current, biomeVariant) => biomeVariant.ApplyDescription(current));
+        }
+        
+        return listingStandard.Label(description);
     }
 
     private static void GetSpecialFeatures(Listing_Standard listingStandard, string str0, string str1, string str2 = null)
     {
-        int tileId = Find.WorldSelector.selectedTile;
-        IWorldTileInfo worldTileInfo = WorldTileInfo.Get(tileId);
-
-        if (worldTileInfo.Landforms != null)
+        if (_tile.Landforms != null)
         {
-            var mainLandform = worldTileInfo.Landforms.LastOrDefault(l => !l.IsLayer);
+            var mainLandform = _tile.Landforms.LastOrDefault(l => !l.IsLayer);
             if (mainLandform != null)
             {
-                var lfStr = mainLandform.TranslatedNameWithDirection(worldTileInfo.LandformDirection).CapitalizeFirst();
+                var lfStr = mainLandform.TranslatedNameWithDirection(_tile.LandformDirection).CapitalizeFirst();
                 listingStandard.LabelDouble("GeologicalLandforms.WorldMap.Landform".Translate(), lfStr);
             }
         
-            if (worldTileInfo.BorderingBiomes?.Count > 0)
+            if (_tile.BorderingBiomes?.Count > 0)
             {
-                if (worldTileInfo.Landforms.Any(l => l.OutputBiomeGrid?.BiomeTransitionKnob?.connected() ?? false))
+                if (_tile.Landforms.Any(l => l.OutputBiomeGrid?.BiomeTransitionKnob?.connected() ?? false))
                 {
-                    string bbStr = worldTileInfo.BorderingBiomes.Select(b => b.Biome.label.CapitalizeFirst()).Distinct().Join(b => b);
+                    string bbStr = _tile.BorderingBiomes.Select(b => b.Biome.label.CapitalizeFirst()).Distinct().Join(b => b);
                     listingStandard.LabelDouble("GeologicalLandforms.WorldMap.BorderingBiomes".Translate(), bbStr);
                 }
             }
@@ -88,7 +150,7 @@ internal static class Patch_RimWorld_WITab_Terrain
 
         StringBuilder sb = new();
         
-        if (Find.World.HasCaves(tileId))
+        if (Find.World.HasCaves(_tileId))
         {
             sb.AppendWithComma("HasCaves".Translate());
         }

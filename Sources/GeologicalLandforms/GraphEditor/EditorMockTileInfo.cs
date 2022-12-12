@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using GeologicalLandforms.Defs;
 using LunarFramework.Utility;
 using RimWorld;
 using RimWorld.Planet;
@@ -13,6 +14,9 @@ public class EditorMockTileInfo : IWorldTileInfo
     
     public IReadOnlyList<IWorldTileInfo.BorderingBiome> BorderingBiomes => BorderingBiomesList;
     public List<IWorldTileInfo.BorderingBiome> BorderingBiomesList { get; set; }
+    
+    public IReadOnlyList<BiomeVariantDef> BiomeVariants => BiomeVariantsList;
+    public List<BiomeVariantDef> BiomeVariantsList { get; set; }
     
     public Topology Topology => Topology.Any;
     public Rot4 LandformDirection { get; set; } = Rot4.North;

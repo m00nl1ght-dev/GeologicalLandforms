@@ -38,4 +38,14 @@ public static class TopologyExtensions
     {
         return topology is CliffOneSide or CliffTwoSides or CoastOneSide or CoastTwoSides;
     }
+    
+    public static bool IsCompatible(this Topology req, Topology tile, bool lenient)
+    {
+        if (req == Any || tile == req) return true;
+        if (!lenient) return false;
+        if (req.IsCoast() && tile.IsCoast(true)) return true;
+        if (req.IsCliff() && tile.IsCliff(true)) return true;
+        if (req == Inland && tile.IsCliff(true)) return true;
+        return false;
+    }
 }
