@@ -44,7 +44,7 @@ public class BiomeProperties : DefModExtension
         {
             var properties = biomeDef.GetModExtension<BiomeProperties>();
             properties ??= defaultsByDefName.TryGetValue(biomeDef.defName);
-            properties ??= defaultsByPackageId.TryGetValue(biomeDef.modContentPack.ModMetaData.PackageIdNonUnique);
+            properties ??= defaultsByPackageId.TryGetValue(biomeDef.modContentPack?.ModMetaData?.PackageIdNonUnique ?? "unknown");
             properties ??= new BiomeProperties();
             all[biomeDef.index] = properties;
         }
