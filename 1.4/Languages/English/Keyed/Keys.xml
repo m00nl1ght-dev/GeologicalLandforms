@@ -1,19 +1,29 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
-  
+
+  <GeologicalLandforms.Settings.Tab.General>General</GeologicalLandforms.Settings.Tab.General>
+  <GeologicalLandforms.Settings.Tab.Landforms>Landforms</GeologicalLandforms.Settings.Tab.Landforms>
+  <GeologicalLandforms.Settings.Tab.BiomeVariants>Biome Variants</GeologicalLandforms.Settings.Tab.BiomeVariants>
+  <GeologicalLandforms.Settings.Tab.Debug>Debug</GeologicalLandforms.Settings.Tab.Debug>
   <GeologicalLandforms.Settings.MaxLandformSearchRadius>Max landform search radius on world map</GeologicalLandforms.Settings.MaxLandformSearchRadius>
   <GeologicalLandforms.Settings.AnimalDensityFactorForSecludedAreas>Animal amount in secluded areas (Island, Fjord, etc.)</GeologicalLandforms.Settings.AnimalDensityFactorForSecludedAreas>
   <GeologicalLandforms.Settings.EnableCellFinderOptimization>Enable map exit pathfinding optimization</GeologicalLandforms.Settings.EnableCellFinderOptimization>
   <GeologicalLandforms.Settings.EnableLandformScaling>Scale landforms with map size</GeologicalLandforms.Settings.EnableLandformScaling>
   <GeologicalLandforms.Settings.EnableExperimentalLandforms>Enable experimental landforms</GeologicalLandforms.Settings.EnableExperimentalLandforms>
   <GeologicalLandforms.Settings.EnableGodMode>Enable god mode (allows placing landforms manually)</GeologicalLandforms.Settings.EnableGodMode>
-  <GeologicalLandforms.Settings.ShowWorldTileDebugInfo>[Dev Mode] Show advanced debug info</GeologicalLandforms.Settings.ShowWorldTileDebugInfo>
-  <GeologicalLandforms.Settings.IgnoreWorldTileReqInGodMode>[Dev Mode] Ignore world tile requirements (unsafe)</GeologicalLandforms.Settings.IgnoreWorldTileReqInGodMode>
+  <GeologicalLandforms.Settings.ShowWorldTileDebugInfo>Show advanced debug info</GeologicalLandforms.Settings.ShowWorldTileDebugInfo>
+  <GeologicalLandforms.Settings.IgnoreWorldTileReqInGodMode>Ignore world tile requirements (unsafe)</GeologicalLandforms.Settings.IgnoreWorldTileReqInGodMode>
   <GeologicalLandforms.Settings.OpenEditor>Open landform editor</GeologicalLandforms.Settings.OpenEditor>
   <GeologicalLandforms.Settings.ResetAll>Reset everything to default</GeologicalLandforms.Settings.ResetAll>
   <GeologicalLandforms.Settings.OpenDataDir>Open custom landform data directory</GeologicalLandforms.Settings.OpenDataDir>
   <GeologicalLandforms.Settings.ConfirmResetAll>Are you sure you want to fully reset the settings for this mod, including all landform configs? This will also unrecoverably delete ALL custom landforms you created!</GeologicalLandforms.Settings.ConfirmResetAll>
-
+  <GeologicalLandforms.Settings.Landforms.Custom>custom</GeologicalLandforms.Settings.Landforms.Custom>
+  <GeologicalLandforms.Settings.Landforms.Experimental>experimental</GeologicalLandforms.Settings.Landforms.Experimental>
+  <GeologicalLandforms.Settings.Landforms.DefinedInMod>provided by mod {0}</GeologicalLandforms.Settings.Landforms.DefinedInMod>
+  <GeologicalLandforms.Settings.Landforms.ZeroCommonness>misconfigured with 0 commonness</GeologicalLandforms.Settings.Landforms.ZeroCommonness>
+  <GeologicalLandforms.Settings.Landforms.ReplacesVanillaCliff>replaces vanilla cliff</GeologicalLandforms.Settings.Landforms.ReplacesVanillaCliff>
+  <GeologicalLandforms.Settings.Landforms.ReplacesVanillaCoast>replaces vanilla coast</GeologicalLandforms.Settings.Landforms.ReplacesVanillaCoast>
+  
   <GeologicalLandforms.WorldMap.Topology>Topology</GeologicalLandforms.WorldMap.Topology>
   <GeologicalLandforms.WorldMap.TopologyDirection>Topology direction</GeologicalLandforms.WorldMap.TopologyDirection>
   <GeologicalLandforms.WorldMap.Swampiness>Swampiness</GeologicalLandforms.WorldMap.Swampiness>

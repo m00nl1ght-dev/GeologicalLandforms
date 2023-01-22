@@ -80,6 +80,8 @@ public static class GeologicalLandformsAPI
     }
     
     // ### Public API ###
+    
+    public static bool DisableVanillaMountainGeneration { get; set; }
 
     public static event Action<BiomeDef, BiomeProperties> BiomePropertiesHook;
     public static BiomeProperties ApplyBiomePropertiesHook(BiomeDef biome, BiomeProperties properties)

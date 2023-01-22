@@ -38,6 +38,8 @@ public class Landform : TerrainCanvas
 
     public string DisplayName => Manifest.DisplayName ?? "";
     public bool DisplayNameHasDirection => Manifest?.DisplayNameHasDirection ?? false;
+    
+    public ModContentPack ModContentPack { get; internal set; }
 
     public NodeUILandformManifest Manifest { get; internal set; }
     public NodeUIWorldTileReq WorldTileReq { get; internal set; }

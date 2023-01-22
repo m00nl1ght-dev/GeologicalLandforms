@@ -16,7 +16,7 @@ public static class LandformManager
     public static string LandformsDir(string loadFolder, int version) => Path.Combine(loadFolder, "Landforms-v" + version);
     public static string CustomLandformsDir(int version) => Path.Combine(GenFilePaths.ConfigFolderPath, "CustomLandforms-v" + version);
     
-    private static List<string> _mcpLandformDirs = new();
+    private static Dictionary<string, ModContentPack> _mcpLandformDirs = new();
     
     private static Dictionary<string, Landform> _landforms = new();
     public static IReadOnlyDictionary<string, Landform> Landforms => _landforms;
@@ -40,7 +40,7 @@ public static class LandformManager
                          .Select(loadFolder => LandformsDir(loadFolder, CurrentVersion))
                          .Reverse().Where(Directory.Exists))
             {
-                _mcpLandformDirs.Add(dir);
+                _mcpLandformDirs.Add(dir, mcp);
                 landformSources.Add(mcp.Name);
             }
         }
@@ -53,8 +53,8 @@ public static class LandformManager
 
     public static Dictionary<string, Landform> LoadAll(string fileFilter = "*", bool includeCustom = true)
     {
-        var mcpLandforms = _mcpLandformDirs.Aggregate<string, Dictionary<string,Landform>>(null, 
-            (current, dir) => LoadLandformsFromDirectory(dir, current, fileFilter));
+        var mcpLandforms = _mcpLandformDirs.Aggregate<KeyValuePair<string, ModContentPack>, Dictionary<string,Landform>>(null, 
+            (current, source) => LoadLandformsFromDirectory(source.Key, current, fileFilter, source.Value));
         
         foreach (var landform in mcpLandforms.Values)
         {
@@ -164,7 +164,7 @@ public static class LandformManager
         _landforms = LoadAll("*", false);
     }
     
-    public static Dictionary<string, Landform> LoadLandformsFromDirectory(string directory, Dictionary<string, Landform> fallback, string fileFilter = "*")
+    public static Dictionary<string, Landform> LoadLandformsFromDirectory(string directory, Dictionary<string, Landform> fallback, string fileFilter = "*", ModContentPack source = null)
     {
         Dictionary<string, Landform> landforms = new(fallback ?? new());
         
@@ -183,6 +183,7 @@ public static class LandformManager
                 {
                     if (landforms.ContainsKey(landform.Id)) landforms[landform.Id] = landform;
                     else landforms.Add(landform.Id, landform);
+                    landform.ModContentPack = source;
                 }
             }
             catch (Exception ex)

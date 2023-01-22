@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using GeologicalLandforms.Defs;
 using GeologicalLandforms.GraphEditor;
 using LunarFramework;
 using LunarFramework.Logging;
@@ -38,6 +39,8 @@ public class GeologicalLandformsMod : Mod
         GeologicalLandformsAPI.PutLandformGridSizeFunction(GridSizeProvider);
         GeologicalLandformsAPI.PutAnimalDensityFactorFunction(AnimalDensityFactorForMap);
         GeologicalLandformsAPI.PutCellFinderOptimizationFilter(_ => Settings.EnableCellFinderOptimization);
+        
+        Settings.ApplyLandformConfigEffects();
 
         var modContentPack = LunarAPI.Component.LatestVersionProvidedBy.ModContentPack;
         var assetBundle = modContentPack.assetBundles.loadedAssetBundles.Find(b => b.name == "terraingraph");
@@ -55,6 +58,7 @@ public class GeologicalLandformsMod : Mod
     private static void WorldTileInfoHook(WorldTileInfoPrimer info)
     {
         info.Landforms = info.Landforms?.Where(IsLandformEnabled).ToList();
+        info.BiomeVariants = info.BiomeVariants?.Where(IsBiomeVariantEnabled).ToList();
     }
 
     private static int GridSizeProvider()
@@ -74,6 +78,13 @@ public class GeologicalLandformsMod : Mod
     public static bool IsLandformEnabled(Landform landform)
     {
         if (!Settings.EnableExperimentalLandforms && landform.Manifest.IsExperimental) return false;
+        if (Settings.DisabledLandforms.Contains(landform.Id)) return false;
+        return true;
+    }
+    
+    public static bool IsBiomeVariantEnabled(BiomeVariantDef biomeVariant)
+    {
+        if (Settings.DisabledBiomeVariants.Contains(biomeVariant.defName)) return false;
         return true;
     }
 

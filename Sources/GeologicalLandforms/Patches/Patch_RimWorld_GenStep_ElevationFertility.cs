@@ -1,9 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Reflection.Emit;
 using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using LunarFramework.Patching;
 using RimWorld;
+using RimWorld.Planet;
 using Verse;
 
 // ReSharper disable RedundantAssignment
@@ -58,24 +60,40 @@ internal static class Patch_RimWorld_GenStep_ElevationFertility
     [HarmonyPriority(Priority.First)]
     private static IEnumerable<CodeInstruction> Generate_Transpiler(IEnumerable<CodeInstruction> instructions)
     {
-        var lastOpCode = OpCodes.Nop;
         var patched = false;
+        var foundElevStr = false;
+
+        var method = AccessTools.Method(typeof(Patch_RimWorld_GenStep_ElevationFertility), nameof(AdjustHillinessCheck));
+        if (method == null) throw new Exception("missing AdjustHillinessCheck");
+        
+        var field = AccessTools.Field(typeof(Tile), nameof(Tile.hilliness));
+        if (field == null) throw new Exception("missing Tile.hilliness");
     
         foreach (var instruction in instructions)
         {
-            if (!patched && lastOpCode == OpCodes.Ldfld && instruction.opcode == OpCodes.Ldc_I4_4)
+            if (instruction.LoadsConstant("elev world-factored")) foundElevStr = true;
+            
+            if (!patched && foundElevStr && instruction.LoadsField(field))
             {
                 patched = true;
-                lastOpCode = OpCodes.Ldc_I4_5;
-                yield return new CodeInstruction(lastOpCode);
+                yield return new CodeInstruction(OpCodes.Call, method);
                 continue;
             }
-
-            lastOpCode = instruction.opcode;
+            
             yield return instruction;
         }
             
         if (patched == false)
             GeologicalLandformsAPI.Logger.Fatal("Failed to patch RimWorld_GenStep_ElevationFertility");
+    }
+
+    private static int AdjustHillinessCheck(Tile tile)
+    {
+        if (GeologicalLandformsAPI.DisableVanillaMountainGeneration && tile.hilliness == Hilliness.Mountainous)
+        {
+            return (int) Hilliness.LargeHills;
+        }
+        
+        return (int) tile.hilliness;
     }
 }
