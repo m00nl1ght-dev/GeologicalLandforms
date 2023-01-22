@@ -46,18 +46,18 @@ public class LandformGraphInterface
         {
             if (GUILayout.Button("GeologicalLandforms.Editor.Copy".Translate(), GUI.skin.GetStyle("toolbarButton"), GUILayout.MinWidth(50f)))
                 Editor.Duplicate();
-            GuiUtils.Tooltip("GeologicalLandforms.Editor.Copy.Tooltip".Translate());
+            Tooltip("GeologicalLandforms.Editor.Copy.Tooltip".Translate());
 
             if (!Landform.IsCustom)
             {
                 if (GUILayout.Button("GeologicalLandforms.Editor.Reset".Translate(), GUI.skin.GetStyle("toolbarButton"), GUILayout.MinWidth(55f))) Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation("GeologicalLandforms.Editor.ConfirmReset".Translate(), Editor.Reset));
-                GuiUtils.Tooltip("GeologicalLandforms.Editor.Reset.Tooltip".Translate());
+                Tooltip("GeologicalLandforms.Editor.Reset.Tooltip".Translate());
             }
 
             if (Landform.IsCustom)
             {
                 if (GUILayout.Button("GeologicalLandforms.Editor.Delete".Translate(), GUI.skin.GetStyle("toolbarButton"), GUILayout.MinWidth(55f))) Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation("GeologicalLandforms.Editor.ConfirmDelete".Translate(), Editor.Delete));
-                GuiUtils.Tooltip("GeologicalLandforms.Editor.Delete.Tooltip".Translate());
+                Tooltip("GeologicalLandforms.Editor.Delete.Tooltip".Translate());
             }
         }
 
@@ -124,6 +124,15 @@ public class LandformGraphInterface
             GUILayout.BeginArea(ModalPanelRect, GUI.skin.box);
             ModalPanelContent.Invoke();
             GUILayout.EndArea();
+        }
+    }
+    
+    private static void Tooltip(string tooltip)
+    {
+        if (Event.current.type == EventType.Repaint)
+        {
+            var lastRect = GUILayoutUtility.GetLastRect();
+            TooltipHandler.TipRegion(lastRect, new TipSignal(tooltip));
         }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using LunarFramework.GUI;
 using NodeEditorFramework;
 using UnityEngine;
 using Verse;
@@ -13,20 +14,22 @@ public class NodeUILayerConfig : NodeUIBase
     public override string GetID => ID;
 
     public override string Title => "Layer Config";
-    public override Vector2 DefaultSize => new(400, 80);
+    public override Vector2 DefaultSize => new(400, 75);
 
     public int Priority;
 
     private string _priorityEdit;
 
-    protected override void DoWindowContents(Listing_Standard listing)
+    protected override void DoWindowContents(LayoutRect layout)
     {
-        GUI.enabled = Landform.IsCustom;
-
-        GuiUtils.IntEntry(listing, "Priority", ref Priority, ref _priorityEdit, -999, 999);
-
-        GUI.enabled = true;
-        if (GUI.changed) TerrainCanvas.OnNodeChange(this);
+        LunarGUI.PushEnabled(Landform.IsCustom);
+        
+        layout.BeginAbs(28f);
+        LunarGUI.Label(layout.Rel(0.3f), "GeologicalLandforms.Settings.Landform.Priority".Translate());
+        LunarGUI.IntField(layout, ref Priority, ref _priorityEdit, -999, 999);
+        layout.End();
+        
+        LunarGUI.PopEnabled();
     }
 
     public override void DrawNode()

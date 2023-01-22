@@ -1,6 +1,6 @@
+using LunarFramework.GUI;
 using TerrainGraph;
 using UnityEngine;
-using Verse;
 
 namespace GeologicalLandforms.GraphEditor;
 
@@ -10,18 +10,24 @@ public abstract class NodeUIBase : NodeBase
     
     public override bool AutoLayout => false;
     
-    protected virtual float Padding => 15f;
+    protected virtual float Margin => 15f;
+
+    private readonly LayoutRect _layout = new(GeologicalLandformsAPI.LunarAPI);
     
     public override void NodeGUI()
     {
-        GUILayoutUtility.GetRect(rect.width, rect.height);
-        Listing_Standard listingStandard = new();
-        listingStandard.Begin(new Rect(Padding, Padding, rect.width - Padding * 2f, rect.height - Padding * 2f));
-        DoWindowContents(listingStandard);
-        listingStandard.End();
+        var inner = GUILayoutUtility.GetRect(rect.width, rect.height);
+        
+        LunarGUI.PushChanged();
+        
+        _layout.BeginRoot(inner, new LayoutParams { Margin = new (Margin) });
+        DoWindowContents(_layout);
+        _layout.End();
+        
+        if (LunarGUI.PopChanged()) TerrainCanvas.OnNodeChange(this);
     }
 
-    protected abstract void DoWindowContents(Listing_Standard listingStandard);
+    protected abstract void DoWindowContents(LayoutRect layout);
 
     public override bool Calculate()
     {

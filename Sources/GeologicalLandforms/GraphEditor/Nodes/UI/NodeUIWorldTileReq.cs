@@ -1,5 +1,5 @@
 using System;
-using System.Globalization;
+using LunarFramework.GUI;
 using NodeEditorFramework;
 using RimWorld.Planet;
 using UnityEngine;
@@ -16,7 +16,7 @@ public class NodeUIWorldTileReq : NodeUIBase
     public override string GetID => ID;
 
     public override string Title => "World Tile Requirements";
-    public override Vector2 DefaultSize => new(400, 950);
+    public override Vector2 DefaultSize => new(400, 800);
     
     public Topology Topology = Inland;
     public float Commonness = 1f;
@@ -77,37 +77,75 @@ public class NodeUIWorldTileReq : NodeUIBase
 
     // TODO evetually refactor this to use WorldTileConditions
     
-    protected override void DoWindowContents(Listing_Standard listing)
+    protected override void DoWindowContents(LayoutRect layout)
     {
-        GuiUtils.CenteredLabel(listing, "GeologicalLandforms.Settings.Landform.Commonness".Translate(), Math.Round(Commonness, 2).ToString(CultureInfo.InvariantCulture));
-        Commonness = listing.Slider(Commonness, 0f, 1f);
+        LunarGUI.LabelDouble(layout, "GeologicalLandforms.Settings.Landform.Commonness".Translate(), Commonness.ToString("F2"));
+        LunarGUI.Slider(layout, ref Commonness, 0f, 1f);
 
-        GUI.enabled = !Landform.IsLayer;
+        LunarGUI.PushEnabled(!Landform.IsLayer);
+        LunarGUI.LabelDouble(layout, "GeologicalLandforms.Settings.Landform.CaveChance".Translate(), CaveChance.ToString("F2"));
+        LunarGUI.Slider(layout, ref CaveChance, 0f, 1f);
+        LunarGUI.PopEnabled();
         
-        GuiUtils.CenteredLabel(listing, "GeologicalLandforms.Settings.Landform.CaveChance".Translate(), Math.Round(CaveChance, 2).ToString(CultureInfo.InvariantCulture));
-        CaveChance = listing.Slider(CaveChance, 0f, 1f);
-        listing.Gap(18f);
+        layout.Abs(10f);
+
+        layout.BeginAbs(28f);
+        LunarGUI.Label(layout.Rel(0.3f), "GeologicalLandforms.Settings.Landform.Topology".Translate());
+        LunarGUI.Dropdown(layout, Topology, e => Topology = e, "GeologicalLandforms.Settings.Landform.Topology");
+        layout.End();
         
-        GUI.enabled = true;
+        layout.Abs(20f);
         
-        GuiUtils.Dropdown(listing, "GeologicalLandforms.Settings.Landform.Topology".Translate(), Topology, e => Topology = e, 150f, "GeologicalLandforms.Settings.Landform.Topology");
-        listing.Gap();
+        LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.HillinessRequirement".Translate());
+        LunarGUI.RangeSlider(layout, ref HillinessRequirement, 1f, 5f);
         
-        GuiUtils.FloatRangeSlider(listing, ref HillinessRequirement, "GeologicalLandforms.Settings.Landform.HillinessRequirement".Translate(), 1f, 5f);
-        GuiUtils.FloatRangeSlider(listing, ref RoadRequirement, "GeologicalLandforms.Settings.Landform.RoadRequirement".Translate(), 0f, 1f);
-        GuiUtils.FloatRangeSlider(listing, ref RiverRequirement, "GeologicalLandforms.Settings.Landform.RiverRequirement".Translate(), 0f, 1f);
-        GuiUtils.FloatRangeSlider(listing, ref ElevationRequirement, "GeologicalLandforms.Settings.Landform.ElevationRequirement".Translate(), -1000f, 5000f);
-        GuiUtils.FloatRangeSlider(listing, ref AvgTemperatureRequirement, "GeologicalLandforms.Settings.Landform.AvgTemperatureRequirement".Translate(), -100f, 100f);
-        GuiUtils.FloatRangeSlider(listing, ref RainfallRequirement, "GeologicalLandforms.Settings.Landform.RainfallRequirement".Translate(), 0f, 5000f);
-        GuiUtils.FloatRangeSlider(listing, ref SwampinessRequirement, "GeologicalLandforms.Settings.Landform.SwampinessRequirement".Translate(), 0f, 1f);
-        GuiUtils.FloatRangeSlider(listing, ref MapSizeRequirement, "GeologicalLandforms.Settings.Landform.MapSizeRequirement".Translate(), 50f, 1000f);
-        GuiUtils.FloatRangeSlider(listing, ref BiomeTransitionsRequirement, "GeologicalLandforms.Settings.Landform.BiomeTransitionsRequirement".Translate(), 0f, 6f);
-        listing.Gap();
+        layout.Abs(10f);
         
-        listing.CheckboxLabeled("GeologicalLandforms.Settings.Landform.AllowSettlements".Translate(), ref AllowSettlements);
-        listing.CheckboxLabeled("GeologicalLandforms.Settings.Landform.AllowSites".Translate(), ref AllowSites);
+        LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.RoadRequirement".Translate());
+        LunarGUI.RangeSlider(layout, ref RoadRequirement, 0f, 1f);
         
-        if (GUI.changed) TerrainCanvas.OnNodeChange(this);
+        layout.Abs(10f);
+        
+        LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.RiverRequirement".Translate());
+        LunarGUI.RangeSlider(layout, ref RiverRequirement, 0f, 1f);
+        
+        layout.Abs(10f);
+        
+        LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.ElevationRequirement".Translate());
+        LunarGUI.RangeSlider(layout, ref ElevationRequirement, -1000f, 5000f);
+        
+        layout.Abs(10f);
+        
+        LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.AvgTemperatureRequirement".Translate());
+        LunarGUI.RangeSlider(layout, ref AvgTemperatureRequirement, -100f, 100f);
+        
+        layout.Abs(10f);
+        
+        LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.RainfallRequirement".Translate());
+        LunarGUI.RangeSlider(layout, ref RainfallRequirement, 0f, 5000f);
+        
+        layout.Abs(10f);
+        
+        LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.SwampinessRequirement".Translate());
+        LunarGUI.RangeSlider(layout, ref SwampinessRequirement, 0f, 1f);
+        
+        layout.Abs(10f);
+        
+        LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.MapSizeRequirement".Translate());
+        LunarGUI.RangeSlider(layout, ref MapSizeRequirement, 50f, 1000f);
+        
+        layout.Abs(10f);
+        
+        LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.BiomeTransitionsRequirement".Translate());
+        LunarGUI.RangeSlider(layout, ref BiomeTransitionsRequirement, 0f, 6f);
+        
+        layout.Abs(20f);
+        
+        LunarGUI.Checkbox(layout, ref AllowSettlements, "GeologicalLandforms.Settings.Landform.AllowSettlements".Translate());
+        
+        layout.Abs(10f);
+        
+        LunarGUI.Checkbox(layout, ref AllowSites, "GeologicalLandforms.Settings.Landform.AllowSites".Translate());
     }
 
     public override void DrawNode()

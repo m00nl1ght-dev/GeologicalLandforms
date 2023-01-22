@@ -97,10 +97,10 @@ public class GeologicalLandformsSettings : ModSettings
 
         _layout.Abs(10f);
         
-        LunarGUI.DoubleLabel(_layout, "GeologicalLandforms.Settings.MaxLandformSearchRadius".Translate(), MaxLandformSearchRadius.ToString("F0"));
+        LunarGUI.LabelDouble(_layout, "GeologicalLandforms.Settings.MaxLandformSearchRadius".Translate(), MaxLandformSearchRadius.ToString("F0"));
         LunarGUI.Slider(_layout, ref MaxLandformSearchRadius, 10, 500);
         
-        LunarGUI.DoubleLabel(_layout, "GeologicalLandforms.Settings.AnimalDensityFactorForSecludedAreas".Translate(), AnimalDensityFactorForSecludedAreas.ToString("F2"));
+        LunarGUI.LabelDouble(_layout, "GeologicalLandforms.Settings.AnimalDensityFactorForSecludedAreas".Translate(), AnimalDensityFactorForSecludedAreas.ToString("F2"));
         LunarGUI.Slider(_layout, ref AnimalDensityFactorForSecludedAreas, 0.25f, 0.75f);
         
         _layout.Abs(10f);

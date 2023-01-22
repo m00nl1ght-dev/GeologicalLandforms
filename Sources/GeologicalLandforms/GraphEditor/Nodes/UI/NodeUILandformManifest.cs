@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using LunarFramework.GUI;
 using NodeEditorFramework;
 using UnityEngine;
 using Verse;
@@ -28,24 +29,36 @@ public class NodeUILandformManifest : NodeUIBase
     public string DisplayName;
     public bool DisplayNameHasDirection;
 
-    protected override void DoWindowContents(Listing_Standard listing)
+    protected override void DoWindowContents(LayoutRect layout)
     {
-        GUI.enabled = Landform.IsCustom;
-        
-        string newId = GuiUtils.TextEntry(listing, "GeologicalLandforms.Settings.Landform.Id".Translate(), Id ?? "", 150f);
-        DisplayName = GuiUtils.TextEntry(listing, "GeologicalLandforms.Settings.Landform.DisplayName".Translate(), DisplayName, 150f);
-        listing.CheckboxLabeled("GeologicalLandforms.Settings.Landform.DisplayNameHasDirection".Translate(), ref DisplayNameHasDirection);
-        listing.Gap();
+        LunarGUI.PushEnabled(Landform.IsCustom);
 
-        if (Id != newId)
+        var id = Id ?? "";
+        
+        layout.BeginAbs(28f);
+        LunarGUI.Label(layout.Rel(0.5f), "GeologicalLandforms.Settings.Landform.Id".Translate());
+        LunarGUI.TextField(layout, ref id);
+        layout.End();
+
+        layout.Abs(10f);
+        
+        layout.BeginAbs(28f);
+        LunarGUI.Label(layout.Rel(0.5f), "GeologicalLandforms.Settings.Landform.DisplayName".Translate());
+        LunarGUI.TextField(layout, ref DisplayName);
+        layout.End();
+        
+        layout.Abs(10f);
+
+        LunarGUI.Checkbox(layout, ref DisplayNameHasDirection, "GeologicalLandforms.Settings.Landform.DisplayNameHasDirection".Translate());
+
+        if (id != Id)
         {
             char[] invalids = Path.GetInvalidFileNameChars();
-            newId = invalids.Aggregate(newId, (current, c) => current.Replace(c, '_'));
-            LandformManager.Rename(Landform, newId);
+            id = invalids.Aggregate(id, (current, c) => current.Replace(c, '_'));
+            LandformManager.Rename(Landform, id);
         }
 
-        GUI.enabled = true;
-        if (GUI.changed) TerrainCanvas.OnNodeChange(this);
+        LunarGUI.PopEnabled();
     }
 
     public override void DrawNode()

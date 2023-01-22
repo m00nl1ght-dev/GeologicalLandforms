@@ -144,7 +144,6 @@
         <Compile Include="Patches\Patch_RimWorld_WildPlantSpawner.cs" />
         <Compile Include="Patches\Patch_RimWorld_World.cs" />
         <Compile Include="Utility\ExtensionUtils.cs" />
-        <Compile Include="Utility\GuiUtils.cs" />
         <Compile Include="IWorldTileInfo.cs" />
         <Compile Include="Topology.cs" />
         <Compile Include="GeologicalLandformsAPI.cs" />

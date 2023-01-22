@@ -31,6 +31,7 @@
   <GeologicalLandforms.Settings.Landform.CaveChance>Cave chance</GeologicalLandforms.Settings.Landform.CaveChance>
   <GeologicalLandforms.Settings.Landform.AllowCaves>Allow caves</GeologicalLandforms.Settings.Landform.AllowCaves>
   <GeologicalLandforms.Settings.Landform.RequireCaves>Require caves</GeologicalLandforms.Settings.Landform.RequireCaves>
+  <GeologicalLandforms.Settings.Landform.Priority>Priority</GeologicalLandforms.Settings.Landform.Priority>
 
   <GeologicalLandforms.Settings.Landform.Topology.Any>Any</GeologicalLandforms.Settings.Landform.Topology.Any>
   <GeologicalLandforms.Settings.Landform.Topology.Inland>Inland</GeologicalLandforms.Settings.Landform.Topology.Inland>
