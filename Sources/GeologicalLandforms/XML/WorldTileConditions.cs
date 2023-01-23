@@ -2,17 +2,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
+using RimWorld.Planet;
 using Verse;
 
 namespace GeologicalLandforms;
 
 public class WorldTileConditions
 {
-    public delegate bool Condition(WorldTileInfo tile);
+    public delegate bool Condition(IWorldTileInfo tile);
     
     private List<Condition> _conditions = new();
 
-    public bool Evaluate(WorldTileInfo tile)
+    public bool Evaluate(IWorldTileInfo tile)
     {
         // ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
         foreach (var condition in _conditions) if (!condition(tile)) return false;
@@ -46,6 +47,10 @@ public class WorldTileConditions
             "swampiness" => Swampiness(FloatRange.FromString(childNode.InnerText)),
             "borderingBiomes" => BorderingBiomes(FloatRange.FromString(childNode.InnerText)),
             "river" => River(FloatRange.FromString(childNode.InnerText)),
+            "road" => Road(FloatRange.FromString(childNode.InnerText)),
+            "settlement" => Settlement(bool.Parse(childNode.InnerText)),
+            "questSite" => QuestSite(bool.Parse(childNode.InnerText)),
+            "expectedMapSize" => ExpectedMapSize(FloatRange.FromString(childNode.InnerText)),
             _ => throw new Exception("unknown requirement type: " + childNode.Name)
         };
     }
@@ -88,4 +93,16 @@ public class WorldTileConditions
     
     public static Condition River(FloatRange range) =>
         info => range.Includes(info.MainRiver?.widthOnWorld ?? 0f);
+    
+    public static Condition Road(FloatRange range) =>
+        info => range.Includes(1f - (info.MainRoad?.movementCostMultiplier ?? 1f));
+    
+    public static Condition Settlement(bool expected) =>
+        info => info.WorldObject is Settlement { Faction.IsPlayer: false } == expected;
+    
+    public static Condition QuestSite(bool expected) =>
+        info => info.WorldObject is Site { Faction.IsPlayer: false } == expected;
+
+    public static Condition ExpectedMapSize(FloatRange range) 
+        => info => range.Includes((info.WorldObject is Site site ? site.PreferredMapSize : Find.World.info.initialMapSize).MinXZ());
 }

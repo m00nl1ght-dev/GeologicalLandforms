@@ -57,6 +57,8 @@ public static class ExtensionUtils
         _biomeGridCache = null;
     }
     
+    public static int MinXZ(this IntVec3 vec) => Math.Min(vec.x, vec.z);
+    
     public static T Get<T>(this T[,] grid, IntVec3 c) => grid[c.x, c.z];
 
     public static void Set<T>(this T[,] grid, IntVec3 c, T value) => grid[c.x, c.z] = value;

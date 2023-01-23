@@ -1,10 +1,11 @@
 using System;
+using System.Collections.Generic;
 using LunarFramework.GUI;
 using NodeEditorFramework;
-using RimWorld.Planet;
 using UnityEngine;
 using Verse;
 using static GeologicalLandforms.Topology;
+using static GeologicalLandforms.WorldTileConditions;
 
 namespace GeologicalLandforms.GraphEditor;
 
@@ -22,48 +23,67 @@ public class NodeUIWorldTileReq : NodeUIBase
     public float Commonness = 1f;
     public float CaveChance;
 
-    public FloatRange HillinessRequirement = new(1f, 5f);
-    public FloatRange RoadRequirement = new(0f, 1f);
-    public FloatRange RiverRequirement = new(0f, 1f);
-    public FloatRange ElevationRequirement = new(0f, 5000f);
-    public FloatRange AvgTemperatureRequirement = new(-100f, 100f);
-    public FloatRange RainfallRequirement = new(0f, 5000f);
-    public FloatRange SwampinessRequirement = new(0f, 1f);
-    public FloatRange MapSizeRequirement = new(250f, 1000f);
-    public FloatRange BiomeTransitionsRequirement = new(0f, 6f);
+    public static readonly FloatRange DefaultHillinessRequirement = new(1f, 5f);
+    public static readonly FloatRange DefaultRoadRequirement = new(0f, 1f);
+    public static readonly FloatRange DefaultRiverRequirement = new(0f, 1f);
+    public static readonly FloatRange DefaultElevationRequirement = new(0f, 5000f);
+    public static readonly FloatRange DefaultAvgTemperatureRequirement = new(-100f, 100f);
+    public static readonly FloatRange DefaultRainfallRequirement = new(0f, 5000f);
+    public static readonly FloatRange DefaultSwampinessRequirement = new(0f, 1f);
+    public static readonly FloatRange DefaultMapSizeRequirement = new(250f, 1000f);
+    public static readonly FloatRange DefaultBiomeTransitionsRequirement = new(0f, 6f);
+
+    public FloatRange HillinessRequirement = DefaultHillinessRequirement;
+    public FloatRange RoadRequirement = DefaultRoadRequirement;
+    public FloatRange RiverRequirement = DefaultRiverRequirement;
+    public FloatRange ElevationRequirement = DefaultElevationRequirement;
+    public FloatRange AvgTemperatureRequirement = DefaultAvgTemperatureRequirement;
+    public FloatRange RainfallRequirement = DefaultRainfallRequirement;
+    public FloatRange SwampinessRequirement = DefaultSwampinessRequirement;
+    public FloatRange MapSizeRequirement = DefaultMapSizeRequirement;
+    public FloatRange BiomeTransitionsRequirement = DefaultBiomeTransitionsRequirement;
     
     public bool AllowSettlements;
     public bool AllowSites;
     
-    // private List<Predicate<WorldTileInfo>> _requirements = new(); // TODO
+    private List<Condition> _conditions;
+
+    private List<Condition> BuildRequirements()
+    {
+        var conditions = new List<Condition>();
+
+        if (HillinessRequirement != DefaultHillinessRequirement) conditions.Add(Hilliness(HillinessRequirement));
+        if (ElevationRequirement != DefaultElevationRequirement) conditions.Add(Elevation(ElevationRequirement));
+        if (AvgTemperatureRequirement != DefaultAvgTemperatureRequirement) conditions.Add(Temperature(AvgTemperatureRequirement));
+        if (RainfallRequirement != DefaultRainfallRequirement) conditions.Add(Rainfall(RainfallRequirement));
+        if (SwampinessRequirement != DefaultSwampinessRequirement) conditions.Add(Swampiness(SwampinessRequirement));
+        if (BiomeTransitionsRequirement != DefaultBiomeTransitionsRequirement) conditions.Add(BorderingBiomes(BiomeTransitionsRequirement));
+        if (MapSizeRequirement != DefaultMapSizeRequirement) conditions.Add(ExpectedMapSize(MapSizeRequirement));
+        
+        if (RiverRequirement.max <= 0f) conditions.Add(River(RiverRequirement));
+        if (RoadRequirement.max <= 0f) conditions.Add(Road(RoadRequirement));
+
+        if (RiverRequirement.min > 0f && RoadRequirement.min > 0f) 
+            conditions.Add(AnyOf(new List<Condition> {River(RiverRequirement), Road(RoadRequirement)}));
+        else if (RiverRequirement.min > 0f) 
+            conditions.Add(River(RiverRequirement));
+        else if (RoadRequirement.min > 0f) 
+            conditions.Add(Road(RoadRequirement));
+        
+        if (!AllowSettlements) conditions.Add(Settlement(false));
+        if (!AllowSites) conditions.Add(QuestSite(false));
+        
+        return conditions;
+    }
     
     public bool CheckRequirements(IWorldTileInfo worldTile, bool lenientTopology)
     {
-        if (!Topology.IsCompatible(worldTile.Topology, lenientTopology)) return false;
-        if (!HillinessRequirement.Includes((float) worldTile.Hilliness)) return false;
-        if (!ElevationRequirement.Includes(worldTile.Elevation)) return false;
-        if (!AvgTemperatureRequirement.Includes(worldTile.Temperature)) return false;
-        if (!RainfallRequirement.Includes(worldTile.Rainfall) 
-            && !(RainfallRequirement.max == 5000 && worldTile.Rainfall > 5000f)) return false;
-        if (!SwampinessRequirement.Includes(worldTile.Swampiness)) return false;
-        if (!BiomeTransitionsRequirement.Includes(worldTile.BorderingBiomes?.Count ?? 0)) return false;
-
-        var mapParent = worldTile.WorldObject;
-        bool isPlayer = mapParent?.Faction is { IsPlayer: true };
-        if (!AllowSettlements && mapParent is Settlement && !isPlayer) return false;
-        if (!AllowSites && mapParent is Site && !isPlayer) return false;
-
-        var expectedMapSize = mapParent is Site site ? site.PreferredMapSize : Find.World.info.initialMapSize;
-        int expectedMapSizeInt = Math.Min(expectedMapSize.x, expectedMapSize.z);
-        if (!MapSizeRequirement.Includes(expectedMapSizeInt)) return false;
-
-        float riverWidth = worldTile.MainRiver?.widthOnWorld ?? 0f;
-        float mainRoadMultiplier = worldTile.MainRoad?.movementCostMultiplier ?? 1f;
-        if (RoadRequirement.max <= 0f && mainRoadMultiplier < 1f) return false;
-        if (RiverRequirement.max <= 0f && riverWidth > 0f) return false;
+        _conditions ??= BuildRequirements();
         
-        if (!RoadRequirement.Includes(1f - mainRoadMultiplier) && 
-            !RiverRequirement.Includes(riverWidth)) return false;
+        if (!Topology.IsCompatible(worldTile.Topology, lenientTopology)) return false;
+
+        // ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
+        foreach (var condition in _conditions) if (!condition(worldTile)) return false;
 
         return true;
     }
@@ -75,8 +95,6 @@ public class NodeUIWorldTileReq : NodeUIBase
         return true;
     }
 
-    // TODO evetually refactor this to use WorldTileConditions
-    
     protected override void DoWindowContents(LayoutRect layout)
     {
         LunarGUI.LabelDouble(layout, "GeologicalLandforms.Settings.Landform.Commonness".Translate(), Commonness.ToString("F2"));
@@ -146,6 +164,8 @@ public class NodeUIWorldTileReq : NodeUIBase
         layout.Abs(10f);
         
         LunarGUI.Checkbox(layout, ref AllowSites, "GeologicalLandforms.Settings.Landform.AllowSites".Translate());
+
+        if (GUI.changed) _conditions = null;
     }
 
     public override void DrawNode()
