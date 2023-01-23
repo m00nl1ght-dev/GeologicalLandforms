@@ -128,7 +128,7 @@ internal static class Patch_RimWorld_RCellFinder
     }
     
     [HarmonyPostfix]
-    [HarmonyPatch(typeof(Game), "DeinitAndRemoveMap")]
+    [HarmonyPatch(typeof(Game), "DeinitAndRemoveMap_NewTemp")]
     [HarmonyPriority(Priority.Low)]
     private static void DeinitAndRemoveMap(Map map)
     {
