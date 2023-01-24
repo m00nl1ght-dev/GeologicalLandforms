@@ -228,8 +228,7 @@ public class WorldTileInfo : IWorldTileInfo
                     borderingBiomes.Add(new BorderingBiome(nbTile.biome, rot6.Angle));
                 }
 
-                if ((int) nbTile.hilliness >= 3 && nbTile.hilliness - info.Tile.hilliness > 0) cliffTiles.Add(rot6);
-                // if ((int) nbTile.hilliness >= 3 && nbTile.hilliness > info.Tile.hilliness) cliffTiles.Add(rot6); TODO apply this fix on next major update
+                if ((int) nbTile.hilliness >= 4 && nbTile.hilliness > info.Tile.hilliness) cliffTiles.Add(rot6);
                 else nonCliffTiles.Add(rot6);
                 landTiles.Add(rot6);
             }
