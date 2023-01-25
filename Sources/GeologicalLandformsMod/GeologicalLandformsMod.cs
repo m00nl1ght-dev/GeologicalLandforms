@@ -78,13 +78,13 @@ public class GeologicalLandformsMod : Mod
     public static bool IsLandformEnabled(Landform landform)
     {
         if (!Settings.EnableExperimentalLandforms && landform.Manifest.IsExperimental) return false;
-        if (Settings.DisabledLandforms.Contains(landform.Id)) return false;
+        if (Settings.DisabledLandforms.Value.Contains(landform.Id)) return false;
         return true;
     }
     
     public static bool IsBiomeVariantEnabled(BiomeVariantDef biomeVariant)
     {
-        if (Settings.DisabledBiomeVariants.Contains(biomeVariant.defName)) return false;
+        if (Settings.DisabledBiomeVariants.Value.Contains(biomeVariant.defName)) return false;
         return true;
     }
 

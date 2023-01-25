@@ -10,121 +10,72 @@ using Verse;
 
 namespace GeologicalLandforms;
 
-public class GeologicalLandformsSettings : ModSettings
+public class GeologicalLandformsSettings : LunarModSettings
 {
-    public int MaxLandformSearchRadius = 100;
-    public float AnimalDensityFactorForSecludedAreas = 0.5f;
-
-    public bool EnableCellFinderOptimization = true;
-    public bool EnableLandformScaling = true;
-    public bool EnableExperimentalLandforms;
+    public readonly Entry<int> MaxLandformSearchRadius = MakeEntry(100);
+    public readonly Entry<float> AnimalDensityFactorForSecludedAreas = MakeEntry(0.5f);
     
-    public bool EnableGodMode;
-    public bool IgnoreWorldTileReqInGodMode;
-    public bool ShowWorldTileDebugInfo;
+    public readonly Entry<bool> EnableCellFinderOptimization = MakeEntry(true);
+    public readonly Entry<bool> EnableLandformScaling = MakeEntry(true);
+    public readonly Entry<bool> EnableExperimentalLandforms = MakeEntry(false);
+    public readonly Entry<bool> EnableGodMode = MakeEntry(false);
+    public readonly Entry<bool> IgnoreWorldTileReqInGodMode = MakeEntry(false);
+    public readonly Entry<bool> ShowWorldTileDebugInfo = MakeEntry(false);
 
-    public List<string> DisabledLandforms = new();
-    public List<string> DisabledBiomeVariants = new();
+    public readonly Entry<List<string>> DisabledLandforms = MakeEntry(new List<string>());
+    public readonly Entry<List<string>> DisabledBiomeVariants = MakeEntry(new List<string>());
+    
+    protected override string TranslationKeyPrefix => "GeologicalLandforms.Settings";
 
-    private readonly LayoutRect _layout = new(GeologicalLandformsMod.LunarAPI);
-
-    private Tab _tab = Tab.General;
-    private List<TabRecord> _tabs;
-    private Vector2 _scrollPos;
-    private Rect _viewRect;
-
-    public void DoSettingsWindowContents(Rect rect)
+    public GeologicalLandformsSettings() : base(GeologicalLandformsMod.LunarAPI)
     {
-        if (!GeologicalLandformsMod.LunarAPI.IsInitialized())
-        {
-            _layout.BeginRoot(rect);
-            LunarGUI.Label(_layout, "An error occured whie loading this mod. Check the log file for more information.");
-            _layout.End();
-            return;
-        }
-
-        if (_tabs == null)
-        {
-            _tabs = new() { new("GeologicalLandforms.Settings.Tab.General".Translate(), () => _tab = Tab.General, () => _tab == Tab.General) };
-
-            if (LandformManager.Landforms.Count > 0)
-                _tabs.Add(new("GeologicalLandforms.Settings.Tab.Landforms".Translate(), () => _tab = Tab.Landforms, () => _tab == Tab.Landforms));
-
-            if (DefDatabase<BiomeVariantDef>.DefCount > 0)
-                _tabs.Add(new("GeologicalLandforms.Settings.Tab.BiomeVariants".Translate(), () => _tab = Tab.BiomeVariants, () => _tab == Tab.BiomeVariants));
-            
-            if (Prefs.DevMode) 
-                _tabs.Add(new("GeologicalLandforms.Settings.Tab.Debug".Translate(), () => _tab = Tab.Debug, () => _tab == Tab.Debug));
-        }
-
-        rect.yMin += 35;
-        rect.yMax -= 12;
-
-        Widgets.DrawMenuSection(rect);
-        TabDrawer.DrawTabs(rect, _tabs);
+        MakeTab("Tab.General", DoGeneralSettingsTab);
         
-        rect = rect.ContractedBy(18f);
+        if (LandformManager.Landforms.Count > 0) 
+            MakeTab("Tab.Landforms", DoLandformsSettingsTab);
         
-        switch (_tab)
-        {
-            case Tab.General: DoGeneralSettingsTab(rect); break;
-            case Tab.Landforms: DoLandformsSettingsTab(rect); break;
-            case Tab.BiomeVariants: DoBiomeVariantsSettingsTab(rect); break;
-            case Tab.Debug: DoDebugSettingsTab(rect); break;
-        }
+        if (DefDatabase<BiomeVariantDef>.DefCount > 0) 
+            MakeTab("Tab.BiomeVariants", DoBiomeVariantsSettingsTab);
+        
+        if (Prefs.DevMode) 
+            MakeTab("Tab.Debug", DoDebugSettingsTab);
     }
     
-    private void DoGeneralSettingsTab(Rect rect)
+    private void DoGeneralSettingsTab(LayoutRect layout)
     {
-        LunarGUI.BeginScrollView(rect, ref _viewRect, ref _scrollPos);
-        
-        _layout.BeginRoot(_viewRect, new LayoutParams { Spacing = 10 });
-
-        if (LunarGUI.Button(_layout, "GeologicalLandforms.Settings.OpenEditor".Translate()))
+        if (LunarGUI.Button(layout, Label("OpenEditor")))
         {
             Find.WindowStack.Add(new LandformGraphEditor());
         }
 
-        if (LunarGUI.Button(_layout, "GeologicalLandforms.Settings.OpenDataDir".Translate()))
+        if (LunarGUI.Button(layout, Label("OpenDataDir")))
         {
             Application.OpenURL(LandformManager.CustomLandformsDir(LandformManager.CurrentVersion));
         }
 
-        if (LunarGUI.Button(_layout, "GeologicalLandforms.Settings.ResetAll".Translate()))
+        if (LunarGUI.Button(layout, Label("ResetAll")))
         {
-            Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation("GeologicalLandforms.Settings.ConfirmResetAll".Translate(), ResetAll));
+            Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(Label("ConfirmResetAll"), ResetAll));
         }
 
-        _layout.Abs(10f);
+        layout.Abs(10f);
         
-        LunarGUI.LabelDouble(_layout, "GeologicalLandforms.Settings.MaxLandformSearchRadius".Translate(), MaxLandformSearchRadius.ToString("F0"));
-        LunarGUI.Slider(_layout, ref MaxLandformSearchRadius, 10, 500);
+        LunarGUI.LabelDouble(layout, Label("MaxLandformSearchRadius"), MaxLandformSearchRadius.Value.ToString("F0"));
+        LunarGUI.Slider(layout, ref MaxLandformSearchRadius.Value, 10, 500);
         
-        LunarGUI.LabelDouble(_layout, "GeologicalLandforms.Settings.AnimalDensityFactorForSecludedAreas".Translate(), AnimalDensityFactorForSecludedAreas.ToString("F2"));
-        LunarGUI.Slider(_layout, ref AnimalDensityFactorForSecludedAreas, 0.25f, 0.75f);
+        LunarGUI.LabelDouble(layout, Label("AnimalDensityFactorForSecludedAreas"), AnimalDensityFactorForSecludedAreas.Value.ToString("F2"));
+        LunarGUI.Slider(layout, ref AnimalDensityFactorForSecludedAreas.Value, 0.25f, 0.75f);
         
-        _layout.Abs(10f);
-        
-        LunarGUI.Checkbox(_layout, ref EnableExperimentalLandforms, "GeologicalLandforms.Settings.EnableExperimentalLandforms".Translate());
-        LunarGUI.Checkbox(_layout, ref EnableGodMode, "GeologicalLandforms.Settings.EnableGodMode".Translate());
-        LunarGUI.Checkbox(_layout, ref EnableCellFinderOptimization, "GeologicalLandforms.Settings.EnableCellFinderOptimization".Translate());
-        LunarGUI.Checkbox(_layout, ref EnableLandformScaling, "GeologicalLandforms.Settings.EnableLandformScaling".Translate());
+        layout.Abs(10f);
 
-        _viewRect.height = _layout.OccupiedSpace;
-        
-        _layout.End();
-        
-        LunarGUI.EndScrollView();
+        LunarGUI.Checkbox(layout, ref EnableExperimentalLandforms.Value, Label("EnableExperimentalLandforms"));
+        LunarGUI.Checkbox(layout, ref EnableGodMode.Value, Label("EnableGodMode"));
+        LunarGUI.Checkbox(layout, ref EnableCellFinderOptimization.Value, Label("EnableCellFinderOptimization"));
+        LunarGUI.Checkbox(layout, ref EnableLandformScaling.Value, Label("EnableLandformScaling"));
     }
     
-    private void DoLandformsSettingsTab(Rect rect)
+    private void DoLandformsSettingsTab(LayoutRect layout)
     {
-        LunarGUI.BeginScrollView(rect, ref _viewRect, ref _scrollPos);
-        
-        _layout.BeginRoot(_viewRect, new LayoutParams { Spacing = 10 });
-
-        DisabledLandforms ??= new();
-
         foreach (var landform in LandformManager.Landforms.Values)
         {
             if (landform.Manifest.IsExperimental && !EnableExperimentalLandforms) continue;
@@ -132,51 +83,33 @@ public class GeologicalLandformsSettings : ModSettings
             
             LunarGUI.PushChanged();
             
-            var enabled = !DisabledLandforms.Contains(landform.Id);
-            LunarGUI.Checkbox(_layout, ref enabled, LabelForLandform(landform));
+            var enabled = !DisabledLandforms.Value.Contains(landform.Id);
+            LunarGUI.Checkbox(layout, ref enabled, LabelForLandform(landform));
             
             if (LunarGUI.PopChanged())
             {
-                if (enabled) DisabledLandforms.Remove(landform.Id);
-                else DisabledLandforms.AddDistinct(landform.Id);
+                if (enabled) DisabledLandforms.Value.Remove(landform.Id);
+                else DisabledLandforms.Value.AddDistinct(landform.Id);
                 ApplyLandformConfigEffects();
             }
         }
-
-        _viewRect.height = _layout.OccupiedSpace;
-        
-        _layout.End();
-        
-        LunarGUI.EndScrollView();
     }
 
-    private void DoBiomeVariantsSettingsTab(Rect rect)
+    private void DoBiomeVariantsSettingsTab(LayoutRect layout)
     {
-        LunarGUI.BeginScrollView(rect, ref _viewRect, ref _scrollPos);
-        
-        _layout.BeginRoot(_viewRect, new LayoutParams { Spacing = 10 });
-        
-        DisabledBiomeVariants ??= new();
-
         foreach (var biomeVariant in DefDatabase<BiomeVariantDef>.AllDefsListForReading)
         {
             LunarGUI.PushChanged();
             
-            var enabled = !DisabledBiomeVariants.Contains(biomeVariant.defName);
-            LunarGUI.Checkbox(_layout, ref enabled, LabelForBiomeVariant(biomeVariant));
+            var enabled = !DisabledBiomeVariants.Value.Contains(biomeVariant.defName);
+            LunarGUI.Checkbox(layout, ref enabled, LabelForBiomeVariant(biomeVariant));
             
             if (LunarGUI.PopChanged())
             {
-                if (enabled) DisabledBiomeVariants.Remove(biomeVariant.defName);
-                else DisabledBiomeVariants.AddDistinct(biomeVariant.defName);
+                if (enabled) DisabledBiomeVariants.Value.Remove(biomeVariant.defName);
+                else DisabledBiomeVariants.Value.AddDistinct(biomeVariant.defName);
             }
         }
-
-        _viewRect.height = _layout.OccupiedSpace;
-        
-        _layout.End();
-        
-        LunarGUI.EndScrollView();
     }
 
     private static readonly List<string> LabelBuffer = new();
@@ -222,34 +155,24 @@ public class GeologicalLandformsSettings : ModSettings
             .Any(lf => !lf.IsLayer && lf.WorldTileReq is { Topology: Topology.CliffOneSide, Commonness: >= 1f });
     }
     
-    private void DoDebugSettingsTab(Rect rect)
+    private void DoDebugSettingsTab(LayoutRect layout)
     {
-        LunarGUI.BeginScrollView(rect, ref _viewRect, ref _scrollPos);
-        
-        _layout.BeginRoot(_viewRect, new LayoutParams { Spacing = 10 });
-
-        LunarGUI.Checkbox(_layout, ref ShowWorldTileDebugInfo, "GeologicalLandforms.Settings.ShowWorldTileDebugInfo".Translate());
+        LunarGUI.Checkbox(layout, ref ShowWorldTileDebugInfo.Value, Label("ShowWorldTileDebugInfo"));
             
         if (EnableGodMode)
         {
-            LunarGUI.Checkbox(_layout, ref IgnoreWorldTileReqInGodMode, "GeologicalLandforms.Settings.IgnoreWorldTileReqInGodMode".Translate());
+            LunarGUI.Checkbox(layout, ref IgnoreWorldTileReqInGodMode.Value, Label("IgnoreWorldTileReqInGodMode"));
         }
         
-        _layout.Abs(10f);
+        layout.Abs(10f);
         
-        if (Find.CurrentMap != null && LunarGUI.Button(_layout, "[DEV] Replace all stone on current map"))
+        if (Find.CurrentMap != null && LunarGUI.Button(layout, "[DEV] Replace all stone on current map"))
         {
             var options = DefDatabase<ThingDef>.AllDefsListForReading
                 .Where(d => d.IsNonResourceNaturalRock)
                 .Select(e => new FloatMenuOption(e.defName, () => ReplaceNaturalRock(e))).ToList();
             Find.WindowStack.Add(new FloatMenu(options));
         }
-        
-        _viewRect.height = _layout.OccupiedSpace;
-        
-        _layout.End();
-        
-        LunarGUI.EndScrollView();
     }
 
     private void ReplaceNaturalRock(ThingDef thingDef)
@@ -273,39 +196,9 @@ public class GeologicalLandformsSettings : ModSettings
         map.regionAndRoomUpdater.Enabled = true;
     }
 
-    public override void ExposeData()
-    {
-        Scribe_Values.Look(ref MaxLandformSearchRadius, "MaxLandformSearchRadius", 100);
-        Scribe_Values.Look(ref AnimalDensityFactorForSecludedAreas, "AnimalDensityFactorForSecludedAreas", 0.5f);
-        Scribe_Values.Look(ref EnableCellFinderOptimization, "EnableCellFinderOptimization", true);
-        Scribe_Values.Look(ref EnableLandformScaling, "EnableLandformScaling", true);
-        Scribe_Values.Look(ref EnableExperimentalLandforms, "EnableExperimentalLandforms");
-        Scribe_Values.Look(ref ShowWorldTileDebugInfo, "ShowWorldTileDebugInfo");
-        Scribe_Values.Look(ref EnableGodMode, "EnableGodMode");
-        Scribe_Values.Look(ref IgnoreWorldTileReqInGodMode, "IgnoreWorldTileReqInGodMode");
-        Scribe_Collections.Look(ref DisabledLandforms, "DisabledLandforms", LookMode.Value);
-        Scribe_Collections.Look(ref DisabledBiomeVariants, "DisabledBiomeVariants", LookMode.Value);
-        
-        base.ExposeData();
-    }
-    
-    public void ResetAll()
+    public override void ResetAll()
     {
         LandformManager.ResetAll();
-        ShowWorldTileDebugInfo = false;
-        EnableCellFinderOptimization = true;
-        EnableLandformScaling = true;
-        EnableExperimentalLandforms = false;
-        EnableGodMode = false;
-        IgnoreWorldTileReqInGodMode = false;
-        MaxLandformSearchRadius = 100;
-        AnimalDensityFactorForSecludedAreas = 0.5f;
-        DisabledLandforms = new();
-        DisabledBiomeVariants = new();
-    }
-    
-    public enum Tab
-    {
-        General, Landforms, BiomeVariants, Debug
+        base.ResetAll();
     }
 }
