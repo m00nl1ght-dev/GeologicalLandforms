@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Xml;
 using RimWorld;
 using RimWorld.Planet;
-using UnityEngine;
 using Verse;
 
 namespace GeologicalLandforms;
@@ -30,26 +30,6 @@ public static class ExtensionUtils
         _biomeGridCache = map.GetComponent<BiomeGrid>();
         return _biomeGridCache;
     }
-    
-    private static BiomeProperties[] _biomeProperties;
-    
-    public static BiomeProperties Properties(this BiomeDef biomeDef)
-    {
-        try
-        {
-            return GeologicalLandformsAPI.ApplyBiomePropertiesHook(biomeDef, _biomeProperties[biomeDef.index]);
-        }
-        catch (Exception e)
-        {
-            Debug.LogException(e);
-            return new BiomeProperties();
-        }
-    }
-
-    public static void Init()
-    {
-        _biomeProperties = BiomeProperties.GetAll();
-    }
 
     public static void ClearCaches()
     {
@@ -57,11 +37,17 @@ public static class ExtensionUtils
         _biomeGridCache = null;
     }
     
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int MinXZ(this IntVec3 vec) => Math.Min(vec.x, vec.z);
     
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T Get<T>(this T[,] grid, IntVec3 c) => grid[c.x, c.z];
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Set<T>(this T[,] grid, IntVec3 c, T value) => grid[c.x, c.z] = value;
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static BiomeProperties Properties(this BiomeDef biomeDef) => BiomeProperties.Get(biomeDef);
 
     public static IEnumerable<string> AsStringList(this XmlNode node) =>
         node.HasChildNodes ? node.ChildNodes.Cast<XmlNode>().Select(n => n.InnerText) : new []{ node.InnerText };

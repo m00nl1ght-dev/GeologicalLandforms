@@ -76,11 +76,11 @@ public class NodeUIWorldTileReq : NodeUIBase
         return conditions;
     }
     
-    public bool CheckRequirements(IWorldTileInfo worldTile, bool lenientTopology)
+    public bool CheckRequirements(IWorldTileInfo worldTile, bool lenient)
     {
         _conditions ??= BuildRequirements();
         
-        if (!Topology.IsCompatible(worldTile.Topology, lenientTopology)) return false;
+        if (!Topology.IsCompatible(worldTile.Topology, lenient)) return false;
 
         // ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
         foreach (var condition in _conditions) if (!condition(worldTile)) return false;
@@ -100,11 +100,12 @@ public class NodeUIWorldTileReq : NodeUIBase
         LunarGUI.LabelDouble(layout, "GeologicalLandforms.Settings.Landform.Commonness".Translate(), Commonness.ToString("F2"));
         LunarGUI.Slider(layout, ref Commonness, 0f, 1f);
 
-        LunarGUI.PushEnabled(!Landform.IsLayer);
+        layout.PushEnabled(!Landform.IsLayer);
+        
         LunarGUI.LabelDouble(layout, "GeologicalLandforms.Settings.Landform.CaveChance".Translate(), CaveChance.ToString("F2"));
         LunarGUI.Slider(layout, ref CaveChance, 0f, 1f);
-        LunarGUI.PopEnabled();
         
+        layout.PopEnabled();
         layout.Abs(10f);
 
         layout.BeginAbs(28f);

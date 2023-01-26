@@ -3,6 +3,7 @@
 
   <GeologicalLandforms.Settings.Tab.General>General</GeologicalLandforms.Settings.Tab.General>
   <GeologicalLandforms.Settings.Tab.Landforms>Landforms</GeologicalLandforms.Settings.Tab.Landforms>
+  <GeologicalLandforms.Settings.Tab.BiomeConfig>Biome Config</GeologicalLandforms.Settings.Tab.BiomeConfig>
   <GeologicalLandforms.Settings.Tab.BiomeVariants>Biome Variants</GeologicalLandforms.Settings.Tab.BiomeVariants>
   <GeologicalLandforms.Settings.Tab.Debug>Debug</GeologicalLandforms.Settings.Tab.Debug>
   <GeologicalLandforms.Settings.MaxLandformSearchRadius>Max landform search radius on world map</GeologicalLandforms.Settings.MaxLandformSearchRadius>
@@ -23,6 +24,8 @@
   <GeologicalLandforms.Settings.Landforms.ZeroCommonness>misconfigured with 0 commonness</GeologicalLandforms.Settings.Landforms.ZeroCommonness>
   <GeologicalLandforms.Settings.Landforms.ReplacesVanillaCliff>replaces vanilla cliff</GeologicalLandforms.Settings.Landforms.ReplacesVanillaCliff>
   <GeologicalLandforms.Settings.Landforms.ReplacesVanillaCoast>replaces vanilla coast</GeologicalLandforms.Settings.Landforms.ReplacesVanillaCoast>
+  <GeologicalLandforms.Settings.BiomeConfig.Header>Toggle landforms (LF) and transitions (BT) in each biome:</GeologicalLandforms.Settings.BiomeConfig.Header>
+  <GeologicalLandforms.Settings.BiomeConfig.ExcludedByAuthor>preconfigured by author</GeologicalLandforms.Settings.BiomeConfig.ExcludedByAuthor>
   
   <GeologicalLandforms.WorldMap.Topology>Topology</GeologicalLandforms.WorldMap.Topology>
   <GeologicalLandforms.WorldMap.TopologyDirection>Topology direction</GeologicalLandforms.WorldMap.TopologyDirection>
@@ -35,8 +38,8 @@
   <GeologicalLandforms.WorldMap.FindLandform>Search for landform nearby</GeologicalLandforms.WorldMap.FindLandform>
   <GeologicalLandforms.WorldMap.FindLandformAny>Any</GeologicalLandforms.WorldMap.FindLandformAny>
   <GeologicalLandforms.WorldMap.FindLandformAnyPOI>Any (POI)</GeologicalLandforms.WorldMap.FindLandformAnyPOI>
-  <GeologicalLandforms.WorldMap.FindLandformSuccess>Found landform, distance from starting point: </GeologicalLandforms.WorldMap.FindLandformSuccess>
-  <GeologicalLandforms.WorldMap.FindLandformFail>Could not find the landform within max allowed distance (can be changed in mod settings). Configured max distance: </GeologicalLandforms.WorldMap.FindLandformFail>
+  <GeologicalLandforms.WorldMap.FindLandformSuccess>Found {0} landform {1} tiles away</GeologicalLandforms.WorldMap.FindLandformSuccess>
+  <GeologicalLandforms.WorldMap.FindLandformFail>Could not find any {0} landform within {1} tiles (max distance can be changed in mod settings)</GeologicalLandforms.WorldMap.FindLandformFail>
   <GeologicalLandforms.WorldMap.SetLandform>Set landform override (god mode)</GeologicalLandforms.WorldMap.SetLandform>
   <GeologicalLandforms.WorldMap.SetLandformAuto>Auto</GeologicalLandforms.WorldMap.SetLandformAuto>
   

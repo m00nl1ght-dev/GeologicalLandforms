@@ -34,8 +34,8 @@
   <GeologicalLandforms.WorldMap.MainRoadAngle>도로 각도</GeologicalLandforms.WorldMap.MainRoadAngle>
   <GeologicalLandforms.WorldMap.SelectLandform>지형 선택</GeologicalLandforms.WorldMap.SelectLandform>
   <GeologicalLandforms.WorldMap.FindLandform>주변의 특정 지형 검색을 합니다</GeologicalLandforms.WorldMap.FindLandform>
-  <GeologicalLandforms.WorldMap.FindLandformSuccess>발견된 지형, 시작점으로부터의 거리: </GeologicalLandforms.WorldMap.FindLandformSuccess>
-  <GeologicalLandforms.WorldMap.FindLandformFail>최대 허용 거리 내에서 지형을 찾을 수 없습니다(모드 설정에서 변경할 수 있음). 구성된 최대 거리: </GeologicalLandforms.WorldMap.FindLandformFail>
+  <GeologicalLandforms.WorldMap.FindLandformSuccess>{0}: 발견된 지형, 시작점으로부터의 거리: {1}</GeologicalLandforms.WorldMap.FindLandformSuccess>
+  <GeologicalLandforms.WorldMap.FindLandformFail>{0}: 최대 허용 거리 내에서 지형을 찾을 수 없습니다(모드 설정에서 변경할 수 있음). 구성된 최대 거리: {1}</GeologicalLandforms.WorldMap.FindLandformFail>
   <GeologicalLandforms.WorldMap.SetLandform>Set landform override (god mode)</GeologicalLandforms.WorldMap.SetLandform>
   <GeologicalLandforms.WorldMap.SetLandformAuto>자동</GeologicalLandforms.WorldMap.SetLandformAuto>
   <GeologicalLandforms.Settings.Landform.Id>Id</GeologicalLandforms.Settings.Landform.Id>

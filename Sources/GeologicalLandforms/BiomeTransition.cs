@@ -36,7 +36,7 @@ public static class BiomeTransition
 
     public static bool IsTransition(int tile, int nTile, BiomeDef biome, BiomeDef nBiome, int nbId = -1)
     {
-        if (biome == nBiome || !CanBePartOfTransition(nBiome)) return false;
+        if (biome == nBiome || !CanBePartOfTransition(biome) || !CanBePartOfTransition(nBiome)) return false;
 
         var disallowedBiomes = biome.Properties().disallowedBiomeTransitions;
         if (disallowedBiomes != null && disallowedBiomes.Contains(nBiome)) return false;
@@ -70,7 +70,7 @@ public static class BiomeTransition
 
     public static bool CanBePartOfTransition(BiomeDef biome)
     {
-        return biome.Properties().allowBiomeTransitions;
+        return biome.Properties().AllowBiomeTransitions;
     }
     
     public static void PostProcessBiomeGrid(BiomeGrid biomeGrid, WorldTileInfo tile, IntVec2 mapSize)

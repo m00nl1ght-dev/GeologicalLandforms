@@ -40,6 +40,7 @@ public class GeologicalLandformsMod : Mod
         GeologicalLandformsAPI.PutAnimalDensityFactorFunction(AnimalDensityFactorForMap);
         GeologicalLandformsAPI.PutCellFinderOptimizationFilter(_ => Settings.EnableCellFinderOptimization);
         
+        Settings.ApplyBiomeConfigEffects();
         Settings.ApplyLandformConfigEffects();
 
         var modContentPack = LunarAPI.Component.LatestVersionProvidedBy.ModContentPack;
@@ -69,7 +70,7 @@ public class GeologicalLandformsMod : Mod
     private static float AnimalDensityFactorForMap(BiomeGrid biomeGrid)
     {
         var primaryBiome = biomeGrid?.Primary.Biome;
-        if (primaryBiome == null || !primaryBiome.Properties().allowLandforms) return 1f;
+        if (primaryBiome == null || !primaryBiome.Properties().AllowLandforms) return 1f;
         var openGroundFraction = biomeGrid.OpenGroundFraction;
         var scaleFactor = 2f - Settings.AnimalDensityFactorForSecludedAreas * 2f;
         return 1f + (openGroundFraction - 1f) * scaleFactor;

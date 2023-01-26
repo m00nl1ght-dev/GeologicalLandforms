@@ -18,13 +18,13 @@ public abstract class NodeUIBase : NodeBase
     {
         var inner = GUILayoutUtility.GetRect(rect.width, rect.height);
         
-        LunarGUI.PushChanged();
+        _layout.PushChanged();
         
         _layout.BeginRoot(inner, new LayoutParams { Margin = new (Margin) });
         DoWindowContents(_layout);
         _layout.End();
         
-        if (LunarGUI.PopChanged()) TerrainCanvas.OnNodeChange(this);
+        if (_layout.PopChanged()) TerrainCanvas.OnNodeChange(this);
     }
 
     protected abstract void DoWindowContents(LayoutRect layout);

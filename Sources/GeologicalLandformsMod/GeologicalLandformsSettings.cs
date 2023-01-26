@@ -5,6 +5,7 @@ using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using LunarFramework.GUI;
 using LunarFramework.Utility;
+using RimWorld;
 using UnityEngine;
 using Verse;
 
@@ -25,20 +26,18 @@ public class GeologicalLandformsSettings : LunarModSettings
     public readonly Entry<List<string>> DisabledLandforms = MakeEntry(new List<string>());
     public readonly Entry<List<string>> DisabledBiomeVariants = MakeEntry(new List<string>());
     
+    public readonly Entry<List<string>> BiomesExcludedFromLandforms = MakeEntry(new List<string>());
+    public readonly Entry<List<string>> BiomesExcludedFromTransitions = MakeEntry(new List<string>());
+    
     protected override string TranslationKeyPrefix => "GeologicalLandforms.Settings";
 
     public GeologicalLandformsSettings() : base(GeologicalLandformsMod.LunarAPI)
     {
         MakeTab("Tab.General", DoGeneralSettingsTab);
-        
-        if (LandformManager.Landforms.Count > 0) 
-            MakeTab("Tab.Landforms", DoLandformsSettingsTab);
-        
-        if (DefDatabase<BiomeVariantDef>.DefCount > 0) 
-            MakeTab("Tab.BiomeVariants", DoBiomeVariantsSettingsTab);
-        
-        if (Prefs.DevMode) 
-            MakeTab("Tab.Debug", DoDebugSettingsTab);
+        MakeTab("Tab.Landforms", DoLandformsSettingsTab, () => LandformManager.Landforms.Count > 0);
+        MakeTab("Tab.BiomeConfig", DoBiomeConfigSettingsTab, () => LandformManager.Landforms.Count > 0);
+        MakeTab("Tab.BiomeVariants", DoBiomeVariantsSettingsTab, () => DefDatabase<BiomeVariantDef>.DefCount > 0);
+        MakeTab("Tab.Debug", DoDebugSettingsTab, () => Prefs.DevMode);
     }
     
     private void DoGeneralSettingsTab(LayoutRect layout)
@@ -81,16 +80,48 @@ public class GeologicalLandformsSettings : LunarModSettings
             if (landform.Manifest.IsExperimental && !EnableExperimentalLandforms) continue;
             if (landform.WorldTileReq == null) continue;
             
-            LunarGUI.PushChanged();
+            layout.PushChanged();
             
-            var enabled = !DisabledLandforms.Value.Contains(landform.Id);
-            LunarGUI.Checkbox(layout, ref enabled, LabelForLandform(landform));
+            LunarGUI.ToggleTableRow(layout, landform.Id, true, LabelForLandform(landform), DisabledLandforms);
             
-            if (LunarGUI.PopChanged())
+            if (layout.PopChanged())
             {
-                if (enabled) DisabledLandforms.Value.Remove(landform.Id);
-                else DisabledLandforms.Value.AddDistinct(landform.Id);
                 ApplyLandformConfigEffects();
+            }
+        }
+    }
+    
+    private void DoBiomeConfigSettingsTab(LayoutRect layout)
+    {
+        layout.BeginAbs(Text.LineHeight, new LayoutParams { Horizontal = true, Reversed = true });
+        LunarGUI.Label(layout.Abs(20f), "BT"); 
+        layout.Abs(8f);
+        LunarGUI.Label(layout.Abs(20f), "LF");
+        layout.Abs(8f);
+        LunarGUI.Label(layout.Abs(-1), Label("BiomeConfig.Header"));
+        layout.End();
+
+        LunarGUI.SeparatorLine(layout);
+
+        foreach (var biome in DefDatabase<BiomeDef>.AllDefsListForReading)
+        {
+            var properties = biome.Properties();
+            var preconfigured = !properties.allowLandforms || !properties.allowBiomeTransitions;
+            var label = LabelForBiomeConfig(biome, preconfigured);
+            
+            if (preconfigured && biome.modContentPack.IsOfficialMod) continue;
+            
+            var listForLandforms = properties.allowLandforms ? BiomesExcludedFromLandforms.Value : null;
+            var listForTransitions = properties.allowBiomeTransitions ? BiomesExcludedFromTransitions.Value : null;
+
+            layout.PushChanged();
+            
+            LunarGUI.ToggleTableRow(layout, biome.defName, true, label, listForLandforms, listForTransitions);
+            
+            if (layout.PopChanged())
+            {
+                if (listForLandforms != null) properties.allowLandformsByUser = !listForLandforms.Contains(biome.defName);
+                if (listForTransitions != null) properties.allowBiomeTransitionsByUser = !listForTransitions.Contains(biome.defName);
             }
         }
     }
@@ -99,16 +130,27 @@ public class GeologicalLandformsSettings : LunarModSettings
     {
         foreach (var biomeVariant in DefDatabase<BiomeVariantDef>.AllDefsListForReading)
         {
-            LunarGUI.PushChanged();
+            LunarGUI.ToggleTableRow(layout, biomeVariant.defName, true, LabelForBiomeVariant(biomeVariant), DisabledBiomeVariants);
+        }
+    }
+
+    private void DoDebugSettingsTab(LayoutRect layout)
+    {
+        LunarGUI.Checkbox(layout, ref ShowWorldTileDebugInfo.Value, Label("ShowWorldTileDebugInfo"));
             
-            var enabled = !DisabledBiomeVariants.Value.Contains(biomeVariant.defName);
-            LunarGUI.Checkbox(layout, ref enabled, LabelForBiomeVariant(biomeVariant));
-            
-            if (LunarGUI.PopChanged())
-            {
-                if (enabled) DisabledBiomeVariants.Value.Remove(biomeVariant.defName);
-                else DisabledBiomeVariants.Value.AddDistinct(biomeVariant.defName);
-            }
+        if (EnableGodMode)
+        {
+            LunarGUI.Checkbox(layout, ref IgnoreWorldTileReqInGodMode.Value, Label("IgnoreWorldTileReqInGodMode"));
+        }
+        
+        layout.Abs(10f);
+        
+        if (Find.CurrentMap != null && LunarGUI.Button(layout, "[DEV] Replace all stone on current map"))
+        {
+            var options = DefDatabase<ThingDef>.AllDefsListForReading
+                .Where(d => d.IsNonResourceNaturalRock)
+                .Select(e => new FloatMenuOption(e.defName, () => ReplaceNaturalRock(e))).ToList();
+            Find.WindowStack.Add(new FloatMenu(options));
         }
     }
 
@@ -136,12 +178,29 @@ public class GeologicalLandformsSettings : LunarModSettings
         return label;
     }
     
+    private string LabelForBiomeConfig(BiomeDef biome, bool preconfigured)
+    {
+        var mcp = biome.modContentPack;
+        var label = biome.label.CapitalizeFirst();
+        
+        if (mcp is { IsOfficialMod: false } && mcp != GeologicalLandformsMod.Settings.Mod.Content) 
+            LabelBuffer.Add("GeologicalLandforms.Settings.Landforms.DefinedInMod".Translate(mcp.Name));
+        
+        if (preconfigured)
+            LabelBuffer.Add("GeologicalLandforms.Settings.BiomeConfig.ExcludedByAuthor".Translate());
+
+        if (LabelBuffer.Count > 0) label += " <color=#777777>(" + LabelBuffer.Join(s => s) + ")</color>";
+        LabelBuffer.Clear();
+        return label;
+    }
+    
     private string LabelForBiomeVariant(BiomeVariantDef biomeVariant)
     {
+        var mcp = biomeVariant.modContentPack;
         var label = biomeVariant.label.CapitalizeFirst();
         
-        if (biomeVariant.modContentPack != null && biomeVariant.modContentPack != GeologicalLandformsMod.Settings.Mod.Content) 
-            LabelBuffer.Add("GeologicalLandforms.Settings.Landforms.DefinedInMod".Translate(biomeVariant.modContentPack.Name));
+        if (mcp is { IsOfficialMod: false } && mcp != GeologicalLandformsMod.Settings.Mod.Content) 
+            LabelBuffer.Add("GeologicalLandforms.Settings.Landforms.DefinedInMod".Translate(mcp.Name));
 
         if (LabelBuffer.Count > 0) label += " <color=#777777>(" + LabelBuffer.Join(s => s) + ")</color>";
         LabelBuffer.Clear();
@@ -155,23 +214,12 @@ public class GeologicalLandformsSettings : LunarModSettings
             .Any(lf => !lf.IsLayer && lf.WorldTileReq is { Topology: Topology.CliffOneSide, Commonness: >= 1f });
     }
     
-    private void DoDebugSettingsTab(LayoutRect layout)
+    public void ApplyBiomeConfigEffects()
     {
-        LunarGUI.Checkbox(layout, ref ShowWorldTileDebugInfo.Value, Label("ShowWorldTileDebugInfo"));
-            
-        if (EnableGodMode)
+        foreach (var biome in DefDatabase<BiomeDef>.AllDefsListForReading)
         {
-            LunarGUI.Checkbox(layout, ref IgnoreWorldTileReqInGodMode.Value, Label("IgnoreWorldTileReqInGodMode"));
-        }
-        
-        layout.Abs(10f);
-        
-        if (Find.CurrentMap != null && LunarGUI.Button(layout, "[DEV] Replace all stone on current map"))
-        {
-            var options = DefDatabase<ThingDef>.AllDefsListForReading
-                .Where(d => d.IsNonResourceNaturalRock)
-                .Select(e => new FloatMenuOption(e.defName, () => ReplaceNaturalRock(e))).ToList();
-            Find.WindowStack.Add(new FloatMenu(options));
+            if (BiomesExcludedFromLandforms.Value.Contains(biome.defName)) biome.Properties().allowLandformsByUser = false;
+            if (BiomesExcludedFromTransitions.Value.Contains(biome.defName)) biome.Properties().allowBiomeTransitionsByUser = false;
         }
     }
 
@@ -198,7 +246,10 @@ public class GeologicalLandformsSettings : LunarModSettings
 
     public override void ResetAll()
     {
-        LandformManager.ResetAll();
         base.ResetAll();
+        BiomeProperties.RebuildCache();
+        LandformManager.ResetAll();
+        ApplyLandformConfigEffects();
+        ApplyBiomeConfigEffects();
     }
 }

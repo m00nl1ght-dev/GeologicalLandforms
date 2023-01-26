@@ -52,7 +52,7 @@ public static class GeologicalLandformsAPI
         
         NodeEditor.ReInit(false);
         
-        ExtensionUtils.Init();
+        BiomeProperties.RebuildCache();
         LandformGraphEditor.InitialSetup();
         LandformManager.InitialLoad();
         BiomeVariantDef.InitialLoad();

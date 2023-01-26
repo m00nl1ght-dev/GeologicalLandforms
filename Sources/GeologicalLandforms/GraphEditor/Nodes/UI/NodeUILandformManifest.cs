@@ -31,7 +31,7 @@ public class NodeUILandformManifest : NodeUIBase
 
     protected override void DoWindowContents(LayoutRect layout)
     {
-        LunarGUI.PushEnabled(Landform.IsCustom);
+        layout.PushEnabled(Landform.IsCustom);
 
         var id = Id ?? "";
         
@@ -58,7 +58,7 @@ public class NodeUILandformManifest : NodeUIBase
             LandformManager.Rename(Landform, id);
         }
 
-        LunarGUI.PopEnabled();
+        layout.PopEnabled();
     }
 
     public override void DrawNode()

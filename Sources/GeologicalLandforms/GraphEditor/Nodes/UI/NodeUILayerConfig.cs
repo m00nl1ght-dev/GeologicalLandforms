@@ -22,14 +22,14 @@ public class NodeUILayerConfig : NodeUIBase
 
     protected override void DoWindowContents(LayoutRect layout)
     {
-        LunarGUI.PushEnabled(Landform.IsCustom);
-        
+        layout.PushEnabled(Landform.IsCustom);
         layout.BeginAbs(28f);
+        
         LunarGUI.Label(layout.Rel(0.3f), "GeologicalLandforms.Settings.Landform.Priority".Translate());
         LunarGUI.IntField(layout, ref Priority, ref _priorityEdit, -999, 999);
-        layout.End();
         
-        LunarGUI.PopEnabled();
+        layout.End();
+        layout.PopEnabled();
     }
 
     public override void DrawNode()

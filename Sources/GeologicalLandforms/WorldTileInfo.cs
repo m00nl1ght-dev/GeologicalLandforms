@@ -92,13 +92,11 @@ public class WorldTileInfo : IWorldTileInfo
 
     private static void DetermineLandforms(WorldTileInfo info)
     {
-        if (!CanHaveLandform(info)) return;
-        
         var eligible = _tsc_eligible ??= new List<Landform>();
         eligible.Clear();
         
         eligible.AddRange(LandformManager.Landforms.Values
-            .Where(e => e.WorldTileReq?.CheckRequirements(info, false) ?? false)
+            .Where(e => info.CanHaveLandform(e))
             .OrderBy(e => e.Manifest.TimeCreated));
         
         var landforms = eligible.Where(e => e.IsLayer && Rand.ChanceSeeded(e.WorldTileReq.Commonness, info.MakeSeed(e.RandSeed)));
@@ -132,30 +130,33 @@ public class WorldTileInfo : IWorldTileInfo
             if (main != null) landforms = landforms.Append(main);
         }
 
-        var disallowedLandforms = info.Biome.Properties().disallowedLandforms;
-        if (disallowedLandforms != null)
-        {
-            landforms = landforms.Where(lf => !disallowedLandforms.Contains(lf.Id));
-        }
-        
         info.Landforms = landforms.OrderBy(e => e.Priority).ToList();
     }
 
-    public static bool CanHaveLandform(IWorldTileInfo info)
+    public bool CanHaveLandform(Landform landform, bool lenient = false)
     {
-        return info.Hilliness != Hilliness.Impassable && info.Biome.Properties().allowLandforms;
+        if (Hilliness == Hilliness.Impassable) return false;
+        var requirements = landform.WorldTileReq;
+        if (requirements == null || !requirements.CheckRequirements(this, lenient)) return false;
+        var biomeProperties = Biome.Properties();
+        if (!biomeProperties.AllowLandforms && (!landform.IsLayer || !biomeProperties.AllowBiomeTransitions)) return false;
+        if (biomeProperties.disallowedLandforms?.Contains(landform.Id) ?? false) return false;
+        return true;
     }
     
     private static void DetermineBiomeVariants(WorldTileInfoPrimer info)
     {
         List<BiomeVariantDef> variants = null;
         
-        foreach (var variant in DefDatabase<BiomeVariantDef>.AllDefsListForReading)
+        if (info.Biome.Properties().AllowBiomeTransitions)
         {
-            if (variant.worldTileConditions.Evaluate(info))
+            foreach (var variant in DefDatabase<BiomeVariantDef>.AllDefsListForReading)
             {
-                variants ??= new();
-                variants.Add(variant);
+                if (variant.worldTileConditions.Evaluate(info))
+                {
+                    variants ??= new();
+                    variants.Add(variant);
+                }
             }
         }
 

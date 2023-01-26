@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using RimWorld;
+using UnityEngine;
 using Verse;
 
 // ReSharper disable FieldCanBeMadeReadOnly.Global
@@ -20,6 +22,12 @@ public class BiomeProperties : DefModExtension
 
     public TerrainDef beachTerrain;
     public TerrainDef gravelTerrain;
+
+    [Unsaved] public bool allowLandformsByUser = true;
+    [Unsaved] public bool allowBiomeTransitionsByUser = true;
+
+    public bool AllowLandforms => allowLandforms && allowLandformsByUser;
+    public bool AllowBiomeTransitions => allowBiomeTransitions && allowBiomeTransitionsByUser;
     
     public BiomeProperties() {}
 
@@ -34,7 +42,22 @@ public class BiomeProperties : DefModExtension
         gravelTerrain = other.gravelTerrain;
     }
 
-    public static BiomeProperties[] GetAll()
+    private static BiomeProperties[] _cache;
+
+    public static BiomeProperties Get(BiomeDef biomeDef)
+    {
+        try
+        {
+            return GeologicalLandformsAPI.ApplyBiomePropertiesHook(biomeDef, _cache[biomeDef.index]);
+        }
+        catch (Exception e)
+        {
+            Debug.LogException(e);
+            return new BiomeProperties();
+        }
+    }
+
+    public static void RebuildCache()
     {
         var defaultsByDefName = DefaultsByDefName;
         var defaultsByPackageId = DefaultsByPackageId;
@@ -44,13 +67,21 @@ public class BiomeProperties : DefModExtension
         {
             var properties = biomeDef.GetModExtension<BiomeProperties>();
             properties ??= defaultsByDefName.TryGetValue(biomeDef.defName);
-            properties ??= defaultsByPackageId.TryGetValue(biomeDef.modContentPack?.ModMetaData?.PackageIdNonUnique ?? "unknown");
-            properties ??= new BiomeProperties();
-            all[biomeDef.index] = properties;
+            properties ??= defaultsByPackageId.TryGetValue(biomeDef.modContentPack?.ModMetaData?.PackageIdNonUnique ?? "");
+            properties ??= IsSpecialPurposeBiome(biomeDef) ? DefaultsForSpecialPurposeBiome : DefaultsForStandardBiome;
+            all[biomeDef.index] = new BiomeProperties(properties);
         }
 
-        return all;
+        _cache = all;
     }
+    
+    private static readonly BiomeProperties DefaultsForStandardBiome = new();
+
+    private static readonly BiomeProperties DefaultsForSpecialPurposeBiome = new()
+    {
+        allowLandforms = false,
+        allowBiomeTransitions = false
+    };
 
     private static Dictionary<string, BiomeProperties> DefaultsByPackageId => new()
     {
@@ -89,14 +120,6 @@ public class BiomeProperties : DefModExtension
                 allowLandforms = false,
                 allowBiomeTransitions = false
             }
-        },
-        {
-            "sindre0830.RimNauts2", new BiomeProperties
-            {
-                isWaterCovered = true,
-                allowLandforms = false,
-                allowBiomeTransitions = false
-            }
         }
     };
     
@@ -125,4 +148,9 @@ public class BiomeProperties : DefModExtension
             }
         }
     };
+
+    private static bool IsSpecialPurposeBiome(BiomeDef biome)
+    {
+        return false; // TODO
+    }
 }
