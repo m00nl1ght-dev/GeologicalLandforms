@@ -109,7 +109,7 @@ public class GeologicalLandformsSettings : LunarModSettings
             var preconfigured = !properties.allowLandforms || !properties.allowBiomeTransitions;
             var label = LabelForBiomeConfig(biome, preconfigured);
             
-            if (preconfigured && biome.modContentPack.IsOfficialMod) continue;
+            if (preconfigured && biome.modContentPack is { IsOfficialMod: true }) continue;
             
             var listForLandforms = properties.allowLandforms ? BiomesExcludedFromLandforms.Value : null;
             var listForTransitions = properties.allowBiomeTransitions ? BiomesExcludedFromTransitions.Value : null;
