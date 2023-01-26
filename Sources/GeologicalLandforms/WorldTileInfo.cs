@@ -238,6 +238,12 @@ public class WorldTileInfo : IWorldTileInfo
         info.BorderingBiomes = borderingBiomes;
         info.Coast = coast;
 
+        if (nb.Count != 6)
+        {
+            info.Topology = Topology.Inland;
+            return;
+        }
+
         if (waterTiles.Count == 0)
         {
             info.Topology = Topology.Inland;
