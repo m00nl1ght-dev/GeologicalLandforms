@@ -130,7 +130,7 @@ internal static class TerrainTabUI
                     Find.WorldSelector.selectedTile = p;
                     float dist = grid.ApproxDistanceInTiles(tileId, p);
                     var messageSuccess = "GeologicalLandforms.WorldMap.FindLandformSuccess"
-                        .Translate(landform.TranslatedNameForSelection.CapitalizeFirst(), dist.ToString("F2"));
+                        .Translate(landform.TranslatedNameForSelection, dist.ToString("F2"));
                     Messages.Message(messageSuccess, MessageTypeDefOf.SilentInput, false);
                     return;
                 }
@@ -148,7 +148,7 @@ internal static class TerrainTabUI
         }
         
         var messageFail = "GeologicalLandforms.WorldMap.FindLandformFail"
-            .Translate(landform.TranslatedNameForSelection.CapitalizeFirst(), maxDistance.ToString("F0"));
+            .Translate(landform.TranslatedNameForSelection, maxDistance.ToString("F0"));
         Messages.Message(messageFail, MessageTypeDefOf.RejectInput, false);
     }
 }

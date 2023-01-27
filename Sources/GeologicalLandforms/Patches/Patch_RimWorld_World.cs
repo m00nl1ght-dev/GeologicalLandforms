@@ -24,6 +24,8 @@ internal static class Patch_RimWorld_World
     {
         LastKnownInitialWorldSeed = ___info.Seed;
         
+        WorldTileInfo.RemoveCache();
+        
         var landformData = __instance.GetComponent<LandformData>();
         var lastWorld = Patch_RimWorld_WorldGenStep_Terrain.LastWorld;
         var biomeTransitions = Patch_RimWorld_WorldGenStep_Terrain.BiomeTransitions;
@@ -34,6 +36,13 @@ internal static class Patch_RimWorld_World
             Patch_RimWorld_WorldGenStep_Terrain.BiomeTransitions = null;
             Patch_RimWorld_WorldGenStep_Terrain.LastWorld = null;
         }
+    }
+    
+    [HarmonyPostfix]
+    [HarmonyPatch("FinalizeInit")]
+    private static void FinalizeInit(World __instance)
+    {
+        WorldTileInfo.CreateNewCache();
     }
     
     [HarmonyPrefix]

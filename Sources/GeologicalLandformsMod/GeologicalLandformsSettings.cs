@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using GeologicalLandforms.Defs;
@@ -94,14 +95,14 @@ public class GeologicalLandformsSettings : LunarModSettings
     private void DoBiomeConfigSettingsTab(LayoutRect layout)
     {
         layout.BeginAbs(Text.LineHeight, new LayoutParams { Horizontal = true, Reversed = true });
-        LunarGUI.Label(layout.Abs(20f), "BT"); 
-        layout.Abs(8f);
-        LunarGUI.Label(layout.Abs(20f), "LF");
-        layout.Abs(8f);
+        LunarGUI.Label(layout.Abs(22f), "MB"); 
+        layout.Abs(4f);
+        LunarGUI.Label(layout.Abs(22f), "LF");
+        layout.Abs(4f);
         LunarGUI.Label(layout.Abs(-1), Label("BiomeConfig.Header"));
         layout.End();
 
-        LunarGUI.SeparatorLine(layout);
+        LunarGUI.SeparatorLine(layout, 3f);
 
         foreach (var biome in DefDatabase<BiomeDef>.AllDefsListForReading)
         {
@@ -151,6 +152,16 @@ public class GeologicalLandformsSettings : LunarModSettings
                 .Where(d => d.IsNonResourceNaturalRock)
                 .Select(e => new FloatMenuOption(e.defName, () => ReplaceNaturalRock(e))).ToList();
             Find.WindowStack.Add(new FloatMenu(options));
+        }
+        
+        if (Find.World != null && LunarGUI.Button(layout, "[DEV] Clear world tile data cache"))
+        {
+            WorldTileInfo.CreateNewCache();
+        }
+        
+        if (Find.World != null && LunarGUI.Button(layout, "[DEV] Fill world tile data cache"))
+        {
+            FillWorldTileInfoCache();
         }
     }
 
@@ -242,6 +253,22 @@ public class GeologicalLandformsSettings : LunarModSettings
         }
             
         map.regionAndRoomUpdater.Enabled = true;
+    }
+    
+    public static void FillWorldTileInfoCache()
+    {
+        WorldTileInfo.CreateNewCache();
+        
+        GC.Collect();
+        var before = GC.GetTotalMemory(true) / 1000000f;
+
+        var world = Find.World;
+        for (int i = 0; i < world.grid.TilesCount; i++) WorldTileInfo.Get(i);
+
+        GC.Collect();
+        var after = GC.GetTotalMemory(true) / 1000000f;
+        
+        GeologicalLandformsMod.Logger.Log($"Filled cache for {world.grid.TilesCount} tiles, cache is now using {after-before:F2} MB of memory.");
     }
 
     public override void ResetAll()

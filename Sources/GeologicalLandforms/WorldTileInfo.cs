@@ -60,30 +60,66 @@ public class WorldTileInfo : IWorldTileInfo
         World = world;
     }
     
-    private static WorldTileInfoPrimer _cache;
+    private static WorldTileInfoPrimer[] _cache;
+    private static int _validCacheVersion = 1;
+    
+    private int _cacheVersion;
     
     public static WorldTileInfo Get(int tileId)
     {
-        var cache = _cache;
-        var world = Find.World;
-        
-        if (cache != null && cache.TileId == tileId && cache.World == world) return cache;
-        if (tileId < 0) return new WorldTileInfo(tileId, new Tile(), world);
-        
-        cache = new WorldTileInfoPrimer(tileId, world.grid[tileId], world);
-        
-        DetermineTopology(cache);
-        DetermineLandforms(cache);
-        DetermineBiomeVariants(cache);
-        
-        GeologicalLandformsAPI.ApplyWorldTileInfoHook(cache);
-        
-        _cache = cache;
-        return cache;
+        try
+        {
+            var cache = _cache;
+            var validVersion = _validCacheVersion;
+            
+            var world = Find.World;
+            var canUseCache = cache != null && tileId < cache.Length;
+
+            if (canUseCache)
+            {
+                var match = cache[tileId];
+                if (match != null && match._cacheVersion == validVersion && match.World == world) return match;
+            }
+            
+            var info = new WorldTileInfoPrimer(tileId, world.grid[tileId], world);
+
+            DetermineTopology(info);
+            DetermineLandforms(info);
+            DetermineBiomeVariants(info);
+
+            GeologicalLandformsAPI.ApplyWorldTileInfoHook(info);
+
+            if (canUseCache)
+            {
+                info._cacheVersion = validVersion;
+                cache[tileId] = info;
+            }
+
+            return info;
+        }
+        catch (Exception e)
+        {
+            InvalidateCache();
+            GeologicalLandformsAPI.Logger.Error($"Failed to get info for world tile {tileId}", e);
+            return new WorldTileInfo(tileId, new Tile { biome = BiomeDefOf.Ocean, elevation = 0f }, Find.World);
+        }
     }
 
     public static void InvalidateCache()
     {
+        unchecked { _validCacheVersion++; }
+    }
+
+    public static void CreateNewCache()
+    {
+        InvalidateCache();
+        var grid = Find.WorldGrid;
+        _cache = grid == null ? null : new WorldTileInfoPrimer[grid.TilesCount];
+    }
+
+    public static void RemoveCache()
+    {
+        InvalidateCache();
         _cache = null;
     }
     
