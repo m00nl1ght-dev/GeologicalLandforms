@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using HarmonyLib;
 using RimWorld;
 using Verse;
 
@@ -13,7 +12,9 @@ namespace GeologicalLandforms.Defs;
 [Serializable]
 public class BiomeVariantLayer
 {
+    [NoTranslate]
     public string id = "main";
+    
     public int priority;
 
     public BiomeVariantDef def { get; internal set; }
@@ -38,10 +39,22 @@ public class BiomeVariantLayer
     public static BiomeVariantLayer FindFromString(string defSlashLayerId)
     {
         var parts = defSlashLayerId.Split('/');
-        if (parts.Length != 2) throw new Exception("invalid biome variant: " + defSlashLayerId);
-        var variant = BiomeVariantDef.Named(parts[0]);
-        var layer = variant.layers.FirstOrDefault(l => l.id == parts[1]);
-        if (layer == null) throw new Exception("biome variant layer not found: " + defSlashLayerId);
+        
+        if (parts.Length != 2)
+        {
+            GeologicalLandformsAPI.Logger.Error("Ignoring invalid biome variant id: " + defSlashLayerId);
+            return null;
+        }
+        
+        var variant = DefDatabase<BiomeVariantDef>.GetNamed(parts[0], false);
+        var layer = variant?.layers?.FirstOrDefault(l => l.id == parts[1]);
+        
+        if (layer == null)
+        {
+            GeologicalLandformsAPI.Logger.Error("Ignoring missing biome variant: " + defSlashLayerId);
+            return null;
+        }
+        
         return layer;
     }
     

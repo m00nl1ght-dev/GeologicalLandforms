@@ -14,14 +14,14 @@ public class XmlListModifier<T>
     
     public Operation operation = Operation.Add;
     
-    public void Apply(List<T> val, Func<T, object> keyFunc)
+    public void Apply(List<T> val, Func<T, object> keyFunc = null)
     {
         switch (operation)
         {
             case Operation.Add:
                 foreach (var entry in entries)
                 {
-                    val.RemoveAll(e => keyFunc(e) == keyFunc(entry));
+                    if (keyFunc != null) val.RemoveAll(e => keyFunc(e) == keyFunc(entry));
                     val.Add(entry);
                 }
                 break;

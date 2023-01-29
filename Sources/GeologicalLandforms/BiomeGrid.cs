@@ -258,9 +258,12 @@ public class BiomeGrid : MapComponent
             Scribe_Defs.Look(ref _biomeBase, "biomeBase");
 
             List<string> list = null;
-            if (Scribe.mode == LoadSaveMode.Saving) list = _variantLayers.Select(l => l.ToString()).ToList();
+            if (Scribe.mode == LoadSaveMode.Saving) 
+                list = _variantLayers.Select(l => l.ToString()).ToList();
+            
             Scribe_Collections.Look(ref list, "biomeLayers", LookMode.Value);
-            if (Scribe.mode == LoadSaveMode.LoadingVars) _variantLayers = list.Select(BiomeVariantLayer.FindFromString).ToList();
+            if (Scribe.mode == LoadSaveMode.LoadingVars) 
+                _variantLayers = list.Select(BiomeVariantLayer.FindFromString).Where(v => v != null).ToList();
         }
 
         public bool IsEquivalent(BiomeDef biomeBase, List<BiomeVariantLayer> variantLayers = null)
