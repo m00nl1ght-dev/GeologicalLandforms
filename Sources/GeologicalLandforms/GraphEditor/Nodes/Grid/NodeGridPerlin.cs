@@ -10,7 +10,7 @@ namespace GeologicalLandforms.GraphEditor;
 public class NodeGridPerlin : NodeGridNoise
 {
     public Landform Landform => (Landform) canvas;
-    
+
     public const string ID = "gridPerlin";
     public override string GetID => ID;
 

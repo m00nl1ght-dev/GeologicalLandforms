@@ -4,12 +4,6 @@ using LunarFramework.Patching;
 using RimWorld;
 using Verse;
 
-// ReSharper disable RedundantAssignment
-// ReSharper disable UnusedParameter.Local
-// ReSharper disable UnusedType.Global
-// ReSharper disable UnusedMember.Local
-// ReSharper disable InconsistentNaming
-
 namespace GeologicalLandforms.Patches;
 
 [PatchGroup("Main")]

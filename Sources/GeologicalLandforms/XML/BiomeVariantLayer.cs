@@ -14,23 +14,23 @@ public class BiomeVariantLayer
 {
     [NoTranslate]
     public string id = "main";
-    
+
     public int priority;
 
     public BiomeVariantDef def { get; internal set; }
 
     public MapGridConditions mapGridConditions = new();
-    
+
     public XmlValueModifier animalDensity;
     public XmlValueModifier plantDensity;
     public XmlValueModifier wildPlantRegrowDays;
-    
+
     public XmlListModifier<BiomePlantRecord> wildPlants;
     public XmlListModifier<BiomeAnimalRecord> wildAnimals;
     public XmlListModifier<BiomeAnimalRecord> pollutionWildAnimals;
 
     public bool applyToCaveSpawns;
-    
+
     public override string ToString()
     {
         return def.defName + "/" + id;
@@ -39,25 +39,25 @@ public class BiomeVariantLayer
     public static BiomeVariantLayer FindFromString(string defSlashLayerId)
     {
         var parts = defSlashLayerId.Split('/');
-        
+
         if (parts.Length != 2)
         {
             GeologicalLandformsAPI.Logger.Error("Ignoring invalid biome variant id: " + defSlashLayerId);
             return null;
         }
-        
+
         var variant = DefDatabase<BiomeVariantDef>.GetNamed(parts[0], false);
         var layer = variant?.layers?.FirstOrDefault(l => l.id == parts[1]);
-        
+
         if (layer == null)
         {
             GeologicalLandformsAPI.Logger.Error("Ignoring missing biome variant: " + defSlashLayerId);
             return null;
         }
-        
+
         return layer;
     }
-    
+
     private static readonly MethodInfo _cloneMethod;
     private static readonly FieldInfo _wildPlantsField;
     private static readonly FieldInfo _wildAnimalsField;
@@ -78,23 +78,23 @@ public class BiomeVariantLayer
         if (_wildAnimalsField == null) throw new Exception("Failed to reflect BiomeDef wildAnimals field");
         if (_pollutionWildAnimalsField == null) throw new Exception("Failed to reflect BiomeDef pollutionWildAnimals field");
     }
-    
+
     public static BiomeDef Apply(BiomeDef biomeBase, List<BiomeVariantLayer> layers)
     {
         var def = (BiomeDef) _cloneMethod.Invoke(biomeBase, null);
         def.generated = true;
         def.shortHash = 0;
-        
+
         foreach (var cacheField in _cacheFields) cacheField.SetValue(def, null);
 
         var wildPlants = (List<BiomePlantRecord>) _wildPlantsField.GetValue(biomeBase);
         var wildAnimals = (List<BiomeAnimalRecord>) _wildAnimalsField.GetValue(biomeBase);
         var pollutionWildAnimals = (List<BiomeAnimalRecord>) _pollutionWildAnimalsField.GetValue(biomeBase);
-        
+
         _wildPlantsField.SetValue(def, wildPlants = new List<BiomePlantRecord>(wildPlants));
         _wildAnimalsField.SetValue(def, wildAnimals = new List<BiomeAnimalRecord>(wildAnimals));
         _pollutionWildAnimalsField.SetValue(def, pollutionWildAnimals = new List<BiomeAnimalRecord>(pollutionWildAnimals));
-        
+
         foreach (var variant in layers)
         {
             variant.animalDensity?.Apply(ref def.animalDensity);

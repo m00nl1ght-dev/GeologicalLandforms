@@ -24,10 +24,10 @@ public class NodeUILayerConfig : NodeUIBase
     {
         layout.PushEnabled(Landform.IsCustom);
         layout.BeginAbs(28f);
-        
+
         LunarGUI.Label(layout.Rel(0.3f), "GeologicalLandforms.Settings.Landform.Priority".Translate());
         LunarGUI.IntField(layout, ref Priority, ref _priorityEdit, -999, 999);
-        
+
         layout.End();
         layout.PopEnabled();
     }
@@ -43,7 +43,7 @@ public class NodeUILayerConfig : NodeUIBase
         if (existing != null && existing != this && canvas.nodes.Contains(existing)) existing.Delete();
         Landform.LayerConfig = this;
     }
-    
+
     protected override void OnDelete()
     {
         if (Landform.LayerConfig == this) Landform.LayerConfig = null;

@@ -13,13 +13,13 @@ namespace GeologicalLandforms.GraphEditor;
 public abstract class NodeInputBase : NodeBase
 {
     public Landform Landform => (Landform) canvas;
-    
+
     public virtual ValueConnectionKnob KnobRef => null;
 
     public override void NodeGUI()
     {
         GUILayout.BeginVertical(BoxStyle);
-        
+
         GUILayout.BeginHorizontal(BoxStyle);
         GUILayout.Label(KnobRef.name, BoxLayout);
         GUILayout.EndHorizontal();
@@ -59,7 +59,7 @@ public abstract class NodeInputBase : NodeBase
         var seed = TryGetVanillaGenStepRand(826504671).Range(0, int.MaxValue);
         return new VanillaElevationGridSupplier(Landform.GeneratingTile, Landform.MapSpaceToNodeSpaceFactor, seed);
     }
-    
+
     private class VanillaElevationGridSupplier : ISupplier<IGridFunction<double>>
     {
         private readonly IWorldTileInfo _tile;
@@ -72,13 +72,13 @@ public abstract class NodeInputBase : NodeBase
             _transformScale = transformScale;
             _seed = seed;
         }
-  
+
         public IGridFunction<double> Get()
         {
             return new Transform<double>(BuildVanillaElevationGrid(_tile, _seed), _transformScale);
         }
 
-        public void ResetState() {}
+        public void ResetState() { }
     }
 
     /// <summary>
@@ -90,7 +90,7 @@ public abstract class NodeInputBase : NodeBase
         function = new ScaleWithBias(function, 0.5, 0.5);
         return function;
     }
-    
+
     /// <summary>
     /// Returns a supplier that produces a vanilla fertility grid in node space.
     /// Uses the vanilla seed if an actual world tile is generating, otherwise the node seed.
@@ -100,7 +100,7 @@ public abstract class NodeInputBase : NodeBase
         var seed = TryGetVanillaGenStepRand(826504671, 1).Range(0, int.MaxValue);
         return new VanillaFertilityGridSupplier(Landform.GeneratingTile, Landform.MapSpaceToNodeSpaceFactor, seed);
     }
-    
+
     private class VanillaFertilityGridSupplier : ISupplier<IGridFunction<double>>
     {
         private readonly IWorldTileInfo _tile;
@@ -113,15 +113,15 @@ public abstract class NodeInputBase : NodeBase
             _transformScale = transformScale;
             _seed = seed;
         }
-  
+
         public IGridFunction<double> Get()
         {
             return new Transform<double>(BuildVanillaFertilityGrid(_tile, _seed), _transformScale);
         }
 
-        public void ResetState() {}
+        public void ResetState() { }
     }
-    
+
     /// <summary>
     /// Returns a supplier that produces a vanilla cave grid in node space.
     /// Elevation values are pulled from the output of the full landform stack.
@@ -134,7 +134,7 @@ public abstract class NodeInputBase : NodeBase
         var vanillaElevationSupplier = BuildVanillaElevationGridSupplier();
         return new VanillaCaveGridSupplier(vanillaElevationSupplier, Landform.MapSpaceToNodeSpaceFactor, Landform.GeneratingMapSize, caveGenRand);
     }
-    
+
     private class VanillaCaveGridSupplier : ISupplier<IGridFunction<double>>
     {
         private readonly ISupplier<IGridFunction<double>> _fallbackElevation;
@@ -151,7 +151,7 @@ public abstract class NodeInputBase : NodeBase
             _caveGridSize = caveGridSize;
             _rand = rand;
         }
-  
+
         public IGridFunction<double> Get()
         {
             IGridFunction<double> elevation = null;
@@ -167,7 +167,7 @@ public abstract class NodeInputBase : NodeBase
             }
 
             elevation ??= _fallbackElevation.Get();
-            
+
             var generator = new TunnelGenerator();
             var elevationGrid = new Transform<double>(elevation, 1 / _transformScale);
             var cavesGrid = generator.Generate(_caveGridSize, _rand, c => elevationGrid.ValueAt(c.x, c.z) > 0.7);

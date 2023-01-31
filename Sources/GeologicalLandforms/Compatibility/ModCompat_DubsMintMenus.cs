@@ -3,10 +3,6 @@ using HarmonyLib;
 using LunarFramework.Patching;
 using Verse;
 
-// ReSharper disable UnusedType.Global
-// ReSharper disable UnusedMember.Local
-// ReSharper disable InconsistentNaming
-
 namespace GeologicalLandforms.Compatibility;
 
 [HarmonyPatch]

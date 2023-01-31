@@ -38,7 +38,7 @@ public class NodeInputCaves : NodeInputBase
             Knob.SetValue(supplier);
             return true;
         }
-        
+
         if (Landform.GeneratingTile is WorldTileInfo tile)
         {
             if (!tile.World.HasCaves(tile.TileId))
@@ -47,10 +47,8 @@ public class NodeInputCaves : NodeInputBase
                 return true;
             }
         }
-        
+
         Knob.SetValue(BuildVanillaCaveGridSupplier());
         return true;
     }
-    
-    
 }

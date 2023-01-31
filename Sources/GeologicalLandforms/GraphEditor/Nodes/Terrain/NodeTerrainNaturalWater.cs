@@ -14,17 +14,17 @@ public class NodeTerrainNaturalWater : NodeBase
 {
     public const string ID = "terrainNaturalWater";
     public override string GetID => ID;
-    
+
     public override Vector2 MinSize => new(100, 10);
 
     public override string Title => "Natural Water";
 
     [ValueConnectionKnob("Deep", Direction.Out, TerrainFunctionConnection.Id)]
     public ValueConnectionKnob DeepOutputKnob;
-    
+
     [ValueConnectionKnob("Shallow", Direction.Out, TerrainFunctionConnection.Id)]
     public ValueConnectionKnob ShallowOutputKnob;
-    
+
     [ValueConnectionKnob("Beach", Direction.Out, TerrainFunctionConnection.Id)]
     public ValueConnectionKnob BeachOutputKnob;
 
@@ -38,17 +38,17 @@ public class NodeTerrainNaturalWater : NodeBase
         GUILayout.Label("Deep", DoubleBoxLayout);
         GUILayout.EndHorizontal();
         DeepOutputKnob.SetPosition();
-        
+
         GUILayout.BeginHorizontal(BoxStyle);
         GUILayout.Label("Shallow", DoubleBoxLayout);
         GUILayout.EndHorizontal();
         ShallowOutputKnob.SetPosition();
-        
+
         GUILayout.BeginHorizontal(BoxStyle);
         GUILayout.Label("Beach", DoubleBoxLayout);
         GUILayout.EndHorizontal();
         BeachOutputKnob.SetPosition();
-        
+
         GUILayout.BeginHorizontal(BoxStyle);
 
         if (GUILayout.Button(MapSide.ToString(), GUI.skin.box))

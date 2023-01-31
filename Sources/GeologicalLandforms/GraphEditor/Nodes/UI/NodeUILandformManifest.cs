@@ -17,15 +17,15 @@ public class NodeUILandformManifest : NodeUIBase
 
     public override string Title => "Custom Landform";
     public override Vector2 DefaultSize => new(400, 150);
-    
+
     public string Id;
     public bool IsCustom = true;
     public bool IsExperimental;
-    
+
     public int RevisionVersion = 1;
     public long TimeCreated = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
     public bool IsEdited;
-    
+
     public string DisplayName;
     public bool DisplayNameHasDirection;
 
@@ -34,19 +34,19 @@ public class NodeUILandformManifest : NodeUIBase
         layout.PushEnabled(Landform.IsCustom);
 
         var id = Id ?? "";
-        
+
         layout.BeginAbs(28f);
         LunarGUI.Label(layout.Rel(0.5f), "GeologicalLandforms.Settings.Landform.Id".Translate());
         LunarGUI.TextField(layout, ref id);
         layout.End();
 
         layout.Abs(10f);
-        
+
         layout.BeginAbs(28f);
         LunarGUI.Label(layout.Rel(0.5f), "GeologicalLandforms.Settings.Landform.DisplayName".Translate());
         LunarGUI.TextField(layout, ref DisplayName);
         layout.End();
-        
+
         layout.Abs(10f);
 
         LunarGUI.Checkbox(layout, ref DisplayNameHasDirection, "GeologicalLandforms.Settings.Landform.DisplayNameHasDirection".Translate());

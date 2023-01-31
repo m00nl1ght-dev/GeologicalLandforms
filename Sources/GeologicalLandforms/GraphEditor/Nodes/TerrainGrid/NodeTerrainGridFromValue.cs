@@ -11,12 +11,12 @@ public class NodeTerrainGridFromValue : NodeBase
 {
     public const string ID = "terrainGridFromValue";
     public override string GetID => ID;
-    
+
     public override Vector2 DefaultSize => new(60, 55);
     public override bool AutoLayout => false;
 
     public override string Title => "Grid";
-    
+
     [ValueConnectionKnob("Input", Direction.In, TerrainFunctionConnection.Id)]
     public ValueConnectionKnob InputKnob;
 
@@ -36,7 +36,7 @@ public class NodeTerrainGridFromValue : NodeBase
         ));
         return true;
     }
-    
+
     public class Output : ISupplier<IGridFunction<TerrainData>>
     {
         private readonly ISupplier<TerrainData> _input;

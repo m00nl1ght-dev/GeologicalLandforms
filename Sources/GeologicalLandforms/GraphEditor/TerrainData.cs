@@ -10,7 +10,7 @@ public readonly struct TerrainData
 {
     public static readonly TerrainData Empty = new();
     public static readonly IGridFunction<TerrainData> EmptyGrid = GridFunction.Of(Empty);
-    
+
     public readonly TerrainDef Terrain;
     public readonly int SelectionIndex;
 
@@ -22,11 +22,11 @@ public readonly struct TerrainData
         Terrain = terrain;
         SelectionIndex = selectionIndex;
     }
-    
+
     public static void TerrainSelector(NodeBase node, string current, bool enabled, Action<TerrainDef> onSelected)
     {
         GUI.enabled = enabled;
-        
+
         if (GUILayout.Button(DislayString(current), GUI.skin.box, node.BoxLayout))
         {
             NodeBase.Dropdown(new[] { (TerrainDef) null }.Concat(DefDatabase<TerrainDef>.AllDefsListForReading).ToList(), onSelected, DislayString);
@@ -34,18 +34,18 @@ public readonly struct TerrainData
 
         GUI.enabled = true;
     }
-    
+
     public static string DislayString(string defName)
     {
         return string.IsNullOrEmpty(defName) || defName.EqualsIgnoreCase("None") ? "None"
             : DefDatabase<TerrainDef>.GetNamed(defName, false)?.label.CapitalizeFirst() ?? "None";
     }
-    
+
     public static string DislayString(TerrainDef def)
     {
         return def == null ? "None" : def.label.CapitalizeFirst();
     }
-    
+
     public override string ToString()
     {
         return IsEmpty ? "None" : Terrain.defName;
@@ -55,7 +55,7 @@ public readonly struct TerrainData
     {
         return def == null ? "None" : def.defName;
     }
-    
+
     public static TerrainData FromString(string defName)
     {
         return string.IsNullOrEmpty(defName) || defName.EqualsIgnoreCase("None") ? new TerrainData()

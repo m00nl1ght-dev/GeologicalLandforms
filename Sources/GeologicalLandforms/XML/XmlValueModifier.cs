@@ -5,12 +5,11 @@ using Verse;
 namespace GeologicalLandforms;
 
 // ReSharper disable InconsistentNaming
-
 [Serializable]
 public class XmlValueModifier
 {
     public float value;
-    
+
     public Operation operation = Operation.Replace;
 
     public void Apply(ref float val)
@@ -23,7 +22,7 @@ public class XmlValueModifier
             _ => throw new ArgumentOutOfRangeException()
         };
     }
-    
+
     public void LoadDataFromXmlCustom(XmlNode xmlRoot)
     {
         value = ParseHelper.ParseFloat(xmlRoot.FirstChild.Value);
@@ -32,6 +31,8 @@ public class XmlValueModifier
 
     public enum Operation
     {
-        Add, Replace, Multiply
+        Add,
+        Replace,
+        Multiply
     }
 }

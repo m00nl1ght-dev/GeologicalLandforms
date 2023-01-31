@@ -23,15 +23,15 @@ public class BiomeGrid : MapComponent
     private bool _enabled;
     public bool Enabled => _enabled;
     public void Enable() => _enabled = true;
-    
+
     public float OpenGroundFraction { get; private set; } = 1f;
 
     private readonly IntVec3 _mapSize;
 
     internal object LoadId = new();
 
-    public BiomeGrid(Map map) : this(map, map.Size, map.Parent == null ? BiomeDefOf.TemperateForest : map.Biome) {}
-    
+    public BiomeGrid(Map map) : this(map, map.Size, map.Parent == null ? BiomeDefOf.TemperateForest : map.Biome) { }
+
     public BiomeGrid(Map map, IntVec3 mapSize, BiomeDef worldBiome) : base(map)
     {
         _mapSize = mapSize;
@@ -45,7 +45,7 @@ public class BiomeGrid : MapComponent
         if (cell < 0 || cell >= _grid.Length) return Primary;
         return _grid[cell] ?? Primary;
     }
-    
+
     public Entry EntryAt(IntVec3 c)
     {
         return EntryAt(CellIndicesUtility.CellToIndex(c, _mapSize.x));
@@ -70,10 +70,11 @@ public class BiomeGrid : MapComponent
     {
         var primary = Primary;
         var last = primary;
-        
+
         foreach (var entry in _entries) entry.CellCount = 0;
 
-        for (int x = 0; x < _mapSize.x; x++) for (int z = 0; z < _mapSize.z; z++)
+        for (int x = 0; x < _mapSize.x; x++)
+        for (int z = 0; z < _mapSize.z; z++)
         {
             var c = new IntVec3(x, 0, z);
             var biomeDef = biomeFunction.ValueAt(c.x, c.z).Biome;
@@ -134,13 +135,14 @@ public class BiomeGrid : MapComponent
     public Entry MakeEntry(BiomeDef biomeBase, List<BiomeVariantLayer> variantLayers = null)
     {
         if (biomeBase == null) return Primary;
-        
-        // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
-        foreach (var entry in _entries) if (entry.IsEquivalent(biomeBase, variantLayers)) return entry;
+
+        foreach (var entry in _entries)
+            if (entry.IsEquivalent(biomeBase, variantLayers))
+                return entry;
 
         var newEntry = new Entry { Index = (ushort) _entries.Count, LoadId = LoadId };
         _entries.Add(newEntry);
-        
+
         newEntry.Set(biomeBase, variantLayers);
         newEntry.Refresh();
         return newEntry;
@@ -157,7 +159,7 @@ public class BiomeGrid : MapComponent
 
         var isLegacy = _entries == null || _entries.Count == 0;
         Dictionary<ushort, BiomeDef> biomeDefsByShortHash = null;
-        
+
         if (Scribe.mode == LoadSaveMode.LoadingVars)
         {
             if (isLegacy)
@@ -193,7 +195,7 @@ public class BiomeGrid : MapComponent
             _grid[map.cellIndices.CellToIndex(c)] = entry;
             entry.CellCount++;
         }
-        
+
         void LegacyShortWriter(IntVec3 c, ushort val)
         {
             var biome = biomeDefsByShortHash.TryGetValue(val);
@@ -204,7 +206,7 @@ public class BiomeGrid : MapComponent
         }
 
         MapExposeUtility.ExposeUshort(map, ShortReader, isLegacy ? LegacyShortWriter : ShortWriter, "biomeGrid");
-        
+
         ExtensionUtils.ClearCaches();
     }
 
@@ -225,11 +227,11 @@ public class BiomeGrid : MapComponent
 
         public BiomeDef BiomeBase => _biomeBase;
         private BiomeDef _biomeBase;
-        
+
         public IReadOnlyList<BiomeVariantLayer> VariantLayers => _variantLayers;
         public bool HasVariants => VariantLayers.Count > 0;
         private List<BiomeVariantLayer> _variantLayers = new();
-        
+
         public BiomeDef Biome { get; private set; }
         public bool ApplyToCaveSpawns { get; private set; }
 
@@ -240,7 +242,7 @@ public class BiomeGrid : MapComponent
             _biomeBase = biomeBase;
             _variantLayers = variantLayers?.ToList() ?? new();
         }
-        
+
         public void Add(BiomeVariantLayer layer)
         {
             _variantLayers.AddDistinct(layer);
@@ -258,23 +260,23 @@ public class BiomeGrid : MapComponent
             Scribe_Defs.Look(ref _biomeBase, "biomeBase");
 
             List<string> list = null;
-            if (Scribe.mode == LoadSaveMode.Saving) 
+            if (Scribe.mode == LoadSaveMode.Saving)
                 list = _variantLayers.Select(l => l.ToString()).ToList();
-            
+
             Scribe_Collections.Look(ref list, "biomeLayers", LookMode.Value);
-            if (Scribe.mode == LoadSaveMode.LoadingVars) 
+            if (Scribe.mode == LoadSaveMode.LoadingVars)
                 _variantLayers = list.Select(BiomeVariantLayer.FindFromString).Where(v => v != null).ToList();
         }
 
         public bool IsEquivalent(BiomeDef biomeBase, List<BiomeVariantLayer> variantLayers = null)
         {
             if (BiomeBase != biomeBase) return false;
-            
+
             var cntEntry = VariantLayers?.Count ?? 0;
             var cntGiven = variantLayers?.Count ?? 0;
-            
+
             if (cntEntry != cntGiven) return false;
-            
+
             for (int i = 0; i < cntEntry; i++)
             {
                 if (VariantLayers![i] != variantLayers![i]) return false;

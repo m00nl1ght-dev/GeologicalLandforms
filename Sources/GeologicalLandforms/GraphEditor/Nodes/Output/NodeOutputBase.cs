@@ -16,7 +16,7 @@ public abstract class NodeOutputBase : NodeBase
     public override void NodeGUI()
     {
         GUILayout.BeginVertical(BoxStyle);
-        
+
         GUILayout.BeginHorizontal(BoxStyle);
         GUILayout.Label(InputKnobRef.name, BoxLayout);
         GUILayout.EndHorizontal();

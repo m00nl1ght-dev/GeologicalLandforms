@@ -9,8 +9,9 @@ namespace GeologicalLandforms;
 public class MapGridConditions
 {
     public delegate bool Condition(IntVec3 pos);
+
     public delegate Condition ConditionBuilder(Map map);
-    
+
     private List<ConditionBuilder> _conditions = new();
     public bool HasConditions => _conditions.Count > 0;
 
@@ -22,7 +23,7 @@ public class MapGridConditions
             if (list.All(c => c(cell))) action(cell);
         }
     }
-    
+
     public void LoadDataFromXmlCustom(XmlNode xmlRoot)
     {
         _conditions = LoadConditionsFromXml(xmlRoot);
@@ -51,7 +52,7 @@ public class MapGridConditions
         var list = conditions.Select(c => c(map)).ToList();
         return pos => list.Any(condition => condition(pos));
     };
-    
+
     public static ConditionBuilder AllOf(List<ConditionBuilder> conditions) => map =>
     {
         var list = conditions.Select(c => c(map)).ToList();
@@ -63,7 +64,7 @@ public class MapGridConditions
 
     public static ConditionBuilder TerrainHasTag(string tag) =>
         map => pos => map.terrainGrid.TerrainAt(pos)?.tags?.Contains(tag) ?? false;
-    
+
     public static ConditionBuilder RoofAnyOf(List<string> roofDefs) =>
         map => pos => roofDefs.Contains(map.roofGrid.RoofAt(pos)?.defName ?? "Unroofed");
 }

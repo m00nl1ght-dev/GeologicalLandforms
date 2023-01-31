@@ -3,10 +3,6 @@ using HarmonyLib;
 using LunarFramework.Patching;
 using Verse;
 
-// ReSharper disable UnusedType.Global
-// ReSharper disable UnusedMember.Local
-// ReSharper disable InconsistentNaming
-
 namespace GeologicalLandforms.Compatibility;
 
 [HarmonyPatch]
@@ -23,7 +19,7 @@ internal class ModCompat_MapDesigner : ModCompat
     {
         var modType = FindType("MapDesigner.MapDesignerMod");
         var mod = Require(LoadedModManager.GetMod(modType));
-        
+
         _settings = Require(Require(AccessTools.Field(modType, "settings")).GetValue(mod));
         _field_coastDir = Require(AccessTools.Field(_settings.GetType(), "coastDir"));
         _field_beachTerr = Require(AccessTools.Field(_settings.GetType(), "beachTerr"));

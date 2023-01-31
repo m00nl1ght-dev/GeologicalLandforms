@@ -4,12 +4,6 @@ using LunarFramework.Patching;
 using RimWorld;
 using Verse;
 
-// ReSharper disable RedundantAssignment
-// ReSharper disable UnusedParameter.Local
-// ReSharper disable UnusedType.Global
-// ReSharper disable UnusedMember.Local
-// ReSharper disable InconsistentNaming
-
 namespace GeologicalLandforms.Patches;
 
 [PatchGroup("Main")]
@@ -36,7 +30,7 @@ internal static class Patch_RimWorld_GenStep_Caves
         {
             caves[cell] = elevation[cell] > 0.7f ? (float) cavesModule.ValueAt(cell.x, cell.z) : 0f;
         }
-        
+
         return false;
     }
 }

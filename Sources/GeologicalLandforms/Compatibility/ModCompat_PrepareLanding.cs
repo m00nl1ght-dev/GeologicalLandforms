@@ -7,10 +7,6 @@ using LunarFramework.Patching;
 using UnityEngine;
 using Verse;
 
-// ReSharper disable UnusedType.Global
-// ReSharper disable UnusedMember.Local
-// ReSharper disable InconsistentNaming
-
 namespace GeologicalLandforms.Compatibility;
 
 [HarmonyPatch]
@@ -18,7 +14,7 @@ internal class ModCompat_PrepareLanding : ModCompat
 {
     public override string TargetAssemblyName => "PrepareLanding";
     public override string DisplayName => "Prepare Landing";
-    
+
     private static MethodInfo MethodUtilEntryHeader;
     private static PropertyInfo PropertyUtilListing;
 
@@ -27,10 +23,10 @@ internal class ModCompat_PrepareLanding : ModCompat
     protected override bool OnApply()
     {
         var utilType = FindType("PrepareLanding.Core.Gui.Tab.TabGuiUtility");
-        
+
         MethodUtilEntryHeader = Require(AccessTools.Method(utilType, "DrawEntryHeader"));
         PropertyUtilListing = Require(AccessTools.Property(utilType, "ListingStandard"));
-        
+
         return true;
     }
 
@@ -45,7 +41,7 @@ internal class ModCompat_PrepareLanding : ModCompat
             return landforms == null || !landforms.Contains(LandformFilter);
         });
     }
-    
+
     [HarmonyPostfix]
     [HarmonyPatch("PrepareLanding.Filters.TileFilterHasCave", "IsFilterActive", MethodType.Getter)]
     private static void TileFilterHasCave_FilterActive(ref bool __result)
@@ -64,7 +60,7 @@ internal class ModCompat_PrepareLanding : ModCompat
         });
 
         var listingStandard = (Listing_Standard) PropertyUtilListing.GetValue(__instance);
-        
+
         if (listingStandard.ButtonText("GeologicalLandforms.WorldMap.SelectLandform".Translate()))
         {
             List<FloatMenuOption> floatMenuOptions = new()
@@ -90,10 +86,10 @@ internal class ModCompat_PrepareLanding : ModCompat
         var rightLabel = LandformFilter != null
             ? LandformFilter.TranslatedNameForSelection.CapitalizeFirst()
             : (string) "PLMW_SelectAny".Translate();
-        
+
         listingStandard.LabelDouble($"{"GeologicalLandforms.WorldMap.Landform".Translate()}:", rightLabel);
     }
-    
+
     [HarmonyPostfix]
     [HarmonyPatch("PrepareLanding.GameData.UserData", "ResetAllFields")]
     private static void UserData_ResetAllFields()

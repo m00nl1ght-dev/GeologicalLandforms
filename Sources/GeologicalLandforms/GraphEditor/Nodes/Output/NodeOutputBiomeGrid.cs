@@ -20,19 +20,19 @@ public class NodeOutputBiomeGrid : NodeOutputBase
 
     [ValueConnectionKnob("Biome Grid", Direction.In, BiomeGridFunctionConnection.Id)]
     public ValueConnectionKnob BiomeGridKnob;
-    
+
     [ValueConnectionKnob("Transitions", Direction.In, GridFunctionConnection.Id)]
     public ValueConnectionKnob BiomeTransitionKnob;
-    
+
     public override void NodeGUI()
     {
         GUILayout.BeginVertical(BoxStyle);
-        
+
         GUILayout.BeginHorizontal(BoxStyle);
         GUILayout.Label(BiomeGridKnob.name, BoxLayout);
         GUILayout.EndHorizontal();
         BiomeGridKnob.SetPosition();
-        
+
         GUILayout.BeginHorizontal(BoxStyle);
         GUILayout.Label(BiomeTransitionKnob.name, BoxLayout);
         GUILayout.EndHorizontal();
@@ -47,7 +47,7 @@ public class NodeOutputBiomeGrid : NodeOutputBase
         if (existing != null && existing != this && canvas.nodes.Contains(existing)) existing.Delete();
         Landform.OutputBiomeGrid = this;
     }
-    
+
     protected override void OnDelete()
     {
         if (Landform.OutputBiomeGrid == this) Landform.OutputBiomeGrid = null;
@@ -57,32 +57,32 @@ public class NodeOutputBiomeGrid : NodeOutputBase
     {
         return BiomeGridKnob.GetValue<ISupplier<IGridFunction<BiomeData>>>()?.ResetAndGet();
     }
-    
+
     public IGridFunction<BiomeData> ApplyBiomeTransitions(IWorldTileInfo tile, IntVec2 mapSize, IGridFunction<BiomeData> landformBiomes)
     {
         var transition = BiomeTransitionKnob.GetValue<ISupplier<IGridFunction<double>>>();
         if (transition == null) return null;
         return new BiomeBorderFunc(landformBiomes, transition, tile, mapSize);
     }
-    
+
     private class BiomeBorderFunc : IGridFunction<BiomeData>
     {
         private readonly IGridFunction<BiomeData> _preFunc;
         private readonly BiomeDef _primary;
-        
+
         private readonly IGridFunction<double>[] _selFuncs;
         private readonly BiomeDef[] _biomes;
 
         public BiomeBorderFunc(
-            IGridFunction<BiomeData> preFunc, 
-            ISupplier<IGridFunction<double>> selSupplier, 
+            IGridFunction<BiomeData> preFunc,
+            ISupplier<IGridFunction<double>> selSupplier,
             IWorldTileInfo tile, IntVec2 mapSize)
         {
             _preFunc = preFunc;
             _primary = tile.Biome;
             _biomes = new BiomeDef[tile.BorderingBiomes.Count];
             _selFuncs = new IGridFunction<double>[_biomes.Length];
-            
+
             selSupplier.ResetState();
             for (var i = 0; i < _biomes.Length; i++)
             {

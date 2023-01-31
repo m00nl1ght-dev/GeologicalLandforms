@@ -12,7 +12,7 @@ public class NodeGridSelectTerrainGrid : NodeSelectBase
 {
     public const string ID = "gridSelectTerrainGrid";
     public override string GetID => ID;
-    
+
     [ValueConnectionKnob("Input", Direction.In, GridFunctionConnection.Id)]
     public ValueConnectionKnob InputKnob;
 
@@ -21,16 +21,16 @@ public class NodeGridSelectTerrainGrid : NodeSelectBase
 
     public override ValueConnectionKnob InputKnobRef => InputKnob;
     public override ValueConnectionKnob OutputKnobRef => OutputKnob;
-    
+
     public List<string> Values = new();
 
     public override void NodeGUI()
     {
         while (OptionKnobs.Count < 2) CreateNewOptionKnob();
-        
+
         while (Values.Count < OptionKnobs.Count) Values.Add("");
         while (Values.Count > OptionKnobs.Count) Values.RemoveAt(Values.Count - 1);
-        
+
         base.NodeGUI();
     }
 
@@ -65,11 +65,11 @@ public class NodeGridSelectTerrainGrid : NodeSelectBase
         {
             options.Add(SupplierOrGridFixed(OptionKnobs[i], GridFunction.Of(TerrainData.FromString(Values[i]))));
         }
-        
+
         OutputKnob.SetValue<ISupplier<IGridFunction<TerrainData>>>(new GridOutput<TerrainData>(input, options, Thresholds, PostProcess));
         return true;
     }
-    
+
     private TerrainData PostProcess(TerrainData result, int index)
     {
         return new TerrainData(result.Terrain, index);

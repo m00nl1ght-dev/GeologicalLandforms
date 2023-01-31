@@ -11,7 +11,7 @@ public readonly struct BiomeData
 {
     public static readonly BiomeData Empty = new();
     public static readonly IGridFunction<BiomeData> EmptyGrid = GridFunction.Of(Empty);
-    
+
     public readonly BiomeDef Biome;
     public readonly int SelectionIndex;
 
@@ -23,7 +23,7 @@ public readonly struct BiomeData
         Biome = biome;
         SelectionIndex = selectionIndex;
     }
-    
+
     public static void BiomeSelector(NodeBase node, string current, bool enabled, Action<BiomeDef> onSelected)
     {
         GUI.enabled = enabled;
@@ -35,18 +35,18 @@ public readonly struct BiomeData
 
         GUI.enabled = true;
     }
-    
+
     public static string DislayString(string defName)
     {
         return string.IsNullOrEmpty(defName) || defName.EqualsIgnoreCase("None") ? "None"
             : DefDatabase<BiomeDef>.GetNamed(defName, false)?.label.CapitalizeFirst() ?? "None";
     }
-    
+
     public static string DislayString(BiomeDef def)
     {
         return def == null ? "None" : def.label.CapitalizeFirst();
     }
-    
+
     public override string ToString()
     {
         return IsEmpty ? "None" : Biome.defName;
@@ -56,7 +56,7 @@ public readonly struct BiomeData
     {
         return def == null ? "None" : def.defName;
     }
-    
+
     public static BiomeData FromString(string defName, BiomeDef fallback = null)
     {
         return string.IsNullOrEmpty(defName) || defName.EqualsIgnoreCase("None") ? new BiomeData(fallback)

@@ -16,7 +16,7 @@ public class GeologicalLandformsSettings : LunarModSettings
 {
     public readonly Entry<int> MaxLandformSearchRadius = MakeEntry(100);
     public readonly Entry<float> AnimalDensityFactorForSecludedAreas = MakeEntry(0.5f);
-    
+
     public readonly Entry<bool> EnableCellFinderOptimization = MakeEntry(true);
     public readonly Entry<bool> EnableLandformScaling = MakeEntry(true);
     public readonly Entry<bool> EnableExperimentalLandforms = MakeEntry(false);
@@ -26,10 +26,10 @@ public class GeologicalLandformsSettings : LunarModSettings
 
     public readonly Entry<List<string>> DisabledLandforms = MakeEntry(new List<string>());
     public readonly Entry<List<string>> DisabledBiomeVariants = MakeEntry(new List<string>());
-    
+
     public readonly Entry<List<string>> BiomesExcludedFromLandforms = MakeEntry(new List<string>());
     public readonly Entry<List<string>> BiomesExcludedFromTransitions = MakeEntry(new List<string>());
-    
+
     protected override string TranslationKeyPrefix => "GeologicalLandforms.Settings";
 
     public GeologicalLandformsSettings() : base(GeologicalLandformsMod.LunarAPI)
@@ -40,7 +40,7 @@ public class GeologicalLandformsSettings : LunarModSettings
         MakeTab("Tab.BiomeVariants", DoBiomeVariantsSettingsTab, () => DefDatabase<BiomeVariantDef>.DefCount > 0);
         MakeTab("Tab.Debug", DoDebugSettingsTab, () => Prefs.DevMode);
     }
-    
+
     private void DoGeneralSettingsTab(LayoutRect layout)
     {
         if (LunarGUI.Button(layout, Label("OpenEditor")))
@@ -59,13 +59,13 @@ public class GeologicalLandformsSettings : LunarModSettings
         }
 
         layout.Abs(10f);
-        
+
         LunarGUI.LabelDouble(layout, Label("MaxLandformSearchRadius"), MaxLandformSearchRadius.Value.ToString("F0"));
         LunarGUI.Slider(layout, ref MaxLandformSearchRadius.Value, 10, 500);
-        
+
         LunarGUI.LabelDouble(layout, Label("AnimalDensityFactorForSecludedAreas"), AnimalDensityFactorForSecludedAreas.Value.ToString("F2"));
         LunarGUI.Slider(layout, ref AnimalDensityFactorForSecludedAreas.Value, 0.25f, 0.75f);
-        
+
         layout.Abs(10f);
 
         LunarGUI.Checkbox(layout, ref EnableExperimentalLandforms.Value, Label("EnableExperimentalLandforms"));
@@ -73,29 +73,29 @@ public class GeologicalLandformsSettings : LunarModSettings
         LunarGUI.Checkbox(layout, ref EnableCellFinderOptimization.Value, Label("EnableCellFinderOptimization"));
         LunarGUI.Checkbox(layout, ref EnableLandformScaling.Value, Label("EnableLandformScaling"));
     }
-    
+
     private void DoLandformsSettingsTab(LayoutRect layout)
     {
         foreach (var landform in LandformManager.Landforms.Values)
         {
             if (landform.Manifest.IsExperimental && !EnableExperimentalLandforms) continue;
             if (landform.WorldTileReq == null) continue;
-            
+
             layout.PushChanged();
-            
+
             LunarGUI.ToggleTableRow(layout, landform.Id, true, LabelForLandform(landform), DisabledLandforms);
-            
+
             if (layout.PopChanged())
             {
                 ApplyLandformConfigEffects();
             }
         }
     }
-    
+
     private void DoBiomeConfigSettingsTab(LayoutRect layout)
     {
         layout.BeginAbs(Text.LineHeight, new LayoutParams { Horizontal = true, Reversed = true });
-        LunarGUI.Label(layout.Abs(22f), "MB"); 
+        LunarGUI.Label(layout.Abs(22f), "MB");
         layout.Abs(4f);
         LunarGUI.Label(layout.Abs(22f), "LF");
         layout.Abs(4f);
@@ -109,16 +109,16 @@ public class GeologicalLandformsSettings : LunarModSettings
             var properties = biome.Properties();
             var preconfigured = !properties.allowLandforms || !properties.allowBiomeTransitions;
             var label = LabelForBiomeConfig(biome, preconfigured);
-            
+
             if (preconfigured && biome.modContentPack is { IsOfficialMod: true }) continue;
-            
+
             var listForLandforms = properties.allowLandforms ? BiomesExcludedFromLandforms.Value : null;
             var listForTransitions = properties.allowBiomeTransitions ? BiomesExcludedFromTransitions.Value : null;
 
             layout.PushChanged();
-            
+
             LunarGUI.ToggleTableRow(layout, biome.defName, true, label, listForLandforms, listForTransitions);
-            
+
             if (layout.PopChanged())
             {
                 if (listForLandforms != null) properties.allowLandformsByUser = !listForLandforms.Contains(biome.defName);
@@ -138,14 +138,14 @@ public class GeologicalLandformsSettings : LunarModSettings
     private void DoDebugSettingsTab(LayoutRect layout)
     {
         LunarGUI.Checkbox(layout, ref ShowWorldTileDebugInfo.Value, Label("ShowWorldTileDebugInfo"));
-            
+
         if (EnableGodMode)
         {
             LunarGUI.Checkbox(layout, ref IgnoreWorldTileReqInGodMode.Value, Label("IgnoreWorldTileReqInGodMode"));
         }
-        
+
         layout.Abs(10f);
-        
+
         if (Find.CurrentMap != null && LunarGUI.Button(layout, "[DEV] Replace all stone on current map"))
         {
             var options = DefDatabase<ThingDef>.AllDefsListForReading
@@ -153,12 +153,12 @@ public class GeologicalLandformsSettings : LunarModSettings
                 .Select(e => new FloatMenuOption(e.defName, () => ReplaceNaturalRock(e))).ToList();
             Find.WindowStack.Add(new FloatMenu(options));
         }
-        
+
         if (Find.World != null && LunarGUI.Button(layout, "[DEV] Clear world tile data cache"))
         {
             WorldTileInfo.CreateNewCache();
         }
-        
+
         if (Find.World != null && LunarGUI.Button(layout, "[DEV] Fill world tile data cache"))
         {
             FillWorldTileInfoCache();
@@ -166,16 +166,16 @@ public class GeologicalLandformsSettings : LunarModSettings
     }
 
     private static readonly List<string> LabelBuffer = new();
-    
+
     private string LabelForLandform(Landform landform)
     {
         var label = landform.TranslatedNameForSelection.CapitalizeFirst();
-        
-        if (landform.Manifest.IsCustom) 
+
+        if (landform.Manifest.IsCustom)
             LabelBuffer.Add("GeologicalLandforms.Settings.Landforms.Custom".Translate());
-        if (landform.Manifest.IsExperimental) 
+        if (landform.Manifest.IsExperimental)
             LabelBuffer.Add("GeologicalLandforms.Settings.Landforms.Experimental".Translate());
-        if (landform.ModContentPack != null && landform.ModContentPack != GeologicalLandformsMod.Settings.Mod.Content) 
+        if (landform.ModContentPack != null && landform.ModContentPack != GeologicalLandformsMod.Settings.Mod.Content)
             LabelBuffer.Add("GeologicalLandforms.Settings.Landforms.DefinedInMod".Translate(landform.ModContentPack.Name));
         if (landform.WorldTileReq.Commonness <= 0)
             LabelBuffer.Add("GeologicalLandforms.Settings.Landforms.ZeroCommonness".Translate());
@@ -188,15 +188,15 @@ public class GeologicalLandformsSettings : LunarModSettings
         LabelBuffer.Clear();
         return label;
     }
-    
+
     private string LabelForBiomeConfig(BiomeDef biome, bool preconfigured)
     {
         var mcp = biome.modContentPack;
         var label = biome.label.CapitalizeFirst();
-        
-        if (mcp is { IsOfficialMod: false } && mcp != GeologicalLandformsMod.Settings.Mod.Content) 
+
+        if (mcp is { IsOfficialMod: false } && mcp != GeologicalLandformsMod.Settings.Mod.Content)
             LabelBuffer.Add("GeologicalLandforms.Settings.Landforms.DefinedInMod".Translate(mcp.Name));
-        
+
         if (preconfigured)
             LabelBuffer.Add("GeologicalLandforms.Settings.BiomeConfig.ExcludedByAuthor".Translate());
 
@@ -204,13 +204,13 @@ public class GeologicalLandformsSettings : LunarModSettings
         LabelBuffer.Clear();
         return label;
     }
-    
+
     private string LabelForBiomeVariant(BiomeVariantDef biomeVariant)
     {
         var mcp = biomeVariant.modContentPack;
         var label = biomeVariant.label.CapitalizeFirst();
-        
-        if (mcp is { IsOfficialMod: false } && mcp != GeologicalLandformsMod.Settings.Mod.Content) 
+
+        if (mcp is { IsOfficialMod: false } && mcp != GeologicalLandformsMod.Settings.Mod.Content)
             LabelBuffer.Add("GeologicalLandforms.Settings.Landforms.DefinedInMod".Translate(mcp.Name));
 
         if (LabelBuffer.Count > 0) label += " <color=#777777>(" + LabelBuffer.Join(s => s) + ")</color>";
@@ -224,7 +224,7 @@ public class GeologicalLandformsSettings : LunarModSettings
             .Where(GeologicalLandformsMod.IsLandformEnabled)
             .Any(lf => !lf.IsLayer && lf.WorldTileReq is { Topology: Topology.CliffOneSide, Commonness: >= 1f });
     }
-    
+
     public void ApplyBiomeConfigEffects()
     {
         foreach (var biome in DefDatabase<BiomeDef>.AllDefsListForReading)
@@ -240,25 +240,25 @@ public class GeologicalLandformsSettings : LunarModSettings
         map.regionAndRoomUpdater.Enabled = false;
 
         var terrainDef = thingDef.building.naturalTerrain;
-            
+
         foreach (var allCell in map.AllCells)
         {
             if (map.edificeGrid[allCell]?.def?.IsNonResourceNaturalRock ?? false)
                 GenSpawn.Spawn(thingDef, allCell, map);
-                
+
             if (map.terrainGrid.TerrainAt(allCell)?.smoothedTerrain != null)
             {
                 map.terrainGrid.SetTerrain(allCell, terrainDef);
             }
         }
-            
+
         map.regionAndRoomUpdater.Enabled = true;
     }
-    
+
     public static void FillWorldTileInfoCache()
     {
         WorldTileInfo.CreateNewCache();
-        
+
         GC.Collect();
         var before = GC.GetTotalMemory(true) / 1000000f;
 
@@ -267,8 +267,8 @@ public class GeologicalLandformsSettings : LunarModSettings
 
         GC.Collect();
         var after = GC.GetTotalMemory(true) / 1000000f;
-        
-        GeologicalLandformsMod.Logger.Log($"Filled cache for {world.grid.TilesCount} tiles, cache is now using {after-before:F2} MB of memory.");
+
+        GeologicalLandformsMod.Logger.Log($"Filled cache for {world.grid.TilesCount} tiles, cache is now using {after - before:F2} MB of memory.");
     }
 
     public override void ResetAll()

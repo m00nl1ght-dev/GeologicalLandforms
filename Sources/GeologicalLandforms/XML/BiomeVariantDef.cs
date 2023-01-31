@@ -15,14 +15,15 @@ public class BiomeVariantDef : Def
 {
     public WorldTileConditions worldTileConditions;
     public List<BiomeVariantLayer> layers;
-    
+
     public LabelDisplayMode labelDisplayMode = LabelDisplayMode.AppendPara;
     public DescriptionDisplayMode descriptionDisplayMode = DescriptionDisplayMode.Append;
-    
+
     [NoTranslate]
     public string texture;
+
     public bool useOceanMaterial;
-    
+
     [Unsaved]
     private Material cachedMat;
 
@@ -37,7 +38,7 @@ public class BiomeVariantDef : Def
             return cachedMat;
         }
     }
-    
+
     public TaggedString ApplyLabel(TaggedString baseLabel)
     {
         return labelDisplayMode switch
@@ -51,7 +52,7 @@ public class BiomeVariantDef : Def
             _ => throw new ArgumentOutOfRangeException()
         };
     }
-    
+
     public string ApplyDescription(string baseDescription)
     {
         return descriptionDisplayMode switch
@@ -61,9 +62,9 @@ public class BiomeVariantDef : Def
             DescriptionDisplayMode.Prepend => description + "\n\n" + baseDescription,
             DescriptionDisplayMode.Replace => description,
             _ => throw new ArgumentOutOfRangeException()
-        }; 
+        };
     }
-    
+
     private static Regex AllowedIdRegex = new("^[a-zA-Z0-9\\-_]*$");
 
     public override void PostLoad()
@@ -89,11 +90,19 @@ public class BiomeVariantDef : Def
 
     public enum LabelDisplayMode
     {
-        None, Append, AppendPara, Prepend, PrependPara, Replace
+        None,
+        Append,
+        AppendPara,
+        Prepend,
+        PrependPara,
+        Replace
     }
-    
+
     public enum DescriptionDisplayMode
     {
-        None, Append, Prepend, Replace
+        None,
+        Append,
+        Prepend,
+        Replace
     }
 }

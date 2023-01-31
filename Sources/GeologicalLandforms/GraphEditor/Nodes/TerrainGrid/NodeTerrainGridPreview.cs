@@ -12,7 +12,7 @@ namespace GeologicalLandforms.GraphEditor;
 public class NodeTerrainGridPreview : NodeDiscreteGridPreview<TerrainData>
 {
     public static readonly Color RockColor = GenColor.FromHex("36271C");
-    
+
     public const string ID = "terrainGridPreview";
     public override string GetID => ID;
 
@@ -22,47 +22,47 @@ public class NodeTerrainGridPreview : NodeDiscreteGridPreview<TerrainData>
     public override ValueConnectionKnob OutputKnobRef => OutputKnob;
 
     protected override IGridFunction<TerrainData> Default => GridFunction.Of(TerrainData.Empty);
-    
+
     [ValueConnectionKnob("Input", Direction.In, TerrainGridFunctionConnection.Id)]
     public ValueConnectionKnob InputKnob;
-    
+
     [ValueConnectionKnob("Output", Direction.Out, TerrainGridFunctionConnection.Id)]
     public ValueConnectionKnob OutputKnob;
-    
+
     [ValueConnectionKnob("ElevationInput", Direction.In, GridFunctionConnection.Id)]
     public ValueConnectionKnob ElevationInputKnob;
-    
+
     [ValueConnectionKnob("ElevationOutput", Direction.Out, GridFunctionConnection.Id)]
     public ValueConnectionKnob ElevationOutputKnob;
-    
-    [NonSerialized] 
+
+    [NonSerialized]
     protected IGridFunction<double> ElevationFunction;
-    
+
     public override void CleanUpGUI()
     {
         base.CleanUpGUI();
         ElevationFunction = null;
     }
-    
+
     public override void NodeGUI()
     {
         base.NodeGUI();
         ElevationInputKnob.SetPosition(DefaultSize.y - FirstKnobPosition);
         ElevationOutputKnob.SetPosition(DefaultSize.y - FirstKnobPosition);
     }
-    
+
     public override void RefreshPreview()
     {
         var previewRatio = TerrainCanvas.GridPreviewRatio;
-        
+
         var supplier = InputKnob.connected() ? InputKnobRef.GetValue<ISupplier<IGridFunction<TerrainData>>>() : null;
         var elevSupplier = ElevationInputKnob.connected() ? ElevationInputKnob.GetValue<ISupplier<IGridFunction<double>>>() : null;
-        
-        TerrainCanvas.PreviewScheduler.ScheduleTask(new PreviewTask(this, () => 
+
+        TerrainCanvas.PreviewScheduler.ScheduleTask(new PreviewTask(this, () =>
         {
             PreviewFunction = supplier != null ? supplier.ResetAndGet() : Default;
             ElevationFunction = elevSupplier != null ? elevSupplier.ResetAndGet() : GridFunction.Zero;
-            
+
             for (int x = 0; x < PreviewSize; x++)
             {
                 for (int y = 0; y < PreviewSize; y++)
@@ -79,7 +79,7 @@ public class NodeTerrainGridPreview : NodeDiscreteGridPreview<TerrainData>
             PreviewTexture.Apply();
         }));
     }
-    
+
     public override bool Calculate()
     {
         OutputKnob.SetValue(InputKnob.GetValue<ISupplier<IGridFunction<TerrainData>>>());
@@ -89,7 +89,7 @@ public class NodeTerrainGridPreview : NodeDiscreteGridPreview<TerrainData>
 
     protected override string MakeTooltip(TerrainData value, double x, double y)
     {
-        bool isRock = ElevationFunction?.ValueAt(x, y) > 0.7; 
+        bool isRock = ElevationFunction?.ValueAt(x, y) > 0.7;
         return (isRock ? "Natural rock" : TerrainData.DislayString(value.Terrain)) + " ( " + Math.Round(x, 0) + " | " + Math.Round(y, 0) + " )";
     }
 

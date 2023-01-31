@@ -4,8 +4,8 @@ using System.Linq;
 using System.Reflection.Emit;
 using HarmonyLib;
 using RimWorld;
+using UnityEngine;
 using Verse;
-using Debug = UnityEngine.Debug;
 
 // ReSharper disable FieldCanBeMadeReadOnly.Global
 // ReSharper disable InconsistentNaming
@@ -15,10 +15,10 @@ namespace GeologicalLandforms;
 public class BiomeProperties : DefModExtension
 {
     public bool isWaterCovered;
-    
+
     public bool allowLandforms = true;
     public bool allowBiomeTransitions = true;
-    
+
     public List<string> disallowedLandforms;
     public List<BiomeDef> disallowedBiomeTransitions;
 
@@ -30,8 +30,8 @@ public class BiomeProperties : DefModExtension
 
     public bool AllowLandforms => allowLandforms && allowLandformsByUser;
     public bool AllowBiomeTransitions => allowBiomeTransitions && allowBiomeTransitionsByUser;
-    
-    public BiomeProperties() {}
+
+    public BiomeProperties() { }
 
     public BiomeProperties(BiomeProperties other)
     {
@@ -64,7 +64,7 @@ public class BiomeProperties : DefModExtension
         var defaultsByDefName = DefaultsByDefName;
         var defaultsByPackageId = DefaultsByPackageId;
         var all = new BiomeProperties[DefDatabase<BiomeDef>.DefCount];
-        
+
         foreach (var biomeDef in DefDatabase<BiomeDef>.AllDefs)
         {
             var properties = biomeDef.GetModExtension<BiomeProperties>();
@@ -76,7 +76,7 @@ public class BiomeProperties : DefModExtension
 
         _cache = all;
     }
-    
+
     private static readonly BiomeProperties DefaultsForStandardBiome = new();
 
     private static readonly BiomeProperties DefaultsForSpecialPurposeBiome = new()
@@ -124,7 +124,7 @@ public class BiomeProperties : DefModExtension
             }
         }
     };
-    
+
     private static Dictionary<string, BiomeProperties> DefaultsByDefName => new()
     {
         {
@@ -163,7 +163,7 @@ public class BiomeProperties : DefModExtension
         {
             var method = AccessTools.Method(biome.workerClass, nameof(BiomeWorker.GetScore));
             if (method == null) throw new Exception("method GetScore not found");
-            
+
             var instructions = PatchProcessor.ReadMethodBody(method);
             if (instructions.All(op => !_extAccessOps.Contains(op.Key)))
             {

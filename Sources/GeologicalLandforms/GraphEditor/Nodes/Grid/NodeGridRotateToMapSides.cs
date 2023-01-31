@@ -21,7 +21,7 @@ public class NodeGridRotateToMapSides : NodeBase
 
     [NonSerialized]
     public List<ValueConnectionKnob> InputKnobs = new();
-    
+
     [NonSerialized]
     public List<ValueConnectionKnob> OutputKnobs = new();
 
@@ -43,7 +43,7 @@ public class NodeGridRotateToMapSides : NodeBase
     public override void NodeGUI()
     {
         while (InputKnobs.Count < 1) CreateNewKnobPair();
-        
+
         GUILayout.BeginVertical(BoxStyle);
 
         UpdateThresholdArray();
@@ -61,10 +61,10 @@ public class NodeGridRotateToMapSides : NodeBase
                     canvas.OnNodeChange(this);
                 });
             }
-            
+
             InputKnobs[i].SetPosition();
             OutputKnobs[i].SetPosition();
-            
+
             GUILayout.EndHorizontal();
         }
 
@@ -73,7 +73,7 @@ public class NodeGridRotateToMapSides : NodeBase
         if (GUI.changed)
             canvas.OnNodeChange(this);
     }
-    
+
     protected void CreateNewKnobPair()
     {
         CreateValueConnectionKnob(new("Input " + InputKnobs.Count, Direction.In, GridFunctionConnection.Id));
@@ -86,15 +86,15 @@ public class NodeGridRotateToMapSides : NodeBase
         base.FillNodeActionsMenu(inputInfo, menu);
         menu.AddSeparator("");
 
-        if (InputKnobs.Count < 20) 
+        if (InputKnobs.Count < 20)
         {
-            menu.AddItem(new GUIContent ("Add branch"), false, CreateNewKnobPair);
+            menu.AddItem(new GUIContent("Add branch"), false, CreateNewKnobPair);
             canvas.OnNodeChange(this);
         }
-        
-        if (InputKnobs.Count > 1) 
+
+        if (InputKnobs.Count > 1)
         {
-            menu.AddItem(new GUIContent ("Remove branch"), false, () =>
+            menu.AddItem(new GUIContent("Remove branch"), false, () =>
             {
                 DeleteConnectionPort(InputKnobs[InputKnobs.Count - 1]);
                 DeleteConnectionPort(OutputKnobs[InputKnobs.Count - 1]);
@@ -103,18 +103,18 @@ public class NodeGridRotateToMapSides : NodeBase
             });
         }
     }
-    
+
     public override bool Calculate()
     {
         for (int i = 0; i < InputKnobs.Count; i++)
         {
             OutputKnobs[i].SetValue<ISupplier<IGridFunction<double>>>(new NodeGridRotate.Output(
-                SupplierOrGridFixed(InputKnobs[i], GridFunction.Zero), 
-                Supplier.Of(MapSideToAngle(MapSides[i]) + Landform.GeneratingTile.LandformDirection.AsAngle), 
+                SupplierOrGridFixed(InputKnobs[i], GridFunction.Zero),
+                Supplier.Of(MapSideToAngle(MapSides[i]) + Landform.GeneratingTile.LandformDirection.AsAngle),
                 GridSize / 2, GridSize / 2
             ));
         }
-        
+
         return true;
     }
 
@@ -129,7 +129,7 @@ public class NodeGridRotateToMapSides : NodeBase
             _ => throw new ArgumentOutOfRangeException(nameof(mapSide), mapSide, null)
         };
     }
-    
+
     public static double MapSideToWorldAngle(MapSide mapSide)
     {
         return MapSideToAngle(mapSide) - 90f;
@@ -137,6 +137,9 @@ public class NodeGridRotateToMapSides : NodeBase
 
     public enum MapSide
     {
-        Front, Back, Left, Right
+        Front,
+        Back,
+        Left,
+        Right
     }
 }

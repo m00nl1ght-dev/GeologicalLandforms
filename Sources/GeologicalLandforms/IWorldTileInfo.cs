@@ -15,10 +15,10 @@ public interface IWorldTileInfo
     public IReadOnlyList<BiomeVariantDef> BiomeVariants { get; }
 
     public Topology Topology { get; }
-    public Rot4 LandformDirection  { get; }
-    
+    public Rot4 LandformDirection { get; }
+
     public StructRot4<CoastType> Coast { get; }
-    
+
     public MapParent WorldObject { get; }
     public BiomeDef Biome { get; }
 
@@ -30,10 +30,10 @@ public interface IWorldTileInfo
 
     public RiverDef MainRiver { get; }
     public float MainRiverAngle { get; }
-    
+
     public RoadDef MainRoad { get; }
     public float MainRoadAngle { get; }
-    
+
     public readonly struct BorderingBiome
     {
         public readonly BiomeDef Biome;

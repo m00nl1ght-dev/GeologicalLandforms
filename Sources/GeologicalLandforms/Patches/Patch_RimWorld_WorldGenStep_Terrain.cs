@@ -9,12 +9,6 @@ using UnityEngine;
 using Verse;
 using Verse.Noise;
 
-// ReSharper disable RedundantAssignment
-// ReSharper disable UnusedParameter.Local
-// ReSharper disable UnusedType.Global
-// ReSharper disable UnusedMember.Local
-// ReSharper disable InconsistentNaming
-
 namespace GeologicalLandforms.Patches;
 
 [PatchGroup("Main")]
@@ -25,14 +19,14 @@ internal static class Patch_RimWorld_WorldGenStep_Terrain
     private static ModuleBase noiseTemperatureOffset;
     private static ModuleBase noiseRainfall;
     private static ModuleBase noiseSwampiness;
-    
+
     private static SimpleCurve AvgTempByLatitudeCurve;
 
     private static readonly List<int> _tmpNeighbors = new();
 
     internal static World LastWorld;
     internal static bool[] BiomeTransitions;
-  
+
     [HarmonyPostfix]
     [HarmonyPatch("GenerateGridIntoWorld")]
     private static void GenerateGridIntoWorld(
@@ -64,12 +58,12 @@ internal static class Patch_RimWorld_WorldGenStep_Terrain
         noiseRainfall = null;
         noiseSwampiness = null;
     }
-    
+
     private static void CalcTransitions()
     {
         var world = Find.World;
         var grid = world.grid;
-        
+
         int tilesCount = grid.TilesCount;
         var data = new bool[tilesCount * 6];
 
@@ -102,34 +96,34 @@ internal static class Patch_RimWorld_WorldGenStep_Terrain
         stopwatch.Stop();
         GeologicalLandformsAPI.Logger.Debug("Patch_RimWorld_WorldGenStep_Terrain took " + stopwatch.ElapsedMilliseconds + " ms.");
     }
-    
+
     private static bool CheckIsTransition(int tile, int nTile, BiomeDef biome, BiomeDef nBiome)
     {
         bool rev = tile > nTile;
         int min = rev ? nTile : tile;
         int max = rev ? tile : nTile;
-        
+
         Rand.PushState(Gen.HashCombineInt(min, max));
-        
+
         bool flag = Rand.Bool ^ rev;
         var rTile = flag ? nTile : tile;
 
         var grid = Find.WorldGrid;
         var hilliness = grid[rTile].hilliness;
         var pos = Vector3.Lerp(grid.GetTileCenter(min), grid.GetTileCenter(max), 0.5f);
-        
+
         var tTileInfo = GenerateTileFor(pos, hilliness);
 
         var diff = nBiome.Worker.GetScore(tTileInfo, rTile) - biome.Worker.GetScore(tTileInfo, rTile);
-        
+
         Rand.PopState();
-        
+
         if (diff > 0) return true;
         if (diff < 0) return false;
 
         return flag;
     }
-    
+
     private static Tile GenerateTileFor(Vector3 pos, Hilliness hilliness)
     {
         var ws = new Tile
@@ -140,20 +134,20 @@ internal static class Patch_RimWorld_WorldGenStep_Terrain
 
         var longLat = new Vector2(Mathf.Atan2(pos.x, -pos.z) * 57.29578f, Mathf.Asin(pos.y / 100f) * 57.29578f);
         float x = BaseTemperatureAtLatitude(longLat.y) - TemperatureReductionAtElevation(ws.elevation) + noiseTemperatureOffset.GetValue(pos);
-        
+
         var temperatureCurve = Find.World.info.overallTemperature.GetTemperatureCurve();
         if (temperatureCurve != null)
             x = temperatureCurve.Evaluate(x);
-        
+
         ws.temperature = x;
         ws.rainfall = noiseRainfall.GetValue(pos);
-        
+
         if (ws.hilliness is Hilliness.Flat or Hilliness.SmallHills)
             ws.swampiness = noiseSwampiness.GetValue(pos);
-        
+
         return ws;
     }
-    
+
     private static float BaseTemperatureAtLatitude(float lat)
     {
         float x = Mathf.Abs(lat) / 90f;

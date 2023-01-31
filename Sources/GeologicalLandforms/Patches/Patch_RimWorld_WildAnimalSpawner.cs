@@ -5,14 +5,6 @@ using RimWorld;
 using UnityEngine;
 using Verse;
 
-// ReSharper disable ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
-// ReSharper disable LoopCanBeConvertedToQuery
-// ReSharper disable RedundantAssignment
-// ReSharper disable UnusedParameter.Local
-// ReSharper disable UnusedType.Global
-// ReSharper disable UnusedMember.Local
-// ReSharper disable InconsistentNaming
-
 namespace GeologicalLandforms.Patches;
 
 [PatchGroup("Main")]
@@ -43,12 +35,12 @@ internal static class Patch_RimWorld_WildAnimalSpawner
         }
 
         __result = total * GeologicalLandformsAPI.AnimalDensityFactorFunction(biomeGrid) * AggregateAnimalDensityFactor(___map.gameConditionManager, ___map);
-        
+
         if (ModsConfig.BiotechActive)
         {
             __result *= PollutionToAnimalDensityFactorCurve.Evaluate(Find.WorldGrid[___map.Tile].pollution);
         }
-            
+
         return false;
     }
 
@@ -65,13 +57,13 @@ internal static class Patch_RimWorld_WildAnimalSpawner
         var kindDef = biome.AllWildAnimals
             .Where(a => ___map.mapTemperature.SeasonAcceptableFor(a.race))
             .RandomElementByWeight(def => CommonalityOfAnimalNow(def, biome, ___map.TileInfo.pollution));
-        
+
         if (kindDef == null)
         {
             __result = false;
             return false;
         }
-        
+
         int randomInRange = kindDef.wildGroupSize.RandomInRange;
         int radius = Mathf.CeilToInt(Mathf.Sqrt(kindDef.wildGroupSize.max));
         for (int index = 0; index < randomInRange; ++index)
@@ -83,13 +75,13 @@ internal static class Patch_RimWorld_WildAnimalSpawner
         __result = true;
         return false;
     }
-    
+
     private static float RawDesiredAnimalDensityForBiome(Map map, BiomeDef biome)
     {
         float animalDensity = biome.animalDensity;
         float num1 = 0.0f;
         float num2 = 0.0f;
-        
+
         foreach (var allWildAnimal in biome.AllWildAnimals)
         {
             float num3 = biome.CommonalityOfAnimal(allWildAnimal);
@@ -100,7 +92,7 @@ internal static class Patch_RimWorld_WildAnimalSpawner
 
         return animalDensity * (num1 / num2);
     }
-    
+
     private static float AggregateAnimalDensityFactor(GameConditionManager manager, Map map)
     {
         float num = 1f;
@@ -110,7 +102,7 @@ internal static class Patch_RimWorld_WildAnimalSpawner
             num *= AggregateAnimalDensityFactor(manager.Parent, map);
         return num;
     }
-    
+
     private static float CommonalityOfAnimalNow(PawnKindDef def, BiomeDef biome, float pollution) =>
         (!ModsConfig.BiotechActive || Rand.Value >= PollutionAnimalSpawnChanceFromPollutionCurve.Evaluate(pollution)
             ? biome.CommonalityOfAnimal(def) : biome.CommonalityOfPollutionAnimal(def)) / def.wildGroupSize.Average;

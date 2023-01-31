@@ -7,12 +7,6 @@ using RimWorld;
 using UnityEngine;
 using Verse;
 
-// ReSharper disable UnusedMember.Local
-// ReSharper disable RedundantAssignment
-// ReSharper disable ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
-// ReSharper disable LoopCanBeConvertedToQuery
-// ReSharper disable InconsistentNaming
-
 namespace GeologicalLandforms.Patches;
 
 [PatchGroup("Main")]
@@ -20,27 +14,27 @@ namespace GeologicalLandforms.Patches;
 internal static class Patch_RimWorld_WildPlantSpawner
 {
     // ### Thread static caches for good ol RimThreaded ###
-    
-    [ThreadStatic] 
+
+    [ThreadStatic]
     private static List<ThingDef> _tsc_possiblePlants;
-    
-    [ThreadStatic] 
+
+    [ThreadStatic]
     private static List<ThingDef> _tsc_plantDefsLowerOrder;
-    
-    [ThreadStatic] 
+
+    [ThreadStatic]
     private static Dictionary<ThingDef, List<float>> _tsc_nearbyClusters;
-    
-    [ThreadStatic] 
+
+    [ThreadStatic]
     private static List<KeyValuePair<ThingDef, List<float>>> _tsc_nearbyClustersList;
 
-    [ThreadStatic] 
+    [ThreadStatic]
     private static Dictionary<ThingDef, float> _tsc_distanceSqToNearbyClusters;
 
-    [ThreadStatic] 
+    [ThreadStatic]
     private static List<KeyValuePair<ThingDef, float>> _tsc_possiblePlantsWithWeight;
-    
+
     // ### Patches ###
-    
+
     [HarmonyPrefix]
     [HarmonyPatch("CurrentWholeMapNumDesiredPlants", MethodType.Getter)]
     [HarmonyPriority(Priority.VeryHigh)]
@@ -52,12 +46,12 @@ internal static class Patch_RimWorld_WildPlantSpawner
         var condFactor = AggregatePlantDensityFactor(___map.gameConditionManager, ___map);
 
         var cellRect = CellRect.WholeMap(___map);
-        
+
         float numDesiredPlants = 0.0f;
         foreach (var intVec3 in cellRect)
-            numDesiredPlants += __instance.GetDesiredPlantsCountAt(intVec3, intVec3, 
+            numDesiredPlants += __instance.GetDesiredPlantsCountAt(intVec3, intVec3,
                 biomeGrid.BiomeAt(intVec3).plantDensity * condFactor);
-            
+
         __result = numDesiredPlants;
         return false;
     }
@@ -75,7 +69,7 @@ internal static class Patch_RimWorld_WildPlantSpawner
     {
         var biomeGrid = ___map.BiomeGrid();
         if (biomeGrid is not { Enabled: true }) return true;
-        
+
         int area = ___map.Area;
         int num = Mathf.CeilToInt(area * 0.0001f);
         float chanceFromDensity = __instance.CachedChanceFromDensity;
@@ -92,17 +86,17 @@ internal static class Patch_RimWorld_WildPlantSpawner
                 ___calculatedWholeMapNumNonZeroFertilityCellsTmp = 0;
                 ___cycleIndex = 0;
             }
-            
+
             var intVec3 = ___map.cellsInRandomOrder.Get(___cycleIndex);
             var biomeEntry = biomeGrid.EntryAt(intVec3);
             float plantDensity = biomeEntry.Biome.plantDensity * condFactor;
-            
+
             ___calculatedWholeMapNumDesiredPlantsTmp += __instance.GetDesiredPlantsCountAt(intVec3, intVec3, plantDensity);
-            
+
             if (intVec3.GetFertility(___map) > 0.0)
                 ++___calculatedWholeMapNumNonZeroFertilityCellsTmp;
 
-            bool asCavePlant = GoodRoofForCavePlant(___map, intVec3)  && !biomeEntry.ApplyToCaveSpawns;
+            bool asCavePlant = GoodRoofForCavePlant(___map, intVec3) && !biomeEntry.ApplyToCaveSpawns;
             float mtb = asCavePlant ? 130f : biomeEntry.Biome.wildPlantRegrowDays;
             if (Rand.Chance(chanceFromDensity) && Rand.MTBEventOccurs(mtb, 60000f, checkDuration) && CanRegrowAt(___map, intVec3))
             {
@@ -125,10 +119,10 @@ internal static class Patch_RimWorld_WildPlantSpawner
     {
         var biomeGrid = map.BiomeGrid();
         if (biomeGrid is not { Enabled: true }) return true;
-        
+
         float condFactor = AggregatePlantDensityFactor(map.gameConditionManager, map);
         float desired = map.wildPlantSpawner.CurrentWholeMapNumDesiredPlants;
-        
+
         foreach (var c in map.cellsInRandomOrder.GetAll())
         {
             if (!Rand.Chance(1f / 1000f))
@@ -142,7 +136,7 @@ internal static class Patch_RimWorld_WildPlantSpawner
                     CheckSpawnWildPlantAt_Patched_NonCave(map.wildPlantSpawner, biomeEntry.Biome, map, c, density, desired, true);
             }
         }
-        
+
         return false;
     }
 
@@ -163,14 +157,14 @@ internal static class Patch_RimWorld_WildPlantSpawner
         __result = biomeGrid.Entries.SelectMany(b => b.Biome.AllWildPlants).Contains(plantDef);
         return false;
     }
-    
+
     [HarmonyPrefix]
     [HarmonyPatch(typeof(AnimalPenManager), "GetFixedAutoCutFilter")]
     [HarmonyPriority(Priority.VeryHigh)]
     private static void GetFixedAutoCutFilter(Map ___map, ref ThingFilter ___cachedFixedAutoCutFilter)
     {
         if (___cachedFixedAutoCutFilter != null) return;
-        
+
         var biomeGrid = ___map.BiomeGrid();
         if (biomeGrid is not { Enabled: true }) return;
 
@@ -180,11 +174,12 @@ internal static class Patch_RimWorld_WildPlantSpawner
             if (allWildPlant.plant.allowAutoCut)
                 ___cachedFixedAutoCutFilter.SetAllow(allWildPlant, true);
         }
+
         ___cachedFixedAutoCutFilter.SetAllow(ThingDefOf.BurnedTree, true);
     }
-    
+
     // ### Modified internal methods ###
-    
+
     private static bool CheckSpawnWildPlantAt_Patched_NonCave(
         WildPlantSpawner instance,
         BiomeDef biome, Map map, IntVec3 c,
@@ -192,10 +187,10 @@ internal static class Patch_RimWorld_WildPlantSpawner
         float wholeMapNumDesiredPlants,
         bool setRandomGrowth = false)
     {
-        if (plantDensity <= 0.0 || 
-            c.GetPlant(map) != null || 
+        if (plantDensity <= 0.0 ||
+            c.GetPlant(map) != null ||
             c.GetCover(map) != null ||
-            c.GetEdifice(map) != null || 
+            c.GetEdifice(map) != null ||
             map.fertilityGrid.FertilityAt(c) <= 0.0 ||
             !PlantUtility.SnowAllowsPlanting(c, map)) return false;
 
@@ -203,23 +198,23 @@ internal static class Patch_RimWorld_WildPlantSpawner
 
         _tsc_possiblePlants ??= new List<ThingDef>();
         _tsc_possiblePlantsWithWeight ??= new List<KeyValuePair<ThingDef, float>>();
-        
+
         CalculatePlantsWhichCanGrowAt_Patched(instance, biome, map, c, _tsc_possiblePlants, plantDensity);
         if (!_tsc_possiblePlants.Any()) return false;
-        
+
         CalculateDistancesToNearbyClusters_Patched(biome, map, c);
         _tsc_possiblePlantsWithWeight.Clear();
-        
+
         foreach (var plant in _tsc_possiblePlants)
         {
-            float num = PlantChoiceWeight_Patched(instance, biome, map, plant, c, 
+            float num = PlantChoiceWeight_Patched(instance, biome, map, plant, c,
                 _tsc_distanceSqToNearbyClusters, wholeMapNumDesiredPlants, plantDensity);
             _tsc_possiblePlantsWithWeight.Add(new KeyValuePair<ThingDef, float>(plant, num));
         }
 
         if (!_tsc_possiblePlantsWithWeight.TryRandomElementByWeight(x => x.Value, out var result)) return false;
-        
-        var newThing = (Plant)ThingMaker.MakeThing(result.Key);
+
+        var newThing = (Plant) ThingMaker.MakeThing(result.Key);
         if (setRandomGrowth)
         {
             newThing.Growth = Mathf.Clamp01(InitialGrowthRandomRange.RandomInRange);
@@ -230,7 +225,7 @@ internal static class Patch_RimWorld_WildPlantSpawner
         GenSpawn.Spawn(newThing, c, map);
         return true;
     }
-    
+
     private static float PlantChoiceWeight_Patched(
         WildPlantSpawner instance,
         BiomeDef biome, Map map,
@@ -241,7 +236,7 @@ internal static class Patch_RimWorld_WildPlantSpawner
     {
         float comm = biome.CommonalityOfPlant(plantDef);
         float commPct = biome.CommonalityPctOfPlant(plantDef);
-        
+
         float num1 = comm;
         if (num1 <= 0.0) return num1;
 
@@ -249,23 +244,23 @@ internal static class Patch_RimWorld_WildPlantSpawner
         if (map.listerThings.ThingsInGroup(ThingRequestGroup.NonStumpPlant).Count > wholeMapNumDesiredPlants / 2.0)
         {
             x1 = map.listerThings.ThingsOfDef(plantDef).Count /
-                 (float)map.listerThings.ThingsInGroup(ThingRequestGroup.NonStumpPlant).Count / commPct;
+                 (float) map.listerThings.ThingsInGroup(ThingRequestGroup.NonStumpPlant).Count / commPct;
             num1 *= GlobalPctSelectionWeightBias.Evaluate(x1);
         }
 
         if (plantDef.plant.GrowsInClusters && x1 < 1.1)
         {
             float num2 = biome.PlantCommonalitiesSum;
-            float x2 = (float)(comm * (double)plantDef.plant.wildClusterWeight / (num2 - (double)comm + comm * (double)plantDef.plant.wildClusterWeight));
-            float outTo1 = (float)(1.0 / (3.14159274101257 * plantDef.plant.wildClusterRadius * plantDef.plant.wildClusterRadius));
-            
+            float x2 = (float) (comm * (double) plantDef.plant.wildClusterWeight / (num2 - (double) comm + comm * (double) plantDef.plant.wildClusterWeight));
+            float outTo1 = (float) (1.0 / (3.14159274101257 * plantDef.plant.wildClusterRadius * plantDef.plant.wildClusterRadius));
+
             float outTo2 = GenMath.LerpDoubleClamped(commPct, 1f, 1f, outTo1, x2);
             if (distanceSqToNearbyClusters.TryGetValue(plantDef, out var f))
             {
                 float x3 = Mathf.Sqrt(f);
                 num1 *= GenMath.LerpDoubleClamped(
-                    plantDef.plant.wildClusterRadius * 0.9f, 
-                    plantDef.plant.wildClusterRadius * 1.1f, 
+                    plantDef.plant.wildClusterRadius * 0.9f,
+                    plantDef.plant.wildClusterRadius * 1.1f,
                     plantDef.plant.wildClusterWeight, outTo2, x3);
             }
             else num1 *= outTo2;
@@ -274,12 +269,12 @@ internal static class Patch_RimWorld_WildPlantSpawner
         if (plantDef.plant.wildEqualLocalDistribution)
         {
             float f = wholeMapNumDesiredPlants * commPct;
-            float a = (float)(Mathf.Max(map.Size.x, map.Size.z) / (double)Mathf.Sqrt(f) * 2.0);
+            float a = (float) (Mathf.Max(map.Size.x, map.Size.z) / (double) Mathf.Sqrt(f) * 2.0);
             float radiusToScan = Mathf.Max(a, 7f);
-            
+
             if (plantDef.plant.GrowsInClusters)
-                a = Mathf.Max(a, plantDef.plant.wildClusterRadius * 1.6f);
-            
+                a = Mathf.Max(a, plantDef.plant.wildClusterRadius * 1.6f); // TODO check a
+
             if (radiusToScan <= 25.0)
                 num1 *= LocalPlantProportionsWeightFactor_Patched(instance, map, c, commPct, plantDensity, radiusToScan, plantDef);
         }
@@ -297,7 +292,7 @@ internal static class Patch_RimWorld_WildPlantSpawner
         float numDesiredPlantsLocally = 0.0f;
         int numPlants = 0;
         int numPlantsThisDef = 0;
-        
+
         RegionTraverser.BreadthFirstTraverse(c, map,
             (_, to) => c.InHorDistOf(to.extentsClose.ClosestCellTo(c), radiusToScan), reg =>
             {
@@ -306,9 +301,9 @@ internal static class Patch_RimWorld_WildPlantSpawner
                 numPlantsThisDef += reg.ListerThings.ThingsOfDef(plantDef).Count;
                 return false;
             });
-        
-        return numDesiredPlantsLocally * (double)commonalityPct < 2.0 || numPlants <= numDesiredPlantsLocally * 0.5 ? 1f
-            : Mathf.Lerp(7f, 1f, numPlantsThisDef / (float)numPlants / commonalityPct);
+
+        return numDesiredPlantsLocally * (double) commonalityPct < 2.0 || numPlants <= numDesiredPlantsLocally * 0.5 ? 1f
+            : Mathf.Lerp(7f, 1f, numPlantsThisDef / (float) numPlants / commonalityPct);
     }
 
     private static void CalculatePlantsWhichCanGrowAt_Patched(
@@ -318,13 +313,13 @@ internal static class Patch_RimWorld_WildPlantSpawner
         float plantDensity)
     {
         outPlants.Clear();
-        
+
         var allWildPlants = biome.AllWildPlants;
         foreach (var plantDef in allWildPlants)
         {
             if (plantDef.CanEverPlantAt(c, map))
             {
-                if (plantDef.plant.wildOrder != (double)biome.LowestWildAndCavePlantOrder)
+                if (plantDef.plant.wildOrder != (double) biome.LowestWildAndCavePlantOrder)
                 {
                     float num = 7f;
                     if (plantDef.plant.GrowsInClusters)
@@ -348,11 +343,11 @@ internal static class Patch_RimWorld_WildPlantSpawner
         float num1 = 0.0f;
         _tsc_plantDefsLowerOrder ??= new List<ThingDef>();
         _tsc_plantDefsLowerOrder.Clear();
-        
+
         var allWildPlants = biome.AllWildPlants;
         foreach (var def in allWildPlants)
         {
-            if (def.plant.wildOrder < (double)plantDef.plant.wildOrder)
+            if (def.plant.wildOrder < (double) plantDef.plant.wildOrder)
             {
                 num1 += biome.CommonalityPctOfPlant(def);
                 _tsc_plantDefsLowerOrder.Add(def);
@@ -369,9 +364,9 @@ internal static class Patch_RimWorld_WildPlantSpawner
                     numPlantsLowerOrder += reg.ListerThings.ThingsOfDef(def).Count;
                 return false;
             });
-        
+
         float num2 = numDesiredPlantsLocally * num1;
-        return num2 < 4.0 || numPlantsLowerOrder / (double)num2 >= 0.569999992847443;
+        return num2 < 4.0 || numPlantsLowerOrder / (double) num2 >= 0.569999992847443;
     }
 
     private static bool SaturatedAt_Patched(
@@ -381,13 +376,13 @@ internal static class Patch_RimWorld_WildPlantSpawner
         float wholeMapNumDesiredPlants)
     {
         int num = GenRadial.NumCellsInRadius(20f);
-        if (wholeMapNumDesiredPlants * (num / (double)map.Area) <= 4.0 
+        if (wholeMapNumDesiredPlants * (num / (double) map.Area) <= 4.0
             || (!biome.wildPlantsCareAboutLocalFertility && Rand.ChanceSeeded(BiomeTransition.PlantLowDensityPassChance, c.GetHashCode() ^ map.Tile)))
-            return map.listerThings.ThingsInGroup(ThingRequestGroup.NonStumpPlant).Count >= (double)wholeMapNumDesiredPlants;
-        
+            return map.listerThings.ThingsInGroup(ThingRequestGroup.NonStumpPlant).Count >= (double) wholeMapNumDesiredPlants;
+
         float numDesiredPlantsLocally = 0.0f;
         int numPlants = 0;
-        
+
         RegionTraverser.BreadthFirstTraverse(c, map, (_, to) => c.InHorDistOf(to.extentsClose.ClosestCellTo(c), 20f),
             reg =>
             {
@@ -395,8 +390,8 @@ internal static class Patch_RimWorld_WildPlantSpawner
                 numPlants += reg.ListerThings.ThingsInGroup(ThingRequestGroup.NonStumpPlant).Count;
                 return false;
             });
-        
-        return numPlants >= (double)numDesiredPlantsLocally;
+
+        return numPlants >= (double) numDesiredPlantsLocally;
     }
 
     private static void CalculateDistancesToNearbyClusters_Patched(
@@ -409,7 +404,7 @@ internal static class Patch_RimWorld_WildPlantSpawner
         _tsc_nearbyClusters.Clear();
         _tsc_nearbyClustersList.Clear();
         _tsc_distanceSqToNearbyClusters.Clear();
-        
+
         int num1 = GenRadial.NumCellsInRadius(biome.MaxWildAndCavePlantsClusterRadius * 2);
         for (int index1 = 0; index1 < num1; ++index1)
         {
@@ -434,24 +429,24 @@ internal static class Patch_RimWorld_WildPlantSpawner
                 }
             }
         }
-        
+
         foreach (var nearbyClusters in _tsc_nearbyClustersList)
         {
             var floatList = nearbyClusters.Value;
             floatList.Sort();
             double num2 = floatList[floatList.Count / 2];
-            _tsc_distanceSqToNearbyClusters.Add(nearbyClusters.Key, (float)num2);
+            _tsc_distanceSqToNearbyClusters.Add(nearbyClusters.Key, (float) num2);
             floatList.Clear();
             SimplePool<List<float>>.Return(floatList);
         }
     }
-    
+
     // ### Extracted values and utils ###
-    
+
     private static readonly FloatRange InitialGrowthRandomRange = new(0.15f, 1.5f);
-    
+
     private static readonly SimpleCurve GlobalPctSelectionWeightBias = new() { new(0.0f, 3f), new(1f, 1f), new(1.5f, 0.25f), new(3f, 0.02f) };
-    
+
     private static float AggregatePlantDensityFactor(GameConditionManager manager, Map map)
     {
         float num = 1f;
@@ -461,9 +456,9 @@ internal static class Patch_RimWorld_WildPlantSpawner
             num *= AggregatePlantDensityFactor(manager.Parent, map);
         return num;
     }
-    
+
     private static bool GoodRoofForCavePlant(Map map, IntVec3 c) => c.GetRoof(map) is { isNatural: true };
-    
+
     private static bool CanRegrowAt(Map map, IntVec3 c) => c.GetTemperature(map) > 0 && (!c.Roofed(map) || GoodRoofForCavePlant(map, c));
 
     public static void LogInfo(Map map, IntVec3 pos)

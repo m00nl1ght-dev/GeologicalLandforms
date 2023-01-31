@@ -9,12 +9,6 @@ using RimWorld;
 using TerrainGraph;
 using Verse;
 
-// ReSharper disable RedundantAssignment
-// ReSharper disable UnusedParameter.Local
-// ReSharper disable UnusedType.Global
-// ReSharper disable UnusedMember.Local
-// ReSharper disable InconsistentNaming
-
 namespace GeologicalLandforms.Patches;
 
 [PatchGroup("Main")]
@@ -37,7 +31,7 @@ internal static class Patch_RimWorld_GenStep_Terrain
     {
         Init(map.BiomeGrid());
     }
-    
+
     [HarmonyPostfix]
     [HarmonyPatch("Generate")]
     [HarmonyPriority(Priority.Last)]
@@ -49,7 +43,7 @@ internal static class Patch_RimWorld_GenStep_Terrain
         BiomeTransition.DrawDebug(map.debugDrawer);
         biomeGrid?.UpdateOpenGroundFraction();
     }
-    
+
     [HarmonyPrefix]
     [HarmonyPatch("TerrainFrom")]
     [HarmonyPriority(Priority.VeryHigh)]
@@ -59,17 +53,17 @@ internal static class Patch_RimWorld_GenStep_Terrain
 
         var tRiver = river?.TerrainAt(c, true);
         __result = TerrainAt(c, map, elevation, fertility, tRiver, preferSolid);
-        
+
         return false;
     }
 
     public static void Init(BiomeGrid biomeGrid = null)
     {
         CleanUp();
-        
+
         var tile = Landform.GeneratingTile as WorldTileInfo;
         var mapSize = Landform.GeneratingMapSize;
-        
+
         if (tile == null) return;
 
         BaseFunction = Landform.GetFeatureScaled(l => l.OutputTerrain?.GetBase());
@@ -77,7 +71,7 @@ internal static class Patch_RimWorld_GenStep_Terrain
         BiomeFunction = Landform.GetFeatureScaled(l => l.OutputBiomeGrid?.GetBiomeGrid());
 
         _biomeGrid = biomeGrid ?? new BiomeGrid(null, new IntVec3(mapSize.x, 1, mapSize.z), tile.Biome);
-        
+
         bool hasBiomeTransition = false;
         if (tile.HasBorderingBiomes)
         {
@@ -143,7 +137,7 @@ internal static class Patch_RimWorld_GenStep_Terrain
         }
 
         var tBase = BaseFunction?.ValueAt(c.x, c.z).Terrain;
-        
+
         if (tBase.IsDeepWater()) return tBase;
         if (tRiver is { IsRiver: true }) return tRiver;
 
@@ -156,7 +150,7 @@ internal static class Patch_RimWorld_GenStep_Terrain
             var tPatch = patchMaker.TerrainAt(c, map, fertility);
             if (tPatch != null) return tPatch;
         }
-        
+
         var tStone = StoneFunction == null ? DefaultElevationTerrain(c, biome, elevation) : StoneFunction.ValueAt(c.x, c.z).Terrain;
         if (tStone != null) return tStone;
 
@@ -168,7 +162,7 @@ internal static class Patch_RimWorld_GenStep_Terrain
             Log.Error("No terrain found in biome " + biome.defName + " for elevation=" + elevation + ", fertility=" + fertility);
             DebugWarnedMissingTerrain = true;
         }
-        
+
         return TerrainDefOf.Sand;
     }
 

@@ -13,59 +13,59 @@ namespace GeologicalLandforms.GraphEditor;
 public class NodeGridTunnels : NodeBase
 {
     public Landform Landform => (Landform) canvas;
-    
+
     public const string ID = "gridTunnels";
     public override string GetID => ID;
 
     public override string Title => "Tunnels";
-    
+
     [ValueConnectionKnob("Input", Direction.In, GridFunctionConnection.Id)]
     public ValueConnectionKnob InputKnob;
 
     [ValueConnectionKnob("Output", Direction.Out, GridFunctionConnection.Id)]
     public ValueConnectionKnob OutputKnob;
-    
+
     public double InputThreshold = 0.7;
-    
+
     public double OpenTunnelsPer10K = 5.8;
     public double ClosedTunnelsPer10K = 2.5;
-    
+
     public int MaxOpenTunnelsPerRockGroup = 3;
     public int MaxClosedTunnelsPerRockGroup = 1;
-    
+
     public double TunnelWidthMultiplier = 1;
     public double TunnelWidthMin = 1.4;
     public double WidthReductionPerCell = 0.034;
-    
+
     public double BranchChance = 0.1;
     public int BranchMinDistanceFromStart = 15;
     public double BranchWidthOffsetMultiplier = 1;
-    
+
     public double DirectionChangeSpeed = 8;
-    
+
     public override void NodeGUI()
     {
         InputKnob.SetPosition(FirstKnobPosition);
         OutputKnob.SetPosition(FirstKnobPosition);
-        
+
         GUILayout.BeginVertical(BoxStyle);
-        
+
         ValueField("Input threshold", ref InputThreshold);
 
         ValueField("Open per 10K", ref OpenTunnelsPer10K);
         ValueField("Closed per 10K", ref ClosedTunnelsPer10K);
-        
+
         IntField("Max open", ref MaxOpenTunnelsPerRockGroup);
         IntField("Max closed", ref MaxClosedTunnelsPerRockGroup);
-        
+
         ValueField("Base width", ref TunnelWidthMultiplier);
         ValueField("Base width min", ref TunnelWidthMin);
         ValueField("Loss per cell", ref WidthReductionPerCell);
-        
+
         ValueField("Branch chance", ref BranchChance);
         IntField("Branch min dist", ref BranchMinDistanceFromStart);
         ValueField("Branch width", ref BranchWidthOffsetMultiplier);
-        
+
         ValueField("Angle change", ref DirectionChangeSpeed);
 
         GUILayout.EndVertical();
@@ -92,13 +92,13 @@ public class NodeGridTunnels : NodeBase
                 BranchWidthOffsetMultiplier = (float) BranchWidthOffsetMultiplier,
                 DirectionChangeSpeed = (float) DirectionChangeSpeed
             },
-            Landform.MapSpaceToNodeSpaceFactor, 
-            Landform.GeneratingMapSize, 
+            Landform.MapSpaceToNodeSpaceFactor,
+            Landform.GeneratingMapSize,
             CombinedSeed
         ));
         return true;
     }
-    
+
     private class Output : ISupplier<IGridFunction<double>>
     {
         private readonly ISupplier<IGridFunction<double>> _input;
@@ -108,8 +108,9 @@ public class NodeGridTunnels : NodeBase
         private readonly IntVec2 _targetGridSize;
         private readonly int _seed;
 
-        public Output(ISupplier<IGridFunction<double>> input, double inputThreshold, 
-            TunnelGenerator generator, double transformScale, IntVec2 targetGridSize, int seed)
+        public Output(
+            ISupplier<IGridFunction<double>> input, double inputThreshold, TunnelGenerator generator,
+            double transformScale, IntVec2 targetGridSize, int seed)
         {
             _input = input;
             _inputThreshold = inputThreshold;

@@ -17,11 +17,11 @@ namespace GeologicalLandforms;
 public static class GeologicalLandformsAPI
 {
     // ### Init ###
-    
+
     internal static readonly LunarAPI LunarAPI = LunarAPI.Create("Geological Landforms", Init, Cleanup);
-    
+
     internal static LogContext Logger => LunarAPI.LogContext;
-    
+
     internal static PatchGroup MainPatchGroup;
     internal static PatchGroup CompatPatchGroup;
 
@@ -29,7 +29,7 @@ public static class GeologicalLandformsAPI
     {
         GenTypes.IgnoredNamespaceNames.AddDistinct("GeologicalLandforms.Defs");
     }
-    
+
     private static void Init()
     {
         MainPatchGroup ??= LunarAPI.RootPatchGroup.NewSubGroup("Main");
@@ -43,15 +43,15 @@ public static class GeologicalLandformsAPI
 
         MapPreviewAPI.OnWorldChanged += WorldTileInfo.InvalidateCache;
         MapPreviewAPI.AddStableSeedCondition(map => WorldTileInfo.Get(map.Tile).HasLandforms);
-        
+
         ReflectionUtility.AddSearchableAssembly(typeof(GeologicalLandformsAPI).Assembly);
         ReflectionUtility.AddSearchableAssembly(typeof(TerrainCanvas).Assembly);
-        
+
         ReflectionUtility.AddIdentifierReplacement("0_TerrainGraph", "TerrainGraph");
         ReflectionUtility.AddIdentifierReplacement("1_GeologicalLandforms", "GeologicalLandforms");
-        
+
         NodeEditor.ReInit(false);
-        
+
         BiomeProperties.RebuildCache();
         LandformGraphEditor.InitialSetup();
         LandformManager.InitialLoad();
@@ -72,18 +72,19 @@ public static class GeologicalLandformsAPI
         });
         */
     }
-    
+
     private static void Cleanup()
     {
         MainPatchGroup?.UnsubscribeAll();
         CompatPatchGroup?.UnsubscribeAll();
     }
-    
+
     // ### Public API ###
-    
+
     public static bool DisableVanillaMountainGeneration { get; set; }
 
     public static event Action<BiomeDef, BiomeProperties> BiomePropertiesHook;
+
     public static BiomeProperties ApplyBiomePropertiesHook(BiomeDef biome, BiomeProperties properties)
     {
         if (BiomePropertiesHook == null) return properties;
@@ -91,32 +92,37 @@ public static class GeologicalLandformsAPI
         BiomePropertiesHook.Invoke(biome, properties);
         return properties;
     }
-    
+
     public static event Action<WorldTileInfoPrimer> WorldTileInfoHook;
+
     public static void ApplyWorldTileInfoHook(WorldTileInfoPrimer worldTileInfo)
     {
         WorldTileInfoHook?.Invoke(worldTileInfo);
     }
 
     public static event Action<Listing_Standard> OnTerrainTab;
+
     public static void RunOnTerrainTab(Listing_Standard listing)
     {
         OnTerrainTab?.Invoke(listing);
     }
 
     public static Func<Map, bool> CellFinderOptimizationFilter { get; private set; } = _ => true;
+
     public static void PutCellFinderOptimizationFilter(Func<Map, bool> filter)
     {
         CellFinderOptimizationFilter = filter ?? (_ => true);
     }
-    
+
     public static Func<int> LandformGridSizeFunction { get; private set; } = () => Landform.DefaultGridFullSize;
+
     public static void PutLandformGridSizeFunction(Func<int> function)
     {
         LandformGridSizeFunction = function ?? (() => Landform.DefaultGridFullSize);
     }
 
     public static Func<BiomeGrid, float> AnimalDensityFactorFunction { get; private set; } = _ => 1f;
+
     public static void PutAnimalDensityFactorFunction(Func<BiomeGrid, float> function)
     {
         AnimalDensityFactorFunction = function ?? (_ => 1f);

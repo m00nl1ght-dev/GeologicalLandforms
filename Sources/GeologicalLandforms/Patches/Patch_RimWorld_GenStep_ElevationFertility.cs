@@ -8,12 +8,6 @@ using RimWorld;
 using RimWorld.Planet;
 using Verse;
 
-// ReSharper disable RedundantAssignment
-// ReSharper disable UnusedParameter.Local
-// ReSharper disable UnusedType.Global
-// ReSharper disable UnusedMember.Local
-// ReSharper disable InconsistentNaming
-
 namespace GeologicalLandforms.Patches;
 
 [PatchGroup("Main")]
@@ -36,22 +30,22 @@ internal static class Patch_RimWorld_GenStep_ElevationFertility
 
         var elevationSeed = Rand.Range(0, int.MaxValue);
         var fertilitySeed = Rand.Range(0, int.MaxValue);
-        
+
         elevationModule ??= NodeInputBase.BuildVanillaElevationGrid(Landform.GeneratingTile, elevationSeed);
         fertilityModule ??= NodeInputBase.BuildVanillaFertilityGrid(Landform.GeneratingTile, fertilitySeed);
 
         var elevation = MapGenerator.Elevation;
         var fertility = MapGenerator.Fertility;
-        
+
         foreach (var cell in map.AllCells)
         {
             elevation[cell] = (float) elevationModule.ValueAt(cell.x, cell.z);
             fertility[cell] = (float) fertilityModule.ValueAt(cell.x, cell.z);
         }
-        
+
         return false;
     }
-    
+
     /// <summary>
     /// Disables vanilla cliff generation on mountainous tiles.
     /// </summary>
@@ -65,24 +59,24 @@ internal static class Patch_RimWorld_GenStep_ElevationFertility
 
         var method = AccessTools.Method(typeof(Patch_RimWorld_GenStep_ElevationFertility), nameof(AdjustHillinessCheck));
         if (method == null) throw new Exception("missing AdjustHillinessCheck");
-        
+
         var field = AccessTools.Field(typeof(Tile), nameof(Tile.hilliness));
         if (field == null) throw new Exception("missing Tile.hilliness");
-    
+
         foreach (var instruction in instructions)
         {
             if (instruction.LoadsConstant("elev world-factored")) foundElevStr = true;
-            
+
             if (!patched && foundElevStr && instruction.LoadsField(field))
             {
                 patched = true;
                 yield return new CodeInstruction(OpCodes.Call, method);
                 continue;
             }
-            
+
             yield return instruction;
         }
-            
+
         if (patched == false)
             GeologicalLandformsAPI.Logger.Fatal("Failed to patch RimWorld_GenStep_ElevationFertility");
     }
@@ -93,7 +87,7 @@ internal static class Patch_RimWorld_GenStep_ElevationFertility
         {
             return (int) Hilliness.LargeHills;
         }
-        
+
         return (int) tile.hilliness;
     }
 }

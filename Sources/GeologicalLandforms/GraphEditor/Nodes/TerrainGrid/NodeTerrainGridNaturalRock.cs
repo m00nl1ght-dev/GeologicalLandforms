@@ -13,7 +13,7 @@ public class NodeTerrainGridNaturalRock : NodeBase
 {
     public const string ID = "terrainGridNaturalRock";
     public override string GetID => ID;
-    
+
     public override Vector2 MinSize => new(100, 10);
 
     public override string Title => "Natural Rock";

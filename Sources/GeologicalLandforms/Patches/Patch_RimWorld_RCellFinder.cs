@@ -8,13 +8,6 @@ using Verse;
 using Verse.AI;
 using Verse.Profile;
 
-// ReSharper disable UnusedMember.Local
-// ReSharper disable UnusedType.Global
-// ReSharper disable RedundantAssignment
-// ReSharper disable ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
-// ReSharper disable LoopCanBeConvertedToQuery
-// ReSharper disable InconsistentNaming
-
 namespace GeologicalLandforms.Patches;
 
 [PatchGroup("Main")]
@@ -38,12 +31,12 @@ internal static class Patch_RimWorld_RCellFinder
             spot = IntVec3.Invalid;
             return false;
         }
-        
+
         if (!GeologicalLandformsAPI.CellFinderOptimizationFilter.Invoke(map)) return true;
-        
+
         var cache = GetOrBuildCacheForMap(map);
         if (cache.Length == 0) return true;
-        
+
         var maxDanger = Danger.Some;
         IntVec3 intVec3;
         int tries = 0;
@@ -57,17 +50,17 @@ internal static class Patch_RimWorld_RCellFinder
                 __result = false;
                 return false;
             }
-            
+
             if (tries > 15) maxDanger = Danger.Deadly;
             intVec3 = ValToVec(map, cache[Rand.Range(0, cache.Length)]);
         }
         while (!intVec3.Standable(map) || !pawn.CanReach(intVec3, PathEndMode.OnCell, maxDanger, mode: mode));
-        
+
         spot = intVec3;
         __result = true;
         return false;
     }
-    
+
     [HarmonyPostfix]
     [HarmonyPatch("TryFindBestExitSpot")]
     [HarmonyPriority(Priority.Low)]
@@ -80,7 +73,7 @@ internal static class Patch_RimWorld_RCellFinder
     private static ushort[] GetOrBuildCacheForMap(Map map)
     {
         if (_cache.TryGetValue(map, out var array)) return array;
-        
+
         if (map.Size.x != map.Size.z)
         {
             _cache[map] = Array.Empty<ushort>();
@@ -106,13 +99,16 @@ internal static class Patch_RimWorld_RCellFinder
 
         var underLimit = buffer.Count < 2 * mapSize;
         var vecs = underLimit ? buffer.ToArray() : Array.Empty<ushort>();
-        
+
         GeologicalLandformsAPI.Logger.Log("Found " + buffer.Count + " walkable map edge cells. Caching enabled: " + underLimit);
-        if (Prefs.DevMode) foreach (var cellval in buffer)
+        if (Prefs.DevMode)
         {
-            map.debugDrawer.FlashCell(ValToVec(map, cellval));
+            foreach (var cellval in buffer)
+            {
+                map.debugDrawer.FlashCell(ValToVec(map, cellval));
+            }
         }
-        
+
         _cache[map] = vecs;
         return vecs;
     }
@@ -126,7 +122,7 @@ internal static class Patch_RimWorld_RCellFinder
         if (val < s * 4) return new IntVec3(s - 1, 0, val % s);
         return IntVec3.Invalid;
     }
-    
+
     [HarmonyPostfix]
     [HarmonyPatch(typeof(Game), "DeinitAndRemoveMap_NewTemp")]
     [HarmonyPriority(Priority.Low)]
@@ -134,7 +130,7 @@ internal static class Patch_RimWorld_RCellFinder
     {
         _cache.Remove(map);
     }
-    
+
     [HarmonyPostfix]
     [HarmonyPatch(typeof(MemoryUtility), "ClearAllMapsAndWorld")]
     [HarmonyPriority(Priority.Low)]
@@ -142,7 +138,7 @@ internal static class Patch_RimWorld_RCellFinder
     {
         _cache.Clear();
     }
-    
+
     [HarmonyPostfix]
     [HarmonyPatch(typeof(FloatMenuMakerMap), "AddHumanlikeOrders")]
     [HarmonyPriority(Priority.High)]
@@ -153,8 +149,8 @@ internal static class Patch_RimWorld_RCellFinder
         {
             var localpawn = pawn;
             var dest = target;
-            var pTarg = (Pawn)dest.Thing;
-            
+            var pTarg = (Pawn) dest.Thing;
+
             void ActionBest()
             {
                 if (!RCellFinder.TryFindBestExitSpot(pTarg, out var dest1))
@@ -163,7 +159,7 @@ internal static class Patch_RimWorld_RCellFinder
                 job1.exitMapOnArrival = false;
                 localpawn.jobs.TryTakeOrderedJob(job1);
             }
-            
+
             void ActionRandom()
             {
                 if (!RCellFinder.TryFindRandomExitSpot(pTarg, out var dest1))
@@ -172,12 +168,12 @@ internal static class Patch_RimWorld_RCellFinder
                 job1.exitMapOnArrival = false;
                 localpawn.jobs.TryTakeOrderedJob(job1);
             }
-            
+
             void ActionMapInfo()
             {
                 Patch_RimWorld_WildPlantSpawner.LogInfo(localpawn.Map, localpawn.Position);
             }
-            
+
             opts.Add(FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption("[debug] Find best map exit", ActionBest, MenuOptionPriority.InitiateSocial, null, dest.Thing), pawn, pTarg));
             opts.Add(FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption("[debug] Find random map exit", ActionRandom, MenuOptionPriority.InitiateSocial, null, dest.Thing), pawn, pTarg));
             opts.Add(FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption("[debug] Print map info", ActionMapInfo, MenuOptionPriority.InitiateSocial, null, dest.Thing), pawn, pTarg));

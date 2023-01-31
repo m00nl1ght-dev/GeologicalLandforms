@@ -12,13 +12,13 @@ public class NodeOutputFertility : NodeOutputBase
     public override string GetID => ID;
 
     public override string Title => "Fertility Output";
-    
+
     public override ValueConnectionKnob InputKnobRef => InputKnob;
     public override ValueConnectionKnob OutputKnobRef => OutputKnob;
 
     [ValueConnectionKnob("Fertility", Direction.In, GridFunctionConnection.Id)]
     public ValueConnectionKnob InputKnob;
-    
+
     [ValueConnectionKnob("FertilityOutput", Direction.Out, GridFunctionConnection.Id)]
     public ValueConnectionKnob OutputKnob;
 
@@ -28,17 +28,17 @@ public class NodeOutputFertility : NodeOutputBase
         if (exiting != null && exiting != this && canvas.nodes.Contains(exiting)) exiting.Delete();
         Landform.OutputFertility = this;
     }
-    
+
     protected override void OnDelete()
     {
         if (Landform.OutputFertility == this) Landform.OutputFertility = null;
     }
-    
+
     public IGridFunction<double> Get()
     {
         return InputKnob.GetValue<ISupplier<IGridFunction<double>>>()?.ResetAndGet();
     }
-    
+
     public override bool Calculate()
     {
         OutputKnob.SetValue(InputKnob.GetValue<ISupplier<IGridFunction<double>>>());

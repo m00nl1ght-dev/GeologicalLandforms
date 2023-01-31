@@ -11,7 +11,7 @@ public class NodeGridSelectTerrain : NodeSelectBase
 {
     public const string ID = "gridSelectTerrain";
     public override string GetID => ID;
-    
+
     [ValueConnectionKnob("Input", Direction.In, GridFunctionConnection.Id)]
     public ValueConnectionKnob InputKnob;
 
@@ -20,16 +20,16 @@ public class NodeGridSelectTerrain : NodeSelectBase
 
     public override ValueConnectionKnob InputKnobRef => InputKnob;
     public override ValueConnectionKnob OutputKnobRef => OutputKnob;
-    
+
     public List<string> Values = new();
 
     public override void NodeGUI()
     {
         while (OptionKnobs.Count < 2) CreateNewOptionKnob();
-        
+
         while (Values.Count < OptionKnobs.Count) Values.Add("");
         while (Values.Count > OptionKnobs.Count) Values.RemoveAt(Values.Count - 1);
-        
+
         base.NodeGUI();
     }
 
@@ -47,12 +47,12 @@ public class NodeGridSelectTerrain : NodeSelectBase
         CreateValueConnectionKnob(new("Option " + OptionKnobs.Count, Direction.In, TerrainFunctionConnection.Id));
         RefreshDynamicKnobs();
     }
-    
+
     public override void RefreshPreview()
     {
         base.RefreshPreview();
         List<ISupplier<TerrainData>> suppliers = new();
-        
+
         for (int i = 0; i < Math.Min(Values.Count, OptionKnobs.Count); i++)
         {
             ValueConnectionKnob knob = OptionKnobs[i];
@@ -76,11 +76,11 @@ public class NodeGridSelectTerrain : NodeSelectBase
         {
             options.Add(new NodeTerrainGridFromValue.Output(SupplierOrFixed(OptionKnobs[i], TerrainData.FromString(Values[i]))));
         }
-        
+
         OutputKnob.SetValue<ISupplier<IGridFunction<TerrainData>>>(new GridOutput<TerrainData>(input, options, Thresholds, PostProcess));
         return true;
     }
-    
+
     private TerrainData PostProcess(TerrainData result, int index)
     {
         return new TerrainData(result.Terrain, index);

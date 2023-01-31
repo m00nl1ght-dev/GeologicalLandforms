@@ -6,14 +6,13 @@ using Verse;
 namespace GeologicalLandforms;
 
 // ReSharper disable InconsistentNaming
-
 [Serializable]
 public class XmlListModifier<T>
 {
     public List<T> entries;
-    
+
     public Operation operation = Operation.Add;
-    
+
     public void Apply(List<T> val, Func<T, object> keyFunc = null)
     {
         switch (operation)
@@ -24,6 +23,7 @@ public class XmlListModifier<T>
                     if (keyFunc != null) val.RemoveAll(e => keyFunc(e) == keyFunc(entry));
                     val.Add(entry);
                 }
+
                 break;
             case Operation.Replace:
                 val.Clear();
@@ -31,7 +31,7 @@ public class XmlListModifier<T>
                 break;
         }
     }
-    
+
     public void LoadDataFromXmlCustom(XmlNode xmlRoot)
     {
         entries = DirectXmlToObject.ObjectFromXml<List<T>>(xmlRoot, false);
@@ -40,6 +40,7 @@ public class XmlListModifier<T>
 
     public enum Operation
     {
-        Add, Replace
+        Add,
+        Replace
     }
 }

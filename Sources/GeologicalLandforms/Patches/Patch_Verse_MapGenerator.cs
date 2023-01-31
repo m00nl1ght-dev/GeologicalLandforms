@@ -3,12 +3,6 @@ using HarmonyLib;
 using LunarFramework.Patching;
 using Verse;
 
-// ReSharper disable RedundantAssignment
-// ReSharper disable UnusedParameter.Local
-// ReSharper disable UnusedType.Global
-// ReSharper disable UnusedMember.Local
-// ReSharper disable InconsistentNaming
-
 namespace GeologicalLandforms.Patches;
 
 [PatchGroup("Main")]
@@ -22,7 +16,7 @@ internal static class Patch_Verse_MapGenerator
     {
         Landform.PrepareMapGen(map);
     }
-    
+
     [HarmonyPostfix]
     [HarmonyPatch("GenerateContentsIntoMap")]
     [HarmonyPriority(Priority.Last)]

@@ -6,8 +6,6 @@ using MapPreview;
 using RimWorld.Planet;
 using Verse;
 
-// ReSharper disable FieldCanBeMadeReadOnly.Local
-
 namespace GeologicalLandforms;
 
 public class LandformData : WorldComponent
@@ -15,13 +13,13 @@ public class LandformData : WorldComponent
     private Dictionary<int, Entry> _entries = new();
     private bool[] _biomeTransitions = Array.Empty<bool>();
 
-    public LandformData(World world) : base(world) {}
+    public LandformData(World world) : base(world) { }
 
     public bool TryGet(int tileId, out Entry entry)
     {
         return _entries.TryGetValue(tileId, out entry);
     }
-    
+
     public bool IsLocked(int tileId)
     {
         if (!_entries.TryGetValue(tileId, out var entry)) return false;
@@ -49,7 +47,7 @@ public class LandformData : WorldComponent
     {
         return _biomeTransitions.Length > 0;
     }
-    
+
     public bool GetBiomeTransition(int tileId, int nbId)
     {
         if (tileId < 0 || tileId >= world.grid.TilesCount || nbId is < 0 or > 5) return false;
@@ -68,7 +66,7 @@ public class LandformData : WorldComponent
         Scribe_Collections.Look(ref _entries, "entries", LookMode.Value, LookMode.Value);
 
         var hasBiomeTransitions = HasBiomeTransitions();
-        
+
         Scribe_Values.Look(ref hasBiomeTransitions, "hasBiomeTransitions");
 
         if (hasBiomeTransitions)
@@ -77,7 +75,7 @@ public class LandformData : WorldComponent
             if (_biomeTransitions.Length != elements) _biomeTransitions = new bool[elements];
             DataExposeUtility.BoolArray(ref _biomeTransitions, elements, "biomeTransitions");
         }
-        
+
         ExtensionUtils.ClearCaches();
     }
 
@@ -89,7 +87,7 @@ public class LandformData : WorldComponent
 
         public Landform Landform => LandformId == null ? null : LandformManager.FindById(LandformId);
         public Rot4 LandformDirection => new(LandformDirectionInt);
-        
+
         public static Entry FromString(string s)
         {
             return new Entry

@@ -20,13 +20,13 @@ public class NodeBiomeGridPreview : NodeDiscreteGridPreview<BiomeData>
     public override ValueConnectionKnob OutputKnobRef => OutputKnob;
 
     protected override IGridFunction<BiomeData> Default => GridFunction.Of(BiomeData.Empty);
-    
+
     [ValueConnectionKnob("Input", Direction.In, BiomeGridFunctionConnection.Id)]
     public ValueConnectionKnob InputKnob;
-    
+
     [ValueConnectionKnob("Output", Direction.Out, BiomeGridFunctionConnection.Id)]
     public ValueConnectionKnob OutputKnob;
-    
+
     public override bool Calculate()
     {
         OutputKnob.SetValue(InputKnob.GetValue<ISupplier<IGridFunction<BiomeData>>>());

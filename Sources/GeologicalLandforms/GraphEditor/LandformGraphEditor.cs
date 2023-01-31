@@ -12,9 +12,9 @@ public class LandformGraphEditor : Window
 {
     private NodeEditorUserCache _canvasCache;
     private LandformGraphInterface _editorInterface;
-    
+
     public EditorMockTileInfo EditorTileInfo { get; private set; }
-    
+
     public Landform Landform => (Landform) _canvasCache?.nodeCanvas;
     public bool HasLoadedLandform => Landform != null && Landform.Id != null;
 
@@ -36,9 +36,9 @@ public class LandformGraphEditor : Window
 
         NodeBase.ActiveTooltipHandler = (rect, textFunc, tdelay) =>
         {
-            TooltipHandler.TipRegion(rect, new TipSignal(textFunc, textFunc.GetHashCode()) {delay = tdelay});
+            TooltipHandler.TipRegion(rect, new TipSignal(textFunc, textFunc.GetHashCode()) { delay = tdelay });
         };
-        
+
         NodeGridPreview.RegisterPreviewModel(new NodeOutputElevation.ElevationPreviewModel(), "Elevation");
     }
 
@@ -50,7 +50,7 @@ public class LandformGraphEditor : Window
         if (_canvasCache.nodeCanvas)
             _canvasCache.nodeCanvas.Validate();
     }
-    
+
     public override void Close(bool doCloseSound = true)
     {
         ResetView();
@@ -61,7 +61,7 @@ public class LandformGraphEditor : Window
         WorldTileInfo.InvalidateCache();
         LandformPreviewScheduler.Instance.Shutdown();
     }
-    
+
     private void AssureSetup()
     {
         if (_canvasCache == null)
@@ -88,7 +88,7 @@ public class LandformGraphEditor : Window
 
         if (landform != null)
         {
-            EditorTileInfo = new EditorMockTileInfo{LandformsList = new List<Landform>{landform}};
+            EditorTileInfo = new EditorMockTileInfo { LandformsList = new List<Landform> { landform } };
             Landform.PrepareEditor(EditorTileInfo);
             _canvasCache.nodeCanvas = landform;
 
@@ -112,7 +112,7 @@ public class LandformGraphEditor : Window
             _canvasCache.NewEditorState();
         }
     }
-    
+
     public void ResetView()
     {
         _canvasCache.NewEditorState();
@@ -124,7 +124,7 @@ public class LandformGraphEditor : Window
     {
         OpenLandform(null);
     }
-    
+
     public void Duplicate()
     {
         if (HasLoadedLandform)
@@ -173,7 +173,7 @@ public class LandformGraphEditor : Window
             GUILayout.Label("Node Editor Initiation failed! Check console for more information!");
             return;
         }
-        
+
         AssureSetup();
 
         // Start Overlay GUI for popups (before any other GUI)
@@ -184,20 +184,22 @@ public class LandformGraphEditor : Window
 
         // Begin Node Editor GUI and set canvas rect
         NodeEditorGUI.StartNodeGUI(false);
-        _canvasCache.editorState.canvasRect = new Rect (inRect.x, inRect.y + LandformGraphInterface.ToolbarHeight, inRect.width, inRect.height - LandformGraphInterface.ToolbarHeight);
+        _canvasCache.editorState.canvasRect = new Rect(inRect.x, inRect.y + LandformGraphInterface.ToolbarHeight, inRect.width, inRect.height - LandformGraphInterface.ToolbarHeight);
 
         try
-        { // Perform drawing with error-handling
-            NodeEditor.DrawCanvas (_canvasCache.nodeCanvas, _canvasCache.editorState);
+        {
+            // Perform drawing with error-handling
+            NodeEditor.DrawCanvas(_canvasCache.nodeCanvas, _canvasCache.editorState);
         }
         catch (UnityException e)
-        { // On exceptions in drawing flush the canvas to avoid locking the UI
+        {
+            // On exceptions in drawing flush the canvas to avoid locking the UI
             _canvasCache.NewNodeCanvas(typeof(Landform));
-            NodeEditor.ReInit (true);
-            Debug.LogError ("Unloaded Canvas due to exception in Draw!");
-            Debug.LogException (e);
+            NodeEditor.ReInit(true);
+            Debug.LogError("Unloaded Canvas due to exception in Draw!");
+            Debug.LogException(e);
         }
-			
+
         // Draw Interface
         GUILayout.BeginArea(inRect);
         _editorInterface.DrawToolbarGUI();
@@ -209,7 +211,7 @@ public class LandformGraphEditor : Window
 
         // End root rect
         GUI.EndGroup();
-			
+
         // End Overlay GUI and draw popups
         OverlayGUI.EndOverlayGUI();
     }

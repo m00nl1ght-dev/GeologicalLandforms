@@ -14,10 +14,10 @@ public class NodeTerrainFromBiome : NodeBase
     public override string GetID => ID;
 
     public override string Title => "Biome Terrain";
-    
+
     [ValueConnectionKnob("Biome", Direction.In, BiomeFunctionConnection.Id)]
     public ValueConnectionKnob BiomeKnob;
-    
+
     [ValueConnectionKnob("Fertility", Direction.In, ValueFunctionConnection.Id)]
     public ValueConnectionKnob FertilityKnob;
 
@@ -30,9 +30,9 @@ public class NodeTerrainFromBiome : NodeBase
     public override void NodeGUI()
     {
         OutputKnob.SetPosition(FirstKnobPosition);
-        
+
         GUILayout.BeginVertical(BoxStyle);
-        
+
         GUILayout.BeginHorizontal(BoxStyle);
         GUILayout.Label(BiomeKnob.name, BoxLayout);
         GUILayout.FlexibleSpace();
@@ -43,7 +43,7 @@ public class NodeTerrainFromBiome : NodeBase
         });
         GUILayout.EndHorizontal();
         BiomeKnob.SetPosition();
-        
+
         KnobValueField(FertilityKnob, ref Fertility);
 
         GUILayout.EndVertical();
@@ -51,7 +51,7 @@ public class NodeTerrainFromBiome : NodeBase
         if (GUI.changed)
             canvas.OnNodeChange(this);
     }
-    
+
     public override void RefreshPreview()
     {
         ISupplier<BiomeData> biome = GetIfConnected<BiomeData>(BiomeKnob);
@@ -68,7 +68,7 @@ public class NodeTerrainFromBiome : NodeBase
         ));
         return true;
     }
-    
+
     private class Output : ISupplier<TerrainData>
     {
         private readonly ISupplier<double> _fertility;

@@ -24,11 +24,11 @@ public class LandformGraphInterface
     public void DrawToolbarGUI()
     {
         GUI.enabled = Landform.GeneratingTile is null or EditorMockTileInfo && !ModCompat_MapReroll.IsPreviewWindowOpen;
-        
+
         GUILayout.BeginHorizontal(GUI.skin.GetStyle("toolbar"));
-        
-        if (GUILayout.Button(new GUIContent(Landform.Id != null 
-                        ? Landform.TranslatedNameForSelection.CapitalizeFirst() 
+
+        if (GUILayout.Button(new GUIContent(Landform.Id != null
+                        ? Landform.TranslatedNameForSelection.CapitalizeFirst()
                         : "GeologicalLandforms.Editor.Open".Translate(),
                     "GeologicalLandforms.Editor.Open.Tooltip".Translate()), GUI.skin.GetStyle("toolbarDropdown"),
                 GUILayout.MinWidth(Landform?.Id != null ? 150f : 50f)))
@@ -67,32 +67,40 @@ public class LandformGraphInterface
         {
             if (GUILayout.Button(Landform.GeneratingMapSize.x + "x" + Landform.GeneratingMapSize.z, GUI.skin.GetStyle("toolbarButton"), GUILayout.MinWidth(100f)))
             {
-                var options = new[]{50, 100, 150, 200, 250, 300, 350, 400, 450, 500}
-                    .Select(e => new FloatMenuOption(e + "x" + e, () => { Landform.GeneratingMapSize = new IntVec2(e, e); Landform.TraverseAll(); }))
+                var options = new[] { 50, 100, 150, 200, 250, 300, 350, 400, 450, 500 }
+                    .Select(e => new FloatMenuOption(e + "x" + e, () =>
+                    {
+                        Landform.GeneratingMapSize = new IntVec2(e, e);
+                        Landform.TraverseAll();
+                    }))
                     .ToList();
                 Find.WindowStack.Add(new FloatMenu(options));
             }
-            
+
             GUILayout.Space(50f);
-            
+
             if (GUILayout.Button(Editor.EditorTileInfo.Biome.label.CapitalizeFirst(), GUI.skin.GetStyle("toolbarButton"), GUILayout.MinWidth(150f)))
             {
                 var options = DefDatabase<BiomeDef>.AllDefsListForReading
-                    .Select(e => new FloatMenuOption(e.label.CapitalizeFirst(), () => { Editor.EditorTileInfo.Biome = e; Landform.TraverseAll(); }))
+                    .Select(e => new FloatMenuOption(e.label.CapitalizeFirst(), () =>
+                    {
+                        Editor.EditorTileInfo.Biome = e;
+                        Landform.TraverseAll();
+                    }))
                     .ToList();
                 Find.WindowStack.Add(new FloatMenu(options));
             }
-            
+
             GUILayout.Space(50f);
-            
+
             if (GUILayout.Button("Reseed", GUI.skin.GetStyle("toolbarButton"), GUILayout.MinWidth(60f)))
             {
                 Landform.RandSeed = NodeBase.SeedSource.Next();
                 Landform.TraverseAll();
             }
-            
+
             GUILayout.Space(200f);
-            
+
             if (GUILayout.Button("Reset View", GUI.skin.GetStyle("toolbarButton"), GUILayout.MinWidth(85f)))
             {
                 Editor.ResetView();
@@ -100,17 +108,17 @@ public class LandformGraphInterface
         }
 
         GUI.backgroundColor = new Color(1, 0.3f, 0.3f, 1);
-            
+
         if (GUILayout.Button("Close", GUI.skin.GetStyle("toolbarButton"), GUILayout.MinWidth(55)))
         {
             Editor.Close();
         }
 
         GUI.backgroundColor = Color.white;
-        
+
         GUILayout.EndHorizontal();
         GUI.enabled = true;
-        
+
         if (Event.current.type == EventType.Repaint)
             ToolbarHeight = GUILayoutUtility.GetLastRect().yMax;
     }
@@ -126,7 +134,7 @@ public class LandformGraphInterface
             GUILayout.EndArea();
         }
     }
-    
+
     private static void Tooltip(string tooltip)
     {
         if (Event.current.type == EventType.Repaint)

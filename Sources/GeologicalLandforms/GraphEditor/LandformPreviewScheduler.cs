@@ -28,7 +28,7 @@ public class LandformPreviewScheduler : AsyncPreviewScheduler
     }
 
     private const float IndSize = 50f;
-    
+
     public override void DrawLoadingIndicator(NodeBase node, Rect rect)
     {
         if (node.OngoingPreviewTask is { TimeSinceCreated: < 0.1f, WasIdleBefore: true }) return;

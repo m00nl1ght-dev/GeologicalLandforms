@@ -14,7 +14,7 @@ internal static class TerrainTabUI
     {
         int tileId = Find.WorldSelector.selectedTile;
         var worldTileInfo = WorldTileInfo.Get(tileId);
-        
+
         var rect = listing.GetRect(28f);
         if (!listing.BoundingRectCached.HasValue || rect.Overlaps(listing.BoundingRectCached.Value))
         {
@@ -32,14 +32,14 @@ internal static class TerrainTabUI
                 Find.WindowStack.Add(new FloatMenu(options));
             }
         }
-        
+
         listing.Gap();
-        
+
         if (GeologicalLandformsMod.Settings.EnableGodMode)
         {
             var landformData = Find.World.LandformData();
             bool ignoreReq = Prefs.DevMode && GeologicalLandformsMod.Settings.IgnoreWorldTileReqInGodMode;
-            
+
             if (landformData != null && !landformData.IsLocked(tileId))
             {
                 rect = listing.GetRect(28f);
@@ -62,7 +62,7 @@ internal static class TerrainTabUI
                             landformData.Commit(tileId, null, worldTileInfo.LandformDirection);
                         })
                     };
-                    
+
                     options.AddRange(eligible
                         .OrderBy(e => e.TranslatedNameForSelection)
                         .Select(e => new FloatMenuOption(e.TranslatedNameForSelection.CapitalizeFirst(), () =>
@@ -74,7 +74,7 @@ internal static class TerrainTabUI
                                     {
                                         landformData.Commit(tileId, e, d);
                                     })));
-                                Find.WindowStack.Add(new FloatMenu(dirOptions) {vanishIfMouseDistant = false});
+                                Find.WindowStack.Add(new FloatMenu(dirOptions) { vanishIfMouseDistant = false });
                             }
                             else
                             {
@@ -83,12 +83,11 @@ internal static class TerrainTabUI
                         })));
                     Find.WindowStack.Add(new FloatMenu(options));
                 }
-
             }
-            
+
             listing.Gap();
         }
-        
+
         if (Prefs.DevMode && GeologicalLandformsMod.Settings.ShowWorldTileDebugInfo)
         {
             listing.LabelDouble("GeologicalLandforms.WorldMap.Topology".Translate(), worldTileInfo.Topology.ToString());
@@ -98,14 +97,14 @@ internal static class TerrainTabUI
             listing.LabelDouble("GeologicalLandforms.WorldMap.MainRoadAngle".Translate(), worldTileInfo.MainRoadAngle.ToString(CultureInfo.InvariantCulture));
         }
     }
-    
+
     private static void FindLandform(Landform landform, bool requirePoi = false)
     {
         int tileId = Find.WorldSelector.selectedTile;
         var grid = Find.WorldGrid;
 
         HashSet<int> tested = new();
-        HashSet<int> pending = new() {tileId};
+        HashSet<int> pending = new() { tileId };
         List<int> nb = new();
 
         bool Matches(IWorldTileInfo tileInfo)
@@ -136,7 +135,7 @@ internal static class TerrainTabUI
                 }
 
                 tested.Add(p);
-                
+
                 nb.Clear();
                 grid.GetTileNeighbors(p, nb);
                 foreach (var nTile in nb)
@@ -146,7 +145,7 @@ internal static class TerrainTabUI
                 }
             }
         }
-        
+
         var messageFail = "GeologicalLandforms.WorldMap.FindLandformFail"
             .Translate(landform.TranslatedNameForSelection, maxDistance.ToString("F0"));
         Messages.Message(messageFail, MessageTypeDefOf.RejectInput, false);

@@ -4,12 +4,6 @@ using LunarFramework.Patching;
 using RimWorld.Planet;
 using Verse;
 
-// ReSharper disable RedundantAssignment
-// ReSharper disable UnusedParameter.Local
-// ReSharper disable UnusedType.Global
-// ReSharper disable UnusedMember.Local
-// ReSharper disable InconsistentNaming
-
 namespace GeologicalLandforms.Patches;
 
 [PatchGroup("Main")]
@@ -17,19 +11,19 @@ namespace GeologicalLandforms.Patches;
 internal static class Patch_RimWorld_World
 {
     public static int LastKnownInitialWorldSeed { get; private set; }
-    
+
     [HarmonyPostfix]
     [HarmonyPatch("ConstructComponents")]
     private static void ConstructComponents(WorldInfo ___info, World __instance)
     {
         LastKnownInitialWorldSeed = ___info.Seed;
-        
+
         WorldTileInfo.RemoveCache();
-        
+
         var landformData = __instance.GetComponent<LandformData>();
         var lastWorld = Patch_RimWorld_WorldGenStep_Terrain.LastWorld;
         var biomeTransitions = Patch_RimWorld_WorldGenStep_Terrain.BiomeTransitions;
-        
+
         if (biomeTransitions != null && landformData != null && lastWorld == __instance)
         {
             landformData.SetBiomeTransitions(biomeTransitions);
@@ -37,14 +31,14 @@ internal static class Patch_RimWorld_World
             Patch_RimWorld_WorldGenStep_Terrain.LastWorld = null;
         }
     }
-    
+
     [HarmonyPostfix]
     [HarmonyPatch("FinalizeInit")]
     private static void FinalizeInit(World __instance)
     {
         WorldTileInfo.CreateNewCache();
     }
-    
+
     [HarmonyPrefix]
     [HarmonyPatch(nameof(World.HasCaves))]
     [HarmonyAfter("zylle.MapDesigner")]

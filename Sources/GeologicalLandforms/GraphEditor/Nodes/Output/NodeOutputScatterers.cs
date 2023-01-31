@@ -16,11 +16,11 @@ public class NodeOutputScatterers : NodeOutputBase
 
     [ValueConnectionKnob("Mineables", Direction.In, ValueFunctionConnection.Id)]
     public ValueConnectionKnob MineablesKnob;
-    
+
     public override void NodeGUI()
     {
         GUILayout.BeginVertical(BoxStyle);
-        
+
         GUILayout.BeginHorizontal(BoxStyle);
         GUILayout.Label(MineablesKnob.name, BoxLayout);
         GUILayout.EndHorizontal();
@@ -35,7 +35,7 @@ public class NodeOutputScatterers : NodeOutputBase
         if (existing != null && existing != this && canvas.nodes.Contains(existing)) existing.Delete();
         Landform.OutputScatterers = this;
     }
-    
+
     protected override void OnDelete()
     {
         if (Landform.OutputScatterers == this) Landform.OutputScatterers = null;

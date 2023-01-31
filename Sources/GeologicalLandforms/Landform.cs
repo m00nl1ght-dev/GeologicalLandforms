@@ -18,10 +18,10 @@ public class Landform : TerrainCanvas
 
     public static int GeneratingGridFullSize { get; private set; } = DefaultGridFullSize;
     public static int GeneratingGridPreviewSize { get; private set; } = DefaultGridPreviewSize;
-    
+
     public static IWorldTileInfo GeneratingTile { get; private set; }
     public static IReadOnlyList<Landform> GeneratingLandforms { get; private set; }
-    
+
     public static bool AnyGenerating => GeneratingLandforms is { Count: > 0 };
 
     public static IntVec2 GeneratingMapSize { get; set; } = new(250, 250);
@@ -38,18 +38,18 @@ public class Landform : TerrainCanvas
 
     public string DisplayName => Manifest.DisplayName ?? "";
     public bool DisplayNameHasDirection => Manifest?.DisplayNameHasDirection ?? false;
-    
+
     public ModContentPack ModContentPack { get; internal set; }
 
     public NodeUILandformManifest Manifest { get; internal set; }
     public NodeUIWorldTileReq WorldTileReq { get; internal set; }
     public NodeUILayerConfig LayerConfig { get; internal set; }
-    
+
     public NodeInputElevation InputElevation { get; internal set; }
     public NodeInputFertility InputFertility { get; internal set; }
     public NodeInputBiomeGrid InputBiomeGrid { get; internal set; }
     public NodeInputCaves InputCaves { get; internal set; }
-    
+
     public NodeOutputElevation OutputElevation { get; internal set; }
     public NodeOutputFertility OutputFertility { get; internal set; }
     public NodeOutputTerrain OutputTerrain { get; internal set; }
@@ -62,7 +62,7 @@ public class Landform : TerrainCanvas
 
     public override string canvasName => Id ?? "Landform";
     public Vector2 ScreenOrigin = new(-960f, -540f + LandformGraphInterface.ToolbarHeight);
-    
+
     public override IPreviewScheduler PreviewScheduler => LandformPreviewScheduler.Instance;
 
     public bool IsCornerVariant => WorldTileReq?.Topology is Topology.CoastTwoSides or Topology.CliffTwoSides;
@@ -70,14 +70,14 @@ public class Landform : TerrainCanvas
     public static void PrepareMapGen(Map map)
     {
         LandformGraphEditor.ActiveEditor?.Close();
-        
+
         var world = Find.World;
         bool rerolled = SeedRerollData.IsMapSeedRerolled(world, map.Tile, out var savedSeed);
         int seed = rerolled ? savedSeed : world.info.Seed ^ map.Tile; // TODO use proper hash
-        
+
         PrepareMapGen(new IntVec2(map.Size.x, map.Size.z), map.Tile, seed);
     }
-    
+
     public static void PrepareMapGen(IntVec2 mapSize, int worldTile, int seed)
     {
         CleanUp();
@@ -87,10 +87,10 @@ public class Landform : TerrainCanvas
         GeneratingSeed = seed;
 
         if (GeneratingTile.Landforms == null) return;
-        
+
         var landformStack = new List<Landform>();
         GeneratingLandforms = landformStack;
-        
+
         foreach (var landform in GeneratingTile.Landforms.Where(l => l.WorldTileReq.CheckMapRequirements(mapSize)))
         {
             landform.RandSeed = seed;
@@ -116,13 +116,13 @@ public class Landform : TerrainCanvas
         GeneratingTile = null;
         GeneratingLandforms = null;
     }
-    
+
     public static T GetFeature<T>(Func<Landform, T> func)
     {
         if (GeneratingLandforms == null) return default;
         return GeneratingLandforms.Select(func).LastOrDefault(v => v != null);
     }
-    
+
     public static IGridFunction<T> GetFeatureScaled<T>(Func<Landform, IGridFunction<T>> func)
     {
         var gridFunction = GetFeature(func);
@@ -133,12 +133,12 @@ public class Landform : TerrainCanvas
     {
         return new GridFunction.Transform<T>(gridInNodeSpace, NodeSpaceToMapSpaceFactor);
     }
-    
+
     public static IGridFunction<T> TransformIntoNodeSpace<T>(IGridFunction<T> gridInMapSpace)
     {
         return new GridFunction.Transform<T>(gridInMapSpace, MapSpaceToNodeSpaceFactor);
     }
-    
+
     public static IGridFunction<float> GetNamedGrid(string name)
     {
         return null; // TODO
@@ -167,7 +167,7 @@ public class Landform : TerrainCanvas
             _ => Id != null || !isEditorAction
         };
     }
-    
+
     public override bool CanDeleteNode(Node node)
     {
         if (node == Manifest) return false;
@@ -187,22 +187,22 @@ public class Landform : TerrainCanvas
         if (Manifest != null) Manifest.position = ScreenOrigin + new Vector2(10f, 3f);
         if (WorldTileReq != null) WorldTileReq.position = new Vector2(ScreenOrigin.x + 10f, (IsCustom ? Manifest.rect.yMax + 10f : ScreenOrigin.y + 3f));
     }
-    
-    public string TranslatedName => 
-        DisplayName?.Length > 0 ? DisplayName : 
-        Id == null ? "Unknown" : 
-        IsCustom ? Id : 
+
+    public string TranslatedName =>
+        DisplayName?.Length > 0 ? DisplayName :
+        Id == null ? "Unknown" :
+        IsCustom ? Id :
         ("GeologicalLandforms.Landform." + Id).Translate();
-    
-    public string TranslatedNameForSelection => 
+
+    public string TranslatedNameForSelection =>
         TranslatedName + (IsCornerVariant ? (" " + "GeologicalLandforms.Landform.Corner".Translate()) : "");
-    
+
     public string TranslatedNameWithDirection(Rot4 direction)
     {
         if (!DisplayNameHasDirection) return TranslatedName;
         return TranslatedDirection(direction) + " " + TranslatedName;
     }
-    
+
     public string TranslatedDirection(Rot4 direction)
     {
         if (!IsCornerVariant) return TranslateRot4(direction);
@@ -213,7 +213,7 @@ public class Landform : TerrainCanvas
     {
         return ("GeologicalLandforms.Rot4." + rot4.AsInt).Translate();
     }
-    
+
     private static string TranslateDoubleRot4(Rot4 rot4)
     {
         return ("GeologicalLandforms.Rot4.Double." + rot4.AsInt).Translate();

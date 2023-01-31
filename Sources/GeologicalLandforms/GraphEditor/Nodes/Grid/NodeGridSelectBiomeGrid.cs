@@ -12,7 +12,7 @@ public class NodeGridSelectBiomeGrid : NodeSelectBase
 {
     public const string ID = "gridSelectBiomeGrid";
     public override string GetID => ID;
-    
+
     [ValueConnectionKnob("Input", Direction.In, GridFunctionConnection.Id)]
     public ValueConnectionKnob InputKnob;
 
@@ -21,16 +21,16 @@ public class NodeGridSelectBiomeGrid : NodeSelectBase
 
     public override ValueConnectionKnob InputKnobRef => InputKnob;
     public override ValueConnectionKnob OutputKnobRef => OutputKnob;
-    
+
     public List<string> Values = new();
 
     public override void NodeGUI()
     {
         while (OptionKnobs.Count < 2) CreateNewOptionKnob();
-        
+
         while (Values.Count < OptionKnobs.Count) Values.Add("");
         while (Values.Count > OptionKnobs.Count) Values.RemoveAt(Values.Count - 1);
-        
+
         base.NodeGUI();
     }
 
@@ -65,11 +65,11 @@ public class NodeGridSelectBiomeGrid : NodeSelectBase
         {
             options.Add(SupplierOrGridFixed(OptionKnobs[i], GridFunction.Of(BiomeData.FromString(Values[i]))));
         }
-        
+
         OutputKnob.SetValue<ISupplier<IGridFunction<BiomeData>>>(new GridOutput<BiomeData>(input, options, Thresholds, PostProcess));
         return true;
     }
-    
+
     private BiomeData PostProcess(BiomeData result, int index)
     {
         return new BiomeData(result.Biome, index);

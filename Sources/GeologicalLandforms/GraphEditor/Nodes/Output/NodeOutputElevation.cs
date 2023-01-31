@@ -19,7 +19,7 @@ public class NodeOutputElevation : NodeOutputBase
 
     [ValueConnectionKnob("Elevation", Direction.In, GridFunctionConnection.Id)]
     public ValueConnectionKnob InputKnob;
-    
+
     [ValueConnectionKnob("ElevationOutput", Direction.Out, GridFunctionConnection.Id)]
     public ValueConnectionKnob OutputKnob;
 
@@ -39,7 +39,7 @@ public class NodeOutputElevation : NodeOutputBase
     {
         return InputKnob.GetValue<ISupplier<IGridFunction<double>>>()?.ResetAndGet();
     }
-    
+
     public override bool Calculate()
     {
         OutputKnob.SetValue(InputKnob.GetValue<ISupplier<IGridFunction<double>>>());

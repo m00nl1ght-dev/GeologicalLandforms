@@ -12,13 +12,13 @@ public class NodeOutputCaves : NodeOutputBase
     public override string GetID => ID;
 
     public override string Title => "Caves Output";
-    
+
     public override ValueConnectionKnob InputKnobRef => InputKnob;
     public override ValueConnectionKnob OutputKnobRef => OutputKnob;
 
     [ValueConnectionKnob("Caves", Direction.In, GridFunctionConnection.Id)]
     public ValueConnectionKnob InputKnob;
-    
+
     [ValueConnectionKnob("CavesOutput", Direction.Out, GridFunctionConnection.Id)]
     public ValueConnectionKnob OutputKnob;
 
@@ -28,17 +28,17 @@ public class NodeOutputCaves : NodeOutputBase
         if (exiting != null && exiting != this && canvas.nodes.Contains(exiting)) exiting.Delete();
         Landform.OutputCaves = this;
     }
-    
+
     protected override void OnDelete()
     {
         if (Landform.OutputCaves == this) Landform.OutputCaves = null;
     }
-    
+
     public IGridFunction<double> Get()
     {
         return InputKnob.GetValue<ISupplier<IGridFunction<double>>>()?.ResetAndGet();
     }
-    
+
     public override bool Calculate()
     {
         OutputKnob.SetValue(InputKnob.GetValue<ISupplier<IGridFunction<double>>>());
