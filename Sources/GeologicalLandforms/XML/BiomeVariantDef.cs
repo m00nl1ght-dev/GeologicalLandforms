@@ -13,8 +13,9 @@ namespace GeologicalLandforms.Defs;
 [Serializable]
 public class BiomeVariantDef : Def
 {
-    public WorldTileConditions worldTileConditions;
     public List<BiomeVariantLayer> layers;
+    
+    public XmlDynamicValueForWorldTile<bool> worldTileConditions;
 
     public LabelDisplayMode labelDisplayMode = LabelDisplayMode.AppendPara;
     public DescriptionDisplayMode descriptionDisplayMode = DescriptionDisplayMode.Append;

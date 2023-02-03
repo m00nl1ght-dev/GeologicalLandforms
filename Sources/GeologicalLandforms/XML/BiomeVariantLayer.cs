@@ -19,11 +19,11 @@ public class BiomeVariantLayer
 
     public BiomeVariantDef def { get; internal set; }
 
-    public MapGridConditions mapGridConditions = new();
+    public XmlDynamicValueForMapCell<bool> mapGridConditions;
 
-    public XmlValueModifier animalDensity;
-    public XmlValueModifier plantDensity;
-    public XmlValueModifier wildPlantRegrowDays;
+    public XmlDynamicValueForWorldTile<float> animalDensity;
+    public XmlDynamicValueForWorldTile<float> plantDensity;
+    public XmlDynamicValueForWorldTile<float> wildPlantRegrowDays;
 
     public XmlListModifier<BiomePlantRecord> wildPlants;
     public XmlListModifier<BiomeAnimalRecord> wildAnimals;
@@ -79,7 +79,7 @@ public class BiomeVariantLayer
         if (_pollutionWildAnimalsField == null) throw new Exception("Failed to reflect BiomeDef pollutionWildAnimals field");
     }
 
-    public static BiomeDef Apply(BiomeDef biomeBase, List<BiomeVariantLayer> layers)
+    public static BiomeDef Apply(WorldTileInfo tile, BiomeDef biomeBase, List<BiomeVariantLayer> layers)
     {
         var def = (BiomeDef) _cloneMethod.Invoke(biomeBase, null);
         def.generated = true;
@@ -95,11 +95,13 @@ public class BiomeVariantLayer
         _wildAnimalsField.SetValue(def, wildAnimals = new List<BiomeAnimalRecord>(wildAnimals));
         _pollutionWildAnimalsField.SetValue(def, pollutionWildAnimals = new List<BiomeAnimalRecord>(pollutionWildAnimals));
 
+        var xmlContext = new XmlContext(tile);
+
         foreach (var variant in layers)
         {
-            variant.animalDensity?.Apply(ref def.animalDensity);
-            variant.plantDensity?.Apply(ref def.plantDensity);
-            variant.wildPlantRegrowDays?.Apply(ref def.wildPlantRegrowDays);
+            variant.animalDensity?.Apply(xmlContext, ref def.animalDensity);
+            variant.plantDensity?.Apply(xmlContext, ref def.plantDensity);
+            variant.wildPlantRegrowDays?.Apply(xmlContext, ref def.wildPlantRegrowDays);
 
             variant.wildPlants?.Apply(wildPlants, e => e.plant);
             variant.wildAnimals?.Apply(wildAnimals, e => e.animal);

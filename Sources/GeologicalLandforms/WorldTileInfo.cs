@@ -51,6 +51,8 @@ public class WorldTileInfo : IWorldTileInfo
     public RoadDef MainRoad => MainRoadLink?.road;
     public float MainRoadAngle => World.grid.GetHeadingFromTo(TileId, MainRoadLink?.neighbor ?? 0);
 
+    public float ExpectedMapSize => (WorldObject is Site site ? site.PreferredMapSize : World.info.initialMapSize).MinXZ();
+
     public int MakeSeed(int hash) => Patch_RimWorld_World.LastKnownInitialWorldSeed ^ TileId ^ hash; // TODO use proper hash
 
     protected WorldTileInfo(int tileId, Tile tile, World world)
@@ -188,7 +190,7 @@ public class WorldTileInfo : IWorldTileInfo
         {
             foreach (var variant in DefDatabase<BiomeVariantDef>.AllDefsListForReading)
             {
-                if (variant.worldTileConditions.Evaluate(info))
+                if (variant.worldTileConditions?.Get(new XmlContext(info)) ?? true)
                 {
                     variants ??= new();
                     variants.Add(variant);

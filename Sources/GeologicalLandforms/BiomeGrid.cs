@@ -25,6 +25,8 @@ public class BiomeGrid : MapComponent
     public void Enable() => _enabled = true;
 
     public float OpenGroundFraction { get; private set; } = 1f;
+    
+    public WorldTileInfo TileInfo => WorldTileInfo.Get(map.Tile);
 
     private readonly IntVec3 _mapSize;
 
@@ -86,21 +88,29 @@ public class BiomeGrid : MapComponent
 
     public void ApplyVariantLayers(IEnumerable<BiomeVariantLayer> layers)
     {
+        var tile = TileInfo;
+        
         foreach (var layer in layers)
         {
-            if (layer.mapGridConditions.HasConditions)
+            var conditions = layer.mapGridConditions;
+            
+            if (conditions != null)
             {
                 var entryCache = new Entry[_entries.Count];
-                layer.mapGridConditions.Evaluate(map, pos =>
+                
+                foreach (var pos in map.AllCells)
                 {
-                    var oldEntry = EntryAt(pos);
-                    var newEntry = entryCache[oldEntry.Index];
-                    int cellIdx = CellIndicesUtility.CellToIndex(pos, _mapSize.x);
-                    newEntry ??= entryCache[oldEntry.Index] = MakeEntry(oldEntry.BiomeBase, oldEntry.VariantLayers.Append(layer).ToList());
-                    _grid[cellIdx] = newEntry;
-                    oldEntry.CellCount--;
-                    newEntry.CellCount++;
-                });
+                    if (conditions.Get(new XmlContext(tile, map, pos)))
+                    {
+                        var oldEntry = EntryAt(pos);
+                        var newEntry = entryCache[oldEntry.Index];
+                        int cellIdx = CellIndicesUtility.CellToIndex(pos, _mapSize.x);
+                        newEntry ??= entryCache[oldEntry.Index] = MakeEntry(oldEntry.BiomeBase, oldEntry.VariantLayers.Append(layer).ToList());
+                        _grid[cellIdx] = newEntry;
+                        oldEntry.CellCount--;
+                        newEntry.CellCount++;
+                    }
+                }
             }
             else
             {
@@ -113,7 +123,7 @@ public class BiomeGrid : MapComponent
 
         foreach (var entry in _entries)
         {
-            entry.Refresh();
+            entry.Refresh(tile);
         }
     }
 
@@ -144,7 +154,7 @@ public class BiomeGrid : MapComponent
         _entries.Add(newEntry);
 
         newEntry.Set(biomeBase, variantLayers);
-        newEntry.Refresh();
+        newEntry.Refresh(TileInfo);
         return newEntry;
     }
 
@@ -176,7 +186,7 @@ public class BiomeGrid : MapComponent
                 foreach (var entry in _entries)
                 {
                     entry.LoadId = LoadId;
-                    entry.Refresh();
+                    entry.Refresh(TileInfo);
                 }
             }
         }
@@ -248,10 +258,10 @@ public class BiomeGrid : MapComponent
             _variantLayers.AddDistinct(layer);
         }
 
-        public void Refresh()
+        public void Refresh(WorldTileInfo tile)
         {
             _biomeBase ??= BiomeDefOf.TemperateForest;
-            Biome = HasVariants ? BiomeVariantLayer.Apply(_biomeBase, _variantLayers) : BiomeBase;
+            Biome = HasVariants ? BiomeVariantLayer.Apply(tile, _biomeBase, _variantLayers) : BiomeBase;
             ApplyToCaveSpawns = _variantLayers.Any(l => l.applyToCaveSpawns);
         }
 

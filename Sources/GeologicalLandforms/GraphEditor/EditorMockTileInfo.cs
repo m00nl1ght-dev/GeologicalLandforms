@@ -37,4 +37,6 @@ public class EditorMockTileInfo : IWorldTileInfo
 
     public RoadDef MainRoad { get; set; } = null;
     public float MainRoadAngle { get; set; } = 0f;
+
+    public float ExpectedMapSize => 250f;
 }

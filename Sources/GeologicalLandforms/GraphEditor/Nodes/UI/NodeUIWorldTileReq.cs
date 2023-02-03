@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using LunarFramework.GUI;
 using NodeEditorFramework;
+using RimWorld.Planet;
 using UnityEngine;
 using Verse;
 using static GeologicalLandforms.Topology;
-using static GeologicalLandforms.WorldTileConditions;
 
 namespace GeologicalLandforms.GraphEditor;
 
@@ -46,32 +46,46 @@ public class NodeUIWorldTileReq : NodeUIBase
     public bool AllowSettlements;
     public bool AllowSites;
 
-    private List<Condition> _conditions;
+    private List<Predicate<IWorldTileInfo>> _conditions;
 
-    private List<Condition> BuildRequirements()
+    private List<Predicate<IWorldTileInfo>> BuildRequirements()
     {
-        var conditions = new List<Condition>();
+        var conditions = new List<Predicate<IWorldTileInfo>>();
 
-        if (HillinessRequirement != DefaultHillinessRequirement) conditions.Add(Hilliness(HillinessRequirement));
-        if (ElevationRequirement != DefaultElevationRequirement) conditions.Add(Elevation(ElevationRequirement));
-        if (AvgTemperatureRequirement != DefaultAvgTemperatureRequirement) conditions.Add(Temperature(AvgTemperatureRequirement));
-        if (RainfallRequirement != DefaultRainfallRequirement) conditions.Add(Rainfall(RainfallRequirement));
-        if (SwampinessRequirement != DefaultSwampinessRequirement) conditions.Add(Swampiness(SwampinessRequirement));
-        if (BiomeTransitionsRequirement != DefaultBiomeTransitionsRequirement) conditions.Add(BorderingBiomes(BiomeTransitionsRequirement));
-        if (MapSizeRequirement != DefaultMapSizeRequirement) conditions.Add(ExpectedMapSize(MapSizeRequirement));
+        if (HillinessRequirement != DefaultHillinessRequirement) 
+            conditions.Add(info => HillinessRequirement.Includes((float) info.Hilliness));
+        if (ElevationRequirement != DefaultElevationRequirement) 
+            conditions.Add(info => ElevationRequirement.Includes(info.Elevation));
+        if (AvgTemperatureRequirement != DefaultAvgTemperatureRequirement) 
+            conditions.Add(info => AvgTemperatureRequirement.Includes(info.Temperature));
+        if (RainfallRequirement != DefaultRainfallRequirement) 
+            conditions.Add(info => RainfallRequirement.Includes(info.Rainfall));
+        if (SwampinessRequirement != DefaultSwampinessRequirement) 
+            conditions.Add(info => SwampinessRequirement.Includes(info.Swampiness));
+        if (BiomeTransitionsRequirement != DefaultBiomeTransitionsRequirement) 
+            conditions.Add(info => BiomeTransitionsRequirement.Includes(info.BorderingBiomesCount()));
+        if (MapSizeRequirement != DefaultMapSizeRequirement) 
+            conditions.Add(info => MapSizeRequirement.Includes(info.ExpectedMapSize));
 
-        if (RiverRequirement.max <= 0f) conditions.Add(River(RiverRequirement));
-        if (RoadRequirement.max <= 0f) conditions.Add(Road(RoadRequirement));
+        if (RiverRequirement.max <= 0f) 
+            conditions.Add(info => info.MainRiver == null);
+        if (RoadRequirement.max <= 0f)
+            conditions.Add(info => info.MainRoad == null);
+        
+        bool River(IWorldTileInfo info) => RiverRequirement.Includes(info.MainRiverSize());
+        bool Road(IWorldTileInfo info) => RoadRequirement.Includes(info.MainRoadSize());
 
         if (RiverRequirement.min > 0f && RoadRequirement.min > 0f)
-            conditions.Add(AnyOf(new List<Condition> { River(RiverRequirement), Road(RoadRequirement) }));
+            conditions.Add(info => River(info) || Road(info));
         else if (RiverRequirement.min > 0f)
-            conditions.Add(River(RiverRequirement));
+            conditions.Add(River);
         else if (RoadRequirement.min > 0f)
-            conditions.Add(Road(RoadRequirement));
+            conditions.Add(Road);
 
-        if (!AllowSettlements) conditions.Add(Settlement(false));
-        if (!AllowSites) conditions.Add(QuestSite(false));
+        if (!AllowSettlements) 
+            conditions.Add(info => info.WorldObject is Settlement { Faction.IsPlayer: false } == false);
+        if (!AllowSites) 
+            conditions.Add(info => info.WorldObject is Site { Faction.IsPlayer: false } == false);
 
         return conditions;
     }
