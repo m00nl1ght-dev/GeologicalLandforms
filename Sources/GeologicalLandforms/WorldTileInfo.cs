@@ -190,7 +190,7 @@ public class WorldTileInfo : IWorldTileInfo
         {
             foreach (var variant in DefDatabase<BiomeVariantDef>.AllDefsListForReading)
             {
-                if (variant.worldTileConditions?.Get(new XmlContext(info)) ?? true)
+                if (variant.worldTileConditions?.Get(new CtxTile(info)) ?? true)
                 {
                     variants ??= new();
                     variants.Add(variant);

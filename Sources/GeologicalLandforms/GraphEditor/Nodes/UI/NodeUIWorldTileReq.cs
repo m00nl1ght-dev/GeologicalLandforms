@@ -52,26 +52,26 @@ public class NodeUIWorldTileReq : NodeUIBase
     {
         var conditions = new List<Predicate<IWorldTileInfo>>();
 
-        if (HillinessRequirement != DefaultHillinessRequirement) 
+        if (HillinessRequirement != DefaultHillinessRequirement)
             conditions.Add(info => HillinessRequirement.Includes((float) info.Hilliness));
-        if (ElevationRequirement != DefaultElevationRequirement) 
+        if (ElevationRequirement != DefaultElevationRequirement)
             conditions.Add(info => ElevationRequirement.Includes(info.Elevation));
-        if (AvgTemperatureRequirement != DefaultAvgTemperatureRequirement) 
+        if (AvgTemperatureRequirement != DefaultAvgTemperatureRequirement)
             conditions.Add(info => AvgTemperatureRequirement.Includes(info.Temperature));
-        if (RainfallRequirement != DefaultRainfallRequirement) 
+        if (RainfallRequirement != DefaultRainfallRequirement)
             conditions.Add(info => RainfallRequirement.Includes(info.Rainfall));
-        if (SwampinessRequirement != DefaultSwampinessRequirement) 
+        if (SwampinessRequirement != DefaultSwampinessRequirement)
             conditions.Add(info => SwampinessRequirement.Includes(info.Swampiness));
-        if (BiomeTransitionsRequirement != DefaultBiomeTransitionsRequirement) 
+        if (BiomeTransitionsRequirement != DefaultBiomeTransitionsRequirement)
             conditions.Add(info => BiomeTransitionsRequirement.Includes(info.BorderingBiomesCount()));
-        if (MapSizeRequirement != DefaultMapSizeRequirement) 
+        if (MapSizeRequirement != DefaultMapSizeRequirement)
             conditions.Add(info => MapSizeRequirement.Includes(info.ExpectedMapSize));
 
-        if (RiverRequirement.max <= 0f) 
+        if (RiverRequirement.max <= 0f)
             conditions.Add(info => info.MainRiver == null);
         if (RoadRequirement.max <= 0f)
             conditions.Add(info => info.MainRoad == null);
-        
+
         bool River(IWorldTileInfo info) => RiverRequirement.Includes(info.MainRiverSize());
         bool Road(IWorldTileInfo info) => RoadRequirement.Includes(info.MainRoadSize());
 
@@ -82,9 +82,9 @@ public class NodeUIWorldTileReq : NodeUIBase
         else if (RoadRequirement.min > 0f)
             conditions.Add(Road);
 
-        if (!AllowSettlements) 
+        if (!AllowSettlements)
             conditions.Add(info => info.WorldObject is Settlement { Faction.IsPlayer: false } == false);
-        if (!AllowSites) 
+        if (!AllowSites)
             conditions.Add(info => info.WorldObject is Site { Faction.IsPlayer: false } == false);
 
         return conditions;

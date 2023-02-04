@@ -1,9 +1,11 @@
 using System;
 using GeologicalLandforms.Defs;
 using GeologicalLandforms.GraphEditor;
+using GeologicalLandforms.XML;
 using LunarFramework;
 using LunarFramework.Logging;
 using LunarFramework.Patching;
+using LunarFramework.Utility;
 using MapPreview;
 using NodeEditorFramework;
 using NodeEditorFramework.Utilities;
@@ -27,6 +29,7 @@ public static class GeologicalLandformsAPI
 
     static GeologicalLandformsAPI()
     {
+        typeof(XmlDynamicValueSetup).RunClassConstructor();
         GenTypes.IgnoredNamespaceNames.AddDistinct("GeologicalLandforms.Defs");
     }
 
@@ -52,25 +55,12 @@ public static class GeologicalLandformsAPI
 
         NodeEditor.ReInit(false);
 
+        BiomeWorkerConfig.ApplyAll();
         BiomeProperties.RebuildCache();
-        LandformGraphEditor.InitialSetup();
-        LandformManager.InitialLoad();
         BiomeVariantDef.InitialLoad();
 
-        /*
-        bool done = false;
-        LunarAPI.LifecycleHooks.DoOnceOnMainMenu(() =>
-        {
-            LunarAPI.LifecycleHooks.DoOnGUI(() =>
-            {
-                if (done) return;
-                var landformGraphEditor = new LandformGraphEditor();
-                Find.WindowStack.Add(landformGraphEditor);
-                landformGraphEditor.OpenLandform(LandformManager.FindById("SurfaceCaves"));
-                done = true;
-            });
-        });
-        */
+        LandformGraphEditor.InitialSetup();
+        LandformManager.InitialLoad();
     }
 
     private static void Cleanup()

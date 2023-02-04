@@ -5,9 +5,6 @@ using RimWorld;
 using RimWorld.Planet;
 using Verse;
 
-// ReSharper disable ConvertToConstant.Global
-// ReSharper disable FieldCanBeMadeReadOnly.Global
-
 namespace GeologicalLandforms;
 
 public static class BiomeTransition

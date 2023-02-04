@@ -58,25 +58,25 @@ public static class ExtensionUtils
 
     public static bool HasBiome(this IWorldTileInfo tile, string defName)
         => tile.Biome != null && tile.Biome.defName == defName;
-    
+
     public static bool HasWorldObject(this IWorldTileInfo tile, string defName)
         => tile.WorldObject != null && tile.WorldObject.def.defName == defName;
 
     public static int BorderingBiomesCount(this IWorldTileInfo tile)
         => tile.BorderingBiomes?.Count ?? 0;
-    
+
     public static float MainRiverSize(this IWorldTileInfo tile)
         => tile.MainRiver?.widthOnWorld ?? 0f;
-    
+
     public static float MainRoadSize(this IWorldTileInfo tile)
         => 1f - (tile.MainRoad?.movementCostMultiplier ?? 1f);
-    
-    public static bool HasTerrain(this XmlContext ctx, string defName)
+
+    public static bool HasTerrain(this ICtxMapCell ctx, string defName)
         => ctx.Map.terrainGrid.TerrainAt(ctx.MapCell)?.defName == defName;
-    
-    public static bool HasTerrainTag(this XmlContext ctx, string tag)
+
+    public static bool HasTerrainTag(this ICtxMapCell ctx, string tag)
         => ctx.Map.terrainGrid.TerrainAt(ctx.MapCell)?.tags?.Contains(tag) ?? false;
-    
-    public static bool HasRoof(this XmlContext ctx, string defName)
+
+    public static bool HasRoof(this ICtxMapCell ctx, string defName)
         => (ctx.Map.roofGrid.RoofAt(ctx.MapCell)?.defName ?? "Unroofed") == defName;
 }

@@ -14,26 +14,37 @@ namespace GeologicalLandforms;
 
 public class BiomeGrid : MapComponent
 {
-    private readonly Entry[] _grid;
-
-    private List<Entry> _entries = new();
     public IReadOnlyList<Entry> Entries => _entries;
     public Entry Primary => _entries[0];
 
-    private bool _enabled;
     public bool Enabled => _enabled;
     public void Enable() => _enabled = true;
 
+    /// <summary>
+    /// Represents how open (solid ground) the map is.
+    /// Water yields 0.1 and rock wall yields 0.35 towards this factor.
+    /// </summary>
     public float OpenGroundFraction { get; private set; } = 1f;
-    
-    public WorldTileInfo TileInfo => WorldTileInfo.Get(map.Tile);
-
-    private readonly IntVec3 _mapSize;
 
     internal object LoadId = new();
 
+    private bool _enabled;
+    private List<Entry> _entries = new();
+
+    private readonly Entry[] _grid;
+    private readonly IntVec3 _mapSize;
+
+    /// <summary>
+    /// Create a new biome grid for a normal full map.
+    /// </summary>
     public BiomeGrid(Map map) : this(map, map.Size, map.Parent == null ? BiomeDefOf.TemperateForest : map.Biome) { }
 
+    /// <summary>
+    /// Create a new biome grid for a map preview.
+    /// </summary>
+    /// <param name="map">can be null for previews</param>
+    /// <param name="mapSize">the size of the preview</param>
+    /// <param name="worldBiome">the biome of the world tile to be previewed</param>
     public BiomeGrid(Map map, IntVec3 mapSize, BiomeDef worldBiome) : base(map)
     {
         _mapSize = mapSize;
@@ -41,6 +52,12 @@ public class BiomeGrid : MapComponent
         var primary = MakeEntry(worldBiome);
         primary.CellCount = _mapSize.x * _mapSize.z;
     }
+
+    /// <summary>
+    /// The world tile info if available, otherwise null.
+    /// It may not be available for map previews and during savegame loading.
+    /// </summary>
+    public WorldTileInfo TileInfo => map?.Parent == null ? null : WorldTileInfo.Get(map.Tile);
 
     public Entry EntryAt(int cell)
     {
@@ -88,19 +105,21 @@ public class BiomeGrid : MapComponent
 
     public void ApplyVariantLayers(IEnumerable<BiomeVariantLayer> layers)
     {
+        if (map == null) throw new Exception("Preview maps can not have biome variants");
+
         var tile = TileInfo;
-        
+
         foreach (var layer in layers)
         {
             var conditions = layer.mapGridConditions;
-            
+
             if (conditions != null)
             {
                 var entryCache = new Entry[_entries.Count];
-                
+
                 foreach (var pos in map.AllCells)
                 {
-                    if (conditions.Get(new XmlContext(tile, map, pos)))
+                    if (conditions.Get(new CtxMapCell(tile, map, pos)))
                     {
                         var oldEntry = EntryAt(pos);
                         var newEntry = entryCache[oldEntry.Index];
@@ -121,10 +140,7 @@ public class BiomeGrid : MapComponent
             }
         }
 
-        foreach (var entry in _entries)
-        {
-            entry.Refresh(tile);
-        }
+        RefreshAllEntries();
     }
 
     public void UpdateOpenGroundFraction()
@@ -160,7 +176,7 @@ public class BiomeGrid : MapComponent
 
     public override void ExposeData()
     {
-        if (map == null) return;
+        if (map == null) throw new Exception("Preview maps can not be saved");
 
         if (Scribe.mode == LoadSaveMode.LoadingVars) LoadId = new();
 
@@ -186,7 +202,7 @@ public class BiomeGrid : MapComponent
                 foreach (var entry in _entries)
                 {
                     entry.LoadId = LoadId;
-                    entry.Refresh(TileInfo);
+                    entry.Refresh(null);
                 }
             }
         }
@@ -223,6 +239,13 @@ public class BiomeGrid : MapComponent
     public override void FinalizeInit()
     {
         UpdateOpenGroundFraction();
+        RefreshAllEntries();
+    }
+
+    public void RefreshAllEntries()
+    {
+        var tileInfo = TileInfo;
+        foreach (var entry in Entries) entry.Refresh(tileInfo);
     }
 
     public override string ToString()
@@ -236,7 +259,7 @@ public class BiomeGrid : MapComponent
         public int CellCount { get; internal set; }
 
         public BiomeDef BiomeBase => _biomeBase;
-        private BiomeDef _biomeBase;
+        private BiomeDef _biomeBase = BiomeDefOf.TemperateForest;
 
         public IReadOnlyList<BiomeVariantLayer> VariantLayers => _variantLayers;
         public bool HasVariants => VariantLayers.Count > 0;
@@ -260,8 +283,9 @@ public class BiomeGrid : MapComponent
 
         public void Refresh(WorldTileInfo tile)
         {
-            _biomeBase ??= BiomeDefOf.TemperateForest;
-            Biome = HasVariants ? BiomeVariantLayer.Apply(tile, _biomeBase, _variantLayers) : BiomeBase;
+            // We can't apply the variants when called from ExposeData() because the map is not fully loaded yet (and we need the tileId)
+            // So in that case tile is null, and we set the plain base biome for now, later Refresh() is called again in FinalizeInit() with the tile
+            Biome = HasVariants && tile != null ? BiomeVariantLayer.Apply(tile, _biomeBase, _variantLayers) : BiomeBase;
             ApplyToCaveSpawns = _variantLayers.Any(l => l.applyToCaveSpawns);
         }
 

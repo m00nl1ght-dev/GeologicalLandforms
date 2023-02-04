@@ -5,8 +5,6 @@ using Verse;
 
 namespace GeologicalLandforms;
 
-// ReSharper disable InconsistentNaming
-[Serializable]
 public class XmlListModifier<T>
 {
     public List<T> entries;

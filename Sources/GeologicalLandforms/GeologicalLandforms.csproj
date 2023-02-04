@@ -156,8 +156,9 @@
         <Compile Include="XML\BiomeProperties.cs" />
         <Compile Include="XML\BiomeVariantDef.cs" />
         <Compile Include="XML\BiomeVariantLayer.cs" />
-        <Compile Include="XML\XmlDynamicValueSpecs.cs" />
-        <Compile Include="XML\XmlContext.cs" />
+        <Compile Include="XML\BiomeWorkerConfig.cs" />
+        <Compile Include="XML\XmlDynamicValueSetup.cs" />
+        <Compile Include="XML\XmlDynamicValueContexts.cs" />
         <Compile Include="XML\XmlListModifier.cs" />
     </ItemGroup>
     <ItemGroup>

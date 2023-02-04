@@ -2,14 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using LunarFramework.XML;
 using RimWorld;
 using Verse;
 
-// ReSharper disable InconsistentNaming
-
 namespace GeologicalLandforms.Defs;
 
-[Serializable]
 public class BiomeVariantLayer
 {
     [NoTranslate]
@@ -17,13 +15,11 @@ public class BiomeVariantLayer
 
     public int priority;
 
-    public BiomeVariantDef def { get; internal set; }
+    public XmlDynamicValue<bool, ICtxMapCell> mapGridConditions;
 
-    public XmlDynamicValueForMapCell<bool> mapGridConditions;
-
-    public XmlDynamicValueForWorldTile<float> animalDensity;
-    public XmlDynamicValueForWorldTile<float> plantDensity;
-    public XmlDynamicValueForWorldTile<float> wildPlantRegrowDays;
+    public XmlDynamicValue<float, ICtxTile> animalDensity;
+    public XmlDynamicValue<float, ICtxTile> plantDensity;
+    public XmlDynamicValue<float, ICtxTile> wildPlantRegrowDays;
 
     public XmlListModifier<BiomePlantRecord> wildPlants;
     public XmlListModifier<BiomeAnimalRecord> wildAnimals;
@@ -31,9 +27,11 @@ public class BiomeVariantLayer
 
     public bool applyToCaveSpawns;
 
+    public BiomeVariantDef Def { get; internal set; }
+
     public override string ToString()
     {
-        return def.defName + "/" + id;
+        return Def.defName + "/" + id;
     }
 
     public static BiomeVariantLayer FindFromString(string defSlashLayerId)
@@ -95,7 +93,7 @@ public class BiomeVariantLayer
         _wildAnimalsField.SetValue(def, wildAnimals = new List<BiomeAnimalRecord>(wildAnimals));
         _pollutionWildAnimalsField.SetValue(def, pollutionWildAnimals = new List<BiomeAnimalRecord>(pollutionWildAnimals));
 
-        var xmlContext = new XmlContext(tile);
+        var xmlContext = new CtxTile(tile);
 
         foreach (var variant in layers)
         {

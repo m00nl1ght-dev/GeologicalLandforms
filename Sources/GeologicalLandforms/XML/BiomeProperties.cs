@@ -7,9 +7,6 @@ using RimWorld;
 using UnityEngine;
 using Verse;
 
-// ReSharper disable FieldCanBeMadeReadOnly.Global
-// ReSharper disable InconsistentNaming
-
 namespace GeologicalLandforms;
 
 public class BiomeProperties : DefModExtension

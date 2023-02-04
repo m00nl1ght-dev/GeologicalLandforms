@@ -2,20 +2,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using LunarFramework.XML;
 using RimWorld.Planet;
 using UnityEngine;
 using Verse;
 
-// ReSharper disable InconsistentNaming
-
 namespace GeologicalLandforms.Defs;
 
-[Serializable]
 public class BiomeVariantDef : Def
 {
     public List<BiomeVariantLayer> layers;
-    
-    public XmlDynamicValueForWorldTile<bool> worldTileConditions;
+
+    public XmlDynamicValue<bool, ICtxTile> worldTileConditions;
 
     public LabelDisplayMode labelDisplayMode = LabelDisplayMode.AppendPara;
     public DescriptionDisplayMode descriptionDisplayMode = DescriptionDisplayMode.Append;
@@ -66,13 +64,13 @@ public class BiomeVariantDef : Def
         };
     }
 
-    private static Regex AllowedIdRegex = new("^[a-zA-Z0-9\\-_]*$");
+    private static readonly Regex AllowedIdRegex = new("^[a-zA-Z0-9\\-_]*$");
 
     public override void PostLoad()
     {
         foreach (var layer in layers)
         {
-            layer.def = this;
+            layer.Def = this;
             if (string.IsNullOrEmpty(layer.id)) throw new Exception("layer id can not be empty");
             if (!AllowedIdRegex.IsMatch(layer.id)) throw new Exception("layer id " + layer.id + " in invalid");
             if (layers.Any(l => l.id == layer.id && l != layer)) throw new Exception("layer id duplicate: " + layer);

@@ -33,7 +33,7 @@ public interface IWorldTileInfo
 
     public RoadDef MainRoad { get; }
     public float MainRoadAngle { get; }
-    
+
     public float ExpectedMapSize { get; }
 
     public readonly struct BorderingBiome

@@ -5,9 +5,6 @@ using UnityEngine;
 using Verse;
 using Verse.Noise;
 
-// ReSharper disable ConvertToConstant.Global
-// ReSharper disable FieldCanBeMadeReadOnly.Global
-
 namespace GeologicalLandforms;
 
 public class TunnelGenerator
