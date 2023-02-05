@@ -36,12 +36,14 @@ public class GeologicalLandformsMod : Mod
 
         GeologicalLandformsAPI.WorldTileInfoHook += WorldTileInfoHook;
         GeologicalLandformsAPI.OnTerrainTab += TerrainTabUI.DoTerrainTabUI;
-        GeologicalLandformsAPI.PutLandformGridSizeFunction(GridSizeProvider);
-        GeologicalLandformsAPI.PutAnimalDensityFactorFunction(AnimalDensityFactorForMap);
-        GeologicalLandformsAPI.PutCellFinderOptimizationFilter(_ => Settings.EnableCellFinderOptimization);
+        GeologicalLandformsAPI.LandformGridSize = GridSizeProvider;
+        GeologicalLandformsAPI.AnimalDensityFactor = AnimalDensityFactorForMap;
+        GeologicalLandformsAPI.UseCellFinderOptimization = () => Settings.EnableCellFinderOptimization.Value;
+        GeologicalLandformsAPI.DisableVanillaMountainGeneration = () => Settings.DisabledLandforms.Value.Contains("Cliff");
+        GeologicalLandformsAPI.UnidirectionalBiomeTransitions = () => Settings.UnidirectionalBiomeTransitions.Value;
+        GeologicalLandformsAPI.PostProcessBiomeTransitions = () => !Settings.DisableBiomeTransitionPostProcessing.Value;
 
-        Settings.ApplyBiomeConfigEffects();
-        Settings.ApplyLandformConfigEffects();
+        Settings.ApplyDefEffects();
 
         var modContentPack = LunarAPI.Component.LatestVersionProvidedBy.ModContentPack;
         var assetBundle = modContentPack.assetBundles.loadedAssetBundles.Find(b => b.name == "terraingraph");

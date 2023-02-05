@@ -83,7 +83,7 @@ internal static class Patch_RimWorld_GenStep_ElevationFertility
 
     private static int AdjustHillinessCheck(Tile tile)
     {
-        if (GeologicalLandformsAPI.DisableVanillaMountainGeneration && tile.hilliness == Hilliness.Mountainous)
+        if (tile.hilliness == Hilliness.Mountainous && GeologicalLandformsAPI.DisableVanillaMountainGeneration())
         {
             return (int) Hilliness.LargeHills;
         }

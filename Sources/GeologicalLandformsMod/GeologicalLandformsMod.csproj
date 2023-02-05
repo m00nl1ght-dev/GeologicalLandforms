@@ -75,7 +75,9 @@
         </Reference>
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="DebugActions.cs" />
         <Compile Include="GeologicalLandformsMod.cs" />
+        <Compile Include="Patches\Patch_RimWorld_FloatMenuMakerMap.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
         <Compile Include="GeologicalLandformsSettings.cs" />
         <Compile Include="TerrainTabUI.cs" />

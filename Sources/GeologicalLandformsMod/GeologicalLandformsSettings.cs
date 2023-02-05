@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using GeologicalLandforms.Defs;
 using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
@@ -21,8 +19,12 @@ public class GeologicalLandformsSettings : LunarModSettings
     public readonly Entry<bool> EnableLandformScaling = MakeEntry(true);
     public readonly Entry<bool> EnableExperimentalLandforms = MakeEntry(false);
     public readonly Entry<bool> EnableGodMode = MakeEntry(false);
+    
     public readonly Entry<bool> IgnoreWorldTileReqInGodMode = MakeEntry(false);
     public readonly Entry<bool> ShowWorldTileDebugInfo = MakeEntry(false);
+    public readonly Entry<bool> EnableMapDebugPawnCommands = MakeEntry(false);
+    public readonly Entry<bool> UnidirectionalBiomeTransitions = MakeEntry(false);
+    public readonly Entry<bool> DisableBiomeTransitionPostProcessing = MakeEntry(false);
 
     public readonly Entry<List<string>> DisabledLandforms = MakeEntry(new List<string>());
     public readonly Entry<List<string>> DisabledBiomeVariants = MakeEntry(new List<string>());
@@ -81,14 +83,7 @@ public class GeologicalLandformsSettings : LunarModSettings
             if (landform.Manifest.IsExperimental && !EnableExperimentalLandforms) continue;
             if (landform.WorldTileReq == null) continue;
 
-            layout.PushChanged();
-
             LunarGUI.ToggleTableRow(layout, landform.Id, true, LabelForLandform(landform), DisabledLandforms);
-
-            if (layout.PopChanged())
-            {
-                ApplyLandformConfigEffects();
-            }
         }
     }
 
@@ -137,32 +132,22 @@ public class GeologicalLandformsSettings : LunarModSettings
 
     private void DoDebugSettingsTab(LayoutRect layout)
     {
-        LunarGUI.Checkbox(layout, ref ShowWorldTileDebugInfo.Value, Label("ShowWorldTileDebugInfo"));
+        LunarGUI.Checkbox(layout, ref ShowWorldTileDebugInfo.Value, Label("Debug.ShowWorldTileDebugInfo"));
+        LunarGUI.Checkbox(layout, ref EnableMapDebugPawnCommands.Value, Label("Debug.EnableMapDebugPawnCommands"));
 
         if (EnableGodMode)
         {
-            LunarGUI.Checkbox(layout, ref IgnoreWorldTileReqInGodMode.Value, Label("IgnoreWorldTileReqInGodMode"));
+            LunarGUI.Checkbox(layout, ref IgnoreWorldTileReqInGodMode.Value, Label("Debug.IgnoreWorldTileReqInGodMode"));
         }
 
         layout.Abs(10f);
+        
+        LunarGUI.Checkbox(layout, ref UnidirectionalBiomeTransitions.Value, Label("Debug.UnidirectionalBiomeTransitions"));
+        LunarGUI.Checkbox(layout, ref DisableBiomeTransitionPostProcessing.Value, Label("Debug.DisableBiomeTransitionPostProcessing"));
+        
+        layout.Abs(10f);
 
-        if (Find.CurrentMap != null && LunarGUI.Button(layout, "[DEV] Replace all stone on current map"))
-        {
-            var options = DefDatabase<ThingDef>.AllDefsListForReading
-                .Where(d => d.IsNonResourceNaturalRock)
-                .Select(e => new FloatMenuOption(e.defName, () => ReplaceNaturalRock(e))).ToList();
-            Find.WindowStack.Add(new FloatMenu(options));
-        }
-
-        if (Find.World != null && LunarGUI.Button(layout, "[DEV] Clear world tile data cache"))
-        {
-            WorldTileInfo.CreateNewCache();
-        }
-
-        if (Find.World != null && LunarGUI.Button(layout, "[DEV] Fill world tile data cache"))
-        {
-            FillWorldTileInfoCache();
-        }
+        DebugActions.DebugActionsGUI(layout);
     }
 
     private static readonly List<string> LabelBuffer = new();
@@ -218,57 +203,13 @@ public class GeologicalLandformsSettings : LunarModSettings
         return label;
     }
 
-    public void ApplyLandformConfigEffects()
-    {
-        GeologicalLandformsAPI.DisableVanillaMountainGeneration = LandformManager.Landforms.Values
-            .Where(GeologicalLandformsMod.IsLandformEnabled)
-            .Any(lf => !lf.IsLayer && lf.WorldTileReq is { Topology: Topology.CliffOneSide, Commonness: >= 1f });
-    }
-
-    public void ApplyBiomeConfigEffects()
+    public void ApplyDefEffects()
     {
         foreach (var biome in DefDatabase<BiomeDef>.AllDefsListForReading)
         {
-            if (BiomesExcludedFromLandforms.Value.Contains(biome.defName)) biome.Properties().allowLandformsByUser = false;
-            if (BiomesExcludedFromTransitions.Value.Contains(biome.defName)) biome.Properties().allowBiomeTransitionsByUser = false;
+            biome.Properties().allowLandformsByUser = !BiomesExcludedFromLandforms.Value.Contains(biome.defName);
+            biome.Properties().allowBiomeTransitionsByUser = !BiomesExcludedFromTransitions.Value.Contains(biome.defName);
         }
-    }
-
-    private void ReplaceNaturalRock(ThingDef thingDef)
-    {
-        var map = Find.CurrentMap;
-        map.regionAndRoomUpdater.Enabled = false;
-
-        var terrainDef = thingDef.building.naturalTerrain;
-
-        foreach (var allCell in map.AllCells)
-        {
-            if (map.edificeGrid[allCell]?.def?.IsNonResourceNaturalRock ?? false)
-                GenSpawn.Spawn(thingDef, allCell, map);
-
-            if (map.terrainGrid.TerrainAt(allCell)?.smoothedTerrain != null)
-            {
-                map.terrainGrid.SetTerrain(allCell, terrainDef);
-            }
-        }
-
-        map.regionAndRoomUpdater.Enabled = true;
-    }
-
-    public static void FillWorldTileInfoCache()
-    {
-        WorldTileInfo.CreateNewCache();
-
-        GC.Collect();
-        var before = GC.GetTotalMemory(true) / 1000000f;
-
-        var world = Find.World;
-        for (int i = 0; i < world.grid.TilesCount; i++) WorldTileInfo.Get(i);
-
-        GC.Collect();
-        var after = GC.GetTotalMemory(true) / 1000000f;
-
-        GeologicalLandformsMod.Logger.Log($"Filled cache for {world.grid.TilesCount} tiles, cache is now using {after - before:F2} MB of memory.");
     }
 
     public override void ResetAll()
@@ -276,7 +217,6 @@ public class GeologicalLandformsSettings : LunarModSettings
         base.ResetAll();
         BiomeProperties.RebuildCache();
         LandformManager.ResetAll();
-        ApplyLandformConfigEffects();
-        ApplyBiomeConfigEffects();
+        ApplyDefEffects();
     }
 }

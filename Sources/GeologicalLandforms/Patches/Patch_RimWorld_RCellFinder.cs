@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using HarmonyLib;
 using LunarFramework.Patching;
 using RimWorld;
-using UnityEngine;
 using Verse;
 using Verse.AI;
 using Verse.Profile;
@@ -14,9 +13,6 @@ namespace GeologicalLandforms.Patches;
 [HarmonyPatch(typeof(RCellFinder))]
 internal static class Patch_RimWorld_RCellFinder
 {
-    [TweakValue("Geological Landforms")]
-    public static bool EnableDebugPawnActions = false;
-
     private static readonly Dictionary<Map, ushort[]> _cache = new();
 
     [HarmonyPrefix]
@@ -32,7 +28,7 @@ internal static class Patch_RimWorld_RCellFinder
             return false;
         }
 
-        if (!GeologicalLandformsAPI.CellFinderOptimizationFilter.Invoke(map)) return true;
+        if (!GeologicalLandformsAPI.UseCellFinderOptimization()) return true;
 
         var cache = GetOrBuildCacheForMap(map);
         if (cache.Length == 0) return true;
@@ -137,46 +133,5 @@ internal static class Patch_RimWorld_RCellFinder
     private static void ClearAllMapsAndWorld()
     {
         _cache.Clear();
-    }
-
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(FloatMenuMakerMap), "AddHumanlikeOrders")]
-    [HarmonyPriority(Priority.High)]
-    private static void FloatMenuMakerMap_AddHumanlikeOrders(ref Vector3 clickPos, ref Pawn pawn, ref List<FloatMenuOption> opts)
-    {
-        if (!EnableDebugPawnActions) return;
-        foreach (var target in GenUI.TargetsAt(clickPos, TargetingParameters.ForSelf(pawn), true))
-        {
-            var localpawn = pawn;
-            var dest = target;
-            var pTarg = (Pawn) dest.Thing;
-
-            void ActionBest()
-            {
-                if (!RCellFinder.TryFindBestExitSpot(pTarg, out var dest1))
-                    dest1 = pTarg.Position;
-                var job1 = JobMaker.MakeJob(JobDefOf.Goto, dest1);
-                job1.exitMapOnArrival = false;
-                localpawn.jobs.TryTakeOrderedJob(job1);
-            }
-
-            void ActionRandom()
-            {
-                if (!RCellFinder.TryFindRandomExitSpot(pTarg, out var dest1))
-                    dest1 = pTarg.Position;
-                var job1 = JobMaker.MakeJob(JobDefOf.Goto, dest1);
-                job1.exitMapOnArrival = false;
-                localpawn.jobs.TryTakeOrderedJob(job1);
-            }
-
-            void ActionMapInfo()
-            {
-                Patch_RimWorld_WildPlantSpawner.LogInfo(localpawn.Map, localpawn.Position);
-            }
-
-            opts.Add(FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption("[debug] Find best map exit", ActionBest, MenuOptionPriority.InitiateSocial, null, dest.Thing), pawn, pTarg));
-            opts.Add(FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption("[debug] Find random map exit", ActionRandom, MenuOptionPriority.InitiateSocial, null, dest.Thing), pawn, pTarg));
-            opts.Add(FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption("[debug] Print map info", ActionMapInfo, MenuOptionPriority.InitiateSocial, null, dest.Thing), pawn, pTarg));
-        }
     }
 }

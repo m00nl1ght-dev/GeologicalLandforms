@@ -34,7 +34,7 @@ internal static class Patch_RimWorld_WildAnimalSpawner
             total = RawDesiredAnimalDensityForBiome(___map, ___map.TileInfo.biome);
         }
 
-        __result = total * GeologicalLandformsAPI.AnimalDensityFactorFunction(biomeGrid) * AggregateAnimalDensityFactor(___map.gameConditionManager, ___map);
+        __result = total * GeologicalLandformsAPI.AnimalDensityFactor(biomeGrid) * AggregateAnimalDensityFactor(___map.gameConditionManager, ___map);
 
         if (ModsConfig.BiotechActive)
         {

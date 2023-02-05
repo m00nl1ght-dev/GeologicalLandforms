@@ -9,22 +9,16 @@ namespace GeologicalLandforms;
 
 public static class BiomeTransition
 {
-    [TweakValue("Geological Landforms")]
-    public static bool UnidirectionalTransitions = false;
-
-    [TweakValue("Geological Landforms")]
-    public static bool PostProcessBiomeTransitions = true;
-
-    [TweakValue("Geological Landforms")]
+    // [TweakValue("Geological Landforms")]
     public static bool DebugBiomeTransitions;
 
-    [TweakValue("Geological Landforms", -1f, 1f)]
+    // [TweakValue("Geological Landforms", -1f, 1f)]
     public static float ThresholdForPassCheck = 0f;
 
-    [TweakValue("Geological Landforms", -1f, 1f)]
+    // [TweakValue("Geological Landforms", -1f, 1f)]
     public static float ThresholdForRoot = 0.25f;
 
-    [TweakValue("Geological Landforms", 0f, 1f)]
+    // [TweakValue("Geological Landforms", 0f, 1f)]
     public static float PlantLowDensityPassChance = 0.01f;
 
     private static HashSet<IntVec3> _tpmProcessed;
@@ -39,7 +33,7 @@ public static class BiomeTransition
         var nDisallowedBiomes = nBiome.Properties().disallowedBiomeTransitions;
         if (nDisallowedBiomes != null && nDisallowedBiomes.Contains(biome)) return false;
 
-        if (!UnidirectionalTransitions) return true;
+        if (!GeologicalLandformsAPI.UnidirectionalBiomeTransitions()) return true;
 
         var world = Find.World;
         var landformData = world.LandformData();
@@ -70,7 +64,9 @@ public static class BiomeTransition
 
     public static void PostProcessBiomeGrid(BiomeGrid biomeGrid, WorldTileInfo tile, IntVec2 mapSize)
     {
-        if (!PostProcessBiomeTransitions && !DebugBiomeTransitions) return;
+        var enabled = GeologicalLandformsAPI.PostProcessBiomeTransitions();
+        
+        if (!enabled && !DebugBiomeTransitions) return;
 
         var tempMap = CreateMinimalMap(tile.TileId, mapSize);
         var floodFiller = new FloodFiller(tempMap);
@@ -112,7 +108,7 @@ public static class BiomeTransition
             GeologicalLandformsAPI.Logger.Debug("TPM postprocessor changed biome of " + _tpmProcessed.Count + " tiles.");
         }
 
-        if (!PostProcessBiomeTransitions) biomeGrid.SetBiomes(Patch_RimWorld_GenStep_Terrain.BiomeFunction);
+        if (!enabled) biomeGrid.SetBiomes(Patch_RimWorld_GenStep_Terrain.BiomeFunction);
     }
 
     private static bool ShouldPostProcessTpm(TerrainPatchMaker tpm, TerrainDef output)

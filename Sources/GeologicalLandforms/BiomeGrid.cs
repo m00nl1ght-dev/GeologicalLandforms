@@ -158,13 +158,14 @@ public class BiomeGrid : MapComponent
         return 0.35f;
     }
 
-    public Entry MakeEntry(BiomeDef biomeBase, List<BiomeVariantLayer> variantLayers = null)
+    public Entry MakeEntry(BiomeDef biomeBase, List<BiomeVariantLayer> variantLayers = null, bool forceNew = false)
     {
         if (biomeBase == null) return Primary;
 
-        foreach (var entry in _entries)
-            if (entry.IsEquivalent(biomeBase, variantLayers))
-                return entry;
+        if (!forceNew)
+            foreach (var entry in _entries)
+                if (entry.IsEquivalent(biomeBase, variantLayers))
+                    return entry;
 
         var newEntry = new Entry { Index = (ushort) _entries.Count, LoadId = LoadId };
         _entries.Add(newEntry);
@@ -199,8 +200,10 @@ public class BiomeGrid : MapComponent
             }
             else
             {
-                foreach (var entry in _entries)
+                for (var i = 0; i < _entries.Count; i++)
                 {
+                    var entry = _entries[i];
+                    entry.Index = (ushort) i;
                     entry.LoadId = LoadId;
                     entry.Refresh(null);
                 }
@@ -321,7 +324,7 @@ public class BiomeGrid : MapComponent
 
         public override string ToString()
         {
-            return $"{CellCount} x {BiomeBase.defName} [{VariantLayers.Join(l => l.ToString())}]";
+            return $"{BiomeBase.defName}" + (VariantLayers.Count > 0 ? $" [{VariantLayers.Join(l => l.ToString())}]" : "");
         }
     }
 }

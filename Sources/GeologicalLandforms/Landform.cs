@@ -82,7 +82,7 @@ public class Landform : TerrainCanvas
     {
         CleanUp();
         GeneratingTile = WorldTileInfo.Get(worldTile);
-        GeneratingGridFullSize = GeologicalLandformsAPI.LandformGridSizeFunction.Invoke();
+        GeneratingGridFullSize = GeologicalLandformsAPI.LandformGridSize.Invoke();
         GeneratingMapSize = mapSize;
         GeneratingSeed = seed;
 
@@ -103,7 +103,7 @@ public class Landform : TerrainCanvas
     {
         CleanUp();
         GeneratingTile = tileInfo;
-        GeneratingGridFullSize = GeologicalLandformsAPI.LandformGridSizeFunction.Invoke();
+        GeneratingGridFullSize = GeologicalLandformsAPI.LandformGridSize.Invoke();
         GeneratingMapSize = new IntVec2(250, 250);
         GeneratingSeed = NodeBase.SeedSource.Next();
         if (GeneratingTile.Landforms == null) return;

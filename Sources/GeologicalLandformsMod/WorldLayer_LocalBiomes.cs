@@ -11,10 +11,10 @@ namespace GeologicalLandforms;
 
 internal class WorldLayer_LocalBiomes : WorldLayer
 {
-    [TweakValue("Geological Landforms", 0, 1)]
+    // [TweakValue("Geological Landforms", 0, 1)]
     public static float Lerp = 0.5f;
 
-    [TweakValue("Geological Landforms", -1, 1)]
+    // [TweakValue("Geological Landforms", -1, 1)]
     public static float Offset = 0.001f;
 
     private readonly List<int> _tmpNeighbors = new();
@@ -23,7 +23,8 @@ internal class WorldLayer_LocalBiomes : WorldLayer
     {
         foreach (object obj in base.Regenerate()) yield return obj;
 
-        if (!BiomeTransition.UnidirectionalTransitions || !GeologicalLandformsMod.LunarAPI.IsInitialized()) yield break;
+        if (!GeologicalLandformsMod.Settings.UnidirectionalBiomeTransitions) yield break;
+        if (!GeologicalLandformsMod.LunarAPI.IsInitialized()) yield break;
 
         var grid = Find.World.grid;
         var verts = grid.verts;

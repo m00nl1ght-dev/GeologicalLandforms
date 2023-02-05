@@ -71,7 +71,17 @@ public static class GeologicalLandformsAPI
 
     // ### Public API ###
 
-    public static bool DisableVanillaMountainGeneration { get; set; }
+    public static Func<bool> DisableVanillaMountainGeneration { get; set; } = () => false;
+
+    public static Func<bool> UseCellFinderOptimization { get; set; } = () => true;
+    
+    public static Func<int> LandformGridSize { get; set; } = () => Landform.DefaultGridFullSize;
+    
+    public static Func<BiomeGrid, float> AnimalDensityFactor { get; set; } = _ => 1f;
+    
+    public static Func<bool> UnidirectionalBiomeTransitions = () => false;
+    
+    public static Func<bool> PostProcessBiomeTransitions = () => true;
 
     public static event Action<BiomeDef, BiomeProperties> BiomePropertiesHook;
 
@@ -95,26 +105,5 @@ public static class GeologicalLandformsAPI
     public static void RunOnTerrainTab(Listing_Standard listing)
     {
         OnTerrainTab?.Invoke(listing);
-    }
-
-    public static Func<Map, bool> CellFinderOptimizationFilter { get; private set; } = _ => true;
-
-    public static void PutCellFinderOptimizationFilter(Func<Map, bool> filter)
-    {
-        CellFinderOptimizationFilter = filter ?? (_ => true);
-    }
-
-    public static Func<int> LandformGridSizeFunction { get; private set; } = () => Landform.DefaultGridFullSize;
-
-    public static void PutLandformGridSizeFunction(Func<int> function)
-    {
-        LandformGridSizeFunction = function ?? (() => Landform.DefaultGridFullSize);
-    }
-
-    public static Func<BiomeGrid, float> AnimalDensityFactorFunction { get; private set; } = _ => 1f;
-
-    public static void PutAnimalDensityFactorFunction(Func<BiomeGrid, float> function)
-    {
-        AnimalDensityFactorFunction = function ?? (_ => 1f);
     }
 }

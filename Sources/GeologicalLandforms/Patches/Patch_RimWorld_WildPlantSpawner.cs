@@ -270,10 +270,11 @@ internal static class Patch_RimWorld_WildPlantSpawner
         {
             float f = wholeMapNumDesiredPlants * commPct;
             float a = (float) (Mathf.Max(map.Size.x, map.Size.z) / (double) Mathf.Sqrt(f) * 2.0);
-            float radiusToScan = Mathf.Max(a, 7f);
 
             if (plantDef.plant.GrowsInClusters)
-                a = Mathf.Max(a, plantDef.plant.wildClusterRadius * 1.6f); // TODO check a
+                a = Mathf.Max(a, plantDef.plant.wildClusterRadius * 1.6f);
+                
+            float radiusToScan = Mathf.Max(a, 7f);
 
             if (radiusToScan <= 25.0)
                 num1 *= LocalPlantProportionsWeightFactor_Patched(instance, map, c, commPct, plantDensity, radiusToScan, plantDef);
@@ -460,19 +461,4 @@ internal static class Patch_RimWorld_WildPlantSpawner
     private static bool GoodRoofForCavePlant(Map map, IntVec3 c) => c.GetRoof(map) is { isNatural: true };
 
     private static bool CanRegrowAt(Map map, IntVec3 c) => c.GetTemperature(map) > 0 && (!c.Roofed(map) || GoodRoofForCavePlant(map, c));
-
-    public static void LogInfo(Map map, IntVec3 pos)
-    {
-        var biomeGrid = map.BiomeGrid();
-        var entry = biomeGrid.EntryAt(pos);
-        float plantDensity = entry.Biome.plantDensity * AggregatePlantDensityFactor(map.gameConditionManager, map);
-        Log.Message("pos: " + pos);
-        Log.Message("biome entry: " + entry);
-        Log.Message("biome grid: " + biomeGrid);
-        Log.Message("potential plants:\n" + entry.Biome.AllWildPlants.Join(p => p.defName, "\n"));
-        Log.Message("whole map desired: " + map.wildPlantSpawner.CurrentWholeMapNumDesiredPlants);
-        Log.Message("desired density at pos: " + plantDensity);
-        Log.Message("map open ground fraction: " + map.BiomeGrid()?.OpenGroundFraction);
-        Log.Message("map animal density factor: " + GeologicalLandformsAPI.AnimalDensityFactorFunction(map.BiomeGrid()));
-    }
 }
