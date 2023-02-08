@@ -60,6 +60,19 @@ public static class XmlDynamicValueSetup
 
         tileNumSup.InheritFrom(earlyNumSup);
         tileNumMod.InheritFrom(earlyNumMod);
+        
+        // ### String specs for full world tile context ###
+        
+        var tileStringSup = XmlDynamicValue<string, ICtxTile>.SupplierSpecs;
+        var tileStringMod = XmlDynamicValue<string, ICtxTile>.ModifierSpecs;
+        
+        tileStringSup.RegisterBasicStringSuppliers();
+        tileStringMod.RegisterBasicStringModifiers();
+        
+        tileStringSup.RegisterFallback(Convert<string, float, ICtxTile>(v => v.ToString("0.##")));
+        
+        tileStringSup.NameAttribute = "supplier";
+        tileStringMod.NameAttribute = "operation";
 
         // ### Boolean specs for full world tile context ###
 

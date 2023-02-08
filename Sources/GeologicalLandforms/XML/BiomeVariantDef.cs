@@ -15,8 +15,8 @@ public class BiomeVariantDef : Def
 
     public XmlDynamicValue<bool, ICtxTile> worldTileConditions;
 
-    public LabelDisplayMode labelDisplayMode = LabelDisplayMode.AppendPara;
-    public DescriptionDisplayMode descriptionDisplayMode = DescriptionDisplayMode.Append;
+    public XmlDynamicValue<string, ICtxTile> biomeLabel;
+    public XmlDynamicValue<string, ICtxTile> biomeDescription;
 
     [NoTranslate]
     public string texture;
@@ -37,32 +37,12 @@ public class BiomeVariantDef : Def
             return cachedMat;
         }
     }
-
-    public TaggedString ApplyLabel(TaggedString baseLabel)
-    {
-        return labelDisplayMode switch
-        {
-            LabelDisplayMode.None => baseLabel,
-            LabelDisplayMode.AppendPara => baseLabel + " (" + label + ")",
-            LabelDisplayMode.Append => baseLabel + " " + label,
-            LabelDisplayMode.Prepend => LabelCap + " " + baseLabel,
-            LabelDisplayMode.PrependPara => LabelCap + " (" + baseLabel.ToLower() + ")",
-            LabelDisplayMode.Replace => LabelCap,
-            _ => throw new ArgumentOutOfRangeException()
-        };
-    }
-
-    public string ApplyDescription(string baseDescription)
-    {
-        return descriptionDisplayMode switch
-        {
-            DescriptionDisplayMode.None => baseDescription,
-            DescriptionDisplayMode.Append => baseDescription + "\n\n" + description,
-            DescriptionDisplayMode.Prepend => description + "\n\n" + baseDescription,
-            DescriptionDisplayMode.Replace => description,
-            _ => throw new ArgumentOutOfRangeException()
-        };
-    }
+    
+    public string ApplyToBiomeLabel(WorldTileInfo tile, string str) 
+        => biomeLabel == null ? str : biomeLabel.Get(new CtxTile(tile), str);
+    
+    public string ApplyToBiomeDescription(WorldTileInfo tile, string str) 
+        => biomeDescription == null ? str : biomeDescription.Get(new CtxTile(tile), str);
 
     private static readonly Regex AllowedIdRegex = new("^[a-zA-Z0-9\\-_]*$");
 
@@ -86,22 +66,4 @@ public class BiomeVariantDef : Def
     }
 
     public static BiomeVariantDef Named(string defName) => DefDatabase<BiomeVariantDef>.GetNamed(defName);
-
-    public enum LabelDisplayMode
-    {
-        None,
-        Append,
-        AppendPara,
-        Prepend,
-        PrependPara,
-        Replace
-    }
-
-    public enum DescriptionDisplayMode
-    {
-        None,
-        Append,
-        Prepend,
-        Replace
-    }
 }

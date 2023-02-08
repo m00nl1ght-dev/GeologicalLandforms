@@ -99,23 +99,23 @@ internal static class Patch_RimWorld_WITab_Terrain
             GeologicalLandformsAPI.Logger.Fatal("Failed to patch RimWorld_WITab_Terrain special features");
     }
 
-    private static void GetBiomeLabel(Rect rect, TaggedString label)
+    private static void GetBiomeLabel(Rect rect, TaggedString labelBase)
     {
+        var label = labelBase.Resolve().UncapitalizeFirst();
+        
         if (_tile.BiomeVariants != null)
         {
-            label = _tile.BiomeVariants.OrderByDescending(v => (byte) v.labelDisplayMode)
-                .Aggregate(label, (current, biomeVariant) => biomeVariant.ApplyLabel(current));
+            label = _tile.BiomeVariants.Aggregate(label, (current, variant) => variant.ApplyToBiomeLabel(_tile, current));
         }
 
-        Widgets.Label(rect, label);
+        Widgets.Label(rect, label.CapitalizeFirst());
     }
 
     private static Rect GetBiomeDescription(Listing_Standard listingStandard, string description, float float0 = -1f, string str0 = null)
     {
         if (_tile.BiomeVariants != null)
         {
-            description = _tile.BiomeVariants.OrderByDescending(v => (byte) v.descriptionDisplayMode)
-                .Aggregate(description, (current, biomeVariant) => biomeVariant.ApplyDescription(current));
+            description = _tile.BiomeVariants.Aggregate(description, (current, variant) => variant.ApplyToBiomeDescription(_tile, current));
         }
 
         return listingStandard.Label(description);
