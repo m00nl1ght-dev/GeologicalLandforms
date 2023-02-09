@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Xml;
+using GeologicalLandforms.Defs;
 using LunarFramework.Utility;
 using LunarFramework.XML;
 using UnityEngine;
@@ -31,9 +33,6 @@ public static class XmlDynamicValueSetup
 
         earlyNumSup.RegisterBasicNumericSuppliers();
         earlyNumMod.RegisterBasicNumericModifiers();
-
-        earlyNumSup.NameAttribute = "supplier";
-        earlyNumMod.NameAttribute = "operation";
 
         // ### Boolean specs for early world tile context ###
 
@@ -70,9 +69,6 @@ public static class XmlDynamicValueSetup
         tileStringMod.RegisterBasicStringModifiers();
         
         tileStringSup.RegisterFallback(Convert<string, float, ICtxTile>(v => v.ToString("0.##")));
-        
-        tileStringSup.NameAttribute = "supplier";
-        tileStringMod.NameAttribute = "operation";
 
         // ### Boolean specs for full world tile context ###
 
@@ -92,6 +88,14 @@ public static class XmlDynamicValueSetup
 
         tileBoolSup.InheritFrom(earlyBoolSup);
         tileBoolMod.InheritFrom(earlyBoolMod);
+        
+        // ### List specs for full world tile context ###
+        
+        XmlDynamicValue<List<DynamicBiomePlantRecord>, ICtxTile>.SupplierSpecs.RegisterBasicListSuppliers();
+        XmlDynamicValue<List<DynamicBiomePlantRecord>, ICtxTile>.ModifierSpecs.RegisterBasicListModifiers();
+        
+        XmlDynamicValue<List<DynamicBiomeAnimalRecord>, ICtxTile>.SupplierSpecs.RegisterBasicListSuppliers();
+        XmlDynamicValue<List<DynamicBiomeAnimalRecord>, ICtxTile>.ModifierSpecs.RegisterBasicListModifiers();
 
         // ### Numeric specs for map cell context ###
 

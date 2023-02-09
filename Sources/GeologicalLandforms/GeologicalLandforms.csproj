@@ -159,7 +159,6 @@
         <Compile Include="XML\BiomeWorkerConfig.cs" />
         <Compile Include="XML\XmlDynamicValueSetup.cs" />
         <Compile Include="XML\XmlDynamicValueContexts.cs" />
-        <Compile Include="XML\XmlListModifier.cs" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\TerrainGraph\TerrainGraph.csproj">

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Xml;
 using LunarFramework.XML;
 using RimWorld;
 using Verse;
@@ -21,9 +22,9 @@ public class BiomeVariantLayer
     public XmlDynamicValue<float, ICtxTile> plantDensity;
     public XmlDynamicValue<float, ICtxTile> wildPlantRegrowDays;
 
-    public XmlListModifier<BiomePlantRecord> wildPlants;
-    public XmlListModifier<BiomeAnimalRecord> wildAnimals;
-    public XmlListModifier<BiomeAnimalRecord> pollutionWildAnimals;
+    public XmlDynamicValue<List<DynamicBiomePlantRecord>, ICtxTile> wildPlants;
+    public XmlDynamicValue<List<DynamicBiomeAnimalRecord>, ICtxTile> wildAnimals;
+    public XmlDynamicValue<List<DynamicBiomeAnimalRecord>, ICtxTile> pollutionWildAnimals;
 
     public bool applyToCaveSpawns;
 
@@ -85,13 +86,13 @@ public class BiomeVariantLayer
 
         foreach (var cacheField in _cacheFields) cacheField.SetValue(def, null);
 
-        var wildPlants = (List<BiomePlantRecord>) _wildPlantsField.GetValue(biomeBase);
-        var wildAnimals = (List<BiomeAnimalRecord>) _wildAnimalsField.GetValue(biomeBase);
-        var pollutionWildAnimals = (List<BiomeAnimalRecord>) _pollutionWildAnimalsField.GetValue(biomeBase);
+        var baseWildPlants = (List<BiomePlantRecord>) _wildPlantsField.GetValue(biomeBase);
+        var baseWildAnimals = (List<BiomeAnimalRecord>) _wildAnimalsField.GetValue(biomeBase);
+        var basePollutionWildAnimals = (List<BiomeAnimalRecord>) _pollutionWildAnimalsField.GetValue(biomeBase);
 
-        _wildPlantsField.SetValue(def, wildPlants = new List<BiomePlantRecord>(wildPlants));
-        _wildAnimalsField.SetValue(def, wildAnimals = new List<BiomeAnimalRecord>(wildAnimals));
-        _pollutionWildAnimalsField.SetValue(def, pollutionWildAnimals = new List<BiomeAnimalRecord>(pollutionWildAnimals));
+        var wildPlants = baseWildPlants.Select(r => new DynamicBiomePlantRecord(r)).ToList();
+        var wildAnimals = baseWildAnimals.Select(r => new DynamicBiomeAnimalRecord(r)).ToList();
+        var pollutionWildAnimals = basePollutionWildAnimals.Select(r => new DynamicBiomeAnimalRecord(r)).ToList();
 
         var xmlContext = new CtxTile(tile);
 
@@ -101,11 +102,89 @@ public class BiomeVariantLayer
             variant.plantDensity?.Apply(xmlContext, ref def.plantDensity);
             variant.wildPlantRegrowDays?.Apply(xmlContext, ref def.wildPlantRegrowDays);
 
-            variant.wildPlants?.Apply(wildPlants, e => e.plant);
-            variant.wildAnimals?.Apply(wildAnimals, e => e.animal);
-            variant.pollutionWildAnimals?.Apply(pollutionWildAnimals, e => e.animal);
+            variant.wildPlants?.Apply(xmlContext, ref wildPlants);
+            variant.wildAnimals?.Apply(xmlContext, ref wildAnimals);
+            variant.pollutionWildAnimals?.Apply(xmlContext, ref pollutionWildAnimals);
         }
+        
+        _wildPlantsField.SetValue(def, wildPlants.Select(r => r.Resolve(xmlContext)).ToList());
+        _wildAnimalsField.SetValue(def, wildAnimals.Select(r => r.Resolve(xmlContext)).ToList());
+        _pollutionWildAnimalsField.SetValue(def, pollutionWildAnimals.Select(r => r.Resolve(xmlContext)).ToList());
 
         return def;
+    }
+}
+
+public class DynamicBiomePlantRecord : IEquatable<DynamicBiomePlantRecord>
+{
+    public ThingDef plant;
+    public XmlDynamicValue<float, ICtxTile> commonality;
+    
+    public DynamicBiomePlantRecord() { }
+
+    public DynamicBiomePlantRecord(BiomePlantRecord record)
+    {
+        plant = record.plant;
+        commonality = new XmlDynamicValue<float, ICtxTile>(record.commonality);
+    }
+
+    public void LoadDataFromXmlCustom(XmlNode xmlRoot)
+    {
+        DirectXmlCrossRefLoader.RegisterObjectWantsCrossRef(this, "plant", xmlRoot);
+        commonality = DirectXmlToObject.ObjectFromXml<XmlDynamicValue<float, ICtxTile>>(xmlRoot, false);
+    }
+
+    public BiomePlantRecord Resolve(ICtxTile ctx)
+    {
+        return new BiomePlantRecord { plant = plant, commonality = commonality.Get(ctx) };
+    }
+
+    public bool Equals(DynamicBiomePlantRecord other)
+    {
+        if (ReferenceEquals(null, other)) return false;
+        if (ReferenceEquals(this, other)) return true;
+        return Equals(plant, other.plant);
+    }
+
+    public override int GetHashCode()
+    {
+        return plant != null ? plant.GetHashCode() : 0;
+    }
+}
+
+public class DynamicBiomeAnimalRecord : IEquatable<DynamicBiomeAnimalRecord>
+{
+    public PawnKindDef animal;
+    public XmlDynamicValue<float, ICtxTile> commonality;
+    
+    public DynamicBiomeAnimalRecord() { }
+
+    public DynamicBiomeAnimalRecord(BiomeAnimalRecord record)
+    {
+        animal = record.animal;
+        commonality = new XmlDynamicValue<float, ICtxTile>(record.commonality);
+    }
+
+    public void LoadDataFromXmlCustom(XmlNode xmlRoot)
+    {
+        DirectXmlCrossRefLoader.RegisterObjectWantsCrossRef(this, "animal", xmlRoot);
+        commonality = DirectXmlToObject.ObjectFromXml<XmlDynamicValue<float, ICtxTile>>(xmlRoot, false);
+    }
+    
+    public BiomeAnimalRecord Resolve(ICtxTile ctx)
+    {
+        return new BiomeAnimalRecord { animal = animal, commonality = commonality.Get(ctx) };
+    }
+
+    public bool Equals(DynamicBiomeAnimalRecord other)
+    {
+        if (ReferenceEquals(null, other)) return false;
+        if (ReferenceEquals(this, other)) return true;
+        return Equals(animal, other.animal);
+    }
+
+    public override int GetHashCode()
+    {
+        return animal != null ? animal.GetHashCode() : 0;
     }
 }
