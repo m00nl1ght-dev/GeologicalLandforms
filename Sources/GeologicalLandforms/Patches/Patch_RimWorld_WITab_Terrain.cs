@@ -102,7 +102,7 @@ internal static class Patch_RimWorld_WITab_Terrain
     private static void GetBiomeLabel(Rect rect, TaggedString labelBase)
     {
         var label = labelBase.Resolve().UncapitalizeFirst();
-        
+
         if (_tile.BiomeVariants != null)
         {
             label = _tile.BiomeVariants.Aggregate(label, (current, variant) => variant.ApplyToBiomeLabel(_tile, current));

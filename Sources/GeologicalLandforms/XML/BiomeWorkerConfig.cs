@@ -3,7 +3,7 @@ using RimWorld;
 using RimWorld.Planet;
 using Verse;
 
-namespace GeologicalLandforms.XML;
+namespace GeologicalLandforms;
 
 public class BiomeWorkerConfig : DefModExtension
 {

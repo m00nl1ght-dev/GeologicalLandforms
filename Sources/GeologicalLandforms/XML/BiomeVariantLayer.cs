@@ -106,7 +106,7 @@ public class BiomeVariantLayer
             variant.wildAnimals?.Apply(xmlContext, ref wildAnimals);
             variant.pollutionWildAnimals?.Apply(xmlContext, ref pollutionWildAnimals);
         }
-        
+
         _wildPlantsField.SetValue(def, wildPlants.Select(r => r.Resolve(xmlContext)).ToList());
         _wildAnimalsField.SetValue(def, wildAnimals.Select(r => r.Resolve(xmlContext)).ToList());
         _pollutionWildAnimalsField.SetValue(def, pollutionWildAnimals.Select(r => r.Resolve(xmlContext)).ToList());
@@ -119,7 +119,7 @@ public class DynamicBiomePlantRecord : IEquatable<DynamicBiomePlantRecord>
 {
     public ThingDef plant;
     public XmlDynamicValue<float, ICtxTile> commonality;
-    
+
     public DynamicBiomePlantRecord() { }
 
     public DynamicBiomePlantRecord(BiomePlantRecord record)
@@ -156,7 +156,7 @@ public class DynamicBiomeAnimalRecord : IEquatable<DynamicBiomeAnimalRecord>
 {
     public PawnKindDef animal;
     public XmlDynamicValue<float, ICtxTile> commonality;
-    
+
     public DynamicBiomeAnimalRecord() { }
 
     public DynamicBiomeAnimalRecord(BiomeAnimalRecord record)
@@ -170,7 +170,7 @@ public class DynamicBiomeAnimalRecord : IEquatable<DynamicBiomeAnimalRecord>
         DirectXmlCrossRefLoader.RegisterObjectWantsCrossRef(this, "animal", xmlRoot);
         commonality = DirectXmlToObject.ObjectFromXml<XmlDynamicValue<float, ICtxTile>>(xmlRoot, false);
     }
-    
+
     public BiomeAnimalRecord Resolve(ICtxTile ctx)
     {
         return new BiomeAnimalRecord { animal = animal, commonality = commonality.Get(ctx) };

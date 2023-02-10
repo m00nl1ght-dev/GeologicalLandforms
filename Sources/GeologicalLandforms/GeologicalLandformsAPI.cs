@@ -1,7 +1,6 @@
 using System;
 using GeologicalLandforms.Defs;
 using GeologicalLandforms.GraphEditor;
-using GeologicalLandforms.XML;
 using LunarFramework;
 using LunarFramework.Logging;
 using LunarFramework.Patching;
@@ -74,13 +73,13 @@ public static class GeologicalLandformsAPI
     public static Func<bool> DisableVanillaMountainGeneration { get; set; } = () => false;
 
     public static Func<bool> UseCellFinderOptimization { get; set; } = () => true;
-    
+
     public static Func<int> LandformGridSize { get; set; } = () => Landform.DefaultGridFullSize;
-    
+
     public static Func<BiomeGrid, float> AnimalDensityFactor { get; set; } = _ => 1f;
-    
+
     public static Func<bool> UnidirectionalBiomeTransitions = () => false;
-    
+
     public static Func<bool> PostProcessBiomeTransitions = () => true;
 
     public static event Action<BiomeDef, BiomeProperties> BiomePropertiesHook;

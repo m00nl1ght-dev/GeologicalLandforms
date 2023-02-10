@@ -273,7 +273,7 @@ internal static class Patch_RimWorld_WildPlantSpawner
 
             if (plantDef.plant.GrowsInClusters)
                 a = Mathf.Max(a, plantDef.plant.wildClusterRadius * 1.6f);
-                
+
             float radiusToScan = Mathf.Max(a, 7f);
 
             if (radiusToScan <= 25.0)

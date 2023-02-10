@@ -10,6 +10,7 @@ using Verse;
 
 namespace GeologicalLandforms;
 
+[HotSwappable]
 public class GeologicalLandformsSettings : LunarModSettings
 {
     public readonly Entry<int> MaxLandformSearchRadius = MakeEntry(100);
@@ -19,7 +20,7 @@ public class GeologicalLandformsSettings : LunarModSettings
     public readonly Entry<bool> EnableLandformScaling = MakeEntry(true);
     public readonly Entry<bool> EnableExperimentalLandforms = MakeEntry(false);
     public readonly Entry<bool> EnableGodMode = MakeEntry(false);
-    
+
     public readonly Entry<bool> IgnoreWorldTileReqInGodMode = MakeEntry(false);
     public readonly Entry<bool> ShowWorldTileDebugInfo = MakeEntry(false);
     public readonly Entry<bool> EnableMapDebugPawnCommands = MakeEntry(false);
@@ -140,12 +141,8 @@ public class GeologicalLandformsSettings : LunarModSettings
             LunarGUI.Checkbox(layout, ref IgnoreWorldTileReqInGodMode.Value, Label("Debug.IgnoreWorldTileReqInGodMode"));
         }
 
-        layout.Abs(10f);
-        
         LunarGUI.Checkbox(layout, ref UnidirectionalBiomeTransitions.Value, Label("Debug.UnidirectionalBiomeTransitions"));
         LunarGUI.Checkbox(layout, ref DisableBiomeTransitionPostProcessing.Value, Label("Debug.DisableBiomeTransitionPostProcessing"));
-        
-        layout.Abs(10f);
 
         DebugActions.DebugActionsGUI(layout);
     }

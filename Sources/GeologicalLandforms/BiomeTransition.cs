@@ -65,7 +65,7 @@ public static class BiomeTransition
     public static void PostProcessBiomeGrid(BiomeGrid biomeGrid, WorldTileInfo tile, IntVec2 mapSize)
     {
         var enabled = GeologicalLandformsAPI.PostProcessBiomeTransitions();
-        
+
         if (!enabled && !DebugBiomeTransitions) return;
 
         var tempMap = CreateMinimalMap(tile.TileId, mapSize);

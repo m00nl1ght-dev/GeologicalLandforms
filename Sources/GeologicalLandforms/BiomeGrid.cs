@@ -17,8 +17,11 @@ public class BiomeGrid : MapComponent
     public IReadOnlyList<Entry> Entries => _entries;
     public Entry Primary => _entries[0];
 
-    public bool Enabled => _enabled;
-    public void Enable() => _enabled = true;
+    public bool Enabled
+    {
+        get => _enabled;
+        set => _enabled = value;
+    }
 
     /// <summary>
     /// Represents how open (solid ground) the map is.

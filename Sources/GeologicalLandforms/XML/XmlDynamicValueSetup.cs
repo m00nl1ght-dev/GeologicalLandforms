@@ -39,6 +39,7 @@ public static class XmlDynamicValueSetup
         var earlyBoolSup = XmlDynamicValue<bool, ICtxEarlyTile>.SupplierSpecs;
         var earlyBoolMod = XmlDynamicValue<bool, ICtxEarlyTile>.ModifierSpecs;
 
+        earlyBoolSup.Register("valueInRange", ValueInRange<float, ICtxEarlyTile>());
         earlyBoolSup.RegisterFallback(ValueInRange<float, ICtxEarlyTile>);
 
         earlyBoolSup.RegisterBasicBoolSuppliers();
@@ -59,15 +60,15 @@ public static class XmlDynamicValueSetup
 
         tileNumSup.InheritFrom(earlyNumSup);
         tileNumMod.InheritFrom(earlyNumMod);
-        
+
         // ### String specs for full world tile context ###
-        
+
         var tileStringSup = XmlDynamicValue<string, ICtxTile>.SupplierSpecs;
         var tileStringMod = XmlDynamicValue<string, ICtxTile>.ModifierSpecs;
-        
+
         tileStringSup.RegisterBasicStringSuppliers();
         tileStringMod.RegisterBasicStringModifiers();
-        
+
         tileStringSup.RegisterFallback(Convert<string, float, ICtxTile>(v => v.ToString("0.##")));
 
         // ### Boolean specs for full world tile context ###
@@ -81,6 +82,7 @@ public static class XmlDynamicValueSetup
         tileBoolSup.Register("biome", SupplierWithParam<bool, ICtxTile>((str, ctx) => ctx.TileInfo.HasBiome(str)));
         tileBoolSup.Register("worldObject", SupplierWithParam<bool, ICtxTile>((str, ctx) => ctx.TileInfo.HasWorldObject(str)));
 
+        tileBoolSup.Register("valueInRange", ValueInRange<float, ICtxTile>());
         tileBoolSup.RegisterFallback(ValueInRange<float, ICtxTile>);
 
         tileBoolSup.RegisterBasicBoolSuppliers();
@@ -88,12 +90,12 @@ public static class XmlDynamicValueSetup
 
         tileBoolSup.InheritFrom(earlyBoolSup);
         tileBoolMod.InheritFrom(earlyBoolMod);
-        
+
         // ### List specs for full world tile context ###
-        
+
         XmlDynamicValue<List<DynamicBiomePlantRecord>, ICtxTile>.SupplierSpecs.RegisterBasicListSuppliers();
         XmlDynamicValue<List<DynamicBiomePlantRecord>, ICtxTile>.ModifierSpecs.RegisterBasicListModifiers();
-        
+
         XmlDynamicValue<List<DynamicBiomeAnimalRecord>, ICtxTile>.SupplierSpecs.RegisterBasicListSuppliers();
         XmlDynamicValue<List<DynamicBiomeAnimalRecord>, ICtxTile>.ModifierSpecs.RegisterBasicListModifiers();
 
@@ -120,6 +122,7 @@ public static class XmlDynamicValueSetup
         mapBoolSup.Register("terrainTag", SupplierWithParam<bool, ICtxMapCell>((str, ctx) => ctx.HasTerrainTag(str)));
         mapBoolSup.Register("roof", SupplierWithParam<bool, ICtxMapCell>((str, ctx) => ctx.HasRoof(str)));
 
+        mapBoolSup.Register("valueInRange", ValueInRange<float, ICtxMapCell>());
         mapBoolSup.RegisterFallback(ValueInRange<float, ICtxMapCell>);
 
         mapBoolSup.RegisterBasicBoolSuppliers();

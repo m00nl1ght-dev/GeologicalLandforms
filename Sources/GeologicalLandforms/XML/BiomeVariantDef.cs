@@ -37,11 +37,11 @@ public class BiomeVariantDef : Def
             return cachedMat;
         }
     }
-    
-    public string ApplyToBiomeLabel(WorldTileInfo tile, string str) 
+
+    public string ApplyToBiomeLabel(WorldTileInfo tile, string str)
         => biomeLabel == null ? str : biomeLabel.Get(new CtxTile(tile), str);
-    
-    public string ApplyToBiomeDescription(WorldTileInfo tile, string str) 
+
+    public string ApplyToBiomeDescription(WorldTileInfo tile, string str)
         => biomeDescription == null ? str : biomeDescription.Get(new CtxTile(tile), str);
 
     private static readonly Regex AllowedIdRegex = new("^[a-zA-Z0-9\\-_]*$");
