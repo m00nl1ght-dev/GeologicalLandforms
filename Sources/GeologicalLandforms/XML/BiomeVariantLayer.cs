@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Xml;
+using LunarFramework.Utility;
 using LunarFramework.XML;
 using RimWorld;
 using Verse;
@@ -57,59 +57,41 @@ public class BiomeVariantLayer
         return layer;
     }
 
-    private static readonly MethodInfo _cloneMethod;
-    private static readonly FieldInfo _wildPlantsField;
-    private static readonly FieldInfo _wildAnimalsField;
-    private static readonly FieldInfo _pollutionWildAnimalsField;
-    private static readonly List<FieldInfo> _cacheFields;
-
-    static BiomeVariantLayer()
-    {
-        _cloneMethod = typeof(BiomeDef).GetMethod("MemberwiseClone", BindingFlags.Instance | BindingFlags.NonPublic);
-        _wildPlantsField = typeof(BiomeDef).GetField("wildPlants", BindingFlags.Instance | BindingFlags.NonPublic);
-        _wildAnimalsField = typeof(BiomeDef).GetField("wildAnimals", BindingFlags.Instance | BindingFlags.NonPublic);
-        _pollutionWildAnimalsField = typeof(BiomeDef).GetField("pollutionWildAnimals", BindingFlags.Instance | BindingFlags.NonPublic);
-
-        _cacheFields = typeof(BiomeDef).GetFields(BindingFlags.Instance | BindingFlags.NonPublic).Where(m => m.Name.StartsWith("cached")).ToList();
-
-        if (_cloneMethod == null) throw new Exception("Failed to reflect BiomeDef clone method");
-        if (_wildPlantsField == null) throw new Exception("Failed to reflect BiomeDef wildPlants field");
-        if (_wildAnimalsField == null) throw new Exception("Failed to reflect BiomeDef wildAnimals field");
-        if (_pollutionWildAnimalsField == null) throw new Exception("Failed to reflect BiomeDef pollutionWildAnimals field");
-    }
-
     public static BiomeDef Apply(WorldTileInfo tile, BiomeDef biomeBase, List<BiomeVariantLayer> layers)
     {
-        var def = (BiomeDef) _cloneMethod.Invoke(biomeBase, null);
-        def.generated = true;
+        var def = biomeBase.MakeShallowCopy();
+
         def.shortHash = 0;
+        def.generated = true;
 
-        foreach (var cacheField in _cacheFields) cacheField.SetValue(def, null);
+        def.cachedWildPlants = null;
+        def.cachedPlantCommonalities = null;
+        def.cachedAnimalCommonalities = null;
+        def.cachedPollutionAnimalCommonalities = null;
+        def.cachedDiseaseCommonalities = null;
+        def.cachedMaxWildPlantsClusterRadius = null;
+        def.cachedLowestWildPlantOrder = null;
 
-        var baseWildPlants = (List<BiomePlantRecord>) _wildPlantsField.GetValue(biomeBase);
-        var baseWildAnimals = (List<BiomeAnimalRecord>) _wildAnimalsField.GetValue(biomeBase);
-        var basePollutionWildAnimals = (List<BiomeAnimalRecord>) _pollutionWildAnimalsField.GetValue(biomeBase);
+        var wildPlants = def.wildPlants.Select(r => new DynamicBiomePlantRecord(r)).ToList();
+        var wildAnimals = def.wildAnimals.Select(r => new DynamicBiomeAnimalRecord(r)).ToList();
+        var pollutionWildAnimals = def.pollutionWildAnimals.Select(r => new DynamicBiomeAnimalRecord(r)).ToList();
 
-        var wildPlants = baseWildPlants.Select(r => new DynamicBiomePlantRecord(r)).ToList();
-        var wildAnimals = baseWildAnimals.Select(r => new DynamicBiomeAnimalRecord(r)).ToList();
-        var pollutionWildAnimals = basePollutionWildAnimals.Select(r => new DynamicBiomeAnimalRecord(r)).ToList();
+        var ctx = new CtxTile(tile);
 
-        var xmlContext = new CtxTile(tile);
-
-        foreach (var variant in layers)
+        foreach (var layer in layers)
         {
-            variant.animalDensity?.Apply(xmlContext, ref def.animalDensity);
-            variant.plantDensity?.Apply(xmlContext, ref def.plantDensity);
-            variant.wildPlantRegrowDays?.Apply(xmlContext, ref def.wildPlantRegrowDays);
+            layer.animalDensity?.Apply(ctx, ref def.animalDensity);
+            layer.plantDensity?.Apply(ctx, ref def.plantDensity);
+            layer.wildPlantRegrowDays?.Apply(ctx, ref def.wildPlantRegrowDays);
 
-            variant.wildPlants?.Apply(xmlContext, ref wildPlants);
-            variant.wildAnimals?.Apply(xmlContext, ref wildAnimals);
-            variant.pollutionWildAnimals?.Apply(xmlContext, ref pollutionWildAnimals);
+            layer.wildPlants?.Apply(ctx, ref wildPlants);
+            layer.wildAnimals?.Apply(ctx, ref wildAnimals);
+            layer.pollutionWildAnimals?.Apply(ctx, ref pollutionWildAnimals);
         }
 
-        _wildPlantsField.SetValue(def, wildPlants.Select(r => r.Resolve(xmlContext)).ToList());
-        _wildAnimalsField.SetValue(def, wildAnimals.Select(r => r.Resolve(xmlContext)).ToList());
-        _pollutionWildAnimalsField.SetValue(def, pollutionWildAnimals.Select(r => r.Resolve(xmlContext)).ToList());
+        def.wildPlants = wildPlants.Select(r => r.Resolve(ctx)).ToList();
+        def.wildAnimals = wildAnimals.Select(r => r.Resolve(ctx)).ToList();
+        def.pollutionWildAnimals = pollutionWildAnimals.Select(r => r.Resolve(ctx)).ToList();
 
         return def;
     }

@@ -4,3 +4,4 @@ obj/
 *.pdb
 *.DotSettings.user
 _PublisherPlus.xml
+packages/
