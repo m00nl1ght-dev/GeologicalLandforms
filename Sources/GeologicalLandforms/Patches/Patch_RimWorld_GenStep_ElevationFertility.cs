@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Reflection.Emit;
 using GeologicalLandforms.GraphEditor;
@@ -46,39 +45,22 @@ internal static class Patch_RimWorld_GenStep_ElevationFertility
         return false;
     }
 
-    /// <summary>
-    /// Disables vanilla cliff generation on mountainous tiles.
-    /// </summary>
     [HarmonyTranspiler]
     [HarmonyPatch("Generate")]
     [HarmonyPriority(Priority.First)]
     private static IEnumerable<CodeInstruction> Generate_Transpiler(IEnumerable<CodeInstruction> instructions)
     {
-        var patched = false;
-        var foundElevStr = false;
+        var self = typeof(Patch_RimWorld_GenStep_ElevationFertility);
 
-        var method = AccessTools.Method(typeof(Patch_RimWorld_GenStep_ElevationFertility), nameof(AdjustHillinessCheck));
-        if (method == null) throw new Exception("missing AdjustHillinessCheck");
+        var pattern = TranspilerPattern.Build("AdjustHillinessCheck")
+            .Match(OpCodes.Ldarg_1).Keep()
+            .MatchCall(typeof(Map), "get_TileInfo").Keep()
+            .MatchLoad(typeof(Tile), "hilliness").Remove()
+            .Insert(CodeInstruction.Call(self, nameof(AdjustHillinessCheck)))
+            .Match(OpCodes.Ldc_I4_4).Keep()
+            .Match(OpCodes.Beq_S).Keep();
 
-        var field = AccessTools.Field(typeof(Tile), nameof(Tile.hilliness));
-        if (field == null) throw new Exception("missing Tile.hilliness");
-
-        foreach (var instruction in instructions)
-        {
-            if (instruction.LoadsConstant("elev world-factored")) foundElevStr = true;
-
-            if (!patched && foundElevStr && instruction.LoadsField(field))
-            {
-                patched = true;
-                yield return new CodeInstruction(OpCodes.Call, method);
-                continue;
-            }
-
-            yield return instruction;
-        }
-
-        if (patched == false)
-            GeologicalLandformsAPI.Logger.Fatal("Failed to patch RimWorld_GenStep_ElevationFertility");
+        return TranspilerPattern.Apply(instructions, pattern);
     }
 
     private static int AdjustHillinessCheck(Tile tile)

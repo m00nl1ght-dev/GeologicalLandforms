@@ -133,7 +133,9 @@
         <Compile Include="Compatibility\ModCompat_DubsMintMenus.cs" />
         <Compile Include="Compatibility\ModCompat_MapReroll.cs" />
         <Compile Include="Compatibility\ModCompat_PrepareLanding.cs" />
+        <Compile Include="Patches\Patch_Verse_AnimalPenManager.cs" />
         <Compile Include="Patches\Patch_RimWorld_GenStep_Caves.cs" />
+        <Compile Include="Patches\Patch_RimWorld_GenStep_Plants.cs" />
         <Compile Include="Patches\Patch_RimWorld_WorldGenStep_Terrain.cs" />
         <Compile Include="Patches\Patch_Verse_Game.cs" />
         <Compile Include="Patches\Patch_RimWorld_GenStep_ScatterLumpsMineable.cs" />
@@ -144,6 +146,7 @@
         <Compile Include="Patches\Patch_RimWorld_WildAnimalSpawner.cs" />
         <Compile Include="Patches\Patch_RimWorld_WildPlantSpawner.cs" />
         <Compile Include="Patches\Patch_RimWorld_World.cs" />
+        <Compile Include="Patches\Patch_Verse_Command_SetPlantToGrow.cs" />
         <Compile Include="Utility\ExtensionUtils.cs" />
         <Compile Include="IWorldTileInfo.cs" />
         <Compile Include="Topology.cs" />
@@ -188,6 +191,9 @@
         <Publicize Include="Assembly-CSharp:RimWorld.BiomeDef.cachedMaxWildPlantsClusterRadius" />
         <Publicize Include="Assembly-CSharp:RimWorld.BiomeDef.cachedPlantCommonalitiesSum" />
         <Publicize Include="Assembly-CSharp:RimWorld.BiomeDef.cachedLowestWildPlantOrder" />
+        <Publicize Include="Assembly-CSharp:RimWorld.GameConditionManager.AggregatePlantDensityFactor" />
+        <Publicize Include="Assembly-CSharp:RimWorld.GameConditionManager.AggregateAnimalDensityFactor" />
+        <Publicize Include="Assembly-CSharp:RimWorld.WildAnimalSpawner.PollutionAnimalSpawnChanceFromPollutionCurve" />
     </ItemGroup>
     <PropertyGroup>
         <PublicizerClearCacheOnClean>true</PublicizerClearCacheOnClean>

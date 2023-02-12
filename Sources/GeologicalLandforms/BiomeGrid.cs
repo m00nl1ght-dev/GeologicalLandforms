@@ -254,6 +254,9 @@ public class BiomeGrid : MapComponent
         foreach (var entry in Entries) entry.Refresh(tileInfo);
     }
 
+    public List<ThingDef> AllPotentialPlants => Entries.SelectMany(e => e.Biome.AllWildPlants).Distinct().ToList();
+    public List<PawnKindDef> AllPotentialAnimals => Entries.SelectMany(e => e.Biome.AllWildAnimals).Distinct().ToList();
+
     public override string ToString()
     {
         return "BiomeGrid\n" + _entries.Join(e => e.ToString(), "\n");

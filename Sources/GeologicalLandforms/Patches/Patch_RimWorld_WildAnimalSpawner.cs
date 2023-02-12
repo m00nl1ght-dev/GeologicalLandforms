@@ -1,8 +1,10 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using HarmonyLib;
 using LunarFramework.Patching;
 using RimWorld;
-using UnityEngine;
 using Verse;
 
 namespace GeologicalLandforms.Patches;
@@ -11,102 +13,131 @@ namespace GeologicalLandforms.Patches;
 [HarmonyPatch(typeof(WildAnimalSpawner))]
 internal static class Patch_RimWorld_WildAnimalSpawner
 {
-    [HarmonyPrefix]
-    [HarmonyPatch("DesiredAnimalDensity", MethodType.Getter)]
-    [HarmonyPriority(Priority.VeryHigh)]
-    private static bool DesiredAnimalDensity(Map ___map, ref float __result)
-    {
-        var biomeGrid = ___map.BiomeGrid();
-        if (biomeGrid == null) return true;
+    internal static readonly Type Self = typeof(Patch_RimWorld_WildAnimalSpawner);
 
-        float total = 0f;
-        if (biomeGrid.Enabled)
+    [HarmonyTranspiler]
+    [HarmonyPatch("DesiredAnimalDensity", MethodType.Getter)]
+    [HarmonyPriority(Priority.VeryLow)]
+    private static IEnumerable<CodeInstruction> DesiredAnimalDensity_Transpiler(IEnumerable<CodeInstruction> instructions)
+    {
+        var pattern = TranspilerPattern.Build("MakeAwareOfLocalBiome")
+            .TrimBefore().MayRemoveLabels()
+            .Insert(OpCodes.Ldarg_0)
+            .Insert(OpCodes.Ldarg_0)
+            .Insert(CodeInstruction.LoadField(typeof(WildAnimalSpawner), "map"))
+            .Insert(CodeInstruction.Call(Self, nameof(DesiredAnimalDensity_Base)))
+            .Match(OpCodes.Ldarg_0).Keep()
+            .MatchLoad(typeof(WildAnimalSpawner), "map").Keep()
+            .MatchLoad(typeof(Map), "gameConditionManager").Keep();
+
+        return TranspilerPattern.Apply(instructions, pattern);
+    }
+
+    [HarmonyPatch("DesiredAnimalDensity", MethodType.Getter)]
+    [HarmonyReversePatch(HarmonyReversePatchType.Snapshot)]
+    [HarmonyPriority(Priority.VeryLow + 1)]
+    private static float DesiredAnimalDensity_Base_ForBiome(WildAnimalSpawner instance, BiomeDef biome)
+    {
+        IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            float cells = ___map.cellIndices.NumGridCells;
+            var trimmerPattern = TranspilerPattern.Build("TrimToBase")
+                .Match(OpCodes.Ldarg_0).Remove()
+                .MatchLoad(typeof(WildAnimalSpawner), "map").Remove()
+                .MatchLoad(typeof(Map), "gameConditionManager").Remove()
+                .TrimAfter().MayRemoveLabels()
+                .Insert(OpCodes.Ret);
+
+            var pattern = TranspilerPattern.Build("MakeAwareOfLocalBiome")
+                .Match(OpCodes.Ldarg_0).Replace(OpCodes.Ldarg_1)
+                .MatchLoad(typeof(WildAnimalSpawner), "map").Remove()
+                .MatchCall(typeof(Map), "get_Biome").Remove()
+                .Greedy();
+
+            var trimmed = TranspilerPattern.Apply(instructions, trimmerPattern);
+            return TranspilerPattern.Apply(trimmed, pattern);
+        }
+
+        _ = Transpiler(null);
+        return 0f;
+    }
+
+    private static float DesiredAnimalDensity_Base(WildAnimalSpawner instance, Map map)
+    {
+        var density = 0f;
+        var biomeGrid = map.BiomeGrid();
+
+        if (biomeGrid is { Enabled: true })
+        {
+            float cells = map.cellIndices.NumGridCells;
+
             foreach (var entry in biomeGrid.Entries)
             {
-                var val = RawDesiredAnimalDensityForBiome(___map, entry.Biome);
-                total += val * (entry.CellCount / cells);
+                var val = DesiredAnimalDensity_Base_ForBiome(instance, entry.Biome);
+                density += val * (entry.CellCount / cells);
             }
         }
         else
         {
-            total = RawDesiredAnimalDensityForBiome(___map, ___map.TileInfo.biome);
+            density = DesiredAnimalDensity_Base_ForBiome(instance, map.Biome);
         }
 
-        __result = total * GeologicalLandformsAPI.AnimalDensityFactor(biomeGrid) * AggregateAnimalDensityFactor(___map.gameConditionManager, ___map);
-
-        if (ModsConfig.BiotechActive)
-        {
-            __result *= PollutionToAnimalDensityFactorCurve.Evaluate(Find.WorldGrid[___map.Tile].pollution);
-        }
-
-        return false;
+        return density * GeologicalLandformsAPI.AnimalDensityFactor(biomeGrid);
     }
 
-    [HarmonyPrefix]
+    [HarmonyTranspiler]
     [HarmonyPatch("SpawnRandomWildAnimalAt")]
-    [HarmonyPriority(Priority.VeryHigh)]
-    private static bool SpawnRandomWildAnimalAt(Map ___map, ref bool __result, IntVec3 loc)
+    [HarmonyPriority(Priority.Low)]
+    [HarmonyAfter("net.mseal.rimworld.mod.terrain.movement")]
+    private static IEnumerable<CodeInstruction> SpawnRandomWildAnimalAt_Transpiler(IEnumerable<CodeInstruction> instructions)
     {
-        var biomeGrid = ___map.BiomeGrid();
-        if (biomeGrid is not { Enabled: true }) return true;
+        var pattern = TranspilerPattern.Build("AdjustPotentialAnimalSpawns")
+            .Insert(OpCodes.Ldarg_0)
+            .Match(OpCodes.Ldarg_0).Keep()
+            .MatchLoad(typeof(WildAnimalSpawner), "map").Keep()
+            .MatchCall(typeof(Map), "get_Biome").Remove()
+            .MatchCall(typeof(BiomeDef), "get_AllWildAnimals").Remove()
+            .Match(OpCodes.Ldarg_0).Replace(OpCodes.Ldarg_1)
+            .Match(OpCodes.Ldftn).Remove()
+            .Match(OpCodes.Newobj).Remove()
+            .Match(OpCodes.Call).Remove()
+            .Match(OpCodes.Ldarg_0).Remove()
+            .Match(OpCodes.Ldftn).Remove()
+            .Match(OpCodes.Newobj).Remove()
+            .Match(OpCodes.Ldloca_S).Keep()
+            .Match(OpCodes.Call).Remove()
+            .Insert(CodeInstruction.Call(Self, nameof(AdjustPotentialAnimalSpawns)))
+            .Match(OpCodes.Brtrue_S).Keep();
 
-        var biome = biomeGrid.BiomeAt(loc);
-
-        var kindDef = biome.AllWildAnimals
-            .Where(a => ___map.mapTemperature.SeasonAcceptableFor(a.race))
-            .RandomElementByWeight(def => CommonalityOfAnimalNow(def, biome, ___map.TileInfo.pollution));
-
-        if (kindDef == null)
-        {
-            __result = false;
-            return false;
-        }
-
-        int randomInRange = kindDef.wildGroupSize.RandomInRange;
-        int radius = Mathf.CeilToInt(Mathf.Sqrt(kindDef.wildGroupSize.max));
-        for (int index = 0; index < randomInRange; ++index)
-        {
-            var loc1 = CellFinder.RandomClosewalkCellNear(loc, ___map, radius);
-            GenSpawn.Spawn(PawnGenerator.GeneratePawn(kindDef), loc1, ___map);
-        }
-
-        __result = true;
-        return false;
+        return TranspilerPattern.Apply(instructions, pattern);
     }
 
-    private static float RawDesiredAnimalDensityForBiome(Map map, BiomeDef biome)
+    [HarmonyPatch("CommonalityOfAnimalNow")]
+    [HarmonyReversePatch(HarmonyReversePatchType.Snapshot)]
+    [HarmonyPriority(Priority.Last)]
+    private static float CommonalityOfAnimalNow_LocalBiomeAware(WildAnimalSpawner instance, PawnKindDef def, BiomeDef biome)
     {
-        float animalDensity = biome.animalDensity;
-        float num1 = 0.0f;
-        float num2 = 0.0f;
-
-        foreach (var allWildAnimal in biome.AllWildAnimals)
+        IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            float num3 = biome.CommonalityOfAnimal(allWildAnimal);
-            num2 += num3;
-            if (map.mapTemperature.SeasonAcceptableFor(allWildAnimal.race))
-                num1 += num3;
+            var pattern = TranspilerPattern.Build("MakeAwareOfLocalBiome")
+                .Match(OpCodes.Ldarg_0).Replace(OpCodes.Ldarg_2)
+                .MatchLoad(typeof(WildAnimalSpawner), "map").Remove()
+                .MatchCall(typeof(Map), "get_Biome").Remove()
+                .Greedy();
+
+            return TranspilerPattern.Apply(instructions, pattern);
         }
 
-        return animalDensity * (num1 / num2);
+        _ = Transpiler(null);
+        return 0f;
     }
 
-    private static float AggregateAnimalDensityFactor(GameConditionManager manager, Map map)
+    private static bool AdjustPotentialAnimalSpawns(WildAnimalSpawner instance, Map map, IntVec3 loc, out PawnKindDef result)
     {
-        float num = 1f;
-        foreach (var t in manager.ActiveConditions)
-            num *= t.AnimalDensityFactor(map);
-        if (manager.Parent != null)
-            num *= AggregateAnimalDensityFactor(manager.Parent, map);
-        return num;
+        var biomeGrid = map.BiomeGrid();
+        var biome = biomeGrid is { Enabled: true } ? biomeGrid.BiomeAt(loc) : map.Biome;
+
+        return biome.AllWildAnimals
+            .Where(a => map.mapTemperature.SeasonAcceptableFor(a.race))
+            .TryRandomElementByWeight(def => CommonalityOfAnimalNow_LocalBiomeAware(instance, def, biome), out result);
     }
-
-    private static float CommonalityOfAnimalNow(PawnKindDef def, BiomeDef biome, float pollution) =>
-        (!ModsConfig.BiotechActive || Rand.Value >= PollutionAnimalSpawnChanceFromPollutionCurve.Evaluate(pollution)
-            ? biome.CommonalityOfAnimal(def) : biome.CommonalityOfPollutionAnimal(def)) / def.wildGroupSize.Average;
-
-    private static readonly SimpleCurve PollutionToAnimalDensityFactorCurve = new() { new(0.1f, 1f), new(1f, 0.25f) };
-    private static readonly SimpleCurve PollutionAnimalSpawnChanceFromPollutionCurve = new() { new(0.0f, 0.0f), new(0.25f, 0.1f), new(0.75f, 0.9f), new(1f, 1f) };
 }

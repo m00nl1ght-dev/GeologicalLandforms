@@ -13,8 +13,8 @@ public static class ExtensionUtils
 
     public static LandformData LandformData(this World world)
     {
-        if (world == null) return null;
         if (_landformDataCache?.world == world) return _landformDataCache;
+        if (world == null) return null;
         _landformDataCache = world.GetComponent<LandformData>();
         return _landformDataCache;
     }
@@ -23,8 +23,8 @@ public static class ExtensionUtils
 
     public static BiomeGrid BiomeGrid(this Map map)
     {
-        if (map == null) return null;
         if (_biomeGridCache?.map == map) return _biomeGridCache;
+        if (map == null) return null;
         _biomeGridCache = map.GetComponent<BiomeGrid>();
         return _biomeGridCache;
     }

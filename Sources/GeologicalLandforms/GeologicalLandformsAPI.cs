@@ -43,6 +43,8 @@ public static class GeologicalLandformsAPI
 
         ModCompat.ApplyAll(LunarAPI, CompatPatchGroup);
 
+        MainPatchGroup.CheckForConflicts(Logger);
+
         MapPreviewAPI.OnWorldChanged += WorldTileInfo.InvalidateCache;
         MapPreviewAPI.AddStableSeedCondition(map => WorldTileInfo.Get(map.Tile).HasLandforms);
 

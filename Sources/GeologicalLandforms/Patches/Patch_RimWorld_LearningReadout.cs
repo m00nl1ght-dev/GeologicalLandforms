@@ -11,6 +11,7 @@ internal static class Patch_RimWorld_LearningReadout
 {
     [HarmonyPrefix]
     [HarmonyPatch("LearningReadoutOnGUI")]
+    [HarmonyPriority(Priority.High)]
     private static bool LearningReadoutOnGUI()
     {
         return !LandformGraphEditor.IsEditorOpen;

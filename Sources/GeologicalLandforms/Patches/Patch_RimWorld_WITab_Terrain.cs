@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 using HarmonyLib;
@@ -15,21 +14,13 @@ namespace GeologicalLandforms.Patches;
 [HarmonyPatch(typeof(WITab_Terrain))]
 internal static class Patch_RimWorld_WITab_Terrain
 {
-    private static readonly MethodInfo Method_AppendWithComma = AccessTools.Method(typeof(GenText), "AppendWithComma");
-    private static readonly MethodInfo Method_Label = AccessTools.Method(typeof(Listing_Standard), "Label", new[] { typeof(string), typeof(float), typeof(string) });
-    private static readonly MethodInfo Method_WLabel = AccessTools.Method(typeof(Widgets), "Label", new[] { typeof(Rect), typeof(TaggedString) });
-    private static readonly MethodInfo Method_LabelDouble = AccessTools.Method(typeof(Listing_Standard), "LabelDouble", new[] { typeof(string), typeof(string), typeof(string) });
-    private static readonly MethodInfo Method_GetBiomeLabel = AccessTools.Method(typeof(Patch_RimWorld_WITab_Terrain), nameof(GetBiomeLabel));
-    private static readonly MethodInfo Method_GetBiomeDescription = AccessTools.Method(typeof(Patch_RimWorld_WITab_Terrain), nameof(GetBiomeDescription));
-    private static readonly MethodInfo Method_GetSpecialFeatures = AccessTools.Method(typeof(Patch_RimWorld_WITab_Terrain), nameof(GetSpecialFeatures));
-
     private static int _tileId;
     private static WorldTileInfo _tile;
 
     [HarmonyPrefix]
     [HarmonyPatch("FillTab")]
     [HarmonyPriority(Priority.Low)]
-    private static void FillTabPrefix()
+    private static void FillTab_Prefix()
     {
         _tileId = Find.WorldSelector.selectedTile;
         _tile = WorldTileInfo.Get(_tileId);
@@ -38,68 +29,44 @@ internal static class Patch_RimWorld_WITab_Terrain
     [HarmonyTranspiler]
     [HarmonyPatch("FillTab")]
     [HarmonyPriority(Priority.Low)]
-    private static IEnumerable<CodeInstruction> FillTab(IEnumerable<CodeInstruction> instructions)
+    private static IEnumerable<CodeInstruction> FillTab_Transpiler(IEnumerable<CodeInstruction> instructions)
     {
-        var foundAWC = false;
-        var patchedBL = false;
-        var patchedBD = false;
-        var patchedSF = false;
+        var self = typeof(Patch_RimWorld_WITab_Terrain);
 
-        foreach (var instruction in instructions)
-        {
-            if (!foundAWC && !patchedBL)
-            {
-                if (instruction.Calls(Method_WLabel))
-                {
-                    yield return new CodeInstruction(OpCodes.Call, Method_GetBiomeLabel);
-                    patchedBL = true;
-                    continue;
-                }
-            }
+        var patternBl = TranspilerPattern.Build("BiomeLabelExt")
+            .Match(OpCodes.Ldarg_0).Keep()
+            .MatchCall(typeof(WITab), "get_SelTile").Keep()
+            .MatchLoad(typeof(Tile), "biome").Keep()
+            .MatchCall(typeof(Def), "get_LabelCap").Keep()
+            .MatchCall(typeof(Widgets), "Label", new[] { typeof(Rect), typeof(TaggedString) }).Remove()
+            .Insert(CodeInstruction.Call(self, nameof(DoBiomeLabel)));
 
-            if (!foundAWC && !patchedBD)
-            {
-                if (instruction.Calls(Method_Label))
-                {
-                    yield return new CodeInstruction(OpCodes.Call, Method_GetBiomeDescription);
-                    patchedBD = true;
-                    continue;
-                }
-            }
+        var patternBd = TranspilerPattern.Build("BiomeDescriptionExt")
+            .OnlyMatchAfter(patternBl)
+            .MatchLoad(typeof(Tile), "biome").Keep()
+            .MatchLoad(typeof(Def), "description").Keep()
+            .Match(OpCodes.Ldc_R4).Keep()
+            .Match(OpCodes.Ldnull).Keep()
+            .MatchCall(typeof(Listing_Standard), "Label", new[] { typeof(string), typeof(float), typeof(string) }).Remove()
+            .Insert(CodeInstruction.Call(self, nameof(DoBiomeDescription)));
 
-            if (foundAWC && !patchedSF)
-            {
-                if (instruction.opcode == OpCodes.Ldc_I4_0)
-                {
-                    yield return new CodeInstruction(OpCodes.Ldc_I4_M1);
-                    continue;
-                }
+        var patternSfc = TranspilerPattern.Build("SpecialFeaturesCond")
+            .OnlyMatchAfter(patternBd)
+            .MatchCall(typeof(StringBuilder), "get_Length").Keep()
+            .Match(OpCodes.Ldc_I4_0).Replace(OpCodes.Ldc_I4_M1)
+            .Match(OpCodes.Ble_S).Keep()
+            .MatchAny().Keep()
+            .MatchConst("SpecialFeatures").Keep();
 
-                if (instruction.Calls(Method_LabelDouble))
-                {
-                    yield return new CodeInstruction(OpCodes.Call, Method_GetSpecialFeatures);
-                    patchedSF = true;
-                    continue;
-                }
-            }
+        var patternSfr = TranspilerPattern.Build("SpecialFeaturesExt")
+            .OnlyMatchAfter(patternSfc)
+            .MatchCall(typeof(Listing_Standard), "LabelDouble", new[] { typeof(string), typeof(string), typeof(string) }).Remove()
+            .Insert(CodeInstruction.Call(self, nameof(DoSpecialFeatures)));
 
-            if (instruction.Calls(Method_AppendWithComma))
-            {
-                foundAWC = true;
-            }
-
-            yield return instruction;
-        }
-
-        if (patchedBL == false)
-            GeologicalLandformsAPI.Logger.Fatal("Failed to patch RimWorld_WITab_Terrain biome label");
-        if (patchedBD == false)
-            GeologicalLandformsAPI.Logger.Fatal("Failed to patch RimWorld_WITab_Terrain biome description");
-        if (patchedSF == false)
-            GeologicalLandformsAPI.Logger.Fatal("Failed to patch RimWorld_WITab_Terrain special features");
+        return TranspilerPattern.Apply(instructions, patternBl, patternBd, patternSfc, patternSfr);
     }
 
-    private static void GetBiomeLabel(Rect rect, TaggedString labelBase)
+    private static void DoBiomeLabel(Rect rect, TaggedString labelBase)
     {
         var label = labelBase.Resolve().UncapitalizeFirst();
 
@@ -111,7 +78,7 @@ internal static class Patch_RimWorld_WITab_Terrain
         Widgets.Label(rect, label.CapitalizeFirst());
     }
 
-    private static Rect GetBiomeDescription(Listing_Standard listingStandard, string description, float float0 = -1f, string str0 = null)
+    private static Rect DoBiomeDescription(Listing_Standard listingStandard, string description, float float0 = -1f, string str0 = null)
     {
         if (_tile.BiomeVariants != null)
         {
@@ -121,7 +88,7 @@ internal static class Patch_RimWorld_WITab_Terrain
         return listingStandard.Label(description);
     }
 
-    private static void GetSpecialFeatures(Listing_Standard listingStandard, string str0, string str1, string str2 = null)
+    private static void DoSpecialFeatures(Listing_Standard listingStandard, string str0, string str1, string str2 = null)
     {
         if (_tile.Landforms != null)
         {

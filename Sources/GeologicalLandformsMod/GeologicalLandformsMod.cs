@@ -39,7 +39,7 @@ public class GeologicalLandformsMod : Mod
         GeologicalLandformsAPI.LandformGridSize = GridSizeProvider;
         GeologicalLandformsAPI.AnimalDensityFactor = AnimalDensityFactorForMap;
         GeologicalLandformsAPI.UseCellFinderOptimization = () => Settings.EnableCellFinderOptimization.Value;
-        GeologicalLandformsAPI.DisableVanillaMountainGeneration = () => Settings.DisabledLandforms.Value.Contains("Cliff");
+        GeologicalLandformsAPI.DisableVanillaMountainGeneration = () => !Settings.DisabledLandforms.Value.Contains("Cliff");
         GeologicalLandformsAPI.UnidirectionalBiomeTransitions = () => Settings.UnidirectionalBiomeTransitions.Value;
         GeologicalLandformsAPI.PostProcessBiomeTransitions = () => !Settings.DisableBiomeTransitionPostProcessing.Value;
 

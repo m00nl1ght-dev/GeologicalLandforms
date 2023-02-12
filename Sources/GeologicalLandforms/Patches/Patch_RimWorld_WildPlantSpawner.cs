@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using HarmonyLib;
 using LunarFramework.Patching;
 using RimWorld;
-using UnityEngine;
 using Verse;
 
 namespace GeologicalLandforms.Patches;
@@ -13,452 +13,374 @@ namespace GeologicalLandforms.Patches;
 [HarmonyPatch(typeof(WildPlantSpawner))]
 internal static class Patch_RimWorld_WildPlantSpawner
 {
-    // ### Thread static caches for good ol RimThreaded ###
+    internal static readonly Type Self = typeof(Patch_RimWorld_WildPlantSpawner);
 
-    [ThreadStatic]
-    private static List<ThingDef> _tsc_possiblePlants;
-
-    [ThreadStatic]
-    private static List<ThingDef> _tsc_plantDefsLowerOrder;
-
-    [ThreadStatic]
-    private static Dictionary<ThingDef, List<float>> _tsc_nearbyClusters;
-
-    [ThreadStatic]
-    private static List<KeyValuePair<ThingDef, List<float>>> _tsc_nearbyClustersList;
-
-    [ThreadStatic]
-    private static Dictionary<ThingDef, float> _tsc_distanceSqToNearbyClusters;
-
-    [ThreadStatic]
-    private static List<KeyValuePair<ThingDef, float>> _tsc_possiblePlantsWithWeight;
-
-    // ### Patches ###
-
-    [HarmonyPrefix]
+    [HarmonyTranspiler]
     [HarmonyPatch("CurrentWholeMapNumDesiredPlants", MethodType.Getter)]
-    [HarmonyPriority(Priority.VeryHigh)]
-    private static bool CurrentWholeMapNumDesiredPlants(WildPlantSpawner __instance, Map ___map, ref float __result)
+    [HarmonyPriority(Priority.VeryLow)]
+    private static IEnumerable<CodeInstruction> CurrentWholeMapNumDesiredPlants_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
     {
-        var biomeGrid = ___map.BiomeGrid();
-        if (biomeGrid is not { Enabled: true }) return true;
-
-        var condFactor = AggregatePlantDensityFactor(___map.gameConditionManager, ___map);
-
-        var cellRect = CellRect.WholeMap(___map);
-
-        float numDesiredPlants = 0.0f;
-        foreach (var intVec3 in cellRect)
-            numDesiredPlants += __instance.GetDesiredPlantsCountAt(intVec3, intVec3,
-                biomeGrid.BiomeAt(intVec3).plantDensity * condFactor);
-
-        __result = numDesiredPlants;
-        return false;
+        return ConditionalLocalBiomeAware(instructions, generator, nameof(CurrentWholeMapNumDesiredPlants_LocalBiomeAware));
     }
 
-    [HarmonyPrefix]
+    [HarmonyPatch("CurrentWholeMapNumDesiredPlants", MethodType.Getter)]
+    [HarmonyReversePatch(HarmonyReversePatchType.Snapshot)]
+    [HarmonyPriority(Priority.VeryLow + 1)]
+    private static float CurrentWholeMapNumDesiredPlants_LocalBiomeAware(WildPlantSpawner instance, BiomeGrid biomeGrid)
+    {
+        IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
+        {
+            var localCondFactor = generator.DeclareLocal(typeof(float));
+
+            var ldlocPos = new CodeInstruction(OpCodes.Ldloc);
+
+            var getCondFactor = TranspilerPattern.Build("GetCondFactor")
+                .MatchCall(typeof(WildPlantSpawner), "get_CurrentPlantDensity").Keep()
+                .MatchStloc().Keep()
+                .Insert(OpCodes.Ldarg_0)
+                .Insert(CodeInstruction.LoadField(typeof(WildPlantSpawner), "map"))
+                .Insert(CodeInstruction.LoadField(typeof(Map), "gameConditionManager"))
+                .Insert(OpCodes.Ldarg_0)
+                .Insert(CodeInstruction.LoadField(typeof(WildPlantSpawner), "map"))
+                .Insert(CodeInstruction.Call(typeof(GameConditionManager), "AggregatePlantDensityFactor"))
+                .Insert(OpCodes.Stloc, localCondFactor);
+
+            var getPlantDensity = TranspilerPattern.Build("GetPlantDensity")
+                .MatchLdloc().StoreOperandIn(ldlocPos).Keep()
+                .MatchLdloc().Replace(OpCodes.Ldarg_1)
+                .Insert(ldlocPos)
+                .Insert(CodeInstruction.Call(typeof(BiomeGrid), nameof(BiomeGrid.BiomeAt), new[] { typeof(IntVec3) }))
+                .Insert(CodeInstruction.LoadField(typeof(BiomeDef), "plantDensity"))
+                .Insert(OpCodes.Ldloc, localCondFactor)
+                .Insert(OpCodes.Mul)
+                .MatchCall(typeof(WildPlantSpawner), "GetDesiredPlantsCountAt", new[] { typeof(IntVec3), typeof(IntVec3), typeof(float) }).Keep();
+
+            return TranspilerPattern.Apply(instructions, getCondFactor, getPlantDensity);
+        }
+
+        _ = Transpiler(null, null);
+        return 0f;
+    }
+
+    [HarmonyTranspiler]
     [HarmonyPatch("WildPlantSpawnerTickInternal")]
-    [HarmonyPriority(Priority.VeryHigh)]
-    private static bool WildPlantSpawnerTickInternal(
-        WildPlantSpawner __instance, Map ___map,
-        ref float ___calculatedWholeMapNumDesiredPlants,
-        ref float ___calculatedWholeMapNumDesiredPlantsTmp,
-        ref int ___calculatedWholeMapNumNonZeroFertilityCells,
-        ref int ___calculatedWholeMapNumNonZeroFertilityCellsTmp,
-        ref int ___cycleIndex)
+    [HarmonyPriority(Priority.VeryLow)]
+    private static IEnumerable<CodeInstruction> WildPlantSpawnerTickInternal_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
     {
-        var biomeGrid = ___map.BiomeGrid();
-        if (biomeGrid is not { Enabled: true }) return true;
+        return ConditionalLocalBiomeAware(instructions, generator, nameof(WildPlantSpawnerTickInternal_LocalBiomeAware));
+    }
 
-        int area = ___map.Area;
-        int num = Mathf.CeilToInt(area * 0.0001f);
-        float chanceFromDensity = __instance.CachedChanceFromDensity;
-        float condFactor = AggregatePlantDensityFactor(___map.gameConditionManager, ___map);
-        int checkDuration = Mathf.CeilToInt(10000f);
-
-        for (int index = 0; index < num; ++index)
+    [HarmonyPatch("WildPlantSpawnerTickInternal")]
+    [HarmonyReversePatch(HarmonyReversePatchType.Snapshot)]
+    [HarmonyPriority(Priority.VeryLow + 1)]
+    private static void WildPlantSpawnerTickInternal_LocalBiomeAware(WildPlantSpawner instance, BiomeGrid biomeGrid)
+    {
+        IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
         {
-            if (___cycleIndex >= area)
-            {
-                ___calculatedWholeMapNumDesiredPlants = ___calculatedWholeMapNumDesiredPlantsTmp;
-                ___calculatedWholeMapNumDesiredPlantsTmp = 0.0f;
-                ___calculatedWholeMapNumNonZeroFertilityCells = ___calculatedWholeMapNumNonZeroFertilityCellsTmp;
-                ___calculatedWholeMapNumNonZeroFertilityCellsTmp = 0;
-                ___cycleIndex = 0;
-            }
+            var localCondFactor = generator.DeclareLocal(typeof(float));
+            var localBiomeEntry = generator.DeclareLocal(typeof(BiomeGrid.Entry));
 
-            var intVec3 = ___map.cellsInRandomOrder.Get(___cycleIndex);
-            var biomeEntry = biomeGrid.EntryAt(intVec3);
-            float plantDensity = biomeEntry.Biome.plantDensity * condFactor;
+            var stlocDensity = new CodeInstruction(OpCodes.Stloc);
+            var ldlocPos = new CodeInstruction(OpCodes.Ldloc);
 
-            ___calculatedWholeMapNumDesiredPlantsTmp += __instance.GetDesiredPlantsCountAt(intVec3, intVec3, plantDensity);
+            var getCondFactor = TranspilerPattern.Build("GetCondFactor")
+                .MatchCall(typeof(WildPlantSpawner), "get_CurrentPlantDensity").Keep()
+                .MatchStloc().StoreOperandIn(stlocDensity).Keep()
+                .Insert(OpCodes.Ldarg_0)
+                .Insert(CodeInstruction.LoadField(typeof(WildPlantSpawner), "map"))
+                .Insert(CodeInstruction.LoadField(typeof(Map), "gameConditionManager"))
+                .Insert(OpCodes.Ldarg_0)
+                .Insert(CodeInstruction.LoadField(typeof(WildPlantSpawner), "map"))
+                .Insert(CodeInstruction.Call(typeof(GameConditionManager), "AggregatePlantDensityFactor"))
+                .Insert(OpCodes.Stloc, localCondFactor);
 
-            if (intVec3.GetFertility(___map) > 0.0)
-                ++___calculatedWholeMapNumNonZeroFertilityCellsTmp;
+            var getBiomeEntry = TranspilerPattern.Build("GetBiomeEntry")
+                .OnlyMatchAfter(getCondFactor)
+                .Match(OpCodes.Ldarg_0).Keep()
+                .MatchLoad(typeof(WildPlantSpawner), "map").Keep()
+                .MatchLoad(typeof(Map), "cellsInRandomOrder").Keep()
+                .Match(OpCodes.Ldarg_0).Keep()
+                .MatchLoad(typeof(WildPlantSpawner), "cycleIndex").Keep()
+                .MatchCall(typeof(MapCellsInRandomOrder), "Get").Keep()
+                .MatchStloc().StoreOperandIn(ldlocPos).Keep()
+                .Insert(OpCodes.Ldarg_1)
+                .Insert(ldlocPos)
+                .Insert(CodeInstruction.Call(typeof(BiomeGrid), nameof(BiomeGrid.EntryAt), new[] { typeof(IntVec3) }))
+                .Insert(OpCodes.Stloc, localBiomeEntry)
+                .Insert(OpCodes.Ldloc, localBiomeEntry)
+                .Insert(CodeInstruction.Call(typeof(BiomeGrid.Entry), "get_Biome"))
+                .Insert(CodeInstruction.LoadField(typeof(BiomeDef), "plantDensity"))
+                .Insert(OpCodes.Ldloc, localCondFactor)
+                .Insert(OpCodes.Mul)
+                .Insert(stlocDensity);
 
-            bool asCavePlant = GoodRoofForCavePlant(___map, intVec3) && !biomeEntry.ApplyToCaveSpawns;
-            float mtb = asCavePlant ? 130f : biomeEntry.Biome.wildPlantRegrowDays;
-            if (Rand.Chance(chanceFromDensity) && Rand.MTBEventOccurs(mtb, 60000f, checkDuration) && CanRegrowAt(___map, intVec3))
-            {
-                if (asCavePlant)
-                    __instance.CheckSpawnWildPlantAt(intVec3, plantDensity, ___calculatedWholeMapNumDesiredPlants);
-                else
-                    CheckSpawnWildPlantAt_Patched_NonCave(__instance, biomeEntry.Biome, ___map, intVec3, plantDensity, ___calculatedWholeMapNumDesiredPlants);
-            }
+            var getBiome = TranspilerPattern.Build("GetBiome")
+                .OnlyMatchAfter(getBiomeEntry)
+                .Match(OpCodes.Ldarg_0).Replace(OpCodes.Ldloc, localBiomeEntry)
+                .Insert(CodeInstruction.Call(typeof(BiomeGrid.Entry), "get_Biome"))
+                .MatchLoad(typeof(WildPlantSpawner), "map").Remove()
+                .MatchCall(typeof(Map), "get_Biome").Remove()
+                .Greedy();
 
-            ++___cycleIndex;
+            var checkCaveRoof = TranspilerPattern.Build("GoodRoofForCavePlant")
+                .OnlyMatchAfter(getBiomeEntry)
+                .MatchCall(typeof(WildPlantSpawner), "GoodRoofForCavePlant").Keep()
+                .Insert(OpCodes.Ldloc, localBiomeEntry)
+                .Insert(CodeInstruction.Call(Self, nameof(ShouldUseVanillaCavePlantLogic)))
+                .Match(OpCodes.Brtrue_S).Keep()
+                .Greedy();
+
+            var checkSpawn = TranspilerPattern.Build("CheckSpawnWildPlantAt")
+                .OnlyMatchAfter(getBiomeEntry)
+                .MatchCall(typeof(WildPlantSpawner), "CheckSpawnWildPlantAt").Remove()
+                .Insert(OpCodes.Ldloc, localBiomeEntry)
+                .Insert(CodeInstruction.Call(Self, nameof(CheckSpawnWildPlantAt_LocalBiomeAware)));
+
+            return TranspilerPattern.Apply(instructions, getCondFactor, getBiomeEntry, getBiome, checkCaveRoof, checkSpawn);
         }
 
-        return false;
+        _ = Transpiler(null, null);
     }
 
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(GenStep_Plants), "Generate")]
-    [HarmonyPriority(Priority.VeryHigh)]
-    private static bool Generate(Map map)
-    {
-        var biomeGrid = map.BiomeGrid();
-        if (biomeGrid is not { Enabled: true }) return true;
-
-        float condFactor = AggregatePlantDensityFactor(map.gameConditionManager, map);
-        float desired = map.wildPlantSpawner.CurrentWholeMapNumDesiredPlants;
-
-        foreach (var c in map.cellsInRandomOrder.GetAll())
-        {
-            if (!Rand.Chance(1f / 1000f))
-            {
-                var biomeEntry = biomeGrid.EntryAt(c);
-                float density = biomeEntry.Biome.plantDensity * condFactor;
-
-                if (GoodRoofForCavePlant(map, c) && !biomeEntry.ApplyToCaveSpawns)
-                    map.wildPlantSpawner.CheckSpawnWildPlantAt(c, density, desired, true);
-                else
-                    CheckSpawnWildPlantAt_Patched_NonCave(map.wildPlantSpawner, biomeEntry.Biome, map, c, density, desired, true);
-            }
-        }
-
-        return false;
-    }
-
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(Command_SetPlantToGrow), "IsPlantAvailable")]
-    [HarmonyPriority(Priority.VeryHigh)]
-    private static bool IsPlantAvailable(ThingDef plantDef, Map map, ref bool __result)
-    {
-        var biomeGrid = map.BiomeGrid();
-        if (biomeGrid is not { Enabled: true }) return true;
-
-        if (!plantDef.plant.mustBeWildToSow) return true;
-
-        var researchPrerequisites = plantDef.plant.sowResearchPrerequisites;
-        if (researchPrerequisites != null && Enumerable.Any(researchPrerequisites, project => !project.IsFinished))
-            return true;
-
-        __result = biomeGrid.Entries.SelectMany(b => b.Biome.AllWildPlants).Contains(plantDef);
-        return false;
-    }
-
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(AnimalPenManager), "GetFixedAutoCutFilter")]
-    [HarmonyPriority(Priority.VeryHigh)]
-    private static void GetFixedAutoCutFilter(Map ___map, ref ThingFilter ___cachedFixedAutoCutFilter)
-    {
-        if (___cachedFixedAutoCutFilter != null) return;
-
-        var biomeGrid = ___map.BiomeGrid();
-        if (biomeGrid is not { Enabled: true }) return;
-
-        ___cachedFixedAutoCutFilter = new ThingFilter();
-        foreach (var allWildPlant in biomeGrid.Entries.SelectMany(b => b.Biome.AllWildPlants))
-        {
-            if (allWildPlant.plant.allowAutoCut)
-                ___cachedFixedAutoCutFilter.SetAllow(allWildPlant, true);
-        }
-
-        ___cachedFixedAutoCutFilter.SetAllow(ThingDefOf.BurnedTree, true);
-    }
-
-    // ### Modified internal methods ###
-
-    private static bool CheckSpawnWildPlantAt_Patched_NonCave(
+    [HarmonyPatch("CheckSpawnWildPlantAt")]
+    [HarmonyReversePatch(HarmonyReversePatchType.Snapshot)]
+    [HarmonyPriority(Priority.VeryLow + 1)]
+    internal static bool CheckSpawnWildPlantAt_LocalBiomeAware(
         WildPlantSpawner instance,
-        BiomeDef biome, Map map, IntVec3 c,
-        float plantDensity,
+        IntVec3 c, float plantDensity,
         float wholeMapNumDesiredPlants,
-        bool setRandomGrowth = false)
+        bool setRandomGrowth,
+        BiomeGrid.Entry entry)
     {
-        if (plantDensity <= 0.0 ||
-            c.GetPlant(map) != null ||
-            c.GetCover(map) != null ||
-            c.GetEdifice(map) != null ||
-            map.fertilityGrid.FertilityAt(c) <= 0.0 ||
-            !PlantUtility.SnowAllowsPlanting(c, map)) return false;
-
-        if (SaturatedAt_Patched(instance, biome, map, c, plantDensity, wholeMapNumDesiredPlants)) return false;
-
-        _tsc_possiblePlants ??= new List<ThingDef>();
-        _tsc_possiblePlantsWithWeight ??= new List<KeyValuePair<ThingDef, float>>();
-
-        CalculatePlantsWhichCanGrowAt_Patched(instance, biome, map, c, _tsc_possiblePlants, plantDensity);
-        if (!_tsc_possiblePlants.Any()) return false;
-
-        CalculateDistancesToNearbyClusters_Patched(biome, map, c);
-        _tsc_possiblePlantsWithWeight.Clear();
-
-        foreach (var plant in _tsc_possiblePlants)
+        IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            float num = PlantChoiceWeight_Patched(instance, biome, map, plant, c,
-                _tsc_distanceSqToNearbyClusters, wholeMapNumDesiredPlants, plantDensity);
-            _tsc_possiblePlantsWithWeight.Add(new KeyValuePair<ThingDef, float>(plant, num));
+            var lba0 = ReplaceWithLocalBiomeAwareCall("SaturatedAt", 5);
+            var lba1 = ReplaceWithLocalBiomeAwareCall("CalculatePlantsWhichCanGrowAt", 5);
+            var lba2 = ReplaceWithLocalBiomeAwareCall("CalculateDistancesToNearbyClusters", 5);
+            var lba3 = ReplaceWithLocalBiomeAwareCall("PlantChoiceWeight", 5);
+
+            return TranspilerPattern.Apply(instructions, lba0, lba1, lba2, lba3);
         }
 
-        if (!_tsc_possiblePlantsWithWeight.TryRandomElementByWeight(x => x.Value, out var result)) return false;
-
-        var newThing = (Plant) ThingMaker.MakeThing(result.Key);
-        if (setRandomGrowth)
-        {
-            newThing.Growth = Mathf.Clamp01(InitialGrowthRandomRange.RandomInRange);
-            if (newThing.def.plant.LimitedLifespan)
-                newThing.Age = Rand.Range(0, Mathf.Max(newThing.def.plant.LifespanTicks - 50, 0));
-        }
-
-        GenSpawn.Spawn(newThing, c, map);
-        return true;
+        _ = Transpiler(null);
+        return false;
     }
 
-    private static float PlantChoiceWeight_Patched(
+    [HarmonyPatch("PlantChoiceWeight")]
+    [HarmonyReversePatch(HarmonyReversePatchType.Snapshot)]
+    [HarmonyPriority(Priority.VeryLow + 1)]
+    private static float PlantChoiceWeight_LocalBiomeAware(
         WildPlantSpawner instance,
-        BiomeDef biome, Map map,
         ThingDef plantDef, IntVec3 c,
         Dictionary<ThingDef, float> distanceSqToNearbyClusters,
         float wholeMapNumDesiredPlants,
-        float plantDensity)
-    {
-        float comm = biome.CommonalityOfPlant(plantDef);
-        float commPct = biome.CommonalityPctOfPlant(plantDef);
-
-        float num1 = comm;
-        if (num1 <= 0.0) return num1;
-
-        float x1 = 0.5f;
-        if (map.listerThings.ThingsInGroup(ThingRequestGroup.NonStumpPlant).Count > wholeMapNumDesiredPlants / 2.0)
-        {
-            x1 = map.listerThings.ThingsOfDef(plantDef).Count /
-                 (float) map.listerThings.ThingsInGroup(ThingRequestGroup.NonStumpPlant).Count / commPct;
-            num1 *= GlobalPctSelectionWeightBias.Evaluate(x1);
-        }
-
-        if (plantDef.plant.GrowsInClusters && x1 < 1.1)
-        {
-            float num2 = biome.PlantCommonalitiesSum;
-            float x2 = (float) (comm * (double) plantDef.plant.wildClusterWeight / (num2 - (double) comm + comm * (double) plantDef.plant.wildClusterWeight));
-            float outTo1 = (float) (1.0 / (3.14159274101257 * plantDef.plant.wildClusterRadius * plantDef.plant.wildClusterRadius));
-
-            float outTo2 = GenMath.LerpDoubleClamped(commPct, 1f, 1f, outTo1, x2);
-            if (distanceSqToNearbyClusters.TryGetValue(plantDef, out var f))
-            {
-                float x3 = Mathf.Sqrt(f);
-                num1 *= GenMath.LerpDoubleClamped(
-                    plantDef.plant.wildClusterRadius * 0.9f,
-                    plantDef.plant.wildClusterRadius * 1.1f,
-                    plantDef.plant.wildClusterWeight, outTo2, x3);
-            }
-            else num1 *= outTo2;
-        }
-
-        if (plantDef.plant.wildEqualLocalDistribution)
-        {
-            float f = wholeMapNumDesiredPlants * commPct;
-            float a = (float) (Mathf.Max(map.Size.x, map.Size.z) / (double) Mathf.Sqrt(f) * 2.0);
-
-            if (plantDef.plant.GrowsInClusters)
-                a = Mathf.Max(a, plantDef.plant.wildClusterRadius * 1.6f);
-
-            float radiusToScan = Mathf.Max(a, 7f);
-
-            if (radiusToScan <= 25.0)
-                num1 *= LocalPlantProportionsWeightFactor_Patched(instance, map, c, commPct, plantDensity, radiusToScan, plantDef);
-        }
-
-        return num1;
-    }
-
-    private static float LocalPlantProportionsWeightFactor_Patched(
-        WildPlantSpawner instance, Map map, IntVec3 c,
-        float commonalityPct,
         float plantDensity,
-        float radiusToScan,
-        ThingDef plantDef)
+        BiomeGrid.Entry entry)
     {
-        float numDesiredPlantsLocally = 0.0f;
-        int numPlants = 0;
-        int numPlantsThisDef = 0;
+        IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            var lba0 = ConditionalCavePlantLogic(6);
+            var lba1 = ReplaceTileBiomeWithLocalBiome(6);
+            var lba2 = ReplaceWithLocalBiomeAwareCall("GetCommonalityOfPlant", 6);
+            var lba3 = ReplaceWithLocalBiomeAwareCall("GetCommonalityPctOfPlant", 6);
 
-        RegionTraverser.BreadthFirstTraverse(c, map,
-            (_, to) => c.InHorDistOf(to.extentsClose.ClosestCellTo(c), radiusToScan), reg =>
-            {
-                numDesiredPlantsLocally += instance.GetDesiredPlantsCountIn(reg, c, plantDensity);
-                numPlants += reg.ListerThings.ThingsInGroup(ThingRequestGroup.NonStumpPlant).Count;
-                numPlantsThisDef += reg.ListerThings.ThingsOfDef(plantDef).Count;
-                return false;
-            });
+            return TranspilerPattern.Apply(instructions, lba0, lba1, lba2, lba3);
+        }
 
-        return numDesiredPlantsLocally * (double) commonalityPct < 2.0 || numPlants <= numDesiredPlantsLocally * 0.5 ? 1f
-            : Mathf.Lerp(7f, 1f, numPlantsThisDef / (float) numPlants / commonalityPct);
+        _ = Transpiler(null);
+        return 0f;
     }
 
-    private static void CalculatePlantsWhichCanGrowAt_Patched(
-        WildPlantSpawner instance,
-        BiomeDef biome, Map map, IntVec3 c,
+    [HarmonyPatch("CalculatePlantsWhichCanGrowAt")]
+    [HarmonyReversePatch(HarmonyReversePatchType.Snapshot)]
+    [HarmonyPriority(Priority.VeryLow + 1)]
+    private static void CalculatePlantsWhichCanGrowAt_LocalBiomeAware(
+        WildPlantSpawner instance, IntVec3 c,
         List<ThingDef> outPlants,
-        float plantDensity)
+        bool cavePlants,
+        float plantDensity,
+        BiomeGrid.Entry entry)
     {
-        outPlants.Clear();
-
-        var allWildPlants = biome.AllWildPlants;
-        foreach (var plantDef in allWildPlants)
+        IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            if (plantDef.CanEverPlantAt(c, map))
+            var prepend = new List<CodeInstruction>
             {
-                if (plantDef.plant.wildOrder != (double) biome.LowestWildAndCavePlantOrder)
-                {
-                    float num = 7f;
-                    if (plantDef.plant.GrowsInClusters)
-                        num = Math.Max(num, plantDef.plant.wildClusterRadius * 1.5f);
-                    if (!EnoughLowerOrderPlantsNearby_Patched(instance, biome, map, c, plantDensity, num, plantDef))
-                        continue;
-                }
+                new(OpCodes.Ldarg_3),
+                new(OpCodes.Ldarg, 5),
+                CodeInstruction.Call(Self, nameof(ShouldUseVanillaCavePlantLogic)),
+                new(OpCodes.Starg, 3),
+            };
 
-                outPlants.Add(plantDef);
-            }
+            var lba0 = ReplaceTileBiomeWithLocalBiome(5, 2);
+            var lba1 = ReplaceWithLocalBiomeAwareCall("EnoughLowerOrderPlantsNearby", 5);
+
+            return prepend.Concat(TranspilerPattern.Apply(instructions, lba0, lba1));
         }
+
+        _ = Transpiler(null);
     }
 
-    private static bool EnoughLowerOrderPlantsNearby_Patched(
-        WildPlantSpawner instance,
-        BiomeDef biome, Map map, IntVec3 c,
+    [HarmonyPatch("EnoughLowerOrderPlantsNearby")]
+    [HarmonyReversePatch(HarmonyReversePatchType.Snapshot)]
+    [HarmonyPriority(Priority.VeryLow + 1)]
+    private static bool EnoughLowerOrderPlantsNearby_LocalBiomeAware(
+        WildPlantSpawner instance, IntVec3 c,
         float plantDensity,
         float radiusToScan,
-        ThingDef plantDef)
+        ThingDef plantDef,
+        BiomeGrid.Entry entry)
     {
-        float num1 = 0.0f;
-        _tsc_plantDefsLowerOrder ??= new List<ThingDef>();
-        _tsc_plantDefsLowerOrder.Clear();
-
-        var allWildPlants = biome.AllWildPlants;
-        foreach (var def in allWildPlants)
+        IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            if (def.plant.wildOrder < (double) plantDef.plant.wildOrder)
-            {
-                num1 += biome.CommonalityPctOfPlant(def);
-                _tsc_plantDefsLowerOrder.Add(def);
-            }
+            var lba0 = ReplaceTileBiomeWithLocalBiome(5);
+            var lba1 = ReplaceWithLocalBiomeAwareCall("GetCommonalityPctOfPlant", 5);
+
+            return TranspilerPattern.Apply(instructions, lba0, lba1);
         }
 
-        float numDesiredPlantsLocally = 0.0f;
-        int numPlantsLowerOrder = 0;
-        RegionTraverser.BreadthFirstTraverse(c, map,
-            (_, to) => c.InHorDistOf(to.extentsClose.ClosestCellTo(c), radiusToScan), reg =>
-            {
-                numDesiredPlantsLocally += instance.GetDesiredPlantsCountIn(reg, c, plantDensity);
-                foreach (var def in _tsc_plantDefsLowerOrder)
-                    numPlantsLowerOrder += reg.ListerThings.ThingsOfDef(def).Count;
-                return false;
-            });
-
-        float num2 = numDesiredPlantsLocally * num1;
-        return num2 < 4.0 || numPlantsLowerOrder / (double) num2 >= 0.569999992847443;
+        _ = Transpiler(null);
+        return false;
     }
 
-    private static bool SaturatedAt_Patched(
-        WildPlantSpawner instance,
-        BiomeDef biome, Map map, IntVec3 c,
-        float plantDensity,
-        float wholeMapNumDesiredPlants)
+    [HarmonyPatch("SaturatedAt")]
+    [HarmonyReversePatch(HarmonyReversePatchType.Snapshot)]
+    [HarmonyPriority(Priority.VeryLow + 1)]
+    private static bool SaturatedAt_LocalBiomeAware(
+        WildPlantSpawner instance, IntVec3 c,
+        float plantDensity, bool cavePlants,
+        float wholeMapNumDesiredPlants,
+        BiomeGrid.Entry entry)
     {
-        int num = GenRadial.NumCellsInRadius(20f);
-        if (wholeMapNumDesiredPlants * (num / (double) map.Area) <= 4.0
-            || (!biome.wildPlantsCareAboutLocalFertility && Rand.ChanceSeeded(BiomeTransition.PlantLowDensityPassChance, c.GetHashCode() ^ map.Tile)))
-            return map.listerThings.ThingsInGroup(ThingRequestGroup.NonStumpPlant).Count >= (double) wholeMapNumDesiredPlants;
-
-        float numDesiredPlantsLocally = 0.0f;
-        int numPlants = 0;
-
-        RegionTraverser.BreadthFirstTraverse(c, map, (_, to) => c.InHorDistOf(to.extentsClose.ClosestCellTo(c), 20f),
-            reg =>
-            {
-                numDesiredPlantsLocally += instance.GetDesiredPlantsCountIn(reg, c, plantDensity);
-                numPlants += reg.ListerThings.ThingsInGroup(ThingRequestGroup.NonStumpPlant).Count;
-                return false;
-            });
-
-        return numPlants >= (double) numDesiredPlantsLocally;
-    }
-
-    private static void CalculateDistancesToNearbyClusters_Patched(
-        BiomeDef biome, Map map, IntVec3 c)
-    {
-        _tsc_nearbyClusters ??= new Dictionary<ThingDef, List<float>>();
-        _tsc_nearbyClustersList ??= new List<KeyValuePair<ThingDef, List<float>>>();
-        _tsc_distanceSqToNearbyClusters ??= new Dictionary<ThingDef, float>();
-
-        _tsc_nearbyClusters.Clear();
-        _tsc_nearbyClustersList.Clear();
-        _tsc_distanceSqToNearbyClusters.Clear();
-
-        int num1 = GenRadial.NumCellsInRadius(biome.MaxWildAndCavePlantsClusterRadius * 2);
-        for (int index1 = 0; index1 < num1; ++index1)
+        IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            var intVec3 = c + GenRadial.RadialPattern[index1];
-            if (intVec3.InBounds(map))
-            {
-                var thingList = map.thingGrid.ThingsListAtFast(intVec3);
-                foreach (var thing in thingList)
-                {
-                    if (thing.def.category == ThingCategory.Plant && thing.def.plant.GrowsInClusters)
-                    {
-                        float squared = intVec3.DistanceToSquared(c);
-                        if (!_tsc_nearbyClusters.TryGetValue(thing.def, out var floatList))
-                        {
-                            floatList = SimplePool<List<float>>.Get();
-                            _tsc_nearbyClusters.Add(thing.def, floatList);
-                            _tsc_nearbyClustersList.Add(new KeyValuePair<ThingDef, List<float>>(thing.def, floatList));
-                        }
+            var pattern = TranspilerPattern.Build("MakeAwareOfLocalBiome")
+                .Match(OpCodes.Ldarg_0).Keep()
+                .MatchLoad(typeof(WildPlantSpawner), "map").Keep()
+                .Insert(OpCodes.Ldarg_1)
+                .Insert(OpCodes.Ldarg, 5)
+                .Insert(CodeInstruction.Call(Self, nameof(ShouldCareAboutLocalFertility)))
+                .MatchCall(typeof(Map), "get_Biome").Remove()
+                .MatchLoad(typeof(BiomeDef), "wildPlantsCareAboutLocalFertility").Remove();
 
-                        floatList.Add(squared);
-                    }
-                }
-            }
+            return TranspilerPattern.Apply(instructions, pattern);
         }
 
-        foreach (var nearbyClusters in _tsc_nearbyClustersList)
-        {
-            var floatList = nearbyClusters.Value;
-            floatList.Sort();
-            double num2 = floatList[floatList.Count / 2];
-            _tsc_distanceSqToNearbyClusters.Add(nearbyClusters.Key, (float) num2);
-            floatList.Clear();
-            SimplePool<List<float>>.Return(floatList);
-        }
+        _ = Transpiler(null);
+        return false;
     }
 
-    // ### Extracted values and utils ###
-
-    private static readonly FloatRange InitialGrowthRandomRange = new(0.15f, 1.5f);
-
-    private static readonly SimpleCurve GlobalPctSelectionWeightBias = new() { new(0.0f, 3f), new(1f, 1f), new(1.5f, 0.25f), new(3f, 0.02f) };
-
-    private static float AggregatePlantDensityFactor(GameConditionManager manager, Map map)
+    [HarmonyPatch("CalculateDistancesToNearbyClusters")]
+    [HarmonyReversePatch(HarmonyReversePatchType.Snapshot)]
+    [HarmonyPriority(Priority.VeryLow + 1)]
+    private static void CalculateDistancesToNearbyClusters_LocalBiomeAware(
+        WildPlantSpawner instance, IntVec3 c,
+        BiomeGrid.Entry entry)
     {
-        float num = 1f;
-        foreach (var t in manager.ActiveConditions)
-            num *= t.PlantDensityFactor(map);
-        if (manager.Parent != null)
-            num *= AggregatePlantDensityFactor(manager.Parent, map);
-        return num;
+        IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            return TranspilerPattern.Apply(instructions, ReplaceTileBiomeWithLocalBiome(2));
+        }
+
+        _ = Transpiler(null);
     }
 
-    private static bool GoodRoofForCavePlant(Map map, IntVec3 c) => c.GetRoof(map) is { isNatural: true };
+    [HarmonyPatch("GetCommonalityOfPlant")]
+    [HarmonyReversePatch(HarmonyReversePatchType.Snapshot)]
+    [HarmonyPriority(Priority.VeryLow + 1)]
+    private static float GetCommonalityOfPlant_LocalBiomeAware(
+        WildPlantSpawner instance, ThingDef plant,
+        BiomeGrid.Entry entry)
+    {
+        IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            var lba0 = ConditionalCavePlantLogic(2);
+            var lba1 = ReplaceTileBiomeWithLocalBiome(2);
 
-    private static bool CanRegrowAt(Map map, IntVec3 c) => c.GetTemperature(map) > 0 && (!c.Roofed(map) || GoodRoofForCavePlant(map, c));
+            return TranspilerPattern.Apply(instructions, lba0, lba1);
+        }
+
+        _ = Transpiler(null);
+        return 0f;
+    }
+
+    [HarmonyPatch("GetCommonalityPctOfPlant")]
+    [HarmonyReversePatch(HarmonyReversePatchType.Snapshot)]
+    [HarmonyPriority(Priority.VeryLow + 1)]
+    private static float GetCommonalityPctOfPlant_LocalBiomeAware(
+        WildPlantSpawner instance, ThingDef plant,
+        BiomeGrid.Entry entry)
+    {
+        IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            var lba0 = ConditionalCavePlantLogic(2);
+            var lba1 = ReplaceTileBiomeWithLocalBiome(2);
+            var lba2 = ReplaceWithLocalBiomeAwareCall("GetCommonalityOfPlant", 2);
+
+            return TranspilerPattern.Apply(instructions, lba0, lba1, lba2);
+        }
+
+        _ = Transpiler(null);
+        return 0f;
+    }
+
+    private static IEnumerable<CodeInstruction> ConditionalLocalBiomeAware(
+        IEnumerable<CodeInstruction> instructions,
+        ILGenerator generator,
+        string destMethod)
+    {
+        var labelVanillaImpl = generator.DefineLabel();
+        var localBiomeGrid = generator.DeclareLocal(typeof(BiomeGrid));
+
+        var conditionalLocalBiomeAware = new List<CodeInstruction>
+        {
+            new(OpCodes.Ldarg_0),
+            CodeInstruction.LoadField(typeof(WildPlantSpawner), "map"),
+            CodeInstruction.Call(typeof(ExtensionUtils), nameof(ExtensionUtils.BiomeGrid)),
+            new(OpCodes.Stloc, localBiomeGrid),
+            new(OpCodes.Ldloc, localBiomeGrid),
+            new(OpCodes.Brfalse_S, labelVanillaImpl),
+            new(OpCodes.Ldloc, localBiomeGrid),
+            CodeInstruction.Call(typeof(BiomeGrid), "get_Enabled"),
+            new(OpCodes.Brfalse_S, labelVanillaImpl),
+            new(OpCodes.Ldarg_0),
+            new(OpCodes.Ldloc, localBiomeGrid),
+            CodeInstruction.Call(Self, destMethod),
+            new(OpCodes.Ret)
+        };
+
+        instructions.First().labels.Add(labelVanillaImpl);
+        return conditionalLocalBiomeAware.Concat(instructions);
+    }
+
+    private static TranspilerPattern ReplaceTileBiomeWithLocalBiome(int entryArg, int minExpected = 1) =>
+        TranspilerPattern.Build("MakeAwareOfLocalBiome")
+            .Match(OpCodes.Ldarg_0).Replace(OpCodes.Ldarg, entryArg)
+            .Insert(CodeInstruction.Call(typeof(BiomeGrid.Entry), "get_Biome"))
+            .MatchLoad(typeof(WildPlantSpawner), "map").Remove()
+            .MatchCall(typeof(Map), "get_Biome").Remove()
+            .Greedy(minExpected);
+
+    private static TranspilerPattern ConditionalCavePlantLogic(int entryArg, int minExpected = 1) =>
+        TranspilerPattern.Build("ConditionalCavePlantLogic")
+            .MatchLoad(typeof(PlantProperties), "cavePlant").Keep()
+            .Insert(OpCodes.Ldarg, entryArg)
+            .Insert(CodeInstruction.Call(Self, nameof(ShouldUseVanillaCavePlantLogic)))
+            .Greedy(minExpected);
+
+    private static TranspilerPattern ReplaceWithLocalBiomeAwareCall(string method, int entryArg, int minExpected = 1) =>
+        TranspilerPattern.Build(method)
+            .MatchCall(typeof(WildPlantSpawner), method).Replace(OpCodes.Ldarg, entryArg)
+            .Insert(CodeInstruction.Call(Self, method + "_LocalBiomeAware"))
+            .Greedy(minExpected);
+
+    private static bool ShouldCareAboutLocalFertility(Map map, IntVec3 c, BiomeGrid.Entry entry)
+    {
+        if (entry.Biome.wildPlantsCareAboutLocalFertility) return true;
+        return !Rand.ChanceSeeded(BiomeTransition.PlantLowDensityPassChance, c.GetHashCode() ^ map.Tile);
+    }
+
+    private static bool ShouldUseVanillaCavePlantLogic(bool underCaveRoof, BiomeGrid.Entry entry)
+    {
+        return underCaveRoof && !entry.ApplyToCaveSpawns;
+    }
 }

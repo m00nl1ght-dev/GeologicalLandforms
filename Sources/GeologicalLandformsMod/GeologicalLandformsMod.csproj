@@ -115,6 +115,9 @@
       <Publicize Include="Assembly-CSharp:RimWorld.BiomeDef.cachedMaxWildPlantsClusterRadius" />
       <Publicize Include="Assembly-CSharp:RimWorld.BiomeDef.cachedPlantCommonalitiesSum" />
       <Publicize Include="Assembly-CSharp:RimWorld.BiomeDef.cachedLowestWildPlantOrder" />
+      <Publicize Include="Assembly-CSharp:RimWorld.GameConditionManager.AggregatePlantDensityFactor" />
+      <Publicize Include="Assembly-CSharp:RimWorld.GameConditionManager.AggregateAnimalDensityFactor" />
+      <Publicize Include="Assembly-CSharp:RimWorld.WildAnimalSpawner.PollutionAnimalSpawnChanceFromPollutionCurve" />
     </ItemGroup>
     <PropertyGroup>
       <PublicizerClearCacheOnClean>true</PublicizerClearCacheOnClean>

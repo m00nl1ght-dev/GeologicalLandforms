@@ -1,4 +1,4 @@
-using System.Linq;
+using GeologicalLandforms.Patches;
 using HarmonyLib;
 using LunarFramework.Patching;
 using Verse;
@@ -18,13 +18,7 @@ internal class ModCompat_DubsMintMenus : ModCompat
         var biomeGrid = map.BiomeGrid();
         if (biomeGrid is not { Enabled: true }) return true;
 
-        if (!plantDef.plant.mustBeWildToSow) return true;
-
-        var researchPrerequisites = plantDef.plant.sowResearchPrerequisites;
-        if (researchPrerequisites != null && Enumerable.Any(researchPrerequisites, project => !project.IsFinished))
-            return true;
-
-        __result = biomeGrid.Entries.SelectMany(b => b.Biome.AllWildPlants).Contains(plantDef);
+        __result = Patch_Verse_Command_SetPlantToGrow.IsPlantAvailable_LocalBiomeAware(plantDef, map, biomeGrid);
         return false;
     }
 }
