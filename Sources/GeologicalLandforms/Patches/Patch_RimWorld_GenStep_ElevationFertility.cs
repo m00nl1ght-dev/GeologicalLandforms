@@ -52,24 +52,29 @@ internal static class Patch_RimWorld_GenStep_ElevationFertility
     {
         var self = typeof(Patch_RimWorld_GenStep_ElevationFertility);
 
-        var pattern = TranspilerPattern.Build("AdjustHillinessCheck")
+        var brfalseSkip = new CodeInstruction(OpCodes.Brfalse);
+
+        var pattern = TranspilerPattern.Build("ShouldUseVanillaMountainGeneration")
             .Match(OpCodes.Ldarg_1).Keep()
             .MatchCall(typeof(Map), "get_TileInfo").Keep()
             .MatchLoad(typeof(Tile), "hilliness").Remove()
-            .Insert(CodeInstruction.Call(self, nameof(AdjustHillinessCheck)))
-            .Match(OpCodes.Ldc_I4_4).Keep()
-            .Match(OpCodes.Beq_S).Keep();
+            .Match(OpCodes.Ldc_I4_4).Remove()
+            .Match(OpCodes.Beq_S).Remove()
+            .Match(OpCodes.Ldarg_1).Remove()
+            .MatchCall(typeof(Map), "get_TileInfo").Remove()
+            .MatchLoad(typeof(Tile), "hilliness").Remove()
+            .Match(OpCodes.Ldc_I4_5).Remove()
+            .Insert(CodeInstruction.Call(self, nameof(ShouldUseVanillaMountainGeneration)))
+            .Match(OpCodes.Bne_Un).StoreOperandIn(brfalseSkip).Remove()
+            .Insert(brfalseSkip);
 
         return TranspilerPattern.Apply(instructions, pattern);
     }
 
-    private static int AdjustHillinessCheck(Tile tile)
+    private static bool ShouldUseVanillaMountainGeneration(Tile tile)
     {
-        if (tile.hilliness == Hilliness.Mountainous && GeologicalLandformsAPI.DisableVanillaMountainGeneration())
-        {
-            return (int) Hilliness.LargeHills;
-        }
-
-        return (int) tile.hilliness;
+        if (tile.hilliness < Hilliness.Mountainous) return false;
+        if (GeologicalLandformsAPI.DisableVanillaMountainGeneration()) return false;
+        return true;
     }
 }

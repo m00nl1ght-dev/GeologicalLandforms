@@ -19,6 +19,8 @@ public class BiomeProperties : DefModExtension
     public List<string> disallowedLandforms;
     public List<BiomeDef> disallowedBiomeTransitions;
 
+    public bool allowSettlementsOnImpassableTerrain;
+
     public TerrainDef beachTerrain;
     public TerrainDef gravelTerrain;
 
@@ -37,8 +39,11 @@ public class BiomeProperties : DefModExtension
         allowBiomeTransitions = other.allowBiomeTransitions;
         disallowedLandforms = other.disallowedLandforms?.ToList();
         disallowedBiomeTransitions = other.disallowedBiomeTransitions?.ToList();
+        allowSettlementsOnImpassableTerrain = other.allowSettlementsOnImpassableTerrain;
         beachTerrain = other.beachTerrain;
         gravelTerrain = other.gravelTerrain;
+        allowLandformsByUser = other.allowLandformsByUser;
+        allowBiomeTransitionsByUser = other.allowBiomeTransitionsByUser;
     }
 
     private static BiomeProperties[] _cache;

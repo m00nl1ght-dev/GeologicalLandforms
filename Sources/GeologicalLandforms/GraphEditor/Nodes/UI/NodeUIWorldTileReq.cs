@@ -52,8 +52,7 @@ public class NodeUIWorldTileReq : NodeUIBase
     {
         var conditions = new List<Predicate<IWorldTileInfo>>();
 
-        if (HillinessRequirement != DefaultHillinessRequirement)
-            conditions.Add(info => HillinessRequirement.Includes((float) info.Hilliness));
+        conditions.Add(info => CheckHilliness(HillinessRequirement, info.Hilliness));
         if (ElevationRequirement != DefaultElevationRequirement)
             conditions.Add(info => ElevationRequirement.Includes(info.Elevation));
         if (AvgTemperatureRequirement != DefaultAvgTemperatureRequirement)
@@ -131,7 +130,7 @@ public class NodeUIWorldTileReq : NodeUIBase
         layout.Abs(20f);
 
         LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.HillinessRequirement".Translate());
-        LunarGUI.RangeSlider(layout, ref HillinessRequirement, 1f, 5f);
+        LunarGUI.RangeSlider(layout, ref HillinessRequirement, 1f, 6f, LabelForHilliness);
 
         layout.Abs(10f);
 
@@ -182,6 +181,20 @@ public class NodeUIWorldTileReq : NodeUIBase
         LunarGUI.Checkbox(layout, ref AllowSites, "GeologicalLandforms.Settings.Landform.AllowSites".Translate());
 
         if (GUI.changed) _conditions = null;
+    }
+
+    private string LabelForHilliness(float val)
+    {
+        if (val > 5f) return Hilliness.Impassable.GetLabelCap();
+        var hilliness = (Hilliness) (int) Math.Floor(val);
+        if (hilliness == Hilliness.Impassable) hilliness = Hilliness.Mountainous;
+        return hilliness.GetLabelCap();
+    }
+
+    private bool CheckHilliness(FloatRange range, Hilliness hilliness)
+    {
+        if (hilliness == Hilliness.Impassable) return range.max > 5f;
+        return range.Includes((float) hilliness);
     }
 
     public override void DrawNode()

@@ -21,7 +21,7 @@ internal static class Patch_RimWorld_WildAnimalSpawner
     private static IEnumerable<CodeInstruction> DesiredAnimalDensity_Transpiler(IEnumerable<CodeInstruction> instructions)
     {
         var pattern = TranspilerPattern.Build("MakeAwareOfLocalBiome")
-            .TrimBefore().MayRemoveLabels()
+            .TrimBefore()
             .Insert(OpCodes.Ldarg_0)
             .Insert(OpCodes.Ldarg_0)
             .Insert(CodeInstruction.LoadField(typeof(WildAnimalSpawner), "map"))
@@ -44,7 +44,7 @@ internal static class Patch_RimWorld_WildAnimalSpawner
                 .Match(OpCodes.Ldarg_0).Remove()
                 .MatchLoad(typeof(WildAnimalSpawner), "map").Remove()
                 .MatchLoad(typeof(Map), "gameConditionManager").Remove()
-                .TrimAfter().MayRemoveLabels()
+                .TrimAfter()
                 .Insert(OpCodes.Ret);
 
             var pattern = TranspilerPattern.Build("MakeAwareOfLocalBiome")

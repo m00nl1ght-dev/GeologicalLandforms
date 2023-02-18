@@ -173,7 +173,6 @@ public class WorldTileInfo : IWorldTileInfo
 
     public bool CanHaveLandform(Landform landform, bool lenient = false)
     {
-        if (Hilliness == Hilliness.Impassable) return false;
         var requirements = landform.WorldTileReq;
         if (requirements == null || !requirements.CheckRequirements(this, lenient)) return false;
         var biomeProperties = Biome.Properties();
@@ -270,8 +269,17 @@ public class WorldTileInfo : IWorldTileInfo
                     borderingBiomes.Add(new BorderingBiome(nbTile.biome, rot6.Angle));
                 }
 
-                if ((int) nbTile.hilliness >= 4 && nbTile.hilliness > info.Tile.hilliness) cliffTiles.Add(rot6);
-                else nonCliffTiles.Add(rot6);
+                if (info.Tile.hilliness == Hilliness.Impassable)
+                {
+                    if (nbTile.hilliness < Hilliness.Impassable) nonCliffTiles.Add(rot6);
+                    else cliffTiles.Add(rot6);
+                }
+                else
+                {
+                    if ((int) nbTile.hilliness >= 4 && nbTile.hilliness > info.Tile.hilliness) cliffTiles.Add(rot6);
+                    else nonCliffTiles.Add(rot6);
+                }
+                
                 landTiles.Add(rot6);
             }
         }

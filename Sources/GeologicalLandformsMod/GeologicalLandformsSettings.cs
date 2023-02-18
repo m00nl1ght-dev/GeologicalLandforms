@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using GeologicalLandforms.Defs;
 using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
@@ -71,7 +72,11 @@ public class GeologicalLandformsSettings : LunarModSettings
 
         layout.Abs(10f);
 
-        LunarGUI.Checkbox(layout, ref EnableExperimentalLandforms.Value, Label("EnableExperimentalLandforms"));
+        if (LandformManager.Landforms.Values.Any(lf => lf.Manifest.IsExperimental))
+        {
+            LunarGUI.Checkbox(layout, ref EnableExperimentalLandforms.Value, Label("EnableExperimentalLandforms"));
+        }
+
         LunarGUI.Checkbox(layout, ref EnableGodMode.Value, Label("EnableGodMode"));
         LunarGUI.Checkbox(layout, ref EnableCellFinderOptimization.Value, Label("EnableCellFinderOptimization"));
         LunarGUI.Checkbox(layout, ref EnableLandformScaling.Value, Label("EnableLandformScaling"));

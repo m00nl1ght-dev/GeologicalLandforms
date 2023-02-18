@@ -133,6 +133,8 @@
         <Compile Include="Compatibility\ModCompat_DubsMintMenus.cs" />
         <Compile Include="Compatibility\ModCompat_MapReroll.cs" />
         <Compile Include="Compatibility\ModCompat_PrepareLanding.cs" />
+        <Compile Include="Patches\Patch_RimWorld_TileFinder.cs" />
+        <Compile Include="Patches\Patch_RimWorld_WorldPathGrid.cs" />
         <Compile Include="Patches\Patch_Verse_AnimalPenManager.cs" />
         <Compile Include="Patches\Patch_RimWorld_GenStep_Caves.cs" />
         <Compile Include="Patches\Patch_RimWorld_GenStep_Plants.cs" />

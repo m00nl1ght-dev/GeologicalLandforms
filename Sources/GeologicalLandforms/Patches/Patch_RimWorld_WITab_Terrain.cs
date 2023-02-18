@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Emit;
@@ -14,6 +15,8 @@ namespace GeologicalLandforms.Patches;
 [HarmonyPatch(typeof(WITab_Terrain))]
 internal static class Patch_RimWorld_WITab_Terrain
 {
+    internal static readonly Type Self = typeof(Patch_RimWorld_WITab_Terrain);
+    
     private static int _tileId;
     private static WorldTileInfo _tile;
 
@@ -31,15 +34,13 @@ internal static class Patch_RimWorld_WITab_Terrain
     [HarmonyPriority(Priority.Low)]
     private static IEnumerable<CodeInstruction> FillTab_Transpiler(IEnumerable<CodeInstruction> instructions)
     {
-        var self = typeof(Patch_RimWorld_WITab_Terrain);
-
         var patternBl = TranspilerPattern.Build("BiomeLabelExt")
             .Match(OpCodes.Ldarg_0).Keep()
             .MatchCall(typeof(WITab), "get_SelTile").Keep()
             .MatchLoad(typeof(Tile), "biome").Keep()
             .MatchCall(typeof(Def), "get_LabelCap").Keep()
             .MatchCall(typeof(Widgets), "Label", new[] { typeof(Rect), typeof(TaggedString) }).Remove()
-            .Insert(CodeInstruction.Call(self, nameof(DoBiomeLabel)));
+            .Insert(CodeInstruction.Call(Self, nameof(DoBiomeLabel)));
 
         var patternBd = TranspilerPattern.Build("BiomeDescriptionExt")
             .OnlyMatchAfter(patternBl)
@@ -48,7 +49,7 @@ internal static class Patch_RimWorld_WITab_Terrain
             .Match(OpCodes.Ldc_R4).Keep()
             .Match(OpCodes.Ldnull).Keep()
             .MatchCall(typeof(Listing_Standard), "Label", new[] { typeof(string), typeof(float), typeof(string) }).Remove()
-            .Insert(CodeInstruction.Call(self, nameof(DoBiomeDescription)));
+            .Insert(CodeInstruction.Call(Self, nameof(DoBiomeDescription)));
 
         var patternSfc = TranspilerPattern.Build("SpecialFeaturesCond")
             .OnlyMatchAfter(patternBd)
@@ -61,7 +62,7 @@ internal static class Patch_RimWorld_WITab_Terrain
         var patternSfr = TranspilerPattern.Build("SpecialFeaturesExt")
             .OnlyMatchAfter(patternSfc)
             .MatchCall(typeof(Listing_Standard), "LabelDouble", new[] { typeof(string), typeof(string), typeof(string) }).Remove()
-            .Insert(CodeInstruction.Call(self, nameof(DoSpecialFeatures)));
+            .Insert(CodeInstruction.Call(Self, nameof(DoSpecialFeatures)));
 
         return TranspilerPattern.Apply(instructions, patternBl, patternBd, patternSfc, patternSfr);
     }
