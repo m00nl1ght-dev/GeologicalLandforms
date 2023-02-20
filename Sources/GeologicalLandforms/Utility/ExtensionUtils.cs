@@ -47,6 +47,8 @@ public static class ExtensionUtils
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static BiomeProperties Properties(this BiomeDef biomeDef) => BiomeProperties.Get(biomeDef);
 
+    public static int MurmurCombine(this int value, int other) => MurmurHash.GetInt((uint) value, (uint) other);
+
     public static bool HasLandform(this IWorldTileInfo tile, string landformId)
         => tile.Landforms != null && tile.Landforms.Any(l => l.Id == landformId);
 

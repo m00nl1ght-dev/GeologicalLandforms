@@ -53,7 +53,7 @@ public class WorldTileInfo : IWorldTileInfo
 
     public float ExpectedMapSize => (WorldObject is Site site ? site.PreferredMapSize : World.info.initialMapSize).MinXZ();
 
-    public int MakeSeed(int hash) => Patch_RimWorld_World.LastKnownInitialWorldSeed ^ TileId ^ hash; // TODO use proper hash
+    public int MakeSeed(int salt) => Gen.HashCombineInt(Patch_RimWorld_World.StableSeedForTile(TileId), salt);
 
     protected WorldTileInfo(int tileId, Tile tile, World world)
     {
@@ -137,7 +137,7 @@ public class WorldTileInfo : IWorldTileInfo
             .Where(e => info.CanHaveLandform(e))
             .OrderBy(e => e.Manifest.TimeCreated));
 
-        var landforms = eligible.Where(e => e.IsLayer && Rand.ChanceSeeded(e.WorldTileReq.Commonness, info.MakeSeed(e.RandSeed)));
+        var landforms = eligible.Where(e => e.IsLayer && Rand.ChanceSeeded(e.WorldTileReq.Commonness, info.MakeSeed(e.IdHash)));
 
         var landformData = info.World.LandformData();
         if (landformData != null && landformData.TryGet(info.TileId, out var data))
@@ -520,7 +520,7 @@ public class WorldTileInfo : IWorldTileInfo
                 return;
             }
 
-            var random = cliffTiles.RandomElementSeeded(info.MakeSeed(1675));
+            var random = cliffTiles.RandomElementSeeded(info.MakeSeed(1628));
             info.LandformDirection = random.AsRot4();
             info.Topology = Topology.CliffOneSide;
             return;

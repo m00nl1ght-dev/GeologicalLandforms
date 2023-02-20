@@ -25,13 +25,13 @@ public class Landform : TerrainCanvas
     public static bool AnyGenerating => GeneratingLandforms is { Count: > 0 };
 
     public static IntVec2 GeneratingMapSize { get; set; } = new(250, 250);
-    public static int GeneratingSeed { get; private set; }
 
     public static int GeneratingMapSizeMin => Math.Min(GeneratingMapSize.x, GeneratingMapSize.z);
     public static double MapSpaceToNodeSpaceFactor => GeneratingMapSizeMin / (double) GeneratingGridFullSize;
     public static double NodeSpaceToMapSpaceFactor => GeneratingGridFullSize / (double) GeneratingMapSizeMin;
 
     public string Id => Manifest?.Id;
+    public int IdHash => GenText.StableStringHash(Id ?? "");
     public bool IsCustom => Manifest?.IsCustom ?? false;
     public bool IsLayer => LayerConfig != null;
     public int Priority => IsLayer ? LayerConfig.Priority : 0;
@@ -73,8 +73,7 @@ public class Landform : TerrainCanvas
         LandformGraphEditor.ActiveEditor?.Close();
 
         var world = Find.World;
-        bool rerolled = SeedRerollData.IsMapSeedRerolled(world, map.Tile, out var savedSeed);
-        int seed = rerolled ? savedSeed : world.info.Seed ^ map.Tile; // TODO use proper hash
+        var seed = SeedRerollData.GetMapSeed(world, map.Tile).MurmurCombine(map.Tile);
 
         PrepareMapGen(new IntVec2(map.Size.x, map.Size.z), map.Tile, seed);
     }
@@ -82,10 +81,10 @@ public class Landform : TerrainCanvas
     public static void PrepareMapGen(IntVec2 mapSize, int worldTile, int seed)
     {
         CleanUp();
+        
         GeneratingTile = WorldTileInfo.Get(worldTile);
         GeneratingGridFullSize = GeologicalLandformsAPI.LandformGridSize.Invoke();
         GeneratingMapSize = mapSize;
-        GeneratingSeed = seed;
 
         if (GeneratingTile.Landforms == null) return;
 
@@ -103,13 +102,17 @@ public class Landform : TerrainCanvas
     public static void PrepareEditor(EditorMockTileInfo tileInfo)
     {
         CleanUp();
+
+        var seed = NodeBase.SeedSource.Next();
+        
         GeneratingTile = tileInfo;
         GeneratingGridFullSize = GeologicalLandformsAPI.LandformGridSize.Invoke();
         GeneratingMapSize = new IntVec2(250, 250);
-        GeneratingSeed = NodeBase.SeedSource.Next();
+        
         if (GeneratingTile.Landforms == null) return;
+        
         GeneratingLandforms = GeneratingTile.Landforms;
-        foreach (var landform in GeneratingLandforms) landform.RandSeed = GeneratingSeed;
+        foreach (var landform in GeneratingLandforms) landform.RandSeed = seed;
     }
 
     public static void CleanUp()

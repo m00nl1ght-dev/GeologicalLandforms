@@ -12,6 +12,8 @@ internal static class Patch_RimWorld_World
 {
     public static int LastKnownInitialWorldSeed { get; private set; }
 
+    public static int StableSeedForTile(int tileId) => Gen.HashCombineInt(LastKnownInitialWorldSeed, tileId);
+
     [HarmonyPostfix]
     [HarmonyPatch("ConstructComponents")]
     private static void ConstructComponents(WorldInfo ___info, World __instance)
