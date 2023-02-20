@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection.Emit;
 using HarmonyLib;
 using LunarFramework.Patching;
 using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
 using Verse;
-using Verse.Noise;
 
 namespace GeologicalLandforms.Patches;
 
@@ -15,12 +15,7 @@ namespace GeologicalLandforms.Patches;
 [HarmonyPatch(typeof(WorldGenStep_Terrain))]
 internal static class Patch_RimWorld_WorldGenStep_Terrain
 {
-    private static ModuleBase noiseElevation;
-    private static ModuleBase noiseTemperatureOffset;
-    private static ModuleBase noiseRainfall;
-    private static ModuleBase noiseSwampiness;
-
-    private static SimpleCurve AvgTempByLatitudeCurve;
+    internal static readonly Type Self = typeof(Patch_RimWorld_WorldGenStep_Terrain);
 
     private static readonly List<int> _tmpNeighbors = new();
 
@@ -29,22 +24,11 @@ internal static class Patch_RimWorld_WorldGenStep_Terrain
 
     [HarmonyPostfix]
     [HarmonyPatch("GenerateGridIntoWorld")]
-    private static void GenerateGridIntoWorld(
-        ModuleBase ___noiseElevation,
-        ModuleBase ___noiseTemperatureOffset,
-        ModuleBase ___noiseRainfall,
-        ModuleBase ___noiseSwampiness,
-        SimpleCurve ___AvgTempByLatitudeCurve)
+    private static void GenerateGridIntoWorld_Postfix(WorldGenStep_Terrain __instance)
     {
-        AvgTempByLatitudeCurve = ___AvgTempByLatitudeCurve;
-        noiseElevation = ___noiseElevation;
-        noiseTemperatureOffset = ___noiseTemperatureOffset;
-        noiseRainfall = ___noiseRainfall;
-        noiseSwampiness = ___noiseSwampiness;
-
         try
         {
-            CalcTransitions();
+            CalcTransitions(__instance);
         }
         catch (Exception e)
         {
@@ -52,14 +36,9 @@ internal static class Patch_RimWorld_WorldGenStep_Terrain
             BiomeTransitions = null;
             LastWorld = null;
         }
-
-        noiseElevation = null;
-        noiseTemperatureOffset = null;
-        noiseRainfall = null;
-        noiseSwampiness = null;
     }
 
-    private static void CalcTransitions()
+    private static void CalcTransitions(WorldGenStep_Terrain instance)
     {
         var world = Find.World;
         var grid = world.grid;
@@ -85,7 +64,7 @@ internal static class Patch_RimWorld_WorldGenStep_Terrain
 
                 if (biome != nBiome)
                 {
-                    data[tileIdx * 6 + i] = CheckIsTransition(tileIdx, nIdx, biome, nBiome);
+                    data[tileIdx * 6 + i] = CheckIsTransition(instance, tileIdx, nIdx, biome, nBiome);
                 }
             }
         }
@@ -94,10 +73,10 @@ internal static class Patch_RimWorld_WorldGenStep_Terrain
         LastWorld = world;
 
         stopwatch.Stop();
-        GeologicalLandformsAPI.Logger.Debug("Patch_RimWorld_WorldGenStep_Terrain took " + stopwatch.ElapsedMilliseconds + " ms.");
+        GeologicalLandformsAPI.Logger.Debug("Calculation of biome transitions took " + stopwatch.ElapsedMilliseconds + " ms.");
     }
 
-    private static bool CheckIsTransition(int tile, int nTile, BiomeDef biome, BiomeDef nBiome)
+    private static bool CheckIsTransition(WorldGenStep_Terrain instance, int tile, int nTile, BiomeDef biome, BiomeDef nBiome)
     {
         bool rev = tile > nTile;
         int min = rev ? nTile : tile;
@@ -109,10 +88,9 @@ internal static class Patch_RimWorld_WorldGenStep_Terrain
         var rTile = flag ? nTile : tile;
 
         var grid = Find.WorldGrid;
-        var hilliness = grid[rTile].hilliness;
         var pos = Vector3.Lerp(grid.GetTileCenter(min), grid.GetTileCenter(max), 0.5f);
 
-        var tTileInfo = GenerateTileFor(pos, hilliness);
+        var tTileInfo = GenerateTileFor_AtVector3(instance, -1, pos);
 
         var diff = nBiome.Worker.GetScore(tTileInfo, rTile) - biome.Worker.GetScore(tTileInfo, rTile);
 
@@ -124,35 +102,45 @@ internal static class Patch_RimWorld_WorldGenStep_Terrain
         return flag;
     }
 
-    private static Tile GenerateTileFor(Vector3 pos, Hilliness hilliness)
+    [HarmonyPatch("GenerateTileFor")]
+    [HarmonyReversePatch(HarmonyReversePatchType.Snapshot)]
+    [HarmonyPriority(Priority.VeryLow + 1)]
+    private static Tile GenerateTileFor_AtVector3(WorldGenStep_Terrain instance, int tileID, Vector3 pos)
     {
-        var ws = new Tile
+        IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            hilliness = hilliness,
-            elevation = noiseElevation.GetValue(pos)
-        };
+            var useGivenPos = TranspilerPattern.Build("UseGivenPos")
+                .MatchCall(typeof(Find), "get_WorldGrid").Nop()
+                .Match(OpCodes.Ldarg_1).Remove()
+                .MatchCall(typeof(WorldGrid), "GetTileCenter").Remove()
+                .Insert(OpCodes.Ldarg_2)
+                .MatchStloc().Keep();
 
-        var longLat = new Vector2(Mathf.Atan2(pos.x, -pos.z) * 57.29578f, Mathf.Asin(pos.y / 100f) * 57.29578f);
-        float x = BaseTemperatureAtLatitude(longLat.y) - TemperatureReductionAtElevation(ws.elevation) + noiseTemperatureOffset.GetValue(pos);
+            var longLatOf = TranspilerPattern.Build("LongLatOf")
+                .MatchCall(typeof(Find), "get_WorldGrid").Nop()
+                .Match(OpCodes.Ldarg_1).Remove()
+                .MatchCall(typeof(WorldGrid), "LongLatOf").Remove()
+                .Insert(OpCodes.Ldarg_2)
+                .Insert(CodeInstruction.Call(Self, nameof(LongLatOf_Vector3)))
+                .Greedy();
 
-        var temperatureCurve = Find.World.info.overallTemperature.GetTemperatureCurve();
-        if (temperatureCurve != null)
-            x = temperatureCurve.Evaluate(x);
+            var skipBiome = TranspilerPattern.Build("SkipBiome")
+                .MatchLdloc().Nop()
+                .Match(OpCodes.Ldarg_0).Remove()
+                .MatchLdloc().Remove()
+                .Match(OpCodes.Ldarg_1).Remove()
+                .Match(OpCodes.Call).Remove()
+                .MatchStore(typeof(Tile), "biome").Remove();
 
-        ws.temperature = x;
-        ws.rainfall = noiseRainfall.GetValue(pos);
+            return TranspilerPattern.Apply(instructions, useGivenPos, longLatOf, skipBiome);
+        }
 
-        if (ws.hilliness is Hilliness.Flat or Hilliness.SmallHills)
-            ws.swampiness = noiseSwampiness.GetValue(pos);
-
-        return ws;
+        _ = Transpiler(null);
+        return null;
     }
 
-    private static float BaseTemperatureAtLatitude(float lat)
+    private static Vector2 LongLatOf_Vector3(Vector3 pos)
     {
-        float x = Mathf.Abs(lat) / 90f;
-        return AvgTempByLatitudeCurve.Evaluate(x);
+        return new Vector2(Mathf.Atan2(pos.x, -pos.z) * 57.29578f, Mathf.Asin(pos.y / 100f) * 57.29578f);
     }
-
-    private static float TemperatureReductionAtElevation(float elev) => elev < 250.0 ? 0.0f : Mathf.Lerp(0.0f, 40f, (float) ((elev - 250.0) / 4750.0));
 }

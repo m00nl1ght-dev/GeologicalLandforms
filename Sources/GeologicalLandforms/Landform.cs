@@ -55,6 +55,7 @@ public class Landform : TerrainCanvas
     public NodeOutputTerrain OutputTerrain { get; internal set; }
     public NodeOutputBiomeGrid OutputBiomeGrid { get; internal set; }
     public NodeOutputCaves OutputCaves { get; internal set; }
+    public NodeOutputRoofGrid OutputRoofGrid { get; internal set; }
     public NodeOutputScatterers OutputScatterers { get; internal set; }
 
     public override int GridFullSize => GeneratingGridFullSize;
@@ -137,11 +138,6 @@ public class Landform : TerrainCanvas
     public static IGridFunction<T> TransformIntoNodeSpace<T>(IGridFunction<T> gridInMapSpace)
     {
         return new GridFunction.Transform<T>(gridInMapSpace, MapSpaceToNodeSpaceFactor);
-    }
-
-    public static IGridFunction<float> GetNamedGrid(string name)
-    {
-        return null; // TODO
     }
 
     protected override void ValidateSelf()

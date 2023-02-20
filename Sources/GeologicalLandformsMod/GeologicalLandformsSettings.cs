@@ -5,6 +5,7 @@ using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using LunarFramework.GUI;
 using LunarFramework.Utility;
+using MapPreview;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -72,6 +73,8 @@ public class GeologicalLandformsSettings : LunarModSettings
 
         layout.Abs(10f);
 
+        layout.PushChanged();
+
         if (LandformManager.Landforms.Values.Any(lf => lf.Manifest.IsExperimental))
         {
             LunarGUI.Checkbox(layout, ref EnableExperimentalLandforms.Value, Label("EnableExperimentalLandforms"));
@@ -80,10 +83,14 @@ public class GeologicalLandformsSettings : LunarModSettings
         LunarGUI.Checkbox(layout, ref EnableGodMode.Value, Label("EnableGodMode"));
         LunarGUI.Checkbox(layout, ref EnableCellFinderOptimization.Value, Label("EnableCellFinderOptimization"));
         LunarGUI.Checkbox(layout, ref EnableLandformScaling.Value, Label("EnableLandformScaling"));
+
+        if (layout.PopChanged()) MapPreviewAPI.NotifyWorldChanged();
     }
 
     private void DoLandformsSettingsTab(LayoutRect layout)
     {
+        layout.PushChanged();
+        
         foreach (var landform in LandformManager.Landforms.Values)
         {
             if (landform.Manifest.IsExperimental && !EnableExperimentalLandforms) continue;
@@ -91,6 +98,8 @@ public class GeologicalLandformsSettings : LunarModSettings
 
             LunarGUI.ToggleTableRow(layout, landform.Id, true, LabelForLandform(landform), DisabledLandforms);
         }
+
+        if (layout.PopChanged()) MapPreviewAPI.NotifyWorldChanged();
     }
 
     private void DoBiomeConfigSettingsTab(LayoutRect layout)
@@ -124,16 +133,22 @@ public class GeologicalLandformsSettings : LunarModSettings
             {
                 if (listForLandforms != null) properties.allowLandformsByUser = !listForLandforms.Contains(biome.defName);
                 if (listForTransitions != null) properties.allowBiomeTransitionsByUser = !listForTransitions.Contains(biome.defName);
+
+                MapPreviewAPI.NotifyWorldChanged();
             }
         }
     }
 
     private void DoBiomeVariantsSettingsTab(LayoutRect layout)
     {
+        layout.PushChanged();
+        
         foreach (var biomeVariant in DefDatabase<BiomeVariantDef>.AllDefsListForReading)
         {
             LunarGUI.ToggleTableRow(layout, biomeVariant.defName, true, LabelForBiomeVariant(biomeVariant), DisabledBiomeVariants);
         }
+
+        if (layout.PopChanged()) MapPreviewAPI.NotifyWorldChanged();
     }
 
     private void DoDebugSettingsTab(LayoutRect layout)
@@ -220,5 +235,6 @@ public class GeologicalLandformsSettings : LunarModSettings
         BiomeProperties.RebuildCache();
         LandformManager.ResetAll();
         ApplyDefEffects();
+        MapPreviewAPI.NotifyWorldChanged();
     }
 }

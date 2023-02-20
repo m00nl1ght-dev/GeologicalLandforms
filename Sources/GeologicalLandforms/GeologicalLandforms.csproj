@@ -94,6 +94,7 @@
         <Compile Include="GraphEditor\Nodes\Biome\BiomeFunctionConnection.cs" />
         <Compile Include="GraphEditor\Nodes\Grid\NodeGridPerlin.cs" />
         <Compile Include="GraphEditor\Nodes\Grid\NodeGridSelectBiomeGrid.cs" />
+        <Compile Include="GraphEditor\Nodes\Grid\NodeGridSelectRoof.cs" />
         <Compile Include="GraphEditor\Nodes\Grid\NodeGridTransformByMapSize.cs" />
         <Compile Include="GraphEditor\Nodes\Grid\NodeGridSelectTerrain.cs" />
         <Compile Include="GraphEditor\Nodes\Grid\NodeGridSelectTerrainGrid.cs" />
@@ -109,8 +110,12 @@
         <Compile Include="GraphEditor\Nodes\Output\NodeOutputCaves.cs" />
         <Compile Include="GraphEditor\Nodes\Output\NodeOutputElevation.cs" />
         <Compile Include="GraphEditor\Nodes\Output\NodeOutputFertility.cs" />
+        <Compile Include="GraphEditor\Nodes\Output\NodeOutputRoofGrid.cs" />
         <Compile Include="GraphEditor\Nodes\Output\NodeOutputScatterers.cs" />
         <Compile Include="GraphEditor\Nodes\Output\NodeOutputTerrain.cs" />
+        <Compile Include="GraphEditor\Nodes\RoofGrid\NodeTerrainGridFromValue.cs" />
+        <Compile Include="GraphEditor\Nodes\RoofGrid\RoofGridFunctionConnection.cs" />
+        <Compile Include="GraphEditor\Nodes\Roof\BiomeFunctionConnection.cs" />
         <Compile Include="GraphEditor\Nodes\TerrainGrid\NodeTerrainGridFromValue.cs" />
         <Compile Include="GraphEditor\Nodes\TerrainGrid\NodeTerrainGridNaturalRock.cs" />
         <Compile Include="GraphEditor\Nodes\TerrainGrid\NodeTerrainGridPreview.cs" />
@@ -125,6 +130,7 @@
         <Compile Include="GraphEditor\Nodes\Value\NodeValueRiversAndRoads.cs" />
         <Compile Include="GraphEditor\Nodes\Value\NodeValueWorldTile.cs" />
         <Compile Include="GraphEditor\Nodes\Value\NodeValueSelectTerrain.cs" />
+        <Compile Include="GraphEditor\RoofData.cs" />
         <Compile Include="GraphEditor\TerrainData.cs" />
         <Compile Include="Landform.cs" />
         <Compile Include="LandformData.cs" />
@@ -133,6 +139,7 @@
         <Compile Include="Compatibility\ModCompat_DubsMintMenus.cs" />
         <Compile Include="Compatibility\ModCompat_MapReroll.cs" />
         <Compile Include="Compatibility\ModCompat_PrepareLanding.cs" />
+        <Compile Include="Patches\Patch_RimWorld_GenStep_RocksFromGrid.cs" />
         <Compile Include="Patches\Patch_RimWorld_TileFinder.cs" />
         <Compile Include="Patches\Patch_RimWorld_WorldPathGrid.cs" />
         <Compile Include="Patches\Patch_Verse_AnimalPenManager.cs" />
@@ -140,7 +147,6 @@
         <Compile Include="Patches\Patch_RimWorld_GenStep_Plants.cs" />
         <Compile Include="Patches\Patch_RimWorld_WorldGenStep_Terrain.cs" />
         <Compile Include="Patches\Patch_Verse_Game.cs" />
-        <Compile Include="Patches\Patch_RimWorld_GenStep_ScatterLumpsMineable.cs" />
         <Compile Include="Patches\Patch_RimWorld_LearningReadout.cs" />
         <Compile Include="Patches\Patch_RimWorld_GenStep_Terrain.cs" />
         <Compile Include="Patches\Patch_Verse_MapGenerator.cs" />

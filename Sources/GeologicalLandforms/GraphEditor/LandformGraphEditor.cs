@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using MapPreview;
 using NodeEditorFramework;
 using NodeEditorFramework.Utilities;
 using TerrainGraph;
@@ -58,7 +59,7 @@ public class LandformGraphEditor : Window
         Landform.CleanUp();
         Landform.CleanUpGUI();
         LandformManager.SaveAllEdited();
-        WorldTileInfo.InvalidateCache();
+        MapPreviewAPI.NotifyWorldChanged();
         LandformPreviewScheduler.Instance.Shutdown();
     }
 
