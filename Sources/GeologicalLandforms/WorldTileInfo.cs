@@ -11,6 +11,10 @@ using Verse;
 using static Verse.RotationDirection;
 using static GeologicalLandforms.IWorldTileInfo;
 
+// ReSharper disable ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
+// ReSharper disable ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
+// ReSharper disable LoopCanBeConvertedToQuery
+
 namespace GeologicalLandforms;
 
 public class WorldTileInfo : IWorldTileInfo
@@ -133,29 +137,48 @@ public class WorldTileInfo : IWorldTileInfo
         var eligible = _tsc_eligible ??= new List<Landform>();
         eligible.Clear();
 
-        eligible.AddRange(LandformManager.Landforms.Values
-            .Where(e => info.CanHaveLandform(e))
-            .OrderBy(e => e.Manifest.TimeCreated));
+        foreach (var landform in LandformManager.Landforms.Values)
+        {
+            if (info.CanHaveLandform(landform)) eligible.Add(landform);
+        }
 
-        var landforms = eligible.Where(e => e.IsLayer && Rand.ChanceSeeded(e.WorldTileReq.Commonness, info.MakeSeed(e.IdHash)));
+        eligible.SortBy(e => e.Manifest.TimeCreated);
+
+        List<Landform> landforms = null;
+
+        foreach (var landform in eligible)
+        {
+            if (landform.IsLayer && Rand.ChanceSeeded(landform.WorldTileReq.Commonness, info.MakeSeed(landform.IdHash)))
+            {
+                landforms ??= new(2);
+                landforms.Add(landform);
+            }
+        }
 
         var landformData = info.World.LandformData();
         if (landformData != null && landformData.TryGet(info.TileId, out var data))
         {
             var main = data.Landform;
-            if (main != null) landforms = landforms.Append(main);
-            info.LandformDirection = data.LandformDirection;
+            if (main != null)
+            {
+                landforms ??= new(1);
+                landforms.Add(main);
+                info.LandformDirection = data.LandformDirection;
+            }
         }
         else
         {
-            var eligibleForMain = eligible.Where(e => !e.IsLayer);
-
-            float sum = Math.Max(1f, eligibleForMain.Sum(e => e.WorldTileReq.Commonness));
-            float rand = new FloatRange(0f, sum).RandomInRangeSeeded(info.MakeSeed(1754));
+            float sum = 0;
+            foreach (var e in eligible)
+                if (!e.IsLayer)
+                    sum += e.WorldTileReq.Commonness;
+            float rand = new FloatRange(0f, Math.Max(1f, sum)).RandomInRangeSeeded(info.MakeSeed(1754));
 
             Landform main = null;
-            foreach (var landform in eligibleForMain)
+            foreach (var landform in eligible)
             {
+                if (landform.IsLayer) continue;
+                
                 if (rand < landform.WorldTileReq.Commonness)
                 {
                     main = landform;
@@ -165,10 +188,15 @@ public class WorldTileInfo : IWorldTileInfo
                 rand -= landform.WorldTileReq.Commonness;
             }
 
-            if (main != null) landforms = landforms.Append(main);
+            if (main != null)
+            {
+                landforms ??= new(1);
+                landforms.Add(main);
+            }
         }
 
-        info.Landforms = landforms.OrderBy(e => e.Priority).ToList();
+        landforms?.SortBy(e => e.Priority);
+        info.Landforms = landforms;
     }
 
     public bool CanHaveLandform(Landform landform, bool lenient = false)
@@ -191,7 +219,7 @@ public class WorldTileInfo : IWorldTileInfo
             {
                 if (variant.worldTileConditions?.Get(new CtxTile(info)) ?? true)
                 {
-                    variants ??= new();
+                    variants ??= new(1);
                     variants.Add(variant);
                 }
             }
@@ -217,6 +245,15 @@ public class WorldTileInfo : IWorldTileInfo
 
     private static void DetermineTopology(WorldTileInfo info)
     {
+        if (_tsc_nbIds == null)
+        {
+            _tsc_nbIds = new(6);
+            _tsc_waterTiles = new(6);
+            _tsc_landTiles = new(6);
+            _tsc_cliffTiles = new(6);
+            _tsc_nonCliffTiles = new(6);
+        }
+    
         var selfBiome = info.Biome;
         var grid = info.World.grid;
         int tileId = info.TileId;
@@ -230,14 +267,15 @@ public class WorldTileInfo : IWorldTileInfo
             return;
         }
 
-        var nb = _tsc_nbIds ??= new List<int>();
+        var nb = _tsc_nbIds;
+        
         grid.GetTileNeighbors(info.TileId, nb);
         nb.SortBy(n => (grid.GetHeadingFromTo(tileId, n) + 30f) % 360f);
 
-        var waterTiles = _tsc_waterTiles ??= new List<Rot6>();
-        var landTiles = _tsc_landTiles ??= new List<Rot6>();
-        var cliffTiles = _tsc_cliffTiles ??= new List<Rot6>();
-        var nonCliffTiles = _tsc_nonCliffTiles ??= new List<Rot6>();
+        var waterTiles = _tsc_waterTiles;
+        var landTiles = _tsc_landTiles;
+        var cliffTiles = _tsc_cliffTiles;
+        var nonCliffTiles = _tsc_nonCliffTiles;
 
         waterTiles.Clear();
         landTiles.Clear();
@@ -265,7 +303,7 @@ public class WorldTileInfo : IWorldTileInfo
             {
                 if (BiomeTransition.IsTransition(tileId, nbId, selfBiome, nbTile.biome))
                 {
-                    borderingBiomes ??= new List<BorderingBiome>();
+                    borderingBiomes ??= new List<BorderingBiome>(2);
                     borderingBiomes.Add(new BorderingBiome(nbTile.biome, rot6.Angle));
                 }
 
