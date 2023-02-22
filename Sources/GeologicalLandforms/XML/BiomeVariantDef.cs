@@ -18,6 +18,8 @@ public class BiomeVariantDef : Def
     public XmlDynamicValue<string, ICtxTile> biomeLabel;
     public XmlDynamicValue<string, ICtxTile> biomeDescription;
 
+    public WorldTileGraphicAtlas worldTileGraphicAtlas;
+
     [NoTranslate]
     public string texture;
 

@@ -164,6 +164,8 @@
         <Compile Include="World\LandformData.cs" />
         <Compile Include="World\Topology.cs" />
         <Compile Include="World\WorldLayer_BiomeTransitions.cs" />
+        <Compile Include="World\WorldLayer_Landforms.cs" />
+        <Compile Include="World\WorldTileGraphicAtlas.cs" />
         <Compile Include="World\WorldTileInfo.cs" />
         <Compile Include="World\WorldTileInfoPrimer.cs" />
         <Compile Include="XML\BiomeProperties.cs" />

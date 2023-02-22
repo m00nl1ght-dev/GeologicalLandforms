@@ -23,7 +23,6 @@ internal class WorldLayer_BiomeTransitions : WorldLayer
         var grid = Find.World.grid;
         var verts = grid.verts;
         int tilesCount = grid.TilesCount;
-        var viewCenter = grid.viewCenter;
         var tileIDToVertsOffsets = grid.tileIDToVerts_offsets;
 
         var stopwatch = new Stopwatch();
@@ -56,7 +55,7 @@ internal class WorldLayer_BiomeTransitions : WorldLayer
                     var elev = isWater ? Math.Min(tile.elevation, 0) : Math.Max(tile.elevation, 0);
                     var nElev = isWater ? Math.Min(tile.elevation, 0) : Math.Max(nTile.elevation, 0);
 
-                    Vector3 ApplyOffset(Vector3 vec) => vec + (vec - viewCenter).normalized * 0.001f;
+                    Vector3 ApplyOffset(Vector3 vec) => vec + vec.normalized * 0.001f;
 
                     var vert1 = ApplyOffset(verts[vertsOffset + i]);
                     var vert2 = ApplyOffset(verts[vertsOffset + (i + 1) % 6]);
@@ -86,7 +85,7 @@ internal class WorldLayer_BiomeTransitions : WorldLayer
         }
 
         stopwatch.Stop();
-        GeologicalLandformsAPI.Logger.Debug("WorldLayer_LocalBiomes took " + stopwatch.ElapsedMilliseconds + " ms.");
+        GeologicalLandformsAPI.Logger.Debug("WorldLayer_BiomeTransitions took " + stopwatch.ElapsedMilliseconds + " ms.");
 
         FinalizeMesh(MeshParts.All);
     }
