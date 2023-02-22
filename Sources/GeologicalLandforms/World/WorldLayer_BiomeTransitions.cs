@@ -9,22 +9,16 @@ using Verse;
 
 namespace GeologicalLandforms;
 
-internal class WorldLayer_LocalBiomes : WorldLayer
+internal class WorldLayer_BiomeTransitions : WorldLayer
 {
-    // [TweakValue("Geological Landforms", 0, 1)]
-    public static float Lerp = 0.5f;
-
-    // [TweakValue("Geological Landforms", -1, 1)]
-    public static float Offset = 0.001f;
-
     private readonly List<int> _tmpNeighbors = new();
 
     public override IEnumerable Regenerate()
     {
         foreach (object obj in base.Regenerate()) yield return obj;
 
-        if (!GeologicalLandformsMod.Settings.UnidirectionalBiomeTransitions) yield break;
-        if (!GeologicalLandformsMod.LunarAPI.IsInitialized()) yield break;
+        if (!GeologicalLandformsAPI.UnidirectionalBiomeTransitions()) yield break;
+        if (!GeologicalLandformsAPI.LunarAPI.IsInitialized()) yield break;
 
         var grid = Find.World.grid;
         var verts = grid.verts;
@@ -62,12 +56,12 @@ internal class WorldLayer_LocalBiomes : WorldLayer
                     var elev = isWater ? Math.Min(tile.elevation, 0) : Math.Max(tile.elevation, 0);
                     var nElev = isWater ? Math.Min(tile.elevation, 0) : Math.Max(nTile.elevation, 0);
 
-                    Vector3 ApplyOffset(Vector3 vec) => vec + (vec - viewCenter).normalized * Offset;
+                    Vector3 ApplyOffset(Vector3 vec) => vec + (vec - viewCenter).normalized * 0.001f;
 
                     var vert1 = ApplyOffset(verts[vertsOffset + i]);
                     var vert2 = ApplyOffset(verts[vertsOffset + (i + 1) % 6]);
-                    var vert3 = ApplyOffset(Vector3.LerpUnclamped(vert2, tileCenter, Lerp));
-                    var vert4 = ApplyOffset(Vector3.LerpUnclamped(vert1, tileCenter, Lerp));
+                    var vert3 = ApplyOffset(Vector3.LerpUnclamped(vert2, tileCenter, 0.5f));
+                    var vert4 = ApplyOffset(Vector3.LerpUnclamped(vert1, tileCenter, 0.5f));
 
                     subMesh.verts.Add(vert1);
                     subMesh.verts.Add(vert2);
@@ -92,7 +86,7 @@ internal class WorldLayer_LocalBiomes : WorldLayer
         }
 
         stopwatch.Stop();
-        GeologicalLandformsMod.Logger.Debug("WorldLayer_LocalBiomes took " + stopwatch.ElapsedMilliseconds + " ms.");
+        GeologicalLandformsAPI.Logger.Debug("WorldLayer_LocalBiomes took " + stopwatch.ElapsedMilliseconds + " ms.");
 
         FinalizeMesh(MeshParts.All);
     }
