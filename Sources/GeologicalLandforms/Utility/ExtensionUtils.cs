@@ -3,6 +3,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using RimWorld;
 using RimWorld.Planet;
+using UnityEngine;
 using Verse;
 
 namespace GeologicalLandforms;
@@ -27,6 +28,23 @@ public static class ExtensionUtils
         if (map == null) return null;
         _biomeGridCache = map.GetComponent<BiomeGrid>();
         return _biomeGridCache;
+    }
+
+    private static Vector2[] _hexTextureVertCache;
+
+    public static Vector2 HexTextureVert(int idx)
+    {
+        if (_hexTextureVertCache == null)
+        {
+            _hexTextureVertCache = new Vector2[6];
+
+            for (int i = 0; i < 6; i++)
+            {
+                _hexTextureVertCache[i] = (GenGeo.RegularPolygonVertexPosition(6, i) + Vector2.one) * 0.5f;
+            }
+        }
+
+        return _hexTextureVertCache[idx];
     }
 
     public static void ClearCaches()
