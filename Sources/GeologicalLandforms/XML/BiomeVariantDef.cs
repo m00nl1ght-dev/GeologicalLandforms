@@ -36,6 +36,7 @@ public class BiomeVariantDef : Def
             if (texture.NullOrEmpty()) return null;
             cachedMat = useOceanMaterial ? new Material(WorldMaterials.WorldOcean) : new Material(WorldMaterials.WorldTerrain);
             cachedMat.mainTexture = ContentFinder<Texture2D>.Get(texture);
+            cachedMat.renderQueue = 3501;
             return cachedMat;
         }
     }

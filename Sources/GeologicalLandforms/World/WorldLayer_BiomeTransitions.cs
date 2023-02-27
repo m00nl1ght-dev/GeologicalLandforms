@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
 using LunarFramework.Utility;
 using RimWorld.Planet;
@@ -11,8 +10,6 @@ namespace GeologicalLandforms;
 
 internal class WorldLayer_BiomeTransitions : WorldLayer
 {
-    private readonly List<int> _tmpNeighbors = new();
-
     public override IEnumerable Regenerate()
     {
         foreach (object obj in base.Regenerate()) yield return obj;
@@ -21,9 +18,13 @@ internal class WorldLayer_BiomeTransitions : WorldLayer
         if (!GeologicalLandformsAPI.LunarAPI.IsInitialized()) yield break;
 
         var grid = Find.World.grid;
-        var verts = grid.verts;
         int tilesCount = grid.TilesCount;
-        var tileIDToVertsOffsets = grid.tileIDToVerts_offsets;
+
+        var vertData = grid.verts;
+        var vertOffsets = grid.tileIDToVerts_offsets;
+
+        var nbData = grid.tileIDToNeighbors_values;
+        var nbOffsets = grid.tileIDToNeighbors_offsets;
 
         var stopwatch = new Stopwatch();
         stopwatch.Start();
@@ -35,11 +36,12 @@ internal class WorldLayer_BiomeTransitions : WorldLayer
 
             if (!BiomeTransition.CanBePartOfTransition(biome)) continue;
 
-            grid.GetTileNeighbors(tileIdx, _tmpNeighbors);
+            var nbOffset = nbOffsets[tileIdx];
+            if (nbOffsets.IdxBoundFor(nbData, tileIdx) - nbOffset != 6) continue;
 
-            for (var i = 0; i < _tmpNeighbors.Count; i++)
+            for (var i = 0; i < 6; i++)
             {
-                int nIdx = _tmpNeighbors[i];
+                int nIdx = nbData[nbOffset + i];
                 var nTile = grid[nIdx];
                 var nBiome = nTile.biome;
 
@@ -49,7 +51,7 @@ internal class WorldLayer_BiomeTransitions : WorldLayer
                     int existingVertCount = subMesh.verts.Count;
 
                     var tileCenter = grid.GetTileCenter(tileIdx);
-                    var vertsOffset = tileIDToVertsOffsets[tileIdx];
+                    var vertOffset = vertOffsets[tileIdx];
                     bool isWater = nBiome.Properties().isWaterCovered;
 
                     var elev = isWater ? Math.Min(tile.elevation, 0) : Math.Max(tile.elevation, 0);
@@ -57,8 +59,8 @@ internal class WorldLayer_BiomeTransitions : WorldLayer
 
                     Vector3 ApplyOffset(Vector3 vec) => vec + vec.normalized * 0.001f;
 
-                    var vert1 = ApplyOffset(verts[vertsOffset + i]);
-                    var vert2 = ApplyOffset(verts[vertsOffset + (i + 1) % 6]);
+                    var vert1 = ApplyOffset(vertData[vertOffset + i]);
+                    var vert2 = ApplyOffset(vertData[vertOffset + (i + 1) % 6]);
                     var vert3 = ApplyOffset(Vector3.LerpUnclamped(vert2, tileCenter, 0.5f));
                     var vert4 = ApplyOffset(Vector3.LerpUnclamped(vert1, tileCenter, 0.5f));
 

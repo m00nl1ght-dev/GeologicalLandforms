@@ -17,9 +17,10 @@ internal class WorldLayer_Landforms : WorldLayer
         if (!GeologicalLandformsAPI.LunarAPI.IsInitialized()) yield break;
 
         var grid = Find.World.grid;
-        var verts = grid.verts;
         int tilesCount = grid.TilesCount;
-        var tileIDToVertsOffsets = grid.tileIDToVerts_offsets;
+
+        var vertData = grid.verts;
+        var vertOffsets = grid.tileIDToVerts_offsets;
 
         var stopwatch = new Stopwatch();
         stopwatch.Start();
@@ -40,13 +41,15 @@ internal class WorldLayer_Landforms : WorldLayer
 
                         int cVert = 0;
                         int count = subMesh.verts.Count;
-                        int vertExc = tileIdx + 1 < tileIDToVertsOffsets.Count ? tileIDToVertsOffsets[tileIdx + 1] : verts.Count;
 
-                        for (int vert = tileIDToVertsOffsets[tileIdx]; vert < vertExc; vert++)
+                        var vertOffset = vertOffsets[tileIdx];
+                        int vertBound = vertOffsets.IdxBoundFor(vertData, tileIdx);
+
+                        for (int vert = vertOffset; vert < vertBound; vert++)
                         {
-                            subMesh.verts.Add(verts[vert]);
+                            subMesh.verts.Add(vertData[vert]);
 
-                            if (vert < vertExc - 2)
+                            if (vert < vertBound - 2)
                             {
                                 subMesh.tris.Add(count + cVert + 2);
                                 subMesh.tris.Add(count + cVert + 1);

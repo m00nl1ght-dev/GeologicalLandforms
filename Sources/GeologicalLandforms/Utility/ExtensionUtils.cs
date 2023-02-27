@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using RimWorld;
@@ -64,6 +66,13 @@ public static class ExtensionUtils
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static BiomeProperties Properties(this BiomeDef biomeDef) => BiomeProperties.Get(biomeDef);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsWaterCovered(this BiomeDef biomeDef) => biomeDef == BiomeDefOf.Ocean || BiomeProperties.Get(biomeDef).isWaterCovered;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int IdxBoundFor(this List<int> offsets, IList values, int tileIdx)
+        => tileIdx + 1 < offsets.Count ? offsets[tileIdx + 1] : values.Count;
 
     public static int MurmurCombine(this int value, int other) => MurmurHash.GetInt((uint) value, (uint) other);
 

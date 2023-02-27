@@ -105,7 +105,9 @@ internal static class TerrainTabUI
 
         HashSet<int> tested = new();
         HashSet<int> pending = new() { tileId };
-        List<int> nb = new();
+
+        var nbData = grid.tileIDToNeighbors_values;
+        var nbOffsets = grid.tileIDToNeighbors_offsets;
 
         bool Matches(IWorldTileInfo tileInfo)
         {
@@ -136,10 +138,12 @@ internal static class TerrainTabUI
 
                 tested.Add(p);
 
-                nb.Clear();
-                grid.GetTileNeighbors(p, nb);
-                foreach (var nTile in nb)
+                var nbOffset = nbOffsets[p];
+                var nbBound = nbOffsets.IdxBoundFor(nbData, p);
+
+                for (int j = nbOffset; j < nbBound; j++)
                 {
+                    var nTile = nbData[j];
                     if (tested.Contains(nTile)) continue;
                     pending.Add(nTile);
                 }

@@ -84,7 +84,9 @@
         <Compile Include="BiomeTransition.cs" />
         <Compile Include="Compatibility\ModCompat_BiomesCore.cs" />
         <Compile Include="Compatibility\ModCompat_MapDesigner.cs" />
-        <Compile Include="GraphEditor\BiomeData.cs" />
+        <Compile Include="GraphEditor\Data\BiomeData.cs" />
+        <Compile Include="GraphEditor\Data\RoofData.cs" />
+        <Compile Include="GraphEditor\Data\TerrainData.cs" />
         <Compile Include="GraphEditor\EditorMockTileInfo.cs" />
         <Compile Include="GraphEditor\LandformGraphEditor.cs" />
         <Compile Include="GraphEditor\LandformGraphInterface.cs" />
@@ -130,8 +132,6 @@
         <Compile Include="GraphEditor\Nodes\Value\NodeValueRiversAndRoads.cs" />
         <Compile Include="GraphEditor\Nodes\Value\NodeValueWorldTile.cs" />
         <Compile Include="GraphEditor\Nodes\Value\NodeValueSelectTerrain.cs" />
-        <Compile Include="GraphEditor\RoofData.cs" />
-        <Compile Include="GraphEditor\TerrainData.cs" />
         <Compile Include="Landform.cs" />
         <Compile Include="LandformManager.cs" />
         <Compile Include="BiomeGrid.cs" />

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using LunarFramework.Utility;
 using RimWorld.Planet;
 using UnityEngine;
@@ -23,7 +22,7 @@ public class WorldTileGraphicAtlas
 
     public int VariantCount => atlasSize.x * atlasSize.z;
 
-    public IntVec2 AtlasCoords(int idx) => new(idx / atlasSize.x, idx % atlasSize.x);
+    public IntVec2 AtlasCoords(int idx) => new(idx % atlasSize.x, idx / atlasSize.x);
 
     [Unsaved]
     private Material _cachedMat;
@@ -39,8 +38,6 @@ public class WorldTileGraphicAtlas
         }
     }
 
-    private static readonly List<Vector3> _tmpVerts = new();
-    private static readonly List<int> _tmpNeighbors = new();
     private static readonly bool[] _tmpAdjacency = new bool[6];
 
     public void Draw(LayerSubMesh mesh, WorldGrid grid, int tile, Predicate<WorldTileInfo> adjTest = null, float alt = 0.002f)
@@ -72,31 +69,28 @@ public class WorldTileGraphicAtlas
 
     private void DrawHex(LayerSubMesh mesh, WorldGrid grid, int tile, float alt, Predicate<WorldTileInfo> adjTest)
     {
-        grid.GetTileNeighbors(tile, _tmpNeighbors);
-        grid.GetTileVertices(tile, _tmpVerts);
+        var vertData = grid.verts;
+        var vertOffsets = grid.tileIDToVerts_offsets;
+        var vertOffset = vertOffsets[tile];
 
-        if (_tmpNeighbors.Count != 6 || _tmpVerts.Count != 6) return;
+        var nbData = grid.tileIDToNeighbors_values;
+        var nbOffsets = grid.tileIDToNeighbors_offsets;
+        var nbOffset = nbOffsets[tile];
 
-        int variantIdx;
-        int rotationIdx;
+        if (nbOffsets.IdxBoundFor(nbData, tile) - nbOffset != 6) return;
 
-        if (adjTest != null)
-        {
-            variantIdx = CalculateAdjacency(adjTest, out rotationIdx);
-        }
-        else
-        {
-            variantIdx = Rand.Range(0, VariantCount);
-            rotationIdx = Rand.Range(0, 6);
-        }
+        int rotationIdx = -1;
+
+        var variantIdx = adjTest != null ? CalculateAdjacency(grid, tile, adjTest, out rotationIdx) : Rand.Range(0, VariantCount);
+        var rotOffset = rotationIdx < 0 ? Rand.Range(0, 6) : FindFirstSharedVert(grid, tile, nbData[nbOffset + rotationIdx]);
 
         var atlasCoords = AtlasCoords(variantIdx);
         var vertCount = mesh.verts.Count;
 
         for (var i = 0; i < 6; i++)
         {
-            var idx = (i + rotationIdx) % 6;
-            var vert = _tmpVerts[idx];
+            var idx = (i + rotOffset) % 6;
+            var vert = vertData[vertOffset + idx];
 
             mesh.verts.Add(vert + vert.normalized * alt);
 
@@ -112,18 +106,47 @@ public class WorldTileGraphicAtlas
         }
     }
 
-    private int CalculateAdjacency(Predicate<WorldTileInfo> adjTest, out int rotationIdx)
+    private int FindFirstSharedVert(WorldGrid grid, int tile, int nbTile)
+    {
+        var vertData = grid.verts;
+        var vertOffsets = grid.tileIDToVerts_offsets;
+        var vertOffset = vertOffsets[tile];
+        var nbVertOffset = vertOffsets[nbTile];
+        var nbVertBound = vertOffsets.IdxBoundFor(vertData, nbTile);
+
+        bool Check(int i)
+        {
+            var vert = vertData[vertOffset + i];
+            for (int j = nbVertOffset; j < nbVertBound; j++)
+                if (vertData[j] == vert)
+                    return true;
+            return false;
+        }
+
+        if (Check(5)) return Check(0) ? 1 : 0;
+        for (int i = 0; i < 4; i++)
+            if (Check(i))
+                return i + 2;
+
+        GeologicalLandformsAPI.Logger.Debug("Failed to find shared vert between neighbors!");
+        return 0;
+    }
+
+    private int CalculateAdjacency(WorldGrid grid, int tile, Predicate<WorldTileInfo> adjTest, out int rotationIdx)
     {
         var adjFirst = -1;
         var adjLast = -1;
         var adjCount = 0;
         var sepMax = 0;
 
-        rotationIdx = 0;
+        rotationIdx = -1;
+
+        var nbData = grid.tileIDToNeighbors_values;
+        var nbOffset = grid.tileIDToNeighbors_offsets[tile];
 
         for (int i = 0; i < 6; i++)
         {
-            var nbTile = WorldTileInfo.Get(_tmpNeighbors[i]);
+            var nbTile = WorldTileInfo.Get(nbData[nbOffset + i]);
             if (adjTest(nbTile))
             {
                 if (adjCount == 0) adjFirst = i;
@@ -148,17 +171,9 @@ public class WorldTileGraphicAtlas
             }
         }
 
-        if (adjCount == 6)
-        {
-            rotationIdx = Rand.Range(0, 6);
-            return 13;
-        }
+        if (adjCount == 6) return 13;
 
-        if (adjCount == 0)
-        {
-            rotationIdx = Rand.Range(0, 6);
-            return 0;
-        }
+        if (adjCount == 0) return 0;
 
         if (adjCount == 1)
         {

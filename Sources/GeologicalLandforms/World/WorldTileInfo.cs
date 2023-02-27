@@ -17,6 +17,7 @@ using static GeologicalLandforms.IWorldTileInfo;
 
 namespace GeologicalLandforms;
 
+[HotSwappable]
 public class WorldTileInfo : IWorldTileInfo
 {
     public readonly int TileId;
@@ -172,13 +173,14 @@ public class WorldTileInfo : IWorldTileInfo
             foreach (var e in eligible)
                 if (!e.IsLayer)
                     sum += e.WorldTileReq.Commonness;
+
             float rand = new FloatRange(0f, Math.Max(1f, sum)).RandomInRangeSeeded(info.MakeSeed(1754));
 
             Landform main = null;
             foreach (var landform in eligible)
             {
                 if (landform.IsLayer) continue;
-                
+
                 if (rand < landform.WorldTileReq.Commonness)
                 {
                     main = landform;
@@ -229,9 +231,6 @@ public class WorldTileInfo : IWorldTileInfo
     }
 
     [ThreadStatic]
-    private static List<int> _tsc_nbIds;
-
-    [ThreadStatic]
     private static List<Rot6> _tsc_waterTiles;
 
     [ThreadStatic]
@@ -245,32 +244,31 @@ public class WorldTileInfo : IWorldTileInfo
 
     private static void DetermineTopology(WorldTileInfo info)
     {
-        if (_tsc_nbIds == null)
+        if (_tsc_waterTiles == null)
         {
-            _tsc_nbIds = new(6);
             _tsc_waterTiles = new(6);
             _tsc_landTiles = new(6);
             _tsc_cliffTiles = new(6);
             _tsc_nonCliffTiles = new(6);
         }
-    
-        var selfBiome = info.Biome;
-        var grid = info.World.grid;
-        int tileId = info.TileId;
 
-        info.LandformDirection = new Rot4(Rand.RangeInclusiveSeeded(0, 3, info.MakeSeed(0087)));
-
-        if (selfBiome.Properties().isWaterCovered)
+        if (info.Biome.IsWaterCovered())
         {
             info.Coast = new StructRot4<CoastType>(CoastTypeFromTile(info.Tile));
             info.Topology = Topology.Ocean;
             return;
         }
 
-        var nb = _tsc_nbIds;
-        
-        grid.GetTileNeighbors(info.TileId, nb);
-        nb.SortBy(n => (grid.GetHeadingFromTo(tileId, n) + 30f) % 360f);
+        var grid = info.World.grid;
+
+        int tileId = info.TileId;
+        var tileCenter = grid.GetTileCenter(tileId);
+
+        var nbData = grid.tileIDToNeighbors_values;
+        var nbOffsets = grid.tileIDToNeighbors_offsets;
+
+        var nbOffset = nbOffsets[tileId];
+        var nbBound = nbOffsets.IdxBoundFor(nbData, tileId);
 
         var waterTiles = _tsc_waterTiles;
         var landTiles = _tsc_landTiles;
@@ -285,23 +283,27 @@ public class WorldTileInfo : IWorldTileInfo
         List<BorderingBiome> borderingBiomes = null;
         var coast = new StructRot4<CoastType>();
 
-        for (var i = 0; i < nb.Count; i++)
+        for (var nbIdx = nbOffset; nbIdx < nbBound; nbIdx++)
         {
-            var nbId = nb[i];
+            var idx = nbIdx - nbOffset;
+            var nbId = nbData[nbIdx];
             var nbTile = grid[nbId];
-            var rot6 = new Rot6(i, grid.GetHeadingFromTo(tileId, nbId));
-            var rot4 = rot6.AsRot4();
+
+            // warning: RotateCW and RotateCCW are not reliable and Rot6 indexes may be reversed
+            // because tileIDToNeighbors order is cw for some tiles but ccw for others
+            var rot6 = new Rot6(idx, grid.GetHeadingFromTo(tileCenter, grid.GetTileCenter(nbId)));
 
             var coastType = CoastTypeFromTile(nbTile);
             if (coastType != CoastType.None)
             {
-                waterTiles.Add(rot6);
-                nonCliffTiles.Add(rot6);
+                var rot4 = rot6.AsRot4();
                 coast[rot4] = CombineCoastTypes(coastType, coast[rot4]);
+                nonCliffTiles.Add(rot6);
+                waterTiles.Add(rot6);
             }
             else
             {
-                if (BiomeTransition.IsTransition(tileId, nbId, selfBiome, nbTile.biome))
+                if (BiomeTransition.IsTransition(tileId, nbId, info.Biome, nbTile.biome))
                 {
                     borderingBiomes ??= new List<BorderingBiome>(2);
                     borderingBiomes.Add(new BorderingBiome(nbTile.biome, rot6.Angle));
@@ -317,7 +319,7 @@ public class WorldTileInfo : IWorldTileInfo
                     if ((int) nbTile.hilliness >= 4 && nbTile.hilliness > info.Tile.hilliness) cliffTiles.Add(rot6);
                     else nonCliffTiles.Add(rot6);
                 }
-                
+
                 landTiles.Add(rot6);
             }
         }
@@ -325,24 +327,38 @@ public class WorldTileInfo : IWorldTileInfo
         info.BorderingBiomes = borderingBiomes;
         info.Coast = coast;
 
-        if (nb.Count != 6)
+        if (nbBound - nbOffset != 6)
         {
             info.Topology = Topology.Inland;
             return;
         }
 
-        if (waterTiles.Count == 0)
+        if (waterTiles.Count > 0)
         {
-            info.Topology = Topology.Inland;
-            DetermineCliffTopology(info, Rot6.Invalid, cliffTiles, nonCliffTiles);
+            DetermineCoastTopology(info);
             return;
         }
+
+        if (cliffTiles.Count > 0)
+        {
+            DetermineCliffTopology(info);
+            return;
+        }
+
+        info.Topology = Topology.Inland;
+        info.LandformDirection = new Rot4(Rand.RangeInclusiveSeeded(0, 3, info.MakeSeed(0087)));
+    }
+
+    public static void DetermineCoastTopology(WorldTileInfo info)
+    {
+        var waterTiles = _tsc_waterTiles;
+        var landTiles = _tsc_landTiles;
+        var cliffTiles = _tsc_cliffTiles;
 
         if (waterTiles.Count == 1)
         {
+            info.Topology = cliffTiles.Any(waterTiles[0].IsOpposite) ? Topology.CliffAndCoast : Topology.CoastOneSide;
             info.LandformDirection = waterTiles[0].AsRot4();
-            info.Topology = Topology.CoastOneSide;
-            DetermineCliffTopology(info, waterTiles[0], cliffTiles, nonCliffTiles);
             return;
         }
 
@@ -351,229 +367,210 @@ public class WorldTileInfo : IWorldTileInfo
             if (waterTiles[0].Adjacent(waterTiles[1]))
             {
                 var midPoint = Rot6.MidPoint(waterTiles[0], waterTiles[1]);
+                var hasCliff = cliffTiles.Any(o => waterTiles[0].IsOpposite(o) || waterTiles[1].IsOpposite(o));
+                info.Topology = hasCliff ? Topology.CliffAndCoast : Topology.CoastOneSide;
                 info.LandformDirection = Rot4.FromAngleFlat(midPoint);
-                info.Topology = Topology.CoastOneSide;
-                DetermineCliffTopology(info, waterTiles[0], cliffTiles, nonCliffTiles);
                 return;
             }
 
             if (waterTiles[0].Opposite == waterTiles[1])
             {
-                info.LandformDirection = waterTiles[0].AsRot4().Rotated(Clockwise);
                 info.Topology = Topology.CoastLandbridge;
+                info.LandformDirection = waterTiles[0].AsRot4().Rotated(Clockwise);
                 return;
             }
 
-            var random = waterTiles.RandomElementSeeded(info.MakeSeed(1785));
-            info.LandformDirection = random.AsRot4();
-            info.Topology = Topology.CoastOneSide;
+            var dir = waterTiles[0].Slant < waterTiles[1].Slant ? waterTiles[0] : waterTiles[1];
+            info.Topology = cliffTiles.Any(dir.IsOpposite) ? Topology.CliffAndCoast : Topology.CoastOneSide;
+            info.LandformDirection = dir.AsRot4();
             return;
         }
 
         if (waterTiles.Count == 3)
         {
-            var middle = waterTiles.FirstOrFallback(d => waterTiles.Contains(d.RotatedCW()) && waterTiles.Contains(d.RotatedCCW()), Rot6.Invalid);
+            var middle = waterTiles.FirstOrFallback(d => waterTiles.All(d.IsSameOrAdjacent), Rot6.Invalid);
             if (middle.IsValid)
             {
-                DetermineCoastTopology(info, middle, 0.25f);
+                if (middle.Slant > 0.5f)
+                {
+                    info.Topology = Topology.CoastTwoSides;
+                    info.LandformDirection = Rot4.FromAngleFlat(middle.Angle - 45f);
+                    return;
+                }
+
+                info.Topology = cliffTiles.Any(middle.IsOpposite) ? Topology.CliffAndCoast : Topology.CoastOneSide;
+                info.LandformDirection = middle.AsRot4();
                 return;
             }
 
-            var opp = waterTiles.FirstOrFallback(d => waterTiles.Contains(d.Opposite), Rot6.Invalid);
+            var opp = waterTiles.FirstOrFallback(d => waterTiles.Any(d.IsOpposite), Rot6.Invalid);
             if (opp.IsValid)
             {
-                info.LandformDirection = opp.AsRot4().Rotated(Clockwise);
                 info.Topology = Topology.CoastLandbridge;
+                info.LandformDirection = opp.AsRot4().Rotated(Clockwise);
                 return;
             }
 
-            info.Topology = Topology.Inland;
+            var dir = waterTiles.OrderBy(d => d.Slant).First();
+            info.Topology = cliffTiles.Any(dir.IsOpposite) ? Topology.CliffAndCoast : Topology.CoastOneSide;
+            info.LandformDirection = dir.AsRot4();
             return;
         }
 
         if (waterTiles.Count == 4)
         {
-            if (landTiles[0] == landTiles[1].RotatedCW())
+            if (landTiles[0].Adjacent(landTiles[1]))
             {
-                DetermineCoastTopology(info, landTiles[1].Opposite, 0.5f, true);
-                return;
-            }
-
-            if (landTiles[0] == landTiles[1].RotatedCCW())
-            {
-                DetermineCoastTopology(info, landTiles[0].Opposite, 0.5f, true);
+                info.Topology = Topology.CoastThreeSides;
+                info.LandformDirection = Rot4.FromAngleFlat(Rot6.MidPoint(landTiles[0], landTiles[1]) + 180f);
                 return;
             }
 
             if (landTiles[0] == landTiles[1].Opposite)
             {
-                info.LandformDirection = landTiles[0].AsRot4();
                 info.Topology = Topology.CoastLandbridge;
+                info.LandformDirection = landTiles[0].AsRot4();
                 return;
             }
 
-            var middle = waterTiles.FirstOrFallback(d => waterTiles.Contains(d.RotatedCW()) && waterTiles.Contains(d.RotatedCCW()), Rot6.Invalid);
+            var middle = waterTiles.FirstOrFallback(d => waterTiles.Count(d.IsSameOrAdjacent) >= 3, Rot6.Invalid);
             if (middle.IsValid)
             {
-                DetermineCoastTopology(info, middle, 0.25f);
+                if (middle.Slant > 0.5f)
+                {
+                    info.Topology = Topology.CoastTwoSides;
+                    info.LandformDirection = Rot4.FromAngleFlat(middle.Angle - 45f);
+                    return;
+                }
+
+                info.Topology = cliffTiles.Any(middle.IsOpposite) ? Topology.CliffAndCoast : Topology.CoastOneSide;
+                info.LandformDirection = middle.AsRot4();
                 return;
             }
-
-            info.Topology = Topology.Any;
-            return;
         }
 
         if (waterTiles.Count == 5)
         {
-            DetermineCoastTopology(info, landTiles[0].Opposite, 1f);
+            info.Topology = Topology.CoastThreeSides;
+            info.LandformDirection = landTiles[0].Opposite.AsRot4();
             return;
         }
 
         if (waterTiles.Count == 6)
         {
             info.Topology = Topology.CoastAllSides;
-            return;
+            info.LandformDirection = new Rot4(Rand.RangeInclusiveSeeded(0, 3, info.MakeSeed(0087)));
         }
-
-        info.Topology = Topology.Any;
     }
 
-    public static void DetermineCoastTopology(WorldTileInfo info, Rot6 dir, float chance, bool exact = false)
+    public static void DetermineCliffTopology(WorldTileInfo info)
     {
-        if (Rand.ChanceSeeded(chance, info.MakeSeed(8021)))
-        {
-            info.LandformDirection = dir.AsRot4();
-            info.Topology = Topology.CoastThreeSides;
-            return;
-        }
-
-        if (dir.RotatedCW().AsRot4() == dir.AsRot4())
-        {
-            info.LandformDirection = dir.RotatedCCW().AsRot4();
-            info.Topology = Topology.CoastTwoSides;
-            return;
-        }
-
-        info.LandformDirection = exact || Rand.ChanceSeeded(0.5f, info.MakeSeed(9777)) ? dir.AsRot4() : dir.RotatedCCW().AsRot4();
-        info.Topology = Topology.CoastTwoSides;
-    }
-
-    public static void DetermineCliffTopology(WorldTileInfo info, Rot6 coastDir, List<Rot6> cliffTiles, List<Rot6> nonCliffTiles)
-    {
-        if (cliffTiles.Count == 0)
-        {
-            return;
-        }
-
-        if (coastDir.IsValid)
-        {
-            if (cliffTiles.Contains(coastDir.Opposite))
-            {
-                info.Topology = Topology.CliffAndCoast;
-            }
-
-            return;
-        }
+        var cliffTiles = _tsc_cliffTiles;
+        var nonCliffTiles = _tsc_nonCliffTiles;
 
         if (cliffTiles.Count == 1)
         {
-            info.LandformDirection = cliffTiles[0].AsRot4();
             info.Topology = Topology.CliffOneSide;
+            info.LandformDirection = cliffTiles[0].AsRot4();
             return;
         }
 
         if (cliffTiles.Count == 2)
         {
-            var dir0 = cliffTiles[0].AsRot4();
-            var dir1 = cliffTiles[1].AsRot4();
-
-            if (dir0 == dir1)
+            if (cliffTiles[0].Adjacent(cliffTiles[1]))
             {
-                info.LandformDirection = dir0;
+                var midPoint = Rot6.MidPoint(cliffTiles[0], cliffTiles[1]);
+
+                if (Rot6.AngleSlant(midPoint) > 0.5f)
+                {
+                    info.Topology = Topology.CliffTwoSides;
+                    info.LandformDirection = Rot4.FromAngleFlat(midPoint - 45f);
+                    return;
+                }
+
                 info.Topology = Topology.CliffOneSide;
+                info.LandformDirection = Rot4.FromAngleFlat(midPoint);
                 return;
             }
 
-            if (cliffTiles[1] == cliffTiles[0].Rotated(Clockwise))
-            {
-                info.LandformDirection = dir0;
-                info.Topology = Topology.CliffTwoSides;
-                return;
-            }
-
-            if (cliffTiles[1] == cliffTiles[0].Rotated(Counterclockwise))
-            {
-                info.LandformDirection = dir1;
-                info.Topology = Topology.CliffTwoSides;
-                return;
-            }
-
-            var random = cliffTiles.RandomElementSeeded(info.MakeSeed(2573));
-            info.LandformDirection = random.AsRot4();
+            var dir = cliffTiles[0].Slant < cliffTiles[1].Slant ? cliffTiles[0] : cliffTiles[1];
             info.Topology = Topology.CliffOneSide;
+            info.LandformDirection = dir.AsRot4();
             return;
         }
 
         if (cliffTiles.Count == 3)
         {
-            var first = cliffTiles.Where(d => cliffTiles.Contains(d.RotatedCW()) && d.AsRot4() != d.RotatedCW().AsRot4())
-                .ToList().RandomElementSeeded(info.MakeSeed(2647), Rot6.Invalid);
-
-            if (first.IsValid)
+            foreach (var root in cliffTiles)
             {
-                info.LandformDirection = first.AsRot4();
-                info.Topology = Topology.CliffTwoSides;
+                var second = cliffTiles.FirstOrFallback(root.IsRotatedCW, Rot6.Invalid);
+                if (!second.IsValid) continue;
+
+                var angle = cliffTiles.Any(root.IsRotatedCCW) ? root.Angle :
+                    cliffTiles.Any(second.IsRotatedCW) ? second.Angle :
+                    Rot6.MidPoint(root, second);
+
+                if (Rot6.AngleSlant(angle) > 0.5f)
+                {
+                    info.Topology = Topology.CliffTwoSides;
+                    info.LandformDirection = Rot4.FromAngleFlat(angle - 45f);
+                    return;
+                }
+
+                info.Topology = Topology.CliffOneSide;
+                info.LandformDirection = Rot4.FromAngleFlat(angle);
                 return;
             }
 
-            var random = cliffTiles.RandomElementSeeded(info.MakeSeed(1142));
-            info.LandformDirection = random.AsRot4();
+            var dir = cliffTiles.OrderBy(d => d.Slant).First();
             info.Topology = Topology.CliffOneSide;
+            info.LandformDirection = dir.AsRot4();
             return;
         }
 
-        if (cliffTiles.Count == 4 && nonCliffTiles.Count == 2)
+        if (cliffTiles.Count == 4)
         {
-            if (nonCliffTiles[0] == nonCliffTiles[1].RotatedCW() || nonCliffTiles[0] == nonCliffTiles[1].RotatedCCW())
+            if (nonCliffTiles[0].Adjacent(nonCliffTiles[1]))
             {
-                info.LandformDirection = nonCliffTiles.RandomElementSeeded(info.MakeSeed(1455)).AsRot4().Opposite;
+                var midPoint = Rot6.MidPoint(nonCliffTiles[0], nonCliffTiles[1]);
+
+                if (Rot6.AngleSlant(midPoint) > 0.5f)
+                {
+                    info.Topology = Topology.CliffTwoSides;
+                    info.LandformDirection = Rot4.FromAngleFlat(midPoint + 135f);
+                    return;
+                }
+
                 info.Topology = Topology.CliffThreeSides;
+                info.LandformDirection = Rot4.FromAngleFlat(midPoint + 180f);
                 return;
             }
 
-            if (nonCliffTiles[0] == nonCliffTiles[1].Opposite)
+            var dir = nonCliffTiles[0].Slant < nonCliffTiles[1].Slant ? nonCliffTiles[0] : nonCliffTiles[1];
+
+            if (nonCliffTiles[0].Opposite.IsSameOrAdjacent(nonCliffTiles[1]))
             {
-                info.LandformDirection = nonCliffTiles[0].AsRot4();
                 info.Topology = Topology.CliffValley;
+                info.LandformDirection = dir.AsRot4();
                 return;
             }
 
-            var first = cliffTiles.Where(d => cliffTiles.Contains(d.RotatedCW()) && d.AsRot4() != d.RotatedCW().AsRot4())
-                .ToList().RandomElementSeeded(info.MakeSeed(1675), Rot6.Invalid);
-
-            if (first.IsValid)
-            {
-                info.LandformDirection = first.AsRot4();
-                info.Topology = Topology.CliffTwoSides;
-                return;
-            }
-
-            var random = cliffTiles.RandomElementSeeded(info.MakeSeed(1628));
-            info.LandformDirection = random.AsRot4();
-            info.Topology = Topology.CliffOneSide;
+            info.Topology = Topology.CliffThreeSides;
+            info.LandformDirection = dir.Opposite.AsRot4();
             return;
         }
 
-        if (cliffTiles.Count == 5 && nonCliffTiles.Count == 1)
+        if (cliffTiles.Count == 5)
         {
-            info.LandformDirection = nonCliffTiles[0].AsRot4().Opposite;
             info.Topology = Topology.CliffThreeSides;
+            info.LandformDirection = nonCliffTiles[0].AsRot4().Opposite;
             return;
         }
 
         if (cliffTiles.Count == 6)
         {
             info.Topology = Topology.CliffAllSides;
+            info.LandformDirection = new Rot4(Rand.RangeInclusiveSeeded(0, 3, info.MakeSeed(0087)));
         }
     }
 

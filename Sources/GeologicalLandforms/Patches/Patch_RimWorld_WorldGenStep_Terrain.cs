@@ -17,8 +17,6 @@ internal static class Patch_RimWorld_WorldGenStep_Terrain
 {
     internal static readonly Type Self = typeof(Patch_RimWorld_WorldGenStep_Terrain);
 
-    private static readonly List<int> _tmpNeighbors = new();
-
     internal static World LastWorld;
     internal static bool[] BiomeTransitions;
 
@@ -32,7 +30,7 @@ internal static class Patch_RimWorld_WorldGenStep_Terrain
         }
         catch (Exception e)
         {
-            GeologicalLandformsAPI.Logger.Error("Failed to calculate biome transitions.", e);
+            GeologicalLandformsAPI.Logger.Error("Failed to calculate extended biome data.", e);
             BiomeTransitions = null;
             LastWorld = null;
         }
@@ -49,22 +47,26 @@ internal static class Patch_RimWorld_WorldGenStep_Terrain
         var stopwatch = new Stopwatch();
         stopwatch.Start();
 
+        var nbData = grid.tileIDToNeighbors_values;
+        var nbOffsets = grid.tileIDToNeighbors_offsets;
+
         for (int tileIdx = 0; tileIdx < tilesCount; ++tileIdx)
         {
             var tile = grid[tileIdx];
             var biome = tile.biome;
 
-            grid.GetTileNeighbors(tileIdx, _tmpNeighbors);
+            var nbOffset = nbOffsets[tileIdx];
+            var nbBound = nbOffsets.IdxBoundFor(nbData, tileIdx);
 
-            for (var i = 0; i < _tmpNeighbors.Count; i++)
+            for (var i = nbOffset; i < nbBound; i++)
             {
-                int nIdx = _tmpNeighbors[i];
+                int nIdx = nbData[i];
                 var nTile = grid[nIdx];
                 var nBiome = nTile.biome;
 
                 if (biome != nBiome)
                 {
-                    data[tileIdx * 6 + i] = CheckIsTransition(instance, tileIdx, nIdx, biome, nBiome);
+                    data[tileIdx * 6 + i - nbOffset] = CheckIsTransition(instance, tileIdx, nIdx, biome, nBiome);
                 }
             }
         }
@@ -73,7 +75,7 @@ internal static class Patch_RimWorld_WorldGenStep_Terrain
         LastWorld = world;
 
         stopwatch.Stop();
-        GeologicalLandformsAPI.Logger.Debug("Calculation of biome transitions took " + stopwatch.ElapsedMilliseconds + " ms.");
+        GeologicalLandformsAPI.Logger.Debug("Calculation of extended biome data took " + stopwatch.ElapsedMilliseconds + " ms.");
     }
 
     private static bool CheckIsTransition(WorldGenStep_Terrain instance, int tile, int nTile, BiomeDef biome, BiomeDef nBiome)
