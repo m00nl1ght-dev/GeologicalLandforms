@@ -32,6 +32,7 @@ public class NodeUIWorldTileReq : NodeUIBase
     public static readonly FloatRange DefaultSwampinessRequirement = new(0f, 1f);
     public static readonly FloatRange DefaultMapSizeRequirement = new(250f, 1000f);
     public static readonly FloatRange DefaultBiomeTransitionsRequirement = new(0f, 6f);
+    public static readonly FloatRange DefaultTopologyValueRequirement = new(-1f, 1f);
 
     public FloatRange HillinessRequirement = DefaultHillinessRequirement;
     public FloatRange RoadRequirement = DefaultRoadRequirement;
@@ -42,6 +43,7 @@ public class NodeUIWorldTileReq : NodeUIBase
     public FloatRange SwampinessRequirement = DefaultSwampinessRequirement;
     public FloatRange MapSizeRequirement = DefaultMapSizeRequirement;
     public FloatRange BiomeTransitionsRequirement = DefaultBiomeTransitionsRequirement;
+    public FloatRange TopologyValueRequirement = DefaultTopologyValueRequirement;
 
     public bool AllowSettlements;
     public bool AllowSites;
@@ -65,6 +67,8 @@ public class NodeUIWorldTileReq : NodeUIBase
             conditions.Add(info => BiomeTransitionsRequirement.Includes(info.BorderingBiomesCount()));
         if (MapSizeRequirement != DefaultMapSizeRequirement)
             conditions.Add(info => MapSizeRequirement.Includes(info.ExpectedMapSize));
+        if (TopologyValueRequirement != DefaultTopologyValueRequirement)
+            conditions.Add(info => TopologyValueRequirement.Includes(info.TopologyValue));
 
         if (RiverRequirement.max <= 0f)
             conditions.Add(info => info.MainRiver == null);
@@ -128,6 +132,11 @@ public class NodeUIWorldTileReq : NodeUIBase
         layout.End();
 
         layout.Abs(20f);
+
+        LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.TopologyValueRequirement".Translate());
+        LunarGUI.RangeSlider(layout, ref TopologyValueRequirement, -1f, 1f);
+
+        layout.Abs(10f);
 
         LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.HillinessRequirement".Translate());
         LunarGUI.RangeSlider(layout, ref HillinessRequirement, 1f, 6f, LabelForHilliness);

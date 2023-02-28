@@ -59,7 +59,7 @@ internal static class TerrainTabUI
                         }),
                         new("None".Translate(), () =>
                         {
-                            landformData.Commit(tileId, null, worldTileInfo.LandformDirection);
+                            landformData.Commit(tileId, null, worldTileInfo.TopologyDirection);
                         })
                     };
 
@@ -78,7 +78,7 @@ internal static class TerrainTabUI
                             }
                             else
                             {
-                                landformData.Commit(tileId, e, worldTileInfo.LandformDirection);
+                                landformData.Commit(tileId, e, worldTileInfo.TopologyDirection);
                             }
                         })));
                     Find.WindowStack.Add(new FloatMenu(options));
@@ -91,7 +91,7 @@ internal static class TerrainTabUI
         if (Prefs.DevMode && GeologicalLandformsMod.Settings.ShowWorldTileDebugInfo)
         {
             listing.LabelDouble("GeologicalLandforms.WorldMap.Topology".Translate(), worldTileInfo.Topology.ToString());
-            listing.LabelDouble("GeologicalLandforms.WorldMap.TopologyDirection".Translate(), worldTileInfo.LandformDirection.ToStringHuman());
+            listing.LabelDouble("GeologicalLandforms.WorldMap.TopologyDirection".Translate(), worldTileInfo.TopologyDirection.ToStringHuman());
             listing.LabelDouble("GeologicalLandforms.WorldMap.Swampiness".Translate(), worldTileInfo.Swampiness.ToString(CultureInfo.InvariantCulture));
             listing.LabelDouble("GeologicalLandforms.WorldMap.RiverAngle".Translate(), worldTileInfo.MainRiverAngle.ToString(CultureInfo.InvariantCulture));
             listing.LabelDouble("GeologicalLandforms.WorldMap.MainRoadAngle".Translate(), worldTileInfo.MainRoadAngle.ToString(CultureInfo.InvariantCulture));

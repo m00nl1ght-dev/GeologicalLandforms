@@ -34,10 +34,10 @@ public class WorldTileInfoPrimer : WorldTileInfo
         set => base.Topology = value;
     }
 
-    public new Rot4 LandformDirection
+    public new Rot4 TopologyDirection
     {
-        get => base.LandformDirection;
-        set => base.LandformDirection = value;
+        get => base.TopologyDirection;
+        set => base.TopologyDirection = value;
     }
 
     public new StructRot4<CoastType> Coast

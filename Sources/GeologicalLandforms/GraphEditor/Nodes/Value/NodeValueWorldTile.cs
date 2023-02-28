@@ -33,6 +33,9 @@ public class NodeValueWorldTile : NodeBase
     [ValueConnectionKnob("Rainfall", Direction.Out, ValueFunctionConnection.Id)]
     public ValueConnectionKnob RainfallOutputKnob;
 
+    [ValueConnectionKnob("Topology Value", Direction.Out, ValueFunctionConnection.Id)]
+    public ValueConnectionKnob TopologyValueOutputKnob;
+
     public override void NodeGUI()
     {
         GUILayout.BeginVertical(BoxStyle);
@@ -62,6 +65,11 @@ public class NodeValueWorldTile : NodeBase
         GUILayout.EndHorizontal();
         RainfallOutputKnob.SetPosition();
 
+        GUILayout.BeginHorizontal(BoxStyle);
+        GUILayout.Label("Topology Value", DoubleBoxLayout);
+        GUILayout.EndHorizontal();
+        TopologyValueOutputKnob.SetPosition();
+
         GUILayout.EndVertical();
     }
 
@@ -72,6 +80,7 @@ public class NodeValueWorldTile : NodeBase
         TemperatureOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) Landform.GeneratingTile.Temperature));
         RainfallOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) Landform.GeneratingTile.Rainfall));
         BiomeOutputKnob.SetValue<ISupplier<BiomeData>>(Supplier.Of(new BiomeData(Landform.GeneratingTile.Biome)));
+        TopologyValueOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) Landform.GeneratingTile.TopologyValue));
         return true;
     }
 

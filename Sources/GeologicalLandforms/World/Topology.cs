@@ -2,7 +2,7 @@ using static GeologicalLandforms.Topology;
 
 namespace GeologicalLandforms;
 
-public enum Topology
+public enum Topology : byte
 {
     Any,
     Inland,

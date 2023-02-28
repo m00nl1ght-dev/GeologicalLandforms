@@ -54,6 +54,7 @@ public static class XmlDynamicValueSetup
         tileNumSup.Register("river", ctx => ctx.TileInfo.MainRiverSize());
         tileNumSup.Register("road", ctx => ctx.TileInfo.MainRoadSize());
         tileNumSup.Register("mapSize", ctx => ctx.TileInfo.ExpectedMapSize);
+        tileNumSup.Register("topologyValue", ctx => ctx.TileInfo.TopologyValue);
 
         tileNumSup.RegisterBasicNumericSuppliers();
         tileNumMod.RegisterBasicNumericModifiers();

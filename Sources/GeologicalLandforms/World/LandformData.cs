@@ -28,7 +28,7 @@ public class LandformData : WorldComponent
 
     public void Commit(int tileId, IWorldTileInfo worldTileInfo, bool locked = false)
     {
-        Commit(tileId, worldTileInfo.Landforms?.LastOrDefault(v => !v.IsLayer), worldTileInfo.LandformDirection, locked);
+        Commit(tileId, worldTileInfo.Landforms?.LastOrDefault(v => !v.IsLayer), worldTileInfo.TopologyDirection, locked);
     }
 
     public void Commit(int tileId, Landform landform, Rot4 landformDirection, bool locked = false)

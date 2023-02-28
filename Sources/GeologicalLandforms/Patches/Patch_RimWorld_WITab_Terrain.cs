@@ -96,7 +96,7 @@ internal static class Patch_RimWorld_WITab_Terrain
             var mainLandform = _tile.Landforms.LastOrDefault(l => !l.IsLayer);
             if (mainLandform != null)
             {
-                var lfStr = mainLandform.TranslatedNameWithDirection(_tile.LandformDirection).CapitalizeFirst();
+                var lfStr = mainLandform.TranslatedNameWithDirection(_tile.TopologyDirection).CapitalizeFirst();
                 listingStandard.LabelDouble("GeologicalLandforms.WorldMap.Landform".Translate(), lfStr);
             }
 

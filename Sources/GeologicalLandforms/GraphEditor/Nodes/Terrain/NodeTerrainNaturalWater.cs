@@ -67,7 +67,7 @@ public class NodeTerrainNaturalWater : NodeBase
 
     public override bool Calculate()
     {
-        var angle = Landform.GeneratingTile.LandformDirection.AsAngle + (float) NodeGridRotateToMapSides.MapSideToWorldAngle(MapSide);
+        var angle = Landform.GeneratingTile.TopologyDirection.AsAngle + (float) NodeGridRotateToMapSides.MapSideToWorldAngle(MapSide);
         var coastType = Landform.GeneratingTile.Coast[Rot4.FromAngleFlat(angle)];
         var beach = Landform.GeneratingTile.Biome.Properties().beachTerrain ?? TerrainDefOf.Sand;
         var shallow = coastType == Ocean ? TerrainDefOf.WaterOceanShallow : TerrainDefOf.WaterShallow;

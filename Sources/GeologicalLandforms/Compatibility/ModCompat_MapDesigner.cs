@@ -31,7 +31,7 @@ internal class ModCompat_MapDesigner : ModCompat
                 byte coastDir = (byte) _field_coastDir.GetValue(_settings);
                 if (coastDir is not (0 or > 4))
                 {
-                    info.LandformDirection = new Rot4(coastDir - 1);
+                    info.TopologyDirection = new Rot4(coastDir - 1);
                 }
             }
         };

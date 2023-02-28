@@ -15,7 +15,8 @@ public interface IWorldTileInfo
     public IReadOnlyList<BiomeVariantDef> BiomeVariants { get; }
 
     public Topology Topology { get; }
-    public Rot4 LandformDirection { get; }
+    public float TopologyValue { get; }
+    public Rot4 TopologyDirection { get; }
 
     public StructRot4<CoastType> Coast { get; }
 
@@ -48,7 +49,7 @@ public interface IWorldTileInfo
         }
     }
 
-    public enum CoastType
+    public enum CoastType : byte
     {
         None,
         Lake,
