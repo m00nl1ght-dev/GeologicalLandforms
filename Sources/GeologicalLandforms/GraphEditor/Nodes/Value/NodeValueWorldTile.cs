@@ -8,7 +8,7 @@ using UnityEngine;
 namespace GeologicalLandforms.GraphEditor;
 
 [Serializable]
-[Node(false, "Value/World Tile", 150)]
+[Node(false, "World/Tile Values", 1000)]
 public class NodeValueWorldTile : NodeBase
 {
     public const string ID = "valueWorldTile";

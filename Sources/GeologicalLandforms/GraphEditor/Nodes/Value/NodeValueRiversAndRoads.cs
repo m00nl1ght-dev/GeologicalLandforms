@@ -6,7 +6,7 @@ using UnityEngine;
 namespace GeologicalLandforms.GraphEditor;
 
 [Serializable]
-[Node(false, "Value/Rivers & Roads", 151)]
+[Node(false, "World/Rivers & Roads", 1002)]
 public class NodeValueRiversAndRoads : NodeBase
 {
     public const string ID = "valueRiversAndRoads";

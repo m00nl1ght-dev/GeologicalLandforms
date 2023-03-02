@@ -23,6 +23,8 @@ public static class LandformManager
 
     private static ImportExportFormat IOFormat => ImportExportManager.ParseFormat("XML");
 
+    public static bool AnyHasTileGraphic { get; internal set; }
+
     public static void InitialLoad()
     {
         NodeEditor.checkInit(false);
@@ -49,6 +51,8 @@ public static class LandformManager
         GeologicalLandformsAPI.Logger.Log("Found landform data in the following mods: " + landformSources.Join());
 
         _landforms = LoadAll();
+
+        AnyHasTileGraphic = _landforms.Values.Any(lf => lf.WorldTileGraphic != null);
     }
 
     public static Dictionary<string, Landform> LoadAll(string fileFilter = "*", bool includeCustom = true)

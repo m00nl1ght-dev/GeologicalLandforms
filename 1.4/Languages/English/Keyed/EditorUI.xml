@@ -33,6 +33,12 @@
   <GeologicalLandforms.Settings.Landform.AllowCaves>Allow caves</GeologicalLandforms.Settings.Landform.AllowCaves>
   <GeologicalLandforms.Settings.Landform.RequireCaves>Require caves</GeologicalLandforms.Settings.Landform.RequireCaves>
   <GeologicalLandforms.Settings.Landform.Priority>Priority</GeologicalLandforms.Settings.Landform.Priority>
+  <GeologicalLandforms.Settings.Landform.WorldTileGraphic.AtlasSize>Atlas size</GeologicalLandforms.Settings.Landform.WorldTileGraphic.AtlasSize>
+  <GeologicalLandforms.Settings.Landform.WorldTileGraphic.DrawMode>Draw mode</GeologicalLandforms.Settings.Landform.WorldTileGraphic.DrawMode>
+  <GeologicalLandforms.Settings.Landform.WorldTileGraphic.DrawMode.HexRandom>Hex (random)</GeologicalLandforms.Settings.Landform.WorldTileGraphic.DrawMode.HexRandom>
+  <GeologicalLandforms.Settings.Landform.WorldTileGraphic.DrawMode.HexAdjacency>Hex (adjacency)</GeologicalLandforms.Settings.Landform.WorldTileGraphic.DrawMode.HexAdjacency>
+  <GeologicalLandforms.Settings.Landform.WorldTileGraphic.DrawMode.QuadRandom>Quad (random)</GeologicalLandforms.Settings.Landform.WorldTileGraphic.DrawMode.QuadRandom>
+  <GeologicalLandforms.Settings.Landform.WorldTileGraphic.DrawMode.QuadStatic>Quad (static)</GeologicalLandforms.Settings.Landform.WorldTileGraphic.DrawMode.QuadStatic>
 
   <GeologicalLandforms.Settings.Landform.Topology.Any>Any</GeologicalLandforms.Settings.Landform.Topology.Any>
   <GeologicalLandforms.Settings.Landform.Topology.Inland>Inland</GeologicalLandforms.Settings.Landform.Topology.Inland>

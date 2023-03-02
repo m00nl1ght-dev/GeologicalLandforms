@@ -1,8 +1,13 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using GeologicalLandforms.Defs;
+using GeologicalLandforms.GraphEditor;
 using LunarFramework.Utility;
 using RimWorld.Planet;
+using UnityEngine;
 using Verse;
 
 namespace GeologicalLandforms;
@@ -22,63 +27,119 @@ internal class WorldLayer_Landforms : WorldLayer
         var vertData = grid.verts;
         var vertOffsets = grid.tileIDToVerts_offsets;
 
+        var anyGraphicInBiomes = BiomeProperties.AnyHasTileGraphic;
+        var anyGraphicInBiomeVariants = BiomeVariantDef.AnyHasTileGraphic;
+        var anyGraphicInLandforms = LandformManager.AnyHasTileGraphic;
+
+        var failedCount = 0;
+        
         var stopwatch = new Stopwatch();
         stopwatch.Start();
 
         for (int tileIdx = 0; tileIdx < tilesCount; ++tileIdx)
         {
-            var tile = WorldTileInfo.Get(tileIdx);
-
-            if (tile.HasBiomeVariants)
+            try
             {
-                foreach (var biomeVariant in tile.BiomeVariants)
+                var tile = WorldTileInfo.Get(tileIdx);
+
+                var vertOffset = vertOffsets[tileIdx];
+                var vertBound = vertOffsets.IdxBoundFor(vertData, tileIdx);
+
+                if (anyGraphicInBiomes)
                 {
-                    var material = biomeVariant.DrawMaterial;
-
-                    if (material != null)
+                    var atlas = tile.Biome.Properties().worldTileGraphicAtlas;
+                    if (atlas != null)
                     {
-                        var subMesh = GetSubMesh(material, out _);
-
-                        int cVert = 0;
-                        int count = subMesh.verts.Count;
-
-                        var vertOffset = vertOffsets[tileIdx];
-                        int vertBound = vertOffsets.IdxBoundFor(vertData, tileIdx);
-
-                        for (int vert = vertOffset; vert < vertBound; vert++)
-                        {
-                            subMesh.verts.Add(vertData[vert]);
-
-                            if (vert < vertBound - 2)
-                            {
-                                subMesh.tris.Add(count + cVert + 2);
-                                subMesh.tris.Add(count + cVert + 1);
-                                subMesh.tris.Add(count);
-                            }
-
-                            cVert++;
-                        }
-                    }
-
-                    var graphicAtlas = biomeVariant.worldTileGraphicAtlas;
-
-                    if (graphicAtlas != null)
-                    {
-                        var atlasMat = graphicAtlas.DrawMaterial;
-
+                        var atlasMat = atlas.DrawMaterial;
                         if (atlasMat != null)
                         {
                             var subMesh = GetSubMesh(atlasMat, out _);
-                            graphicAtlas.Draw(subMesh, grid, tileIdx, t => t.HasBiomeVariants && t.BiomeVariants.Contains(biomeVariant));
+                            atlas.Draw(subMesh, grid, tileIdx, t => t.Biome == tile.Biome);
+                        }
+                    }
+                }
+
+                if (anyGraphicInBiomeVariants && tile.HasBiomeVariants)
+                {
+                    foreach (var biomeVariant in tile.BiomeVariants)
+                    {
+                        var material = biomeVariant.DrawMaterial;
+                        if (material != null)
+                        {
+                            var subMesh = GetSubMesh(material, out _);
+                            DrawTileSolid(subMesh, vertData, vertOffset, vertBound);
+                        }
+
+                        var atlas = biomeVariant.worldTileGraphicAtlas;
+                        if (atlas != null)
+                        {
+                            var atlasMat = atlas.DrawMaterial;
+                            if (atlasMat != null)
+                            {
+                                var subMesh = GetSubMesh(atlasMat, out _);
+                                atlas.Draw(subMesh, grid, tileIdx, t => t.HasBiomeVariants && t.BiomeVariants.Contains(biomeVariant), 0.003f);
+                            }
+                        }
+                    }
+                }
+
+                if (anyGraphicInLandforms && tile.HasLandforms)
+                {
+                    foreach (var landform in tile.Landforms)
+                    {
+                        var atlas = landform.WorldTileGraphic?.Atlas;
+                        if (atlas != null)
+                        {
+                            var atlasMat = atlas.DrawMaterial;
+                            if (atlasMat != null)
+                            {
+                                var subMesh = GetSubMesh(atlasMat, out _);
+                                atlas.Draw(subMesh, grid, tileIdx, t => t.HasLandforms && t.Landforms.Contains(landform), 0.004f);
+                            }
                         }
                     }
                 }
             }
+            catch (Exception e)
+            {
+                if (failedCount == 0)
+                {
+                    GeologicalLandformsAPI.Logger.Error("Failed to draw tile graphics for tile " + tileIdx, e);
+                }
+
+                failedCount++;
+            }
+        }
+
+        if (failedCount > 0)
+        {
+            GeologicalLandformsAPI.Logger.Error("Failed to draw tile graphics for " + failedCount + " world tiles.");
         }
 
         stopwatch.Stop();
+
         GeologicalLandformsAPI.Logger.Debug("WorldLayer_Landforms took " + stopwatch.ElapsedMilliseconds + " ms.");
 
         FinalizeMesh(MeshParts.All);
+    }
+
+    private static void DrawTileSolid(LayerSubMesh subMesh, List<Vector3> vertData, int vertOffset, int vertBound)
+    {
+        int cVert = 0;
+        int count = subMesh.verts.Count;
+
+        for (int vert = vertOffset; vert < vertBound; vert++)
+        {
+            subMesh.verts.Add(vertData[vert]);
+
+            if (vert < vertBound - 2)
+            {
+                subMesh.tris.Add(count + cVert + 2);
+                subMesh.tris.Add(count + cVert + 1);
+                subMesh.tris.Add(count);
+            }
+
+            cVert++;
+        }
     }
 }

@@ -14,6 +14,8 @@ public class WorldTileGraphicAtlas
 
     public float drawSize = 1f;
 
+    public float altitude = -1f;
+
     public int renderQueue = 3505;
 
     public IntVec2 atlasSize = new(4, 4);
@@ -38,10 +40,17 @@ public class WorldTileGraphicAtlas
         }
     }
 
+    public void Refresh()
+    {
+        _cachedMat = null;
+    }
+
     private static readonly bool[] _tmpAdjacency = new bool[6];
 
-    public void Draw(LayerSubMesh mesh, WorldGrid grid, int tile, Predicate<WorldTileInfo> adjTest = null, float alt = 0.002f)
+    public void Draw(LayerSubMesh mesh, WorldGrid grid, int tile, Predicate<WorldTileInfo> adjTest = null, float defaultAlt = 0.002f)
     {
+        var alt = altitude >= 0 ? altitude : defaultAlt;
+        
         switch (drawMode)
         {
             case DrawMode.HexRandom:

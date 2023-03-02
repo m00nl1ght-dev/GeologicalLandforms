@@ -21,6 +21,8 @@ public class BiomeProperties : DefModExtension
 
     public bool allowSettlementsOnImpassableTerrain;
 
+    public WorldTileGraphicAtlas worldTileGraphicAtlas;
+
     public TerrainDef beachTerrain;
     public TerrainDef gravelTerrain;
 
@@ -46,6 +48,8 @@ public class BiomeProperties : DefModExtension
         allowBiomeTransitionsByUser = other.allowBiomeTransitionsByUser;
     }
 
+    public static bool AnyHasTileGraphic { get; private set; }
+    
     private static BiomeProperties[] _cache;
 
     public static BiomeProperties Get(BiomeDef biomeDef)
@@ -76,6 +80,7 @@ public class BiomeProperties : DefModExtension
             all[biomeDef.index] = new BiomeProperties(properties);
         }
 
+        AnyHasTileGraphic = all.Any(p => p.worldTileGraphicAtlas != null);
         _cache = all;
     }
 

@@ -30,6 +30,7 @@ public static class XmlDynamicValueSetup
         earlyNumSup.Register("longitude", ctx => ctx.World.grid.LongLatOf(ctx.TileId).x);
         earlyNumSup.Register("latitude", ctx => ctx.World.grid.LongLatOf(ctx.TileId).y);
         earlyNumSup.Register("perlinWorld", PerlinNoiseInWorld);
+        earlyNumSup.Register("randomValueWorld", RandomValueInWorld);
 
         earlyNumSup.RegisterBasicNumericSuppliers();
         earlyNumMod.RegisterBasicNumericModifiers();
@@ -153,6 +154,22 @@ public static class XmlDynamicValueSetup
             var pos = posFunc(ctx);
             var seed = Gen.HashCombineInt(seedFunc(ctx), seedMask);
             return (float) Perlin.GetValue(pos.x, pos.y, pos.z, frequency, seed, lacunarity, persistence, octaves, quality);
+        };
+    }
+
+    private static Supplier<float, ICtxEarlyTile> RandomValueInWorld(XmlNode node)
+        => RandomValue<ICtxEarlyTile>(node, ctx => Gen.HashCombineInt(ctx.World.info.Seed, ctx.TileId));
+
+    private static Supplier<float, TC> RandomValue<TC>(XmlNode node, Func<TC, int> seedFunc)
+    {
+        var min = node.GetNamedChild("min", float.Parse, 0f);
+        var max = node.GetNamedChild("max", float.Parse, 1f);
+        var seedMask = node.GetNamedChild("seedMask", GenText.StableStringHash, 0);
+
+        return ctx =>
+        {
+            var seed = Gen.HashCombineInt(seedFunc(ctx), seedMask);
+            return new FloatRange(min, max).RandomInRangeSeeded(seed);
         };
     }
 }

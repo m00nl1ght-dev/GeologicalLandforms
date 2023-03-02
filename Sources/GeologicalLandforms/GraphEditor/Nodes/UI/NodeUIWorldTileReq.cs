@@ -95,8 +95,6 @@ public class NodeUIWorldTileReq : NodeUIBase
 
     public bool CheckRequirements(IWorldTileInfo worldTile, bool lenient)
     {
-        _conditions ??= BuildRequirements();
-
         if (!Topology.IsCompatible(worldTile.Topology, lenient)) return false;
 
         foreach (var condition in _conditions)
@@ -189,7 +187,7 @@ public class NodeUIWorldTileReq : NodeUIBase
 
         LunarGUI.Checkbox(layout, ref AllowSites, "GeologicalLandforms.Settings.Landform.AllowSites".Translate());
 
-        if (GUI.changed) _conditions = null;
+        if (GUI.changed) _conditions = BuildRequirements();
     }
 
     private string LabelForHilliness(float val)
@@ -216,5 +214,7 @@ public class NodeUIWorldTileReq : NodeUIBase
         var existing = Landform.WorldTileReq;
         if (existing != null && existing != this && canvas.nodes.Contains(existing)) existing.Delete();
         Landform.WorldTileReq = this;
+
+        _conditions = BuildRequirements();
     }
 }
