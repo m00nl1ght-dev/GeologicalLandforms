@@ -89,7 +89,7 @@ public static class GeologicalLandformsAPI
     public static BiomeProperties ApplyBiomePropertiesHook(BiomeDef biome, BiomeProperties properties)
     {
         if (BiomePropertiesHook == null) return properties;
-        properties = new BiomeProperties(properties);
+        properties = properties.Copy();
         BiomePropertiesHook.Invoke(biome, properties);
         return properties;
     }

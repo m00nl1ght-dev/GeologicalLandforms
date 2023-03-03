@@ -381,6 +381,6 @@ internal static class Patch_RimWorld_WildPlantSpawner
 
     private static bool ShouldUseVanillaCavePlantLogic(bool underCaveRoof, BiomeGrid.Entry entry)
     {
-        return underCaveRoof && !entry.ApplyToCaveSpawns;
+        return underCaveRoof && !entry.ApplyToCaves;
     }
 }

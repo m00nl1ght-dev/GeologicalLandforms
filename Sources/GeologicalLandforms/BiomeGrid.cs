@@ -275,7 +275,7 @@ public class BiomeGrid : MapComponent
         private List<BiomeVariantLayer> _variantLayers = new();
 
         public BiomeDef Biome { get; private set; }
-        public bool ApplyToCaveSpawns { get; private set; }
+        public bool ApplyToCaves { get; private set; }
 
         internal object LoadId;
 
@@ -295,7 +295,7 @@ public class BiomeGrid : MapComponent
             // We can't apply the variants when called from ExposeData() because the map is not fully loaded yet (and we need the tileId)
             // So in that case tile is null, and we set the plain base biome for now, later Refresh() is called again in FinalizeInit() with the tile
             Biome = HasVariants && tile != null ? BiomeVariantLayer.Apply(tile, _biomeBase, _variantLayers) : BiomeBase;
-            ApplyToCaveSpawns = _variantLayers.Any(l => l.applyToCaveSpawns);
+            ApplyToCaves = BiomeBase.Properties().applyToCaves || _variantLayers.Any(l => l.applyToCaves);
         }
 
         public void ExposeData()

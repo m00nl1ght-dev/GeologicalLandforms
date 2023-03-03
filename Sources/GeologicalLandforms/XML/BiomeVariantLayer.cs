@@ -26,7 +26,7 @@ public class BiomeVariantLayer
     public XmlDynamicValue<List<DynamicBiomeAnimalRecord>, ICtxTile> wildAnimals;
     public XmlDynamicValue<List<DynamicBiomeAnimalRecord>, ICtxTile> pollutionWildAnimals;
 
-    public bool applyToCaveSpawns;
+    public bool applyToCaves;
 
     public BiomeVariantDef Def { get; internal set; }
 
@@ -89,9 +89,9 @@ public class BiomeVariantLayer
             layer.pollutionWildAnimals?.Apply(ctx, ref pollutionWildAnimals);
         }
 
-        def.wildPlants = wildPlants.Select(r => r.Resolve(ctx)).ToList();
-        def.wildAnimals = wildAnimals.Select(r => r.Resolve(ctx)).ToList();
-        def.pollutionWildAnimals = pollutionWildAnimals.Select(r => r.Resolve(ctx)).ToList();
+        def.wildPlants = wildPlants.Select(r => r.Resolve(ctx)).Where(r => r.plant != null).ToList();
+        def.wildAnimals = wildAnimals.Select(r => r.Resolve(ctx)).Where(r => r.animal != null).ToList();
+        def.pollutionWildAnimals = pollutionWildAnimals.Select(r => r.Resolve(ctx)).Where(r => r.animal != null).ToList();
 
         return def;
     }

@@ -106,17 +106,20 @@ internal static class Patch_RimWorld_GenStep_Terrain
 
     public static void ApplyBiomeVariants(BiomeGrid biomeGrid)
     {
-        if (Landform.GeneratingTile is not WorldTileInfo { HasBiomeVariants: true }) return;
+        if (biomeGrid.Primary.BiomeBase.Properties().applyToCaves) biomeGrid.Enabled = true;
 
-        try
+        if (Landform.GeneratingTile is WorldTileInfo { HasBiomeVariants: true })
         {
-            var layers = Landform.GeneratingTile.BiomeVariants.SelectMany(v => v.layers).OrderByDescending(l => l.priority).ToList();
-            biomeGrid.ApplyVariantLayers(layers);
-            biomeGrid.Enabled = true;
-        }
-        catch (Exception e)
-        {
-            GeologicalLandformsAPI.Logger.Error("Failed to apply biome variants!", e);
+            try
+            {
+                var layers = Landform.GeneratingTile.BiomeVariants.SelectMany(v => v.layers).OrderByDescending(l => l.priority).ToList();
+                biomeGrid.ApplyVariantLayers(layers);
+                biomeGrid.Enabled = true;
+            }
+            catch (Exception e)
+            {
+                GeologicalLandformsAPI.Logger.Error("Failed to apply biome variants!", e);
+            }
         }
     }
 

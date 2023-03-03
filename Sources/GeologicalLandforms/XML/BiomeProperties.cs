@@ -12,6 +12,7 @@ namespace GeologicalLandforms;
 public class BiomeProperties : DefModExtension
 {
     public bool isWaterCovered;
+    public bool applyToCaves;
 
     public bool allowLandforms = true;
     public bool allowBiomeTransitions = true;
@@ -31,22 +32,6 @@ public class BiomeProperties : DefModExtension
 
     public bool AllowLandforms => allowLandforms && allowLandformsByUser;
     public bool AllowBiomeTransitions => allowBiomeTransitions && allowBiomeTransitionsByUser;
-
-    public BiomeProperties() { }
-
-    public BiomeProperties(BiomeProperties other)
-    {
-        isWaterCovered = other.isWaterCovered;
-        allowLandforms = other.allowLandforms;
-        allowBiomeTransitions = other.allowBiomeTransitions;
-        disallowedLandforms = other.disallowedLandforms?.ToList();
-        disallowedBiomeTransitions = other.disallowedBiomeTransitions?.ToList();
-        allowSettlementsOnImpassableTerrain = other.allowSettlementsOnImpassableTerrain;
-        beachTerrain = other.beachTerrain;
-        gravelTerrain = other.gravelTerrain;
-        allowLandformsByUser = other.allowLandformsByUser;
-        allowBiomeTransitionsByUser = other.allowBiomeTransitionsByUser;
-    }
 
     public static bool AnyHasTileGraphic { get; private set; }
     
@@ -77,11 +62,19 @@ public class BiomeProperties : DefModExtension
             properties ??= defaultsByDefName.TryGetValue(biomeDef.defName);
             properties ??= defaultsByPackageId.TryGetValue(biomeDef.modContentPack?.ModMetaData?.PackageIdNonUnique ?? "");
             properties ??= IsSpecialPurposeBiome(biomeDef) ? DefaultsForSpecialPurposeBiome : DefaultsForStandardBiome;
-            all[biomeDef.index] = new BiomeProperties(properties);
+            all[biomeDef.index] = properties.Copy();
         }
 
         AnyHasTileGraphic = all.Any(p => p.worldTileGraphicAtlas != null);
         _cache = all;
+    }
+
+    public BiomeProperties Copy()
+    {
+        var copy = (BiomeProperties) MemberwiseClone();
+        copy.disallowedLandforms = disallowedLandforms?.ToList();
+        copy.disallowedBiomeTransitions = disallowedBiomeTransitions?.ToList();
+        return copy;
     }
 
     private static readonly BiomeProperties DefaultsForStandardBiome = new();
