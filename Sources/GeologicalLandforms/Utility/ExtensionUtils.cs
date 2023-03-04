@@ -71,9 +71,13 @@ public static class ExtensionUtils
     public static bool IsWaterCovered(this BiomeDef biomeDef) => biomeDef == BiomeDefOf.Ocean || BiomeProperties.Get(biomeDef).isWaterCovered;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool HasStableCaveRoofs(this Map map) => map.TileInfo.hilliness == Hilliness.Impassable || map.Biome.Properties().hasStableCaveRoofs;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int IdxBoundFor(this List<int> offsets, IList values, int tileIdx)
         => tileIdx + 1 < offsets.Count ? offsets[tileIdx + 1] : values.Count;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int MurmurCombine(this int value, int other) => MurmurHash.GetInt((uint) value, (uint) other);
 
     public static bool HasLandform(this IWorldTileInfo tile, string landformId)

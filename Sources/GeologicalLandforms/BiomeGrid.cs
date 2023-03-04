@@ -29,6 +29,9 @@ public class BiomeGrid : MapComponent
     /// </summary>
     public float OpenGroundFraction { get; private set; } = 1f;
 
+    internal ushort[] WalkableEdgeCellsCache;
+    internal IntVec3[] UnroofedCellsCache;
+
     internal object LoadId = new();
 
     private bool _enabled;

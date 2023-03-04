@@ -140,6 +140,8 @@
         <Compile Include="Compatibility\ModCompat_MapReroll.cs" />
         <Compile Include="Compatibility\ModCompat_PrepareLanding.cs" />
         <Compile Include="Patches\Patch_RimWorld_GenStep_RocksFromGrid.cs" />
+        <Compile Include="Patches\Patch_RimWorld_IncidentWorker.cs" />
+        <Compile Include="Patches\Patch_RimWorld_RaidStrategyWorker.cs" />
         <Compile Include="Patches\Patch_RimWorld_TileFinder.cs" />
         <Compile Include="Patches\Patch_RimWorld_WorldPathGrid.cs" />
         <Compile Include="Patches\Patch_Verse_AnimalPenManager.cs" />
@@ -150,11 +152,12 @@
         <Compile Include="Patches\Patch_RimWorld_LearningReadout.cs" />
         <Compile Include="Patches\Patch_RimWorld_GenStep_Terrain.cs" />
         <Compile Include="Patches\Patch_Verse_MapGenerator.cs" />
-        <Compile Include="Patches\Patch_RimWorld_RCellFinder.cs" />
+        <Compile Include="Patches\Patch_RimWorld_CellFinder.cs" />
         <Compile Include="Patches\Patch_RimWorld_WildAnimalSpawner.cs" />
         <Compile Include="Patches\Patch_RimWorld_WildPlantSpawner.cs" />
         <Compile Include="Patches\Patch_RimWorld_World.cs" />
         <Compile Include="Patches\Patch_Verse_Command_SetPlantToGrow.cs" />
+        <Compile Include="Patches\Patch_Verse_RoofCollapseUtility.cs" />
         <Compile Include="Utility\ExtensionUtils.cs" />
         <Compile Include="GeologicalLandformsAPI.cs" />
         <Compile Include="Patches\Patch_RimWorld_GenStep_ElevationFertility.cs" />

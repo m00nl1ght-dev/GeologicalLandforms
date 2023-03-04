@@ -222,6 +222,9 @@ public class GeologicalLandformsSettings : LunarModSettings
 
     public void ApplyDefEffects()
     {
+        if (!EnableCellFinderOptimization) GeologicalLandformsMod.Logger.Log("CellFinder optimizations are disabled.");
+        if (!EnableLandformScaling) GeologicalLandformsMod.Logger.Log("Landform scaling is disabled.");
+        
         foreach (var biome in DefDatabase<BiomeDef>.AllDefsListForReading)
         {
             biome.Properties().allowLandformsByUser = !BiomesExcludedFromLandforms.Value.Contains(biome.defName);

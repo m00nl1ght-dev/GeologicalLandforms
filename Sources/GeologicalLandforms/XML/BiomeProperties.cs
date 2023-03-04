@@ -11,15 +11,15 @@ namespace GeologicalLandforms;
 
 public class BiomeProperties : DefModExtension
 {
-    public bool isWaterCovered;
-    public bool applyToCaves;
-
     public bool allowLandforms = true;
     public bool allowBiomeTransitions = true;
 
     public List<string> disallowedLandforms;
     public List<BiomeDef> disallowedBiomeTransitions;
 
+    public bool isWaterCovered;
+    public bool applyToCaves;
+    public bool hasStableCaveRoofs;
     public bool allowSettlementsOnImpassableTerrain;
 
     public WorldTileGraphicAtlas worldTileGraphicAtlas;

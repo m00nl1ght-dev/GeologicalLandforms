@@ -9,7 +9,7 @@
   
   <GeologicalLandforms.Settings.MaxLandformSearchRadius>Max landform search radius on world map</GeologicalLandforms.Settings.MaxLandformSearchRadius>
   <GeologicalLandforms.Settings.AnimalDensityFactorForSecludedAreas>Animal amount in secluded areas (Island, Fjord, etc.)</GeologicalLandforms.Settings.AnimalDensityFactorForSecludedAreas>
-  <GeologicalLandforms.Settings.EnableCellFinderOptimization>Enable map exit pathfinding optimization</GeologicalLandforms.Settings.EnableCellFinderOptimization>
+  <GeologicalLandforms.Settings.EnableCellFinderOptimization>Enable cell finder optimizations</GeologicalLandforms.Settings.EnableCellFinderOptimization>
   <GeologicalLandforms.Settings.EnableLandformScaling>Scale landforms with map size</GeologicalLandforms.Settings.EnableLandformScaling>
   <GeologicalLandforms.Settings.EnableExperimentalLandforms>Enable experimental landforms</GeologicalLandforms.Settings.EnableExperimentalLandforms>
   <GeologicalLandforms.Settings.EnableGodMode>Enable god mode (allows placing landforms manually)</GeologicalLandforms.Settings.EnableGodMode>
