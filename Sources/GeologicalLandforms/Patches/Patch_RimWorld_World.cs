@@ -23,13 +23,17 @@ internal static class Patch_RimWorld_World
         WorldTileInfo.RemoveCache();
 
         var landformData = __instance.GetComponent<LandformData>();
+        
         var lastWorld = Patch_RimWorld_WorldGenStep_Terrain.LastWorld;
+        var caveSystems = Patch_RimWorld_WorldGenStep_Terrain.CaveSystems;
         var biomeTransitions = Patch_RimWorld_WorldGenStep_Terrain.BiomeTransitions;
 
-        if (biomeTransitions != null && landformData != null && lastWorld == __instance)
+        if (landformData != null && lastWorld == __instance)
         {
+            landformData.SetCaveSystems(caveSystems);
             landformData.SetBiomeTransitions(biomeTransitions);
             Patch_RimWorld_WorldGenStep_Terrain.BiomeTransitions = null;
+            Patch_RimWorld_WorldGenStep_Terrain.CaveSystems = null;
             Patch_RimWorld_WorldGenStep_Terrain.LastWorld = null;
         }
     }
@@ -44,6 +48,7 @@ internal static class Patch_RimWorld_World
     [HarmonyPrefix]
     [HarmonyPatch(nameof(World.HasCaves))]
     [HarmonyAfter("zylle.MapDesigner")]
+    [PatchExcludedFromConflictCheck]
     private static bool HasCaves(ref bool __result, int tile)
     {
         var worldTileInfo = WorldTileInfo.Get(tile);

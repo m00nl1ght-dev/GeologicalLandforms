@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Xml;
 using GeologicalLandforms.Defs;
+using GeologicalLandforms.Patches;
 using LunarFramework.Utility;
 using LunarFramework.XML;
+using RimWorld.Planet;
 using UnityEngine;
 using Verse;
 using Verse.Noise;
@@ -29,6 +31,8 @@ public static class XmlDynamicValueSetup
         earlyNumSup.Register("pollution", ctx => ctx.Tile.pollution);
         earlyNumSup.Register("longitude", ctx => ctx.World.grid.LongLatOf(ctx.TileId).x);
         earlyNumSup.Register("latitude", ctx => ctx.World.grid.LongLatOf(ctx.TileId).y);
+        earlyNumSup.Register("depthInCaveSystem", ctx => GetCaveSystemDepthAt(ctx.World, ctx.TileId));
+
         earlyNumSup.Register("perlinWorld", PerlinNoiseInWorld);
         earlyNumSup.Register("randomValueWorld", RandomValueInWorld);
 
@@ -56,6 +60,7 @@ public static class XmlDynamicValueSetup
         tileNumSup.Register("road", ctx => ctx.TileInfo.MainRoadSize());
         tileNumSup.Register("mapSize", ctx => ctx.TileInfo.ExpectedMapSize);
         tileNumSup.Register("topologyValue", ctx => ctx.TileInfo.TopologyValue);
+        tileNumSup.Register("depthInCaveSystem", ctx => ctx.TileInfo.DepthInCaveSystem);
 
         tileNumSup.RegisterBasicNumericSuppliers();
         tileNumMod.RegisterBasicNumericModifiers();
@@ -71,7 +76,7 @@ public static class XmlDynamicValueSetup
         tileStringSup.RegisterBasicStringSuppliers();
         tileStringMod.RegisterBasicStringModifiers();
 
-        tileStringSup.RegisterFallback(Convert<string, float, ICtxTile>(v => v.ToString("0.##")));
+        tileStringSup.RegisterFallback(Transform<string, float, ICtxTile>(v => v.ToString("0.##")));
 
         // ### Boolean specs for full world tile context ###
 
@@ -171,5 +176,22 @@ public static class XmlDynamicValueSetup
             var seed = Gen.HashCombineInt(seedFunc(ctx), seedMask);
             return new FloatRange(min, max).RandomInRangeSeeded(seed);
         };
+    }
+
+    private static byte GetCaveSystemDepthAt(World world, int tileId)
+    {
+        var landformData = world.LandformData();
+        if (landformData != null) return landformData.GetCaveSystemDepthAt(tileId);
+
+        if (Patch_RimWorld_WorldGenStep_Terrain.LastWorld == world)
+        {
+            var caveSystems = Patch_RimWorld_WorldGenStep_Terrain.CaveSystems;
+            if (caveSystems != null && tileId > 0 && tileId < caveSystems.Length)
+            {
+                return caveSystems[tileId];
+            }
+        }
+
+        return 0;
     }
 }

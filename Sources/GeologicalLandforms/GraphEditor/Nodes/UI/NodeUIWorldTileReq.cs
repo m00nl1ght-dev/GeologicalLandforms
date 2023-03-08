@@ -17,7 +17,7 @@ public class NodeUIWorldTileReq : NodeUIBase
     public override string GetID => ID;
 
     public override string Title => "World Tile Requirements";
-    public override Vector2 DefaultSize => new(400, 800);
+    public override Vector2 DefaultSize => new(400, 850);
 
     public Topology Topology = Inland;
     public float Commonness = 1f;
@@ -33,6 +33,7 @@ public class NodeUIWorldTileReq : NodeUIBase
     public static readonly FloatRange DefaultMapSizeRequirement = new(250f, 1000f);
     public static readonly FloatRange DefaultBiomeTransitionsRequirement = new(0f, 6f);
     public static readonly FloatRange DefaultTopologyValueRequirement = new(-1f, 1f);
+    public static readonly FloatRange DefaultDepthInCaveSystemRequirement = new(0f, 10f);
 
     public FloatRange HillinessRequirement = DefaultHillinessRequirement;
     public FloatRange RoadRequirement = DefaultRoadRequirement;
@@ -44,6 +45,7 @@ public class NodeUIWorldTileReq : NodeUIBase
     public FloatRange MapSizeRequirement = DefaultMapSizeRequirement;
     public FloatRange BiomeTransitionsRequirement = DefaultBiomeTransitionsRequirement;
     public FloatRange TopologyValueRequirement = DefaultTopologyValueRequirement;
+    public FloatRange DepthInCaveSystemRequirement = DefaultDepthInCaveSystemRequirement;
 
     public bool AllowSettlements;
     public bool AllowSites;
@@ -69,6 +71,8 @@ public class NodeUIWorldTileReq : NodeUIBase
             conditions.Add(info => MapSizeRequirement.Includes(info.ExpectedMapSize));
         if (TopologyValueRequirement != DefaultTopologyValueRequirement)
             conditions.Add(info => TopologyValueRequirement.Includes(info.TopologyValue));
+        if (DepthInCaveSystemRequirement != DefaultDepthInCaveSystemRequirement)
+            conditions.Add(info => DepthInCaveSystemRequirement.Includes(info.DepthInCaveSystem));
 
         if (RiverRequirement.max <= 0f)
             conditions.Add(info => info.MainRiver == null);
@@ -178,6 +182,11 @@ public class NodeUIWorldTileReq : NodeUIBase
 
         LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.BiomeTransitionsRequirement".Translate());
         LunarGUI.RangeSlider(layout, ref BiomeTransitionsRequirement, 0f, 6f);
+
+        layout.Abs(10f);
+
+        LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.DepthInCaveSystemRequirement".Translate());
+        LunarGUI.RangeSlider(layout, ref DepthInCaveSystemRequirement, 0f, 10f);
 
         layout.Abs(20f);
 

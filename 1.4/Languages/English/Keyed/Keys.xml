@@ -70,6 +70,7 @@
   <GeologicalLandforms.WorldMap.RiverAngle>River angle</GeologicalLandforms.WorldMap.RiverAngle>
   <GeologicalLandforms.WorldMap.MainRoadMultiplier>Main road multiplier</GeologicalLandforms.WorldMap.MainRoadMultiplier>
   <GeologicalLandforms.WorldMap.MainRoadAngle>Main road angle</GeologicalLandforms.WorldMap.MainRoadAngle>
+  <GeologicalLandforms.WorldMap.DepthInCaveSystem>Depth in cave system</GeologicalLandforms.WorldMap.DepthInCaveSystem>
   
   <GeologicalLandforms.WorldMap.FindLandform>Search for landform nearby</GeologicalLandforms.WorldMap.FindLandform>
   <GeologicalLandforms.WorldMap.FindLandformAny>Any</GeologicalLandforms.WorldMap.FindLandformAny>

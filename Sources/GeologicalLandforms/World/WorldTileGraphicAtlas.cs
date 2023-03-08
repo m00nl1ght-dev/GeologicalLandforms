@@ -16,7 +16,7 @@ public class WorldTileGraphicAtlas
 
     public float altitude = -1f;
 
-    public int renderQueue = 3505;
+    public int renderQueue = 3515;
 
     public IntVec2 atlasSize = new(4, 4);
 
@@ -50,7 +50,7 @@ public class WorldTileGraphicAtlas
     public void Draw(LayerSubMesh mesh, WorldGrid grid, int tile, Predicate<WorldTileInfo> adjTest = null, float defaultAlt = 0.002f)
     {
         var alt = altitude >= 0 ? altitude : defaultAlt;
-        
+
         switch (drawMode)
         {
             case DrawMode.HexRandom:
@@ -58,6 +58,9 @@ public class WorldTileGraphicAtlas
                 break;
             case DrawMode.HexAdjacency:
                 DrawHex(mesh, grid, tile, alt, adjTest);
+                break;
+            case DrawMode.HexAdjacencyCaves:
+                DrawHex(mesh, grid, tile, alt, t => t.DepthInCaveSystem > 0 && t.Hilliness == Hilliness.Impassable);
                 break;
             case DrawMode.QuadRandom:
                 DrawQuad(mesh, grid, tile, alt, true);
@@ -227,6 +230,7 @@ public class WorldTileGraphicAtlas
     {
         HexRandom,
         HexAdjacency,
+        HexAdjacencyCaves,
         QuadRandom,
         QuadStatic
     }

@@ -17,7 +17,7 @@ public interface IWorldTileInfo
     public Topology Topology { get; }
     public float TopologyValue { get; }
     public Rot4 TopologyDirection { get; }
-
+    public byte DepthInCaveSystem { get; }
     public StructRot4<CoastType> Coast { get; }
 
     public MapParent WorldObject { get; }

@@ -12,6 +12,7 @@ public class LandformData : WorldComponent
 {
     private Dictionary<int, Entry> _entries = new();
     private bool[] _biomeTransitions = Array.Empty<bool>();
+    private byte[] _caveSystems = Array.Empty<byte>();
 
     public LandformData(World world) : base(world) { }
 
@@ -56,7 +57,23 @@ public class LandformData : WorldComponent
 
     public void SetBiomeTransitions(bool[] transitions)
     {
-        _biomeTransitions = transitions;
+        _biomeTransitions = transitions ?? Array.Empty<bool>();
+    }
+
+    public bool HasCaveSystems()
+    {
+        return _caveSystems.Length > 0;
+    }
+
+    public byte GetCaveSystemDepthAt(int tileId)
+    {
+        if (tileId < 0 || tileId >= _caveSystems.Length) return 0;
+        return _caveSystems[tileId];
+    }
+
+    public void SetCaveSystems(byte[] caveSystems)
+    {
+        _caveSystems = caveSystems ?? Array.Empty<byte>();
     }
 
     static LandformData() => ParseHelper.Parsers<Entry>.Register(Entry.FromString);
@@ -75,6 +92,21 @@ public class LandformData : WorldComponent
             if (_biomeTransitions.Length != elements) _biomeTransitions = new bool[elements];
             DataExposeUtility.BoolArray(ref _biomeTransitions, elements, "biomeTransitions");
         }
+
+        var hasCaveSystems = HasCaveSystems();
+
+        Scribe_Values.Look(ref hasCaveSystems, "hasCaveSystems");
+
+        if (hasCaveSystems)
+        {
+            var elements = world.grid.TilesCount;
+            if (_caveSystems.Length != elements) _caveSystems = new byte[elements];
+            DataExposeUtility.ByteArray(ref _caveSystems, "caveSystems");
+        }
+
+        _entries ??= new();
+        _biomeTransitions ??= Array.Empty<bool>();
+        _caveSystems ??= Array.Empty<byte>();
 
         ExtensionUtils.ClearCaches();
     }

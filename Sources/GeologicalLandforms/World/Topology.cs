@@ -17,6 +17,8 @@ public enum Topology : byte
     CliffThreeSides,
     CliffAllSides,
     CliffAndCoast,
+    CaveEntrance,
+    CaveTunnel,
     Ocean
 }
 

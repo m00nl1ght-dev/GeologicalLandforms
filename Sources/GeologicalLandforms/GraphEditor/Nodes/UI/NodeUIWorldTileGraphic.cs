@@ -17,6 +17,7 @@ public class NodeUIWorldTileGraphic : NodeUIBase
     public override string Title => "World Tile Graphic";
     public override Vector2 DefaultSize => new(400, 115);
 
+    [NonSerialized]
     public readonly WorldTileGraphicAtlas Atlas = new();
 
     public DrawMode DrawMode = DrawMode.HexRandom;
@@ -55,6 +56,7 @@ public class NodeUIWorldTileGraphic : NodeUIBase
         Atlas.texture = "World/Landforms/" + Landform.Id;
         Atlas.atlasSize = new IntVec2(AtlasSizeX, AtlasSizeY);
         Atlas.drawMode = DrawMode;
+        Atlas.renderQueue = 3512;
         Atlas.Refresh();
     }
 

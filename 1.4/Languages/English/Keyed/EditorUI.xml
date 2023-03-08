@@ -27,6 +27,7 @@
   <GeologicalLandforms.Settings.Landform.MapSizeRequirement>Map size requirement</GeologicalLandforms.Settings.Landform.MapSizeRequirement>
   <GeologicalLandforms.Settings.Landform.BiomeTransitionsRequirement>Biome transitions requirement</GeologicalLandforms.Settings.Landform.BiomeTransitionsRequirement>
   <GeologicalLandforms.Settings.Landform.TopologyValueRequirement>Topology value requirement</GeologicalLandforms.Settings.Landform.TopologyValueRequirement>
+  <GeologicalLandforms.Settings.Landform.DepthInCaveSystemRequirement>Depth in cave system requirement</GeologicalLandforms.Settings.Landform.DepthInCaveSystemRequirement>
   <GeologicalLandforms.Settings.Landform.AllowSettlements>Allow non-player settlements</GeologicalLandforms.Settings.Landform.AllowSettlements>
   <GeologicalLandforms.Settings.Landform.AllowSites>Allow quest sites</GeologicalLandforms.Settings.Landform.AllowSites>
   <GeologicalLandforms.Settings.Landform.CaveChance>Cave chance</GeologicalLandforms.Settings.Landform.CaveChance>
@@ -37,6 +38,7 @@
   <GeologicalLandforms.Settings.Landform.WorldTileGraphic.DrawMode>Draw mode</GeologicalLandforms.Settings.Landform.WorldTileGraphic.DrawMode>
   <GeologicalLandforms.Settings.Landform.WorldTileGraphic.DrawMode.HexRandom>Hex (random)</GeologicalLandforms.Settings.Landform.WorldTileGraphic.DrawMode.HexRandom>
   <GeologicalLandforms.Settings.Landform.WorldTileGraphic.DrawMode.HexAdjacency>Hex (adjacency)</GeologicalLandforms.Settings.Landform.WorldTileGraphic.DrawMode.HexAdjacency>
+  <GeologicalLandforms.Settings.Landform.WorldTileGraphic.DrawMode.HexAdjacencyCaves>Hex (cave adjacency)</GeologicalLandforms.Settings.Landform.WorldTileGraphic.DrawMode.HexAdjacencyCaves>
   <GeologicalLandforms.Settings.Landform.WorldTileGraphic.DrawMode.QuadRandom>Quad (random)</GeologicalLandforms.Settings.Landform.WorldTileGraphic.DrawMode.QuadRandom>
   <GeologicalLandforms.Settings.Landform.WorldTileGraphic.DrawMode.QuadStatic>Quad (static)</GeologicalLandforms.Settings.Landform.WorldTileGraphic.DrawMode.QuadStatic>
 
@@ -53,6 +55,8 @@
   <GeologicalLandforms.Settings.Landform.Topology.CliffThreeSides>Cliff on three sides</GeologicalLandforms.Settings.Landform.Topology.CliffThreeSides>
   <GeologicalLandforms.Settings.Landform.Topology.CliffAllSides>Cliff on all sides</GeologicalLandforms.Settings.Landform.Topology.CliffAllSides>
   <GeologicalLandforms.Settings.Landform.Topology.CliffAndCoast>Cliff and coast</GeologicalLandforms.Settings.Landform.Topology.CliffAndCoast>
+  <GeologicalLandforms.Settings.Landform.Topology.CaveEntrance>Cave system entrance</GeologicalLandforms.Settings.Landform.Topology.CaveEntrance>
+  <GeologicalLandforms.Settings.Landform.Topology.CaveTunnel>Cave system tunnel</GeologicalLandforms.Settings.Landform.Topology.CaveTunnel>
   <GeologicalLandforms.Settings.Landform.Topology.Ocean>Ocean</GeologicalLandforms.Settings.Landform.Topology.Ocean>
 
 </LanguageData>

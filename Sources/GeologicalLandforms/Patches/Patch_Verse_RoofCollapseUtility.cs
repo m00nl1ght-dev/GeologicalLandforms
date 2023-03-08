@@ -10,6 +10,7 @@ internal static class Patch_Verse_RoofCollapseUtility
 {
     [HarmonyPrefix]
     [HarmonyPatch("WithinRangeOfRoofHolder")]
+    [HarmonyPriority(Priority.High)]
     private static bool WithinRangeOfRoofHolder(IntVec3 c, Map map, ref bool __result)
     {
         if (c.GetRoof(map) is not { isThickRoof: true } || !map.HasStableCaveRoofs()) return true;

@@ -45,6 +45,8 @@ internal class WorldLayer_Landforms : WorldLayer
                 var vertOffset = vertOffsets[tileIdx];
                 var vertBound = vertOffsets.IdxBoundFor(vertData, tileIdx);
 
+                var anyVariantGraphic = false;
+
                 if (anyGraphicInBiomes)
                 {
                     var atlas = tile.Biome.Properties().worldTileGraphicAtlas;
@@ -54,7 +56,7 @@ internal class WorldLayer_Landforms : WorldLayer
                         if (atlasMat != null)
                         {
                             var subMesh = GetSubMesh(atlasMat, out _);
-                            atlas.Draw(subMesh, grid, tileIdx, t => t.Biome == tile.Biome);
+                            atlas.Draw(subMesh, grid, tileIdx, t => t.Biome == tile.Biome, 0.006f);
                         }
                     }
                 }
@@ -77,13 +79,14 @@ internal class WorldLayer_Landforms : WorldLayer
                             if (atlasMat != null)
                             {
                                 var subMesh = GetSubMesh(atlasMat, out _);
-                                atlas.Draw(subMesh, grid, tileIdx, t => t.HasBiomeVariants && t.BiomeVariants.Contains(biomeVariant), 0.003f);
+                                atlas.Draw(subMesh, grid, tileIdx, t => t.HasBiomeVariants && t.BiomeVariants.Contains(biomeVariant), 0.008f);
+                                anyVariantGraphic = true;
                             }
                         }
                     }
                 }
 
-                if (anyGraphicInLandforms && tile.HasLandforms)
+                if (anyGraphicInLandforms && !anyVariantGraphic && tile.HasLandforms)
                 {
                     foreach (var landform in tile.Landforms)
                     {
@@ -94,7 +97,7 @@ internal class WorldLayer_Landforms : WorldLayer
                             if (atlasMat != null)
                             {
                                 var subMesh = GetSubMesh(atlasMat, out _);
-                                atlas.Draw(subMesh, grid, tileIdx, t => t.HasLandforms && t.Landforms.Contains(landform), 0.004f);
+                                atlas.Draw(subMesh, grid, tileIdx, t => t.HasLandforms && t.Landforms.Contains(landform), 0.007f);
                             }
                         }
                     }

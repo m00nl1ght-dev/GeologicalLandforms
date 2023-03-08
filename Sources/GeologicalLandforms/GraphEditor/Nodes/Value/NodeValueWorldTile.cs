@@ -36,6 +36,9 @@ public class NodeValueWorldTile : NodeBase
     [ValueConnectionKnob("Topology Value", Direction.Out, ValueFunctionConnection.Id)]
     public ValueConnectionKnob TopologyValueOutputKnob;
 
+    [ValueConnectionKnob("Cave Depth", Direction.Out, ValueFunctionConnection.Id)]
+    public ValueConnectionKnob CaveSystemDepthValueOutputKnob;
+
     public override void NodeGUI()
     {
         GUILayout.BeginVertical(BoxStyle);
@@ -70,6 +73,11 @@ public class NodeValueWorldTile : NodeBase
         GUILayout.EndHorizontal();
         TopologyValueOutputKnob.SetPosition();
 
+        GUILayout.BeginHorizontal(BoxStyle);
+        GUILayout.Label("Cave Depth", DoubleBoxLayout);
+        GUILayout.EndHorizontal();
+        CaveSystemDepthValueOutputKnob.SetPosition();
+
         GUILayout.EndVertical();
     }
 
@@ -81,6 +89,7 @@ public class NodeValueWorldTile : NodeBase
         RainfallOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) Landform.GeneratingTile.Rainfall));
         BiomeOutputKnob.SetValue<ISupplier<BiomeData>>(Supplier.Of(new BiomeData(Landform.GeneratingTile.Biome)));
         TopologyValueOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) Landform.GeneratingTile.TopologyValue));
+        CaveSystemDepthValueOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) Landform.GeneratingTile.DepthInCaveSystem));
         return true;
     }
 

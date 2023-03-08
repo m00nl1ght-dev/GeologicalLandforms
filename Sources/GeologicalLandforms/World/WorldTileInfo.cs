@@ -36,7 +36,6 @@ public class WorldTileInfo : IWorldTileInfo
     public Topology Topology { get; protected set; } = Topology.Any;
     public float TopologyValue { get; protected set; }
     public Rot4 TopologyDirection { get; protected set; }
-
     public StructRot4<CoastType> Coast { get; protected set; }
 
     public MapParent WorldObject => World.worldObjects.MapParentAt(TileId);
@@ -56,6 +55,8 @@ public class WorldTileInfo : IWorldTileInfo
 
     public RoadDef MainRoad => MainRoadLink?.road;
     public float MainRoadAngle => World.grid.GetHeadingFromTo(TileId, MainRoadLink?.neighbor ?? 0);
+
+    public byte DepthInCaveSystem => World.LandformData()?.GetCaveSystemDepthAt(TileId) ?? 0;
 
     public float ExpectedMapSize => (WorldObject is Site site ? site.PreferredMapSize : World.info.initialMapSize).MinXZ();
 
@@ -90,9 +91,10 @@ public class WorldTileInfo : IWorldTileInfo
             }
 
             var info = new WorldTileInfoPrimer(tileId, world.grid[tileId], world);
+            var data = world.LandformData();
 
-            DetermineTopology(info);
-            DetermineLandforms(info);
+            DetermineTopology(info, data);
+            DetermineLandforms(info, data);
             DetermineBiomeVariants(info);
 
             GeologicalLandformsAPI.ApplyWorldTileInfoHook(info);
@@ -134,7 +136,7 @@ public class WorldTileInfo : IWorldTileInfo
     [ThreadStatic]
     private static List<Landform> _tsc_eligible;
 
-    private static void DetermineLandforms(WorldTileInfo info)
+    private static void DetermineLandforms(WorldTileInfo info, LandformData data)
     {
         var eligible = _tsc_eligible ??= new List<Landform>();
         eligible.Clear();
@@ -157,15 +159,14 @@ public class WorldTileInfo : IWorldTileInfo
             }
         }
 
-        var landformData = info.World.LandformData();
-        if (landformData != null && landformData.TryGet(info.TileId, out var data))
+        if (data != null && data.TryGet(info.TileId, out var entry))
         {
-            var main = data.Landform;
+            var main = entry.Landform;
             if (main != null)
             {
                 landforms ??= new(1);
                 landforms.Add(main);
-                info.TopologyDirection = data.LandformDirection;
+                info.TopologyDirection = entry.LandformDirection;
             }
         }
         else
@@ -243,7 +244,10 @@ public class WorldTileInfo : IWorldTileInfo
     [ThreadStatic]
     private static List<Rot6> _tsc_nonCliffTiles;
 
-    private static void DetermineTopology(WorldTileInfo info)
+    [ThreadStatic]
+    private static List<Rot6> _tsc_caveSystemTiles;
+
+    private static void DetermineTopology(WorldTileInfo info, LandformData data)
     {
         if (_tsc_waterTiles == null)
         {
@@ -251,6 +255,7 @@ public class WorldTileInfo : IWorldTileInfo
             _tsc_landTiles = new(6);
             _tsc_cliffTiles = new(6);
             _tsc_nonCliffTiles = new(6);
+            _tsc_caveSystemTiles = new(6);
         }
 
         if (info.Biome.IsWaterCovered())
@@ -275,11 +280,13 @@ public class WorldTileInfo : IWorldTileInfo
         var landTiles = _tsc_landTiles;
         var cliffTiles = _tsc_cliffTiles;
         var nonCliffTiles = _tsc_nonCliffTiles;
+        var caveSystemTiles = _tsc_caveSystemTiles;
 
         waterTiles.Clear();
         landTiles.Clear();
         cliffTiles.Clear();
         nonCliffTiles.Clear();
+        caveSystemTiles.Clear();
 
         List<BorderingBiome> borderingBiomes = null;
         var coast = new StructRot4<CoastType>();
@@ -314,6 +321,8 @@ public class WorldTileInfo : IWorldTileInfo
                 {
                     if (nbTile.hilliness < Hilliness.Impassable) nonCliffTiles.Add(rot6);
                     else cliffTiles.Add(rot6);
+
+                    if (data?.GetCaveSystemDepthAt(nbId) > 0) caveSystemTiles.Add(rot6);
                 }
                 else
                 {
@@ -334,6 +343,12 @@ public class WorldTileInfo : IWorldTileInfo
             return;
         }
 
+        if (info.Tile.hilliness == Hilliness.Impassable && data?.GetCaveSystemDepthAt(tileId) > 0)
+        {
+            DetermineCaveTopology(info);
+            return;
+        }
+
         if (waterTiles.Count > 0)
         {
             DetermineCoastTopology(info);
@@ -347,6 +362,33 @@ public class WorldTileInfo : IWorldTileInfo
         }
 
         info.Topology = Topology.Inland;
+        info.TopologyDirection = new Rot4(Rand.RangeInclusiveSeeded(0, 3, info.MakeSeed(0087)));
+    }
+
+    public static void DetermineCaveTopology(WorldTileInfo info)
+    {
+        var nonCliffTiles = _tsc_nonCliffTiles;
+        var caveTiles = _tsc_caveSystemTiles;
+
+        if (nonCliffTiles.Count > 0 && caveTiles.Count < 3)
+        {
+            if (caveTiles.Count > 0)
+            {
+                var dir = nonCliffTiles.Where(t => caveTiles.Any(t.IsOpposite)).OrderBy(d => d.Slant).FirstOrFallback(Rot6.Invalid);
+                if (dir.IsValid)
+                {
+                    info.Topology = Topology.CaveEntrance;
+                    info.TopologyDirection = dir.Opposite.AsRot4();
+                    return;
+                }
+            }
+
+            info.Topology = Topology.CaveEntrance;
+            info.TopologyDirection = nonCliffTiles.OrderBy(d => d.Slant).First().Opposite.AsRot4();
+            return;
+        }
+
+        info.Topology = Topology.CaveTunnel;
         info.TopologyDirection = new Rot4(Rand.RangeInclusiveSeeded(0, 3, info.MakeSeed(0087)));
     }
 

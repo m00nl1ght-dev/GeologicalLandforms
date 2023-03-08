@@ -1,3 +1,4 @@
+using System;
 using LunarFramework.XML;
 using RimWorld;
 using RimWorld.Planet;
@@ -35,8 +36,25 @@ public class ConfigurableBiomeWorker : BiomeWorker
 {
     internal XmlDynamicValue<float, ICtxEarlyTile> ScoreSupplier = new();
 
+    private int _erroredWorldHash = -1;
+
     public override float GetScore(Tile tile, int tileID)
     {
-        return ScoreSupplier.Get(new CtxEarlyTile(tileID, tile, Find.World));
+        try
+        {
+            return ScoreSupplier.Get(new CtxEarlyTile(tileID, tile, Find.World));
+        }
+        catch (Exception e)
+        {
+            var worldHash = Find.World.GetHashCode();
+
+            if (_erroredWorldHash != worldHash)
+            {
+                _erroredWorldHash = worldHash;
+                GeologicalLandformsAPI.Logger.Error("Error in configurable biome worker", e);
+            }
+
+            return -999f;
+        }
     }
 }

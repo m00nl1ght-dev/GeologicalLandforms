@@ -21,7 +21,7 @@ public class EditorMockTileInfo : IWorldTileInfo
     public Topology Topology => Topology.Any;
     public float TopologyValue { get; set; }
     public Rot4 TopologyDirection { get; set; } = Rot4.North;
-
+    public byte DepthInCaveSystem { get; set; }
     public StructRot4<IWorldTileInfo.CoastType> Coast { get; set; }
 
     public MapParent WorldObject => null;

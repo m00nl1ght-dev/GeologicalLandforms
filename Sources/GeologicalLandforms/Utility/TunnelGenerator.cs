@@ -94,19 +94,19 @@ public class TunnelGenerator
 
     private void DoOpenTunnels(List<IntVec3> group, Map map)
     {
-        int max1 = Mathf.Min(_rand.RoundRandom((float) (group.Count * (double) _rand.Range(0.9f, 1.1f) * OpenTunnelsPer10K / 10000.0)), MaxOpenTunnelsPerRockGroup);
-        if (max1 > 0) max1 = _rand.RangeInclusive(1, max1);
+        int count = Mathf.Min(_rand.RoundRandom((float) (group.Count * (double) _rand.Range(0.9f, 1.1f) * OpenTunnelsPer10K / 10000.0)), MaxOpenTunnelsPerRockGroup);
+        if (count > 0) count = _rand.RangeInclusive(1, count);
 
-        float max2 = TunnelsWidthPerRockCount.Evaluate(group.Count) * TunnelWidthMultiplier;
+        float desiredWidth = TunnelsWidthPerRockCount.Evaluate(group.Count) * TunnelWidthMultiplier;
 
-        for (int index1 = 0; index1 < max1; ++index1)
+        for (int i = 0; i < count; ++i)
         {
             var start = IntVec3.Invalid;
             float num1 = -1f;
             float dir = -1f;
             float num2 = -1f;
 
-            for (int index2 = 0; index2 < 10; ++index2)
+            for (int j = 0; j < 10; ++j)
             {
                 var edgeCellForTunnel = FindRandomEdgeCellForTunnel(group, map);
                 float distToCave = GetDistToCave(edgeCellForTunnel, group, map, 40f, false);
@@ -121,24 +121,24 @@ public class TunnelGenerator
                 }
             }
 
-            float width = _rand.Range(max2 * 0.8f, max2);
+            float width = _rand.Range(desiredWidth * 0.8f, desiredWidth);
             Dig(start, dir, width, group, map, false);
         }
     }
 
     private void DoClosedTunnels(List<IntVec3> group, Map map)
     {
-        int max1 = Mathf.Min(_rand.RoundRandom((float) (group.Count * (double) _rand.Range(0.9f, 1.1f) * ClosedTunnelsPer10K / 10000.0)), MaxClosedTunnelsPerRockGroup);
-        if (max1 > 0) max1 = _rand.RangeInclusive(0, max1);
+        int count = Mathf.Min(_rand.RoundRandom((float) (group.Count * (double) _rand.Range(0.9f, 1.1f) * ClosedTunnelsPer10K / 10000.0)), MaxClosedTunnelsPerRockGroup);
+        if (count > 0) count = _rand.RangeInclusive(0, count);
 
-        float max2 = TunnelsWidthPerRockCount.Evaluate(group.Count) * TunnelWidthMultiplier;
+        float desiredWidth = TunnelsWidthPerRockCount.Evaluate(group.Count) * TunnelWidthMultiplier;
 
-        for (int index1 = 0; index1 < max1; ++index1)
+        for (int i = 0; i < count; ++i)
         {
             var start = IntVec3.Invalid;
             float num = -1f;
 
-            for (int index2 = 0; index2 < 7; ++index2)
+            for (int j = 0; j < 7; ++j)
             {
                 var cell = _rand.RandomElement(group);
                 float distToCave = GetDistToCave(cell, group, map, 30f, true);
@@ -150,7 +150,7 @@ public class TunnelGenerator
                 }
             }
 
-            float width = _rand.Range(max2 * 0.8f, max2);
+            float width = _rand.Range(desiredWidth * 0.8f, desiredWidth);
             Dig(start, _rand.Range(0.0f, 360f), width, group, map, true);
         }
     }
