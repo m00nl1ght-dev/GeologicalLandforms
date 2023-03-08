@@ -17,7 +17,6 @@ using static GeologicalLandforms.IWorldTileInfo;
 
 namespace GeologicalLandforms;
 
-[HotSwappable]
 public class WorldTileInfo : IWorldTileInfo
 {
     public readonly int TileId;

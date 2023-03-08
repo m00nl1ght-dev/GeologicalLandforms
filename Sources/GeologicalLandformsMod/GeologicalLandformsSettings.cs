@@ -12,7 +12,6 @@ using Verse;
 
 namespace GeologicalLandforms;
 
-[HotSwappable]
 public class GeologicalLandformsSettings : LunarModSettings
 {
     public readonly Entry<int> MaxLandformSearchRadius = MakeEntry(100);

@@ -12,7 +12,6 @@ using Verse;
 
 namespace GeologicalLandforms;
 
-[HotSwappable]
 internal class WorldLayer_Landforms : WorldLayer
 {
     public override IEnumerable Regenerate()

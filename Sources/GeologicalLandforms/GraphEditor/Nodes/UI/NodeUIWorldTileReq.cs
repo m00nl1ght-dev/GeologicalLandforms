@@ -17,7 +17,7 @@ public class NodeUIWorldTileReq : NodeUIBase
     public override string GetID => ID;
 
     public override string Title => "World Tile Requirements";
-    public override Vector2 DefaultSize => new(400, 850);
+    public override Vector2 DefaultSize => new(400, 920);
 
     public Topology Topology = Inland;
     public float Commonness = 1f;
@@ -135,13 +135,13 @@ public class NodeUIWorldTileReq : NodeUIBase
 
         layout.Abs(20f);
 
-        LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.TopologyValueRequirement".Translate());
-        LunarGUI.RangeSlider(layout, ref TopologyValueRequirement, -1f, 1f);
+        LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.HillinessRequirement".Translate());
+        LunarGUI.RangeSlider(layout, ref HillinessRequirement, 1f, 6f, LabelForHilliness);
 
         layout.Abs(10f);
 
-        LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.HillinessRequirement".Translate());
-        LunarGUI.RangeSlider(layout, ref HillinessRequirement, 1f, 6f, LabelForHilliness);
+        LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.TopologyValueRequirement".Translate());
+        LunarGUI.RangeSlider(layout, ref TopologyValueRequirement, -1f, 1f);
 
         layout.Abs(10f);
 

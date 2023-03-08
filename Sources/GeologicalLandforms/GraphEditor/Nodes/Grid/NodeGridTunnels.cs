@@ -33,8 +33,9 @@ public class NodeGridTunnels : NodeBase
     public int MaxOpenTunnelsPerRockGroup = 3;
     public int MaxClosedTunnelsPerRockGroup = 1;
 
-    public double TunnelWidthMultiplier = 1;
-    public double TunnelWidthMin = 1.4;
+    public double TunnelWidthMultiplierMin = 0.8;
+    public double TunnelWidthMultiplierMax = 1;
+
     public double WidthReductionPerCell = 0.034;
 
     public double BranchChance = 0.1;
@@ -58,8 +59,8 @@ public class NodeGridTunnels : NodeBase
         IntField("Max open", ref MaxOpenTunnelsPerRockGroup);
         IntField("Max closed", ref MaxClosedTunnelsPerRockGroup);
 
-        ValueField("Base width", ref TunnelWidthMultiplier);
-        ValueField("Base width min", ref TunnelWidthMin);
+        ValueField("Width min", ref TunnelWidthMultiplierMin);
+        ValueField("Width max", ref TunnelWidthMultiplierMax);
         ValueField("Loss per cell", ref WidthReductionPerCell);
 
         ValueField("Branch chance", ref BranchChance);
@@ -84,8 +85,8 @@ public class NodeGridTunnels : NodeBase
                 ClosedTunnelsPer10K = (float) ClosedTunnelsPer10K,
                 MaxOpenTunnelsPerRockGroup = MaxOpenTunnelsPerRockGroup,
                 MaxClosedTunnelsPerRockGroup = MaxClosedTunnelsPerRockGroup,
-                TunnelWidthMultiplier = (float) TunnelWidthMultiplier,
-                TunnelWidthMin = (float) TunnelWidthMin,
+                TunnelWidthMultiplierMin = (float) TunnelWidthMultiplierMin,
+                TunnelWidthMultiplierMax = (float) TunnelWidthMultiplierMax,
                 WidthReductionPerCell = (float) WidthReductionPerCell,
                 BranchChance = (float) BranchChance,
                 BranchMinDistanceFromStart = BranchMinDistanceFromStart,
@@ -108,6 +109,8 @@ public class NodeGridTunnels : NodeBase
         private readonly IntVec2 _targetGridSize;
         private readonly int _seed;
 
+        private Cache<double> _cache;
+
         public Output(
             ISupplier<IGridFunction<double>> input, double inputThreshold, TunnelGenerator generator,
             double transformScale, IntVec2 targetGridSize, int seed)
@@ -122,14 +125,20 @@ public class NodeGridTunnels : NodeBase
 
         public IGridFunction<double> Get()
         {
-            var input = new Transform<double>(_input.Get(), 1 / _transformScale);
-            var grid = _generator.Generate(_targetGridSize, new RandInstance(_seed), c => input.ValueAt(c.x, c.z) > _inputThreshold);
-            return new Transform<double>(new Cache<double>(grid), _transformScale);
+            if (_cache == null)
+            {
+                var input = new Transform<double>(_input.Get(), 1 / _transformScale);
+                var grid = _generator.Generate(_targetGridSize, new RandInstance(_seed), c => input.ValueAt(c.x, c.z) > _inputThreshold);
+                _cache = new Cache<double>(grid);
+            }
+
+            return new Transform<double>(_cache, _transformScale);
         }
 
         public void ResetState()
         {
             _input.ResetState();
+            _cache = null;
         }
     }
 }

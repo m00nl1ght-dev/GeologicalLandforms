@@ -6,7 +6,6 @@ using Verse;
 
 namespace GeologicalLandforms;
 
-[HotSwappable]
 public class WorldTileGraphicAtlas
 {
     [NoTranslate]

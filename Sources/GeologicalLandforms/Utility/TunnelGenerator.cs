@@ -15,15 +15,17 @@ public class TunnelGenerator
     public int MaxOpenTunnelsPerRockGroup = 3;
     public int MaxClosedTunnelsPerRockGroup = 1;
 
-    public float TunnelWidthMultiplier = 1;
+    public float TunnelWidthMultiplierMin = 0.8f;
+    public float TunnelWidthMultiplierMax = 1f;
+    
     public float TunnelWidthMin = 1.4f;
     public float WidthReductionPerCell = 0.034f;
 
     public float BranchChance = 0.1f;
     public int BranchMinDistanceFromStart = 15;
-    public float BranchWidthOffsetMultiplier = 1;
+    public float BranchWidthOffsetMultiplier = 1f;
 
-    public float DirectionChangeSpeed = 8;
+    public float DirectionChangeSpeed = 8f;
 
     public float DirectionNoiseFrequency = 0.00205f;
     public int MinRocksToGenerateAnyTunnel = 300;
@@ -97,7 +99,7 @@ public class TunnelGenerator
         int count = Mathf.Min(_rand.RoundRandom((float) (group.Count * (double) _rand.Range(0.9f, 1.1f) * OpenTunnelsPer10K / 10000.0)), MaxOpenTunnelsPerRockGroup);
         if (count > 0) count = _rand.RangeInclusive(1, count);
 
-        float desiredWidth = TunnelsWidthPerRockCount.Evaluate(group.Count) * TunnelWidthMultiplier;
+        float desiredWidth = TunnelsWidthPerRockCount.Evaluate(group.Count);
 
         for (int i = 0; i < count; ++i)
         {
@@ -121,7 +123,7 @@ public class TunnelGenerator
                 }
             }
 
-            float width = _rand.Range(desiredWidth * 0.8f, desiredWidth);
+            float width = _rand.Range(desiredWidth * TunnelWidthMultiplierMin, desiredWidth * TunnelWidthMultiplierMax);
             Dig(start, dir, width, group, map, false);
         }
     }
@@ -131,7 +133,7 @@ public class TunnelGenerator
         int count = Mathf.Min(_rand.RoundRandom((float) (group.Count * (double) _rand.Range(0.9f, 1.1f) * ClosedTunnelsPer10K / 10000.0)), MaxClosedTunnelsPerRockGroup);
         if (count > 0) count = _rand.RangeInclusive(0, count);
 
-        float desiredWidth = TunnelsWidthPerRockCount.Evaluate(group.Count) * TunnelWidthMultiplier;
+        float desiredWidth = TunnelsWidthPerRockCount.Evaluate(group.Count);
 
         for (int i = 0; i < count; ++i)
         {
@@ -150,7 +152,7 @@ public class TunnelGenerator
                 }
             }
 
-            float width = _rand.Range(desiredWidth * 0.8f, desiredWidth);
+            float width = _rand.Range(desiredWidth * TunnelWidthMultiplierMin, desiredWidth * TunnelWidthMultiplierMax);
             Dig(start, _rand.Range(0.0f, 360f), width, group, map, true);
         }
     }

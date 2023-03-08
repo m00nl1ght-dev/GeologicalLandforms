@@ -10,7 +10,6 @@ using Verse;
 
 namespace GeologicalLandforms;
 
-[HotSwappable]
 public static class DebugActions
 {
     public static void DebugActionsGUI(LayoutRect layout)
