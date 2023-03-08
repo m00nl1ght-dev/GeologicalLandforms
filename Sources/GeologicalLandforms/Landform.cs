@@ -4,6 +4,7 @@ using System.Linq;
 using MapPreview;
 using NodeEditorFramework;
 using TerrainGraph;
+using TerrainGraph.Util;
 using UnityEngine;
 using Verse;
 
@@ -74,7 +75,7 @@ public class Landform : TerrainCanvas
         LandformGraphEditor.ActiveEditor?.Close();
 
         var world = Find.World;
-        var seed = SeedRerollData.GetMapSeed(world, map.Tile).MurmurCombine(map.Tile);
+        var seed = SeedRerollData.GetMapSeed(world, map.Tile);
 
         PrepareMapGen(new IntVec2(map.Size.x, map.Size.z), map.Tile, seed);
     }
@@ -188,6 +189,11 @@ public class Landform : TerrainCanvas
         if (WorldTileReq != null) WorldTileReq.position = new Vector2(ScreenOrigin.x + 10f, (IsCustom ? Manifest.rect.yMax + 10f : ScreenOrigin.y + 3f));
     }
 
+    public override IRandom CreateRandomInstance()
+    {
+        return new MinimalRandom();
+    }
+
     public string TranslatedName =>
         DisplayName?.Length > 0 ? DisplayName :
         Id == null ? "Unknown" :
@@ -226,5 +232,25 @@ public class Landform : TerrainCanvas
         if (topology == Topology.Any) return commonness < 0.1f;
         if (topology.IsCommon()) return commonness < 0.5f;
         return true;
+    }
+
+    private class MinimalRandom : IRandom
+    {
+        private uint _seed;
+        private uint _iterations;
+
+        public int Next() => MurmurHash.GetInt(_seed, _iterations++);
+
+        public int Next(int min, int max) => max <= min ? min : min + Mathf.Abs(Next() % (max - min));
+
+        public double NextDouble() => (MurmurHash.GetInt(_seed, _iterations++) - (double) int.MinValue) / uint.MaxValue;
+
+        public double NextDouble(double min, double max) => max <= min ? min : NextDouble() * (max - min) + min;
+
+        public void Reinitialise(int seed)
+        {
+            _seed = (uint) seed;
+            _iterations = 0u;
+        }
     }
 }
