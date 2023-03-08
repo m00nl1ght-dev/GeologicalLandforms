@@ -17,6 +17,9 @@ public class NodeOutputScatterers : NodeOutputBase
     [ValueConnectionKnob("Mineables", Direction.In, ValueFunctionConnection.Id)]
     public ValueConnectionKnob MineablesKnob;
 
+    [ValueConnectionKnob("Cave Hives", Direction.In, ValueFunctionConnection.Id)]
+    public ValueConnectionKnob CaveHivesKnob;
+
     public override void NodeGUI()
     {
         GUILayout.BeginVertical(BoxStyle);
@@ -26,12 +29,17 @@ public class NodeOutputScatterers : NodeOutputBase
         GUILayout.EndHorizontal();
         MineablesKnob.SetPosition();
 
+        GUILayout.BeginHorizontal(BoxStyle);
+        GUILayout.Label(CaveHivesKnob.name, BoxLayout);
+        GUILayout.EndHorizontal();
+        CaveHivesKnob.SetPosition();
+
         GUILayout.EndVertical();
     }
 
     public override void OnCreate(bool fromGUI)
     {
-        NodeOutputScatterers existing = Landform.OutputScatterers;
+        var existing = Landform.OutputScatterers;
         if (existing != null && existing != this && canvas.nodes.Contains(existing)) existing.Delete();
         Landform.OutputScatterers = this;
     }
@@ -44,5 +52,10 @@ public class NodeOutputScatterers : NodeOutputBase
     public double? GetMineables()
     {
         return MineablesKnob.GetValue<ISupplier<double>>()?.ResetAndGet();
+    }
+
+    public double? GetCaveHives()
+    {
+        return CaveHivesKnob.GetValue<ISupplier<double>>()?.ResetAndGet();
     }
 }

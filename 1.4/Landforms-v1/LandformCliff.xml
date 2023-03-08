@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <NodeCanvas type="GeologicalLandforms.GraphEditor.Landform">
 	<EditorStates>
-		<EditorState selected="" pan="-1122,2" zoom="1" />
+		<EditorState selected="" pan="0,0" zoom="1" />
 	</EditorStates>
 	<Groups />
 	<Nodes>
@@ -55,6 +55,14 @@
 			<FloatRange xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="BiomeTransitionsRequirement">
 				<min>0</min>
 				<max>6</max>
+			</FloatRange>
+			<FloatRange xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="TopologyValueRequirement">
+				<min>-1</min>
+				<max>1</max>
+			</FloatRange>
+			<FloatRange xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="DepthInCaveSystemRequirement">
+				<min>0</min>
+				<max>10</max>
 			</FloatRange>
 			<boolean name="AllowSettlements">true</boolean>
 			<boolean name="AllowSites">true</boolean>
@@ -114,6 +122,7 @@
 			<Variable name="Values" refID="0" />
 			<Operation name="OperationType">Add</Operation>
 			<double name="ApplyChance">1</double>
+			<double name="StackCount">1</double>
 			<double name="Smoothness">0</double>
 			<int name="RandSeed">2008654988</int>
 		</Node>
@@ -211,7 +220,7 @@
 			<string name="PreviewModelId">Default</string>
 			<int name="RandSeed">325673650</int>
 		</Node>
-		<Node name="Random Value" ID="11" type="valueRandom" pos="-447,-3">
+		<Node name="Random Value" ID="11" type="valueRandom" pos="-448,58">
 			<Port ID="28" name="AverageKnob" dynamic="False" />
 			<Port ID="29" name="DeviationKnob" dynamic="False" />
 			<Port ID="30" name="OutputKnob" dynamic="False" />
@@ -249,6 +258,7 @@
 			<Variable name="Values" refID="2" />
 			<Operation name="OperationType">Multiply</Operation>
 			<double name="ApplyChance">1</double>
+			<double name="StackCount">1</double>
 			<double name="Smoothness">0</double>
 			<int name="RandSeed">1535624980</int>
 		</Node>
@@ -258,29 +268,32 @@
 			<Port ID="37" name="ElevationOutputKnob" dynamic="False" />
 			<Port ID="38" name="TemperatureOutputKnob" dynamic="False" />
 			<Port ID="39" name="RainfallOutputKnob" dynamic="False" />
+			<Port ID="40" name="TopologyValueOutputKnob" dynamic="False" />
+			<Port ID="41" name="CaveSystemDepthValueOutputKnob" dynamic="False" />
 			<int name="RandSeed">18716120</int>
 		</Node>
 		<Node name="Grid" ID="14" type="gridFromValue" pos="164,-277">
-			<Port ID="40" name="InputKnob" dynamic="False" />
-			<Port ID="41" name="OutputKnob" dynamic="False" />
+			<Port ID="42" name="InputKnob" dynamic="False" />
+			<Port ID="43" name="OutputKnob" dynamic="False" />
 			<int name="RandSeed">1050346509</int>
 		</Node>
 		<Node name="Scatterers" ID="15" type="outputScatterers" pos="1508,-165">
-			<Port ID="42" name="MineablesKnob" dynamic="False" />
+			<Port ID="44" name="MineablesKnob" dynamic="False" />
+			<Port ID="45" name="CaveHivesKnob" dynamic="False" />
 			<int name="RandSeed">1028810936</int>
 		</Node>
 		<Node name="Random Value" ID="16" type="valueRandom" pos="1208,-103">
-			<Port ID="43" name="AverageKnob" dynamic="False" />
-			<Port ID="44" name="DeviationKnob" dynamic="False" />
-			<Port ID="45" name="OutputKnob" dynamic="False" />
+			<Port ID="46" name="AverageKnob" dynamic="False" />
+			<Port ID="47" name="DeviationKnob" dynamic="False" />
+			<Port ID="48" name="OutputKnob" dynamic="False" />
 			<double name="Average">12</double>
 			<double name="Deviation">4</double>
 			<boolean name="DynamicSeed">true</boolean>
 			<int name="RandSeed">533971157</int>
 		</Node>
 		<Node name="Add" ID="17" type="valueOperator" pos="-136,-242">
-			<Port ID="46" name="OutputKnob" dynamic="False" />
-			<Port ID="47" name="Input 0" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.1.0, Culture=neutral, PublicKeyToken=null">
+			<Port ID="49" name="OutputKnob" dynamic="False" />
+			<Port ID="50" name="Input 0" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.1.0, Culture=neutral, PublicKeyToken=null">
 				<string name="styleID">ValueFunc</string>
 				<Direction name="direction">In</Direction>
 				<ConnectionCount name="maxConnectionCount">Single</ConnectionCount>
@@ -288,7 +301,7 @@
 				<float name="sidePosition">38</float>
 				<float name="sideOffset">0</float>
 			</Port>
-			<Port ID="48" name="Input 1" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.1.0, Culture=neutral, PublicKeyToken=null">
+			<Port ID="51" name="Input 1" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.1.0, Culture=neutral, PublicKeyToken=null">
 				<string name="styleID">ValueFunc</string>
 				<Direction name="direction">In</Direction>
 				<ConnectionCount name="maxConnectionCount">Single</ConnectionCount>
@@ -299,6 +312,7 @@
 			<Variable name="Values" refID="3" />
 			<Operation name="OperationType">Add</Operation>
 			<double name="ApplyChance">1</double>
+			<double name="StackCount">1</double>
 			<double name="Smoothness">0</double>
 			<int name="RandSeed">1310556735</int>
 		</Node>
@@ -314,10 +328,10 @@
 		<Connection port1ID="17" port2ID="19" />
 		<Connection port1ID="18" port2ID="26" />
 		<Connection port1ID="22" port2ID="30" />
-		<Connection port1ID="33" port2ID="41" />
-		<Connection port1ID="36" port2ID="47" />
-		<Connection port1ID="40" port2ID="46" />
-		<Connection port1ID="42" port2ID="45" />
+		<Connection port1ID="33" port2ID="43" />
+		<Connection port1ID="36" port2ID="50" />
+		<Connection port1ID="42" port2ID="49" />
+		<Connection port1ID="44" port2ID="48" />
 	</Connections>
 	<Objects>
 		<Object refID="0" type="System.Collections.Generic.List`1[[System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]">
