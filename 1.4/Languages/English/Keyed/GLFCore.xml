@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
   
-  <GeologicalLandforms.LandformManager.LandformUpgrade>There are new versions available for some landforms that you previously modified. Would you like to get the new versions, or keep the old modified ones?\n\nAffected landforms:</GeologicalLandforms.LandformManager.LandformUpgrade>
+  <GeologicalLandforms.LandformManager.LandformUpgrade>There are new versions available for some landforms that you previously modified. Would you like to use the new versions, or keep the old modified ones?\n\nAffected landforms:</GeologicalLandforms.LandformManager.LandformUpgrade>
   <GeologicalLandforms.LandformManager.LandformUpgradeYes>Replace with new data</GeologicalLandforms.LandformManager.LandformUpgradeYes>
   <GeologicalLandforms.LandformManager.LandformUpgradeNo>Keep old data</GeologicalLandforms.LandformManager.LandformUpgradeNo>
   

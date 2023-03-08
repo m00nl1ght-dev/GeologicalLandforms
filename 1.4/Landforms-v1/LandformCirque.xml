@@ -9,7 +9,7 @@
 			<string name="Id">Cirque</string>
 			<boolean name="IsCustom">false</boolean>
 			<boolean name="IsExperimental">false</boolean>
-			<int name="RevisionVersion">1</int>
+			<int name="RevisionVersion">2</int>
 			<long name="TimeCreated">1653353880006</long>
 			<boolean name="IsEdited">false</boolean>
 			<string name="DisplayName" />
@@ -18,11 +18,11 @@
 		</Node>
 		<Node name="World Tile Requirements" ID="1" type="worldTileReq" pos="-950,-517">
 			<Topology name="Topology">CliffThreeSides</Topology>
-			<float name="Commonness">0.4497207</float>
+			<float name="Commonness">1</float>
 			<float name="CaveChance">0</float>
 			<FloatRange xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="HillinessRequirement">
 				<min>1</min>
-				<max>2.2429378</max>
+				<max>4.67231655</max>
 			</FloatRange>
 			<FloatRange xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="RoadRequirement">
 				<min>0</min>
@@ -55,6 +55,14 @@
 			<FloatRange xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="BiomeTransitionsRequirement">
 				<min>0</min>
 				<max>6</max>
+			</FloatRange>
+			<FloatRange xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="TopologyValueRequirement">
+				<min>-1</min>
+				<max>1</max>
+			</FloatRange>
+			<FloatRange xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="DepthInCaveSystemRequirement">
+				<min>0</min>
+				<max>10</max>
 			</FloatRange>
 			<boolean name="AllowSettlements">false</boolean>
 			<boolean name="AllowSites">false</boolean>
@@ -123,10 +131,10 @@
 			<double name="ClampMax">1.7976931348623157E+308</double>
 			<double name="OriginX">0.5</double>
 			<double name="OriginZ">0.5</double>
-			<double name="SpanPx">33.009483031928539</double>
-			<double name="SpanNx">32.325542839244008</double>
-			<double name="SpanPz">36.315499814227223</double>
-			<double name="SpanNz">43.175819143652916</double>
+			<double name="SpanPx">48.323745582793777</double>
+			<double name="SpanNx">48.332399259864445</double>
+			<double name="SpanPz">31.236423785154805</double>
+			<double name="SpanNz">35.6471516670769</double>
 			<boolean name="Circular">true</boolean>
 			<int name="RandSeed">916461126</int>
 		</Node>
@@ -164,7 +172,8 @@
 			</Port>
 			<Variable name="Values" refID="0" />
 			<Operation name="OperationType">Min</Operation>
-			<double name="ApplyChance">0.85000002384185791</double>
+			<double name="ApplyChance">0.5</double>
+			<double name="StackCount">1</double>
 			<double name="Smoothness">0</double>
 			<int name="RandSeed">38967487</int>
 		</Node>
@@ -223,6 +232,7 @@
 			<Variable name="Values" refID="1" />
 			<Operation name="OperationType">Add</Operation>
 			<double name="ApplyChance">1</double>
+			<double name="StackCount">1</double>
 			<double name="Smoothness">0</double>
 			<int name="RandSeed">127792714</int>
 		</Node>
@@ -355,6 +365,7 @@
 			<Variable name="Values" refID="4" />
 			<Operation name="OperationType">Add</Operation>
 			<double name="ApplyChance">1</double>
+			<double name="StackCount">1</double>
 			<double name="Smoothness">0</double>
 			<int name="RandSeed">2008654988</int>
 		</Node>
