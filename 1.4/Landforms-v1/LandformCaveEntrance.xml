@@ -64,8 +64,8 @@
 				<min>0</min>
 				<max>10</max>
 			</FloatRange>
-			<boolean name="AllowSettlements">true</boolean>
-			<boolean name="AllowSites">true</boolean>
+			<boolean name="AllowSettlements">false</boolean>
+			<boolean name="AllowSites">false</boolean>
 			<int name="RandSeed">351232153</int>
 		</Node>
 		<Node name="Perlin Noise" ID="2" type="gridPerlin" pos="-192.0002,-467.8">

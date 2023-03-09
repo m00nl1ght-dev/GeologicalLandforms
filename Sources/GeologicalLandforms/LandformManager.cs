@@ -213,20 +213,30 @@ public static class LandformManager
 
     public static void SaveLandformsToDirectory(string directory, Dictionary<string, Landform> landforms)
     {
-        var existing = Directory.GetFiles(directory, "*.xml").ToList();
-
-        foreach (var pair in landforms.Where(p => p.Value.Manifest.IsEdited || p.Value.Manifest.IsCustom))
+        try
         {
-            string file = Path.Combine(directory, "Landform" + pair.Key + ".xml");
-            var landform = pair.Value;
-            existing.Remove(file);
+            var existing = Directory.GetFiles(directory, "*.xml").ToList();
 
-            ImportExportManager.ExportCanvas(landform, IOFormat, file);
+            foreach (var pair in landforms.Where(p => p.Value.Manifest.IsEdited || p.Value.Manifest.IsCustom))
+            {
+                string file = Path.Combine(directory, "Landform" + pair.Key + ".xml");
+                var landform = pair.Value;
+                existing.Remove(file);
+
+                ImportExportManager.ExportCanvas(landform, IOFormat, file);
+            }
+
+            foreach (string file in existing)
+            {
+                var backupDir = Path.Combine(directory, "Backup");
+                var dest = Path.Combine(backupDir, DateTime.Now.ToString("yyyyMMddTHHmmss") + "-" + Path.GetFileName(file));
+                Directory.CreateDirectory(backupDir);
+                File.Move(file, dest);
+            }
         }
-
-        foreach (string file in existing)
+        catch (Exception e)
         {
-            File.Delete(file);
+            GeologicalLandformsAPI.Logger.Error("Failed to save landforms", e);
         }
     }
 }

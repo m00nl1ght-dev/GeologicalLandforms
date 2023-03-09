@@ -236,6 +236,7 @@ public class GeologicalLandformsSettings : LunarModSettings
         base.ResetAll();
         BiomeProperties.RebuildCache();
         LandformManager.ResetAll();
+        LandformManager.SaveAllEdited();
         ApplyDefEffects();
         MapPreviewAPI.NotifyWorldChanged();
     }

@@ -187,6 +187,13 @@ public class BiomeGrid : MapComponent
 
         if (Scribe.mode == LoadSaveMode.LoadingVars) LoadId = new();
 
+        if (_entries is { Count: > 0 })
+        {
+            // for legacy version reverse compat
+            var legacyPrimary = _entries[0].BiomeBase;
+            Scribe_Defs.Look(ref legacyPrimary, "primary");
+        }
+
         Scribe_Values.Look(ref _enabled, "enabled");
         Scribe_Collections.Look(ref _entries, "entries", LookMode.Deep);
 

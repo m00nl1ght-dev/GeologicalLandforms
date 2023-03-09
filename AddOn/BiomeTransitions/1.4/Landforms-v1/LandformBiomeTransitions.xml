@@ -21,7 +21,7 @@
 			<float name="CaveChance">0</float>
 			<FloatRange xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="HillinessRequirement">
 				<min>1</min>
-				<max>5</max>
+				<max>6</max>
 			</FloatRange>
 			<FloatRange xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="RoadRequirement">
 				<min>0</min>

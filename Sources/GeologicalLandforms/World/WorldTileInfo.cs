@@ -57,7 +57,7 @@ public class WorldTileInfo : IWorldTileInfo
 
     public byte DepthInCaveSystem => World.LandformData()?.GetCaveSystemDepthAt(TileId) ?? 0;
 
-    public float ExpectedMapSize => (WorldObject is Site site ? site.PreferredMapSize : World.info.initialMapSize).MinXZ();
+    public float ExpectedMapSize => World.info.initialMapSize.MinXZ();
 
     public int MakeSeed(int salt) => Gen.HashCombineInt(Patch_RimWorld_World.StableSeedForTile(TileId), salt);
 

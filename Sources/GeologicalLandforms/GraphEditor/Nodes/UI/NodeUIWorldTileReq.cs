@@ -54,11 +54,13 @@ public class NodeUIWorldTileReq : NodeUIBase
 
     private List<Predicate<IWorldTileInfo>> BuildRequirements()
     {
-        var conditions = new List<Predicate<IWorldTileInfo>>();
+        var conditions = new List<Predicate<IWorldTileInfo>>
+        {
+            info => CheckHilliness(HillinessRequirement, info.Hilliness),
+            info => ElevationRequirement.Includes(info.Elevation),
+            info => MapSizeRequirement.Includes(info.ExpectedMapSize)
+        };
 
-        conditions.Add(info => CheckHilliness(HillinessRequirement, info.Hilliness));
-        if (ElevationRequirement != DefaultElevationRequirement)
-            conditions.Add(info => ElevationRequirement.Includes(info.Elevation));
         if (AvgTemperatureRequirement != DefaultAvgTemperatureRequirement)
             conditions.Add(info => AvgTemperatureRequirement.Includes(info.Temperature));
         if (RainfallRequirement != DefaultRainfallRequirement)
@@ -67,8 +69,6 @@ public class NodeUIWorldTileReq : NodeUIBase
             conditions.Add(info => SwampinessRequirement.Includes(info.Swampiness));
         if (BiomeTransitionsRequirement != DefaultBiomeTransitionsRequirement)
             conditions.Add(info => BiomeTransitionsRequirement.Includes(info.BorderingBiomesCount()));
-        if (MapSizeRequirement != DefaultMapSizeRequirement)
-            conditions.Add(info => MapSizeRequirement.Includes(info.ExpectedMapSize));
         if (TopologyValueRequirement != DefaultTopologyValueRequirement)
             conditions.Add(info => TopologyValueRequirement.Includes(info.TopologyValue));
         if (DepthInCaveSystemRequirement != DefaultDepthInCaveSystemRequirement)

@@ -35,7 +35,7 @@ public class NodeBiomeGridPreview : NodeDiscreteGridPreview<BiomeData>
 
     protected override string MakeTooltip(BiomeData value, double x, double y)
     {
-        return value + " ( " + Math.Round(x, 0) + " | " + Math.Round(y, 0) + " )";
+        return BiomeData.DislayString(value.Biome) + " ( " + Math.Round(x, 0) + " | " + Math.Round(y, 0) + " )";
     }
 
     private static List<Color> _biomeColors = new()
