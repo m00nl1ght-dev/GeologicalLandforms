@@ -85,8 +85,9 @@ public class Landform : TerrainCanvas
         CleanUp();
         
         GeneratingTile = WorldTileInfo.Get(worldTile);
-        GeneratingGridFullSize = GeologicalLandformsAPI.LandformGridSize.Invoke();
+
         GeneratingMapSize = mapSize;
+        GeneratingGridFullSize = GeologicalLandformsAPI.LandformGridSize.Invoke();
 
         if (GeneratingTile.Landforms == null) return;
 

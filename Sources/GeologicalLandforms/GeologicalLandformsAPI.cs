@@ -8,7 +8,6 @@ using LunarFramework.Utility;
 using MapPreview;
 using NodeEditorFramework;
 using NodeEditorFramework.Utilities;
-using RimWorld;
 using TerrainGraph;
 using Verse;
 
@@ -83,16 +82,6 @@ public static class GeologicalLandformsAPI
     public static Func<bool> UnidirectionalBiomeTransitions = () => false;
 
     public static Func<bool> PostProcessBiomeTransitions = () => true;
-
-    public static event Action<BiomeDef, BiomeProperties> BiomePropertiesHook;
-
-    public static BiomeProperties ApplyBiomePropertiesHook(BiomeDef biome, BiomeProperties properties)
-    {
-        if (BiomePropertiesHook == null) return properties;
-        properties = properties.Copy();
-        BiomePropertiesHook.Invoke(biome, properties);
-        return properties;
-    }
 
     public static event Action<WorldTileInfoPrimer> WorldTileInfoHook;
 

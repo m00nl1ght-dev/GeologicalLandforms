@@ -1,4 +1,5 @@
 using System.Reflection;
+using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using LunarFramework.Patching;
 using Verse;
@@ -36,7 +37,7 @@ internal class ModCompat_MapDesigner : ModCompat
             }
         };
 
-        GeologicalLandformsAPI.BiomePropertiesHook += (biome, properties) =>
+        NodeTerrainNaturalWater.OnCalculate += data =>
         {
             string beachTerr = (string) _field_beachTerr.GetValue(_settings);
             if (beachTerr != null && beachTerr != "Vanilla")
@@ -44,7 +45,7 @@ internal class ModCompat_MapDesigner : ModCompat
                 var terrainDef = DefDatabase<TerrainDef>.GetNamedSilentFail(beachTerr);
                 if (terrainDef != null)
                 {
-                    properties.beachTerrain = terrainDef;
+                    data.Beach = terrainDef;
                 }
             }
         };

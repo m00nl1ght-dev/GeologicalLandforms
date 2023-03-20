@@ -41,7 +41,7 @@ public class BiomeProperties : DefModExtension
     {
         try
         {
-            return GeologicalLandformsAPI.ApplyBiomePropertiesHook(biomeDef, _cache[biomeDef.index]);
+            return _cache[biomeDef.index];
         }
         catch (Exception e)
         {

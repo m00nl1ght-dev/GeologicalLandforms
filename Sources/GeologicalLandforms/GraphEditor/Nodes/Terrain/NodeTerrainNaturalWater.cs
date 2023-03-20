@@ -4,6 +4,7 @@ using RimWorld;
 using TerrainGraph;
 using UnityEngine;
 using Verse;
+using static GeologicalLandforms.IWorldTileInfo;
 using static GeologicalLandforms.IWorldTileInfo.CoastType;
 
 namespace GeologicalLandforms.GraphEditor;
@@ -65,16 +66,37 @@ public class NodeTerrainNaturalWater : NodeBase
         GUILayout.EndVertical();
     }
 
+    public static event Action<Data> OnCalculate;
+
     public override bool Calculate()
     {
         var angle = Landform.GeneratingTile.TopologyDirection.AsAngle + (float) NodeGridRotateToMapSides.MapSideToWorldAngle(MapSide);
-        var coastType = Landform.GeneratingTile.Coast[Rot4.FromAngleFlat(angle)];
-        var beach = Landform.GeneratingTile.Biome.Properties().beachTerrain ?? TerrainDefOf.Sand;
-        var shallow = coastType == Ocean ? TerrainDefOf.WaterOceanShallow : TerrainDefOf.WaterShallow;
-        var deep = coastType == Ocean ? TerrainDefOf.WaterOceanDeep : TerrainDefOf.WaterDeep;
-        BeachOutputKnob.SetValue<ISupplier<TerrainData>>(Supplier.Of(new TerrainData(beach, 3)));
-        ShallowOutputKnob.SetValue<ISupplier<TerrainData>>(Supplier.Of(new TerrainData(shallow, 2)));
-        DeepOutputKnob.SetValue<ISupplier<TerrainData>>(Supplier.Of(new TerrainData(deep)));
+        var data = new Data(Landform.GeneratingTile.Biome, Landform.GeneratingTile.Coast[Rot4.FromAngleFlat(angle)]);
+
+        OnCalculate?.Invoke(data);
+
+        BeachOutputKnob.SetValue<ISupplier<TerrainData>>(Supplier.Of(new TerrainData(data.Beach, 3)));
+        ShallowOutputKnob.SetValue<ISupplier<TerrainData>>(Supplier.Of(new TerrainData(data.Shallow, 2)));
+        DeepOutputKnob.SetValue<ISupplier<TerrainData>>(Supplier.Of(new TerrainData(data.Deep)));
         return true;
+    }
+
+    public class Data
+    {
+        public readonly CoastType CoastType;
+        public readonly BiomeDef Biome;
+
+        public TerrainDef Beach;
+        public TerrainDef Shallow;
+        public TerrainDef Deep;
+
+        public Data(BiomeDef biome, CoastType coastType)
+        {
+            Biome = biome;
+            CoastType = coastType;
+            Beach = biome.Properties().beachTerrain ?? TerrainDefOf.Sand;
+            Shallow = coastType == Ocean ? TerrainDefOf.WaterOceanShallow : TerrainDefOf.WaterShallow;
+            Deep = coastType == Ocean ? TerrainDefOf.WaterOceanDeep : TerrainDefOf.WaterDeep;
+        }
     }
 }
