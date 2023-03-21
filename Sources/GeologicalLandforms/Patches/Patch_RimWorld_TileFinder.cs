@@ -5,6 +5,7 @@ using System.Reflection.Emit;
 using HarmonyLib;
 using LunarFramework.Patching;
 using RimWorld.Planet;
+using RimWorld.QuestGen;
 
 namespace GeologicalLandforms.Patches;
 
@@ -36,6 +37,7 @@ internal static class Patch_RimWorld_TileFinder
     {
         var tileInfo = WorldTileInfo.Get(tile);
         if (tileInfo.Hilliness != Hilliness.Impassable) return true;
+        if (QuestGen.Working) return false; // prevent quest sites from spawning on impassable tiles
         if (tileInfo.Biome.Properties().allowSettlementsOnImpassableTerrain) return true;
         if (tileInfo.HasLandforms && tileInfo.Landforms.Any(lf => !lf.IsLayer)) return true;
         return false;

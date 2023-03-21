@@ -106,7 +106,10 @@ internal static class Patch_RimWorld_GenStep_Terrain
 
     public static void ApplyBiomeVariants(BiomeGrid biomeGrid)
     {
-        if (biomeGrid.Primary.BiomeBase.Properties().applyToCaves) biomeGrid.Enabled = true;
+        var biomeProperties = biomeGrid.map.Biome.Properties();
+
+        if (biomeProperties.applyToCaves) biomeGrid.Enabled = true;
+        if (!biomeProperties.AllowBiomeTransitions) return;
 
         if (Landform.GeneratingTile is WorldTileInfo { HasBiomeVariants: true })
         {

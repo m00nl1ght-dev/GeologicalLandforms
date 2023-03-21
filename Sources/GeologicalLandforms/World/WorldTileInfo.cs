@@ -57,8 +57,6 @@ public class WorldTileInfo : IWorldTileInfo
 
     public byte DepthInCaveSystem => World.LandformData()?.GetCaveSystemDepthAt(TileId) ?? 0;
 
-    public float ExpectedMapSize => World.info.initialMapSize.MinXZ();
-
     public int MakeSeed(int salt) => Gen.HashCombineInt(Patch_RimWorld_World.StableSeedForTile(TileId), salt);
 
     protected WorldTileInfo(int tileId, Tile tile, World world)
@@ -206,10 +204,7 @@ public class WorldTileInfo : IWorldTileInfo
     {
         var requirements = landform.WorldTileReq;
         if (requirements == null || !requirements.CheckRequirements(this, lenient)) return false;
-        var biomeProperties = Biome.Properties();
-        if (!biomeProperties.AllowLandforms && (!landform.IsLayer || !biomeProperties.AllowBiomeTransitions)) return false;
-        if (biomeProperties.disallowedLandforms?.Contains(landform.Id) ?? false) return false;
-        return true;
+        return Biome.Properties().AllowsLandform(landform);
     }
 
     private static void DetermineBiomeVariants(WorldTileInfoPrimer info)

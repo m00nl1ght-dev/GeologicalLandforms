@@ -25,13 +25,10 @@ public static class BiomeTransition
 
     public static bool IsTransition(int tile, int nTile, BiomeDef biome, BiomeDef nBiome, int nbId = -1)
     {
-        if (biome == nBiome || !CanBePartOfTransition(biome) || !CanBePartOfTransition(nBiome)) return false;
+        if (biome == nBiome) return false;
 
-        var disallowedBiomes = biome.Properties().disallowedBiomeTransitions;
-        if (disallowedBiomes != null && disallowedBiomes.Contains(nBiome)) return false;
-
-        var nDisallowedBiomes = nBiome.Properties().disallowedBiomeTransitions;
-        if (nDisallowedBiomes != null && nDisallowedBiomes.Contains(biome)) return false;
+        if (!biome.Properties().AllowsBiomeTransition(nBiome)) return false;
+        if (!nBiome.Properties().AllowsBiomeTransition(biome)) return false;
 
         if (!GeologicalLandformsAPI.UnidirectionalBiomeTransitions()) return true;
 
@@ -55,11 +52,6 @@ public static class BiomeTransition
         Rand.PopState();
 
         return flag;
-    }
-
-    public static bool CanBePartOfTransition(BiomeDef biome)
-    {
-        return biome.Properties().AllowBiomeTransitions;
     }
 
     public static void PostProcessBiomeGrid(BiomeGrid biomeGrid, WorldTileInfo tile, IntVec2 mapSize)

@@ -30,7 +30,6 @@ public class NodeUIWorldTileReq : NodeUIBase
     public static readonly FloatRange DefaultAvgTemperatureRequirement = new(-100f, 100f);
     public static readonly FloatRange DefaultRainfallRequirement = new(0f, 5000f);
     public static readonly FloatRange DefaultSwampinessRequirement = new(0f, 1f);
-    public static readonly FloatRange DefaultMapSizeRequirement = new(250f, 1000f);
     public static readonly FloatRange DefaultBiomeTransitionsRequirement = new(0f, 6f);
     public static readonly FloatRange DefaultTopologyValueRequirement = new(-1f, 1f);
     public static readonly FloatRange DefaultDepthInCaveSystemRequirement = new(0f, 10f);
@@ -42,7 +41,6 @@ public class NodeUIWorldTileReq : NodeUIBase
     public FloatRange AvgTemperatureRequirement = DefaultAvgTemperatureRequirement;
     public FloatRange RainfallRequirement = DefaultRainfallRequirement;
     public FloatRange SwampinessRequirement = DefaultSwampinessRequirement;
-    public FloatRange MapSizeRequirement = DefaultMapSizeRequirement;
     public FloatRange BiomeTransitionsRequirement = DefaultBiomeTransitionsRequirement;
     public FloatRange TopologyValueRequirement = DefaultTopologyValueRequirement;
     public FloatRange DepthInCaveSystemRequirement = DefaultDepthInCaveSystemRequirement;
@@ -57,8 +55,7 @@ public class NodeUIWorldTileReq : NodeUIBase
         var conditions = new List<Predicate<IWorldTileInfo>>
         {
             info => CheckHilliness(HillinessRequirement, info.Hilliness),
-            info => ElevationRequirement.Includes(info.Elevation),
-            info => MapSizeRequirement.Includes(info.ExpectedMapSize)
+            info => ElevationRequirement.Includes(info.Elevation)
         };
 
         if (AvgTemperatureRequirement != DefaultAvgTemperatureRequirement)
@@ -90,9 +87,9 @@ public class NodeUIWorldTileReq : NodeUIBase
             conditions.Add(Road);
 
         if (!AllowSettlements)
-            conditions.Add(info => info.WorldObject is Settlement { Faction.IsPlayer: false } == false);
+            conditions.Add(info => info.WorldObject is not Settlement { Faction.IsPlayer: false });
         if (!AllowSites)
-            conditions.Add(info => info.WorldObject is Site { Faction.IsPlayer: false } == false);
+            conditions.Add(info => info.WorldObject is null or Settlement or { Faction.IsPlayer: true });
 
         return conditions;
     }
@@ -105,13 +102,6 @@ public class NodeUIWorldTileReq : NodeUIBase
             if (!condition(worldTile))
                 return false;
 
-        return true;
-    }
-
-    public bool CheckMapRequirements(IntVec2 mapSize)
-    {
-        if (!MapSizeRequirement.Includes(mapSize.x)) return false;
-        if (!MapSizeRequirement.Includes(mapSize.z)) return false;
         return true;
     }
 
@@ -172,11 +162,6 @@ public class NodeUIWorldTileReq : NodeUIBase
 
         LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.SwampinessRequirement".Translate());
         LunarGUI.RangeSlider(layout, ref SwampinessRequirement, 0f, 1f);
-
-        layout.Abs(10f);
-
-        LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.MapSizeRequirement".Translate());
-        LunarGUI.RangeSlider(layout, ref MapSizeRequirement, 50f, 1000f);
 
         layout.Abs(10f);
 

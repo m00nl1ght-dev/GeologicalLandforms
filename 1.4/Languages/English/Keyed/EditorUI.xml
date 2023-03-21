@@ -24,7 +24,6 @@
   <GeologicalLandforms.Settings.Landform.AvgTemperatureRequirement>Average temperature requirement</GeologicalLandforms.Settings.Landform.AvgTemperatureRequirement>
   <GeologicalLandforms.Settings.Landform.RainfallRequirement>Rainfall requirement</GeologicalLandforms.Settings.Landform.RainfallRequirement>
   <GeologicalLandforms.Settings.Landform.SwampinessRequirement>Swampiness requirement</GeologicalLandforms.Settings.Landform.SwampinessRequirement>
-  <GeologicalLandforms.Settings.Landform.MapSizeRequirement>Map size requirement</GeologicalLandforms.Settings.Landform.MapSizeRequirement>
   <GeologicalLandforms.Settings.Landform.BiomeTransitionsRequirement>Biome transitions requirement</GeologicalLandforms.Settings.Landform.BiomeTransitionsRequirement>
   <GeologicalLandforms.Settings.Landform.TopologyValueRequirement>Topology value requirement</GeologicalLandforms.Settings.Landform.TopologyValueRequirement>
   <GeologicalLandforms.Settings.Landform.DepthInCaveSystemRequirement>Depth in cave system requirement</GeologicalLandforms.Settings.Landform.DepthInCaveSystemRequirement>

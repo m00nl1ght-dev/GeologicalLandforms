@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Emit;
+using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using RimWorld;
 using UnityEngine;
@@ -33,6 +34,18 @@ public class BiomeProperties : DefModExtension
     public bool AllowLandforms => allowLandforms && allowLandformsByUser;
     public bool AllowBiomeTransitions => allowBiomeTransitions && allowBiomeTransitionsByUser;
 
+    public bool AllowsLandform(Landform landform)
+    {
+        if (!AllowLandforms && (!landform.IsLayer || !AllowBiomeTransitions)) return false;
+        return !(disallowedLandforms?.Contains(landform.Id) ?? false);
+    }
+
+    public bool AllowsBiomeTransition(BiomeDef biome)
+    {
+        if (!AllowBiomeTransitions) return false;
+        return !(disallowedBiomeTransitions?.Contains(biome) ?? false);
+    }
+    
     public static bool AnyHasTileGraphic { get; private set; }
     
     private static BiomeProperties[] _cache;

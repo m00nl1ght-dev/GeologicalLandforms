@@ -75,12 +75,13 @@ public class Landform : TerrainCanvas
         LandformGraphEditor.ActiveEditor?.Close();
 
         var world = Find.World;
+        var props = map.Biome.Properties();
         var seed = SeedRerollData.GetMapSeed(world, map.Tile);
 
-        PrepareMapGen(new IntVec2(map.Size.x, map.Size.z), map.Tile, seed);
+        PrepareMapGen(new IntVec2(map.Size.x, map.Size.z), map.Tile, seed, props.AllowsLandform);
     }
 
-    public static void PrepareMapGen(IntVec2 mapSize, int worldTile, int seed)
+    public static void PrepareMapGen(IntVec2 mapSize, int worldTile, int seed, Predicate<Landform> filter = null)
     {
         CleanUp();
         
@@ -94,11 +95,14 @@ public class Landform : TerrainCanvas
         var landformStack = new List<Landform>();
         GeneratingLandforms = landformStack;
 
-        foreach (var landform in GeneratingTile.Landforms.Where(l => l.WorldTileReq.CheckMapRequirements(mapSize)))
+        foreach (var landform in GeneratingTile.Landforms)
         {
-            landform.RandSeed = seed;
-            landform.TraverseAll();
-            landformStack.Add(landform);
+            if ((filter == null || filter(landform)) && landform.WorldTileReq.CheckRequirements(GeneratingTile, false))
+            {
+                landform.RandSeed = seed;
+                landform.TraverseAll();
+                landformStack.Add(landform);
+            }
         }
     }
 

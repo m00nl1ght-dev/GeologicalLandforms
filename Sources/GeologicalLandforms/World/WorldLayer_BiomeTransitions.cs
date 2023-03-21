@@ -34,7 +34,7 @@ internal class WorldLayer_BiomeTransitions : WorldLayer
             var tile = grid[tileIdx];
             var biome = tile.biome;
 
-            if (!BiomeTransition.CanBePartOfTransition(biome)) continue;
+            if (!biome.Properties().allowBiomeTransitions) continue;
 
             var nbOffset = nbOffsets[tileIdx];
             if (nbOffsets.IdxBoundFor(nbData, tileIdx) - nbOffset != 6) continue;
