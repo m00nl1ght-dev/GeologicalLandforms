@@ -38,10 +38,13 @@ internal static class Patch_RimWorld_GenStep_Terrain
     private static void Generate_Postfix(Map map, GenStepParams parms)
     {
         CleanUp();
+        
         var biomeGrid = map.BiomeGrid();
-        if (biomeGrid != null && !MapPreviewAPI.IsGeneratingPreview) ApplyBiomeVariants(biomeGrid);
-        BiomeTransition.DrawDebug(map.debugDrawer);
-        biomeGrid?.UpdateOpenGroundFraction();
+        if (biomeGrid != null)
+        {
+            ApplyBiomeVariants(biomeGrid);
+            biomeGrid.UpdateOpenGroundFraction();
+        }
     }
 
     [HarmonyPrefix]
@@ -106,18 +109,40 @@ internal static class Patch_RimWorld_GenStep_Terrain
 
     public static void ApplyBiomeVariants(BiomeGrid biomeGrid)
     {
-        var biomeProperties = biomeGrid.map.Biome.Properties();
+        var map = biomeGrid.map;
+        var props = map.Biome.Properties();
 
-        if (biomeProperties.applyToCaves) biomeGrid.Enabled = true;
-        if (!biomeProperties.AllowBiomeTransitions) return;
+        if (props.applyToCaves) biomeGrid.Enabled = true;
+        if (!props.AllowBiomeTransitions) return;
 
-        if (Landform.GeneratingTile is WorldTileInfo { HasBiomeVariants: true })
+        if (Landform.GeneratingTile is WorldTileInfo { HasBiomeVariants: true } tile)
         {
             try
             {
                 var layers = Landform.GeneratingTile.BiomeVariants.SelectMany(v => v.layers).OrderByDescending(l => l.priority).ToList();
-                biomeGrid.ApplyVariantLayers(layers);
-                biomeGrid.Enabled = true;
+
+                if (!MapPreviewAPI.IsGeneratingPreview)
+                {
+                    biomeGrid.ApplyVariantLayers(layers);
+                    biomeGrid.Enabled = true;
+                }
+
+                foreach (var layer in layers.Where(layer => layer.terrainOverrides != null))
+                {
+                    var conditions = layer.mapGridConditions;
+                    var overrides = layer.terrainOverrides;
+
+                    foreach (var pos in map.AllCells)
+                    {
+                        var ctx = new CtxMapCell(tile, map, pos);
+
+                        if (conditions == null || conditions.Get(ctx))
+                        {
+                            var terrainDef = overrides.Get(ctx);
+                            if (terrainDef != null) map.terrainGrid.SetTerrain(pos, terrainDef);
+                        }
+                    }
+                }
             }
             catch (Exception e)
             {
@@ -129,6 +154,7 @@ internal static class Patch_RimWorld_GenStep_Terrain
     public static void CleanUp()
     {
         UseVanillaTerrain = true;
+        DebugWarnedMissingTerrain = false;
         BaseFunction = null;
         StoneFunction = null;
         BiomeFunction = null;

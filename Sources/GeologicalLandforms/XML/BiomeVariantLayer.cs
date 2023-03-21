@@ -18,6 +18,8 @@ public class BiomeVariantLayer
 
     public XmlDynamicValue<bool, ICtxMapCell> mapGridConditions;
 
+    public XmlDynamicValue<TerrainDef, ICtxMapCell> terrainOverrides;
+
     public XmlDynamicValue<float, ICtxTile> animalDensity;
     public XmlDynamicValue<float, ICtxTile> plantDensity;
     public XmlDynamicValue<float, ICtxTile> wildPlantRegrowDays;

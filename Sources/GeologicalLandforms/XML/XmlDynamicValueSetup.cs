@@ -136,6 +136,14 @@ public static class XmlDynamicValueSetup
 
         mapBoolSup.InheritFrom(tileBoolSup);
         mapBoolMod.InheritFrom(tileBoolMod);
+
+        // ### Terrain specs for map cell context ###
+
+        var mapTerrainSup = XmlDynamicValue<TerrainDef, ICtxMapCell>.SupplierSpecs;
+        var mapTerrainMod = XmlDynamicValue<TerrainDef, ICtxMapCell>.ModifierSpecs;
+
+        mapTerrainSup.DefaultSpec = FixedDef<TerrainDef, ICtxMapCell>;
+        mapTerrainMod.DefaultSpec = DyadicModifierVerbose(FuncReplace, DefaultValue<TerrainDef, ICtxMapCell>());
     }
 
     private static Supplier<float, ICtxEarlyTile> PerlinNoiseInWorld(XmlNode node)
