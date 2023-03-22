@@ -2,6 +2,7 @@ using System;
 using LunarFramework.Utility;
 using NodeEditorFramework;
 using TerrainGraph;
+using TerrainGraph.Util;
 using UnityEngine;
 using Verse;
 using static TerrainGraph.GridFunction;
@@ -93,9 +94,8 @@ public class NodeGridTunnels : NodeBase
                 BranchWidthOffsetMultiplier = (float) BranchWidthOffsetMultiplier,
                 DirectionChangeSpeed = (float) DirectionChangeSpeed
             },
-            Landform.MapSpaceToNodeSpaceFactor,
-            Landform.GeneratingMapSize,
-            CombinedSeed
+            Landform.MapSpaceToNodeSpaceFactor, Landform.GeneratingMapSize,
+            CombinedSeed, TerrainCanvas.CreateRandomInstance()
         ));
         return true;
     }
@@ -108,12 +108,11 @@ public class NodeGridTunnels : NodeBase
         private readonly double _transformScale;
         private readonly IntVec2 _targetGridSize;
         private readonly int _seed;
-
-        private Cache<double> _cache;
+        private readonly IRandom _random;
 
         public Output(
             ISupplier<IGridFunction<double>> input, double inputThreshold, TunnelGenerator generator,
-            double transformScale, IntVec2 targetGridSize, int seed)
+            double transformScale, IntVec2 targetGridSize, int seed, IRandom random)
         {
             _input = input;
             _inputThreshold = inputThreshold;
@@ -121,24 +120,21 @@ public class NodeGridTunnels : NodeBase
             _transformScale = transformScale;
             _targetGridSize = targetGridSize;
             _seed = seed;
+            _random = random;
+            _random.Reinitialise(_seed);
         }
 
         public IGridFunction<double> Get()
         {
-            if (_cache == null)
-            {
-                var input = new Transform<double>(_input.Get(), 1 / _transformScale);
-                var grid = _generator.Generate(_targetGridSize, new RandInstance(_seed), c => input.ValueAt(c.x, c.z) > _inputThreshold);
-                _cache = new Cache<double>(grid);
-            }
-
-            return new Transform<double>(_cache, _transformScale);
+            var input = new Transform<double>(_input.Get(), 1 / _transformScale);
+            var grid = _generator.Generate(_targetGridSize, new RandInstance(_random.Next()), c => input.ValueAt(c.x, c.z) > _inputThreshold);
+            return new Transform<double>(new Cache<double>(grid), _transformScale);
         }
 
         public void ResetState()
         {
+            _random.Reinitialise(_seed);
             _input.ResetState();
-            _cache = null;
         }
     }
 }

@@ -22,6 +22,9 @@ public class NodeOutputTerrain : NodeOutputBase
     [ValueConnectionKnob("Stone", Direction.In, TerrainGridFunctionConnection.Id)]
     public ValueConnectionKnob StoneKnob;
 
+    [ValueConnectionKnob("Cave", Direction.In, TerrainGridFunctionConnection.Id)]
+    public ValueConnectionKnob CaveKnob;
+
     public override void NodeGUI()
     {
         GUILayout.BeginVertical(BoxStyle);
@@ -35,6 +38,11 @@ public class NodeOutputTerrain : NodeOutputBase
         GUILayout.Label(StoneKnob.name, BoxLayout);
         GUILayout.EndHorizontal();
         StoneKnob.SetPosition();
+
+        GUILayout.BeginHorizontal(BoxStyle);
+        GUILayout.Label(CaveKnob.name, BoxLayout);
+        GUILayout.EndHorizontal();
+        CaveKnob.SetPosition();
 
         GUILayout.EndVertical();
     }
@@ -59,5 +67,10 @@ public class NodeOutputTerrain : NodeOutputBase
     public IGridFunction<TerrainData> GetStone()
     {
         return StoneKnob.GetValue<ISupplier<IGridFunction<TerrainData>>>()?.ResetAndGet();
+    }
+
+    public IGridFunction<TerrainData> GetCave()
+    {
+        return CaveKnob.GetValue<ISupplier<IGridFunction<TerrainData>>>()?.ResetAndGet();
     }
 }

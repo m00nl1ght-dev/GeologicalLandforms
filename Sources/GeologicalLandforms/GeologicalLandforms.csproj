@@ -140,6 +140,7 @@
         <Compile Include="Compatibility\ModCompat_MapReroll.cs" />
         <Compile Include="Compatibility\ModCompat_PrepareLanding.cs" />
         <Compile Include="Patches\Patch_RimWorld_GenStep_CaveHives.cs" />
+        <Compile Include="Patches\Patch_RimWorld_GenStep_CavesTerrain.cs" />
         <Compile Include="Patches\Patch_RimWorld_GenStep_RocksFromGrid.cs" />
         <Compile Include="Patches\Patch_RimWorld_IncidentWorker.cs" />
         <Compile Include="Patches\Patch_RimWorld_RaidStrategyWorker.cs" />
