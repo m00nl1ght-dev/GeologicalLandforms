@@ -45,6 +45,7 @@ public class Landform : TerrainCanvas
     public NodeUILandformManifest Manifest { get; internal set; }
     public NodeUIWorldTileReq WorldTileReq { get; internal set; }
     public NodeUIWorldTileGraphic WorldTileGraphic { get; internal set; }
+    public NodeUIMapIncidents MapIncidents { get; internal set; }
     public NodeUILayerConfig LayerConfig { get; internal set; }
 
     public NodeInputElevation InputElevation { get; internal set; }

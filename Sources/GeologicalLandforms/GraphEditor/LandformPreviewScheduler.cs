@@ -24,7 +24,7 @@ public class LandformPreviewScheduler : AsyncPreviewScheduler
 
     protected override void OnError(PreviewTask task, Exception exception)
     {
-        GeologicalLandformsAPI.Logger.Error("Error occured while generating preview for node: " + task.Node.name, exception);
+        GeologicalLandformsAPI.Logger.Warn("Error occured while generating preview for node: " + task.Node.name, exception);
     }
 
     private const float IndSize = 50f;

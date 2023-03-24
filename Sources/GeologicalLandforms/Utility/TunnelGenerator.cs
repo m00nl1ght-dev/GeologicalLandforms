@@ -33,11 +33,20 @@ public class TunnelGenerator
     public FloatRange BranchedTunnelWidthOffset = new(0.2f, 0.4f);
     public SimpleCurve TunnelsWidthPerRockCount = new() { new(100f, 2f), new(300f, 4f), new(3000f, 5.5f) };
 
-    private static readonly HashSet<IntVec3> TmpGroupSet = new();
-    private static readonly List<IntVec3> TmpCells = new();
-    private static readonly HashSet<IntVec3> GroupSet = new();
-    private static readonly HashSet<IntVec3> GroupVisited = new();
-    private static readonly List<IntVec3> SubGroup = new();
+    [ThreadStatic]
+    private static HashSet<IntVec3> TmpGroupSet;
+
+    [ThreadStatic]
+    private static List<IntVec3> TmpCells;
+
+    [ThreadStatic]
+    private static HashSet<IntVec3> GroupSet;
+
+    [ThreadStatic]
+    private static HashSet<IntVec3> GroupVisited;
+
+    [ThreadStatic]
+    private static List<IntVec3> SubGroup;
 
     private ModuleBase _directionNoise;
     private Predicate<IntVec2> _cellCondition;
@@ -46,6 +55,15 @@ public class TunnelGenerator
 
     public double[,] Generate(IntVec2 gridSize, RandInstance rand, Predicate<IntVec2> cellCondition)
     {
+        if (TmpGroupSet == null)
+        {
+            TmpGroupSet = new();
+            TmpCells = new();
+            GroupSet = new();
+            GroupVisited = new();
+            SubGroup = new();
+        }
+        
         var map = new Map { info = new MapInfo { Size = new IntVec3(gridSize.x, 1, gridSize.z) } };
         var cavesGrid = new double[map.Size.x, map.Size.z];
 

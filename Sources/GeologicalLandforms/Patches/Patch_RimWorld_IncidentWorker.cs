@@ -1,37 +1,32 @@
-using System.Collections.Generic;
-using System.Reflection;
 using HarmonyLib;
 using LunarFramework.Patching;
 using RimWorld;
-using RimWorld.Planet;
-using Verse;
 
 namespace GeologicalLandforms.Patches;
 
 [PatchGroup("Main")]
-[HarmonyPatch]
+[HarmonyPatch(typeof(IncidentWorker))]
 internal static class Patch_RimWorld_IncidentWorker
 {
-    [HarmonyTargetMethods]
-    private static IEnumerable<MethodInfo> TargetMethods()
-    {
-        yield return AccessTools.Method(typeof(IncidentWorker_MechCluster), "CanFireNowSub");
-        yield return AccessTools.Method(typeof(IncidentWorker_HerdMigration), "CanFireNowSub");
-        yield return AccessTools.Method(typeof(IncidentWorker_FarmAnimalsWanderIn), "CanFireNowSub");
-        yield return AccessTools.Method(typeof(IncidentWorker_MeteoriteImpact), "CanFireNowSub");
-        yield return AccessTools.Method(typeof(IncidentWorker_ShipChunkDrop), "CanFireNowSub");
-        yield return AccessTools.Method(typeof(IncidentWorker_TravelerGroup), "CanFireNowSub");
-        yield return AccessTools.Method(typeof(IncidentWorker_VisitorGroup), "CanFireNowSub");
-        yield return AccessTools.Method(typeof(IncidentWorker_NeutralGroup), "CanFireNowSub");
-        yield return AccessTools.Method(typeof(IncidentWorker_Ambush), "CanFireNowSub");
-    }
-
     [HarmonyPostfix]
-    private static void CanFireNowSub(IncidentParms parms, ref bool __result)
+    [HarmonyPatch("CanFireNow")]
+    [HarmonyPriority(Priority.Low)]
+    private static void CanFireNowSub(IncidentWorker __instance, IncidentParms parms, ref bool __result)
     {
-        if (parms.target is { Tile: >= 0 } && Find.WorldGrid[parms.target.Tile].hilliness == Hilliness.Impassable)
+        if (__result && parms.target is { Tile: >= 0 })
         {
-            __result = false;
+            var tileInfo = WorldTileInfo.Get(parms.target.Tile);
+            if (tileInfo.HasLandforms)
+            {
+                foreach (var landform in tileInfo.Landforms)
+                {
+                    var mapIncidents = landform.MapIncidents;
+                    if (mapIncidents != null && !mapIncidents.CanHaveIncidentNow(__instance))
+                    {
+                        __result = false;
+                    }
+                }
+            }
         }
     }
 }

@@ -1,31 +1,32 @@
-using System.Collections.Generic;
-using System.Reflection;
 using HarmonyLib;
 using LunarFramework.Patching;
 using RimWorld;
-using RimWorld.Planet;
-using Verse;
 
 namespace GeologicalLandforms.Patches;
 
 [PatchGroup("Main")]
-[HarmonyPatch]
+[HarmonyPatch(typeof(RaidStrategyWorker))]
 internal static class Patch_RimWorld_RaidStrategyWorker
 {
-    [HarmonyTargetMethods]
-    private static IEnumerable<MethodInfo> TargetMethods()
-    {
-        yield return AccessTools.Method(typeof(RaidStrategyWorker_Siege), "CanUseWith");
-        yield return AccessTools.Method(typeof(RaidStrategyWorker_SiegeMechanoid), "CanUseWith");
-        yield return AccessTools.Method(typeof(RaidStrategyWorker_StageThenAttack), "CanUseWith");
-    }
-
     [HarmonyPostfix]
-    private static void CanUseWith(IncidentParms parms, ref bool __result)
+    [HarmonyPatch("CanUseWith")]
+    [HarmonyPriority(Priority.Low)]
+    private static void CanUseWith(RaidStrategyWorker __instance, IncidentParms parms, ref bool __result)
     {
-        if (parms.target is { Tile: >= 0 } && Find.WorldGrid[parms.target.Tile].hilliness == Hilliness.Impassable)
+        if (__result && parms.target is { Tile: >= 0 })
         {
-            __result = false;
+            var tileInfo = WorldTileInfo.Get(parms.target.Tile);
+            if (tileInfo.HasLandforms)
+            {
+                foreach (var landform in tileInfo.Landforms)
+                {
+                    var mapIncidents = landform.MapIncidents;
+                    if (mapIncidents != null && !mapIncidents.CanUseRaidStrategyNow(__instance))
+                    {
+                        __result = false;
+                    }
+                }
+            }
         }
     }
 }

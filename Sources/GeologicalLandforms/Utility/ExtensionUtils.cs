@@ -59,6 +59,9 @@ public static class ExtensionUtils
     public static int MinXZ(this IntVec3 vec) => Math.Min(vec.x, vec.z);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Rect Moved(this Rect rect, float x, float y) => new(rect.position + new Vector2(x, y), rect.size);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T Get<T>(this T[,] grid, IntVec3 c) => grid[c.x, c.z];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

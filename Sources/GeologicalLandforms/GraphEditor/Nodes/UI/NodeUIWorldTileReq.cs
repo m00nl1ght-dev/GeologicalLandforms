@@ -17,7 +17,7 @@ public class NodeUIWorldTileReq : NodeUIBase
     public override string GetID => ID;
 
     public override string Title => "World Tile Requirements";
-    public override Vector2 DefaultSize => new(400, 920);
+    public override Vector2 DefaultSize => new(400, 860);
 
     public Topology Topology = Inland;
     public float Commonness = 1f;
@@ -30,6 +30,7 @@ public class NodeUIWorldTileReq : NodeUIBase
     public static readonly FloatRange DefaultAvgTemperatureRequirement = new(-100f, 100f);
     public static readonly FloatRange DefaultRainfallRequirement = new(0f, 5000f);
     public static readonly FloatRange DefaultSwampinessRequirement = new(0f, 1f);
+    public static readonly FloatRange DefaultMapSizeRequirement = new(250f, 1000f);
     public static readonly FloatRange DefaultBiomeTransitionsRequirement = new(0f, 6f);
     public static readonly FloatRange DefaultTopologyValueRequirement = new(-1f, 1f);
     public static readonly FloatRange DefaultDepthInCaveSystemRequirement = new(0f, 10f);
@@ -41,6 +42,7 @@ public class NodeUIWorldTileReq : NodeUIBase
     public FloatRange AvgTemperatureRequirement = DefaultAvgTemperatureRequirement;
     public FloatRange RainfallRequirement = DefaultRainfallRequirement;
     public FloatRange SwampinessRequirement = DefaultSwampinessRequirement;
+    public FloatRange MapSizeRequirement = DefaultMapSizeRequirement;
     public FloatRange BiomeTransitionsRequirement = DefaultBiomeTransitionsRequirement;
     public FloatRange TopologyValueRequirement = DefaultTopologyValueRequirement;
     public FloatRange DepthInCaveSystemRequirement = DefaultDepthInCaveSystemRequirement;
