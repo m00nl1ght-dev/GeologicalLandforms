@@ -18,6 +18,8 @@ public class BiomeVariantDef : Def
     public XmlDynamicValue<string, ICtxTile> biomeLabel;
     public XmlDynamicValue<string, ICtxTile> biomeDescription;
 
+    public XmlDynamicValue<List<ThingDef>, ICtxTile> naturalRockTypes;
+
     public WorldTileGraphicAtlas worldTileGraphicAtlas;
 
     [NoTranslate]

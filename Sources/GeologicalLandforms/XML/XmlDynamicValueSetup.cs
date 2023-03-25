@@ -1,11 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.Xml;
-using GeologicalLandforms.Defs;
 using GeologicalLandforms.Patches;
 using LunarFramework.Utility;
 using LunarFramework.XML;
-using RimWorld.Planet;
 using UnityEngine;
 using Verse;
 using Verse.Noise;
@@ -18,10 +15,9 @@ public static class XmlDynamicValueSetup
 {
     static XmlDynamicValueSetup()
     {
-        // ### Numeric specs for early world tile context ###
+        // ### Numeric suppliers for early world tile context ###
 
         var earlyNumSup = XmlDynamicValue<float, ICtxEarlyTile>.SupplierSpecs;
-        var earlyNumMod = XmlDynamicValue<float, ICtxEarlyTile>.ModifierSpecs;
 
         earlyNumSup.Register("hilliness", ctx => (float) ctx.Tile.hilliness);
         earlyNumSup.Register("elevation", ctx => ctx.Tile.elevation);
@@ -31,29 +27,14 @@ public static class XmlDynamicValueSetup
         earlyNumSup.Register("pollution", ctx => ctx.Tile.pollution);
         earlyNumSup.Register("longitude", ctx => ctx.World.grid.LongLatOf(ctx.TileId).x);
         earlyNumSup.Register("latitude", ctx => ctx.World.grid.LongLatOf(ctx.TileId).y);
-        earlyNumSup.Register("depthInCaveSystem", ctx => GetCaveSystemDepthAt(ctx.World, ctx.TileId));
-
+        
         earlyNumSup.Register("perlinWorld", PerlinNoiseInWorld);
         earlyNumSup.Register("randomValueWorld", RandomValueInWorld);
+        earlyNumSup.Register("depthInCaveSystem", GetCaveSystemDepthAt);
 
-        earlyNumSup.RegisterBasicNumericSuppliers();
-        earlyNumMod.RegisterBasicNumericModifiers();
-
-        // ### Boolean specs for early world tile context ###
-
-        var earlyBoolSup = XmlDynamicValue<bool, ICtxEarlyTile>.SupplierSpecs;
-        var earlyBoolMod = XmlDynamicValue<bool, ICtxEarlyTile>.ModifierSpecs;
-
-        earlyBoolSup.Register("valueInRange", ValueInRange<float, ICtxEarlyTile>());
-        earlyBoolSup.RegisterFallback(ValueInRange<float, ICtxEarlyTile>);
-
-        earlyBoolSup.RegisterBasicBoolSuppliers();
-        earlyBoolMod.RegisterBasicBoolModifiers();
-
-        // ### Numeric specs for full world tile context ###
+        // ### Numeric suppliers for full world tile context ###
 
         var tileNumSup = XmlDynamicValue<float, ICtxTile>.SupplierSpecs;
-        var tileNumMod = XmlDynamicValue<float, ICtxTile>.ModifierSpecs;
 
         tileNumSup.Register("borderingBiomes", ctx => ctx.TileInfo.BorderingBiomesCount());
         tileNumSup.Register("river", ctx => ctx.TileInfo.MainRiverSize());
@@ -61,26 +42,11 @@ public static class XmlDynamicValueSetup
         tileNumSup.Register("topologyValue", ctx => ctx.TileInfo.TopologyValue);
         tileNumSup.Register("depthInCaveSystem", ctx => ctx.TileInfo.DepthInCaveSystem);
 
-        tileNumSup.RegisterBasicNumericSuppliers();
-        tileNumMod.RegisterBasicNumericModifiers();
-
         tileNumSup.InheritFrom(earlyNumSup);
-        tileNumMod.InheritFrom(earlyNumMod);
 
-        // ### String specs for full world tile context ###
-
-        var tileStringSup = XmlDynamicValue<string, ICtxTile>.SupplierSpecs;
-        var tileStringMod = XmlDynamicValue<string, ICtxTile>.ModifierSpecs;
-
-        tileStringSup.RegisterBasicStringSuppliers();
-        tileStringMod.RegisterBasicStringModifiers();
-
-        tileStringSup.RegisterFallback(Transform<string, float, ICtxTile>(v => v.ToString("0.##")));
-
-        // ### Boolean specs for full world tile context ###
+        // ### Boolean suppliers for full world tile context ###
 
         var tileBoolSup = XmlDynamicValue<bool, ICtxTile>.SupplierSpecs;
-        var tileBoolMod = XmlDynamicValue<bool, ICtxTile>.ModifierSpecs;
 
         tileBoolSup.Register("landform", SupplierWithParam<bool, ICtxTile>((str, ctx) => ctx.TileInfo.HasLandform(str)));
         tileBoolSup.Register("topology", SupplierWithParam<bool, ICtxTile, Topology>((p, ctx) => ctx.TileInfo.IsTopologyCompatible(p)));
@@ -88,62 +54,24 @@ public static class XmlDynamicValueSetup
         tileBoolSup.Register("biome", SupplierWithParam<bool, ICtxTile>((str, ctx) => ctx.TileInfo.HasBiome(str)));
         tileBoolSup.Register("worldObject", SupplierWithParam<bool, ICtxTile>((str, ctx) => ctx.TileInfo.HasWorldObject(str)));
 
-        tileBoolSup.Register("valueInRange", ValueInRange<float, ICtxTile>());
-        tileBoolSup.RegisterFallback(ValueInRange<float, ICtxTile>);
-
-        tileBoolSup.RegisterBasicBoolSuppliers();
-        tileBoolMod.RegisterBasicBoolModifiers();
-
-        tileBoolSup.InheritFrom(earlyBoolSup);
-        tileBoolMod.InheritFrom(earlyBoolMod);
-
-        // ### List specs for full world tile context ###
-
-        XmlDynamicValue<List<DynamicBiomePlantRecord>, ICtxTile>.SupplierSpecs.RegisterBasicListSuppliers();
-        XmlDynamicValue<List<DynamicBiomePlantRecord>, ICtxTile>.ModifierSpecs.RegisterBasicListModifiers();
-
-        XmlDynamicValue<List<DynamicBiomeAnimalRecord>, ICtxTile>.SupplierSpecs.RegisterBasicListSuppliers();
-        XmlDynamicValue<List<DynamicBiomeAnimalRecord>, ICtxTile>.ModifierSpecs.RegisterBasicListModifiers();
-
-        // ### Numeric specs for map cell context ###
+        // ### Numeric suppliers for map cell context ###
 
         var mapNumSup = XmlDynamicValue<float, ICtxMapCell>.SupplierSpecs;
-        var mapNumMod = XmlDynamicValue<float, ICtxMapCell>.ModifierSpecs;
 
         mapNumSup.Register("fertility", ctx => ctx.Map.fertilityGrid.FertilityAt(ctx.MapCell));
         mapNumSup.Register("perlinMap", PerlinNoiseInMap);
 
-        mapNumSup.RegisterBasicNumericSuppliers();
-        mapNumMod.RegisterBasicNumericModifiers();
-
         mapNumSup.InheritFrom(tileNumSup);
-        mapNumMod.InheritFrom(tileNumMod);
 
-        // ### Boolean specs for map cell context ###
+        // ### Boolean suppliers for map cell context ###
 
         var mapBoolSup = XmlDynamicValue<bool, ICtxMapCell>.SupplierSpecs;
-        var mapBoolMod = XmlDynamicValue<bool, ICtxMapCell>.ModifierSpecs;
 
         mapBoolSup.Register("terrain", SupplierWithParam<bool, ICtxMapCell>((str, ctx) => ctx.HasTerrain(str)));
         mapBoolSup.Register("terrainTag", SupplierWithParam<bool, ICtxMapCell>((str, ctx) => ctx.HasTerrainTag(str)));
         mapBoolSup.Register("roof", SupplierWithParam<bool, ICtxMapCell>((str, ctx) => ctx.HasRoof(str)));
 
-        mapBoolSup.Register("valueInRange", ValueInRange<float, ICtxMapCell>());
-        mapBoolSup.RegisterFallback(ValueInRange<float, ICtxMapCell>);
-
-        mapBoolSup.RegisterBasicBoolSuppliers();
-        mapBoolMod.RegisterBasicBoolModifiers();
-
         mapBoolSup.InheritFrom(tileBoolSup);
-        mapBoolMod.InheritFrom(tileBoolMod);
-
-        // ### Terrain specs for map cell context ###
-
-        var mapTerrainSup = XmlDynamicValue<TerrainDef, ICtxMapCell>.SupplierSpecs;
-        var mapTerrainMod = XmlDynamicValue<TerrainDef, ICtxMapCell>.ModifierSpecs;
-
-        mapTerrainSup.DefaultSpec = FixedDef<TerrainDef, ICtxMapCell>;
-        mapTerrainMod.DefaultSpec = DyadicModifierVerbose(FuncReplace, DefaultValue<TerrainDef, ICtxMapCell>());
     }
 
     private static Supplier<float, ICtxEarlyTile> PerlinNoiseInWorld(XmlNode node)
@@ -185,17 +113,17 @@ public static class XmlDynamicValueSetup
         };
     }
 
-    private static byte GetCaveSystemDepthAt(World world, int tileId)
+    private static float GetCaveSystemDepthAt(ICtxEarlyTile ctx)
     {
-        var landformData = world.LandformData();
-        if (landformData != null) return landformData.GetCaveSystemDepthAt(tileId);
+        var landformData = ctx.World.LandformData();
+        if (landformData != null) return landformData.GetCaveSystemDepthAt(ctx.TileId);
 
-        if (Patch_RimWorld_WorldGenStep_Terrain.LastWorld == world)
+        if (Patch_RimWorld_WorldGenStep_Terrain.LastWorld == ctx.World)
         {
             var caveSystems = Patch_RimWorld_WorldGenStep_Terrain.CaveSystems;
-            if (caveSystems != null && tileId > 0 && tileId < caveSystems.Length)
+            if (caveSystems != null && ctx.TileId > 0 && ctx.TileId < caveSystems.Length)
             {
-                return caveSystems[tileId];
+                return caveSystems[ctx.TileId];
             }
         }
 

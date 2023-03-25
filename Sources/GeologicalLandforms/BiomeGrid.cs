@@ -160,8 +160,8 @@ public class BiomeGrid : MapComponent
     private float GetOpenGroundFractionFor(IntVec3 cell)
     {
         if (map.terrainGrid.TerrainAt(cell).IsNormalWater()) return 0.1f;
-        if (cell.Walkable(map)) return 1f;
-        return 0.35f;
+        if (cell.Roofed(map)) return 0.25f;
+        return 1f;
     }
 
     public Entry MakeEntry(BiomeDef biomeBase, List<BiomeVariantLayer> variantLayers = null, bool forceNew = false)

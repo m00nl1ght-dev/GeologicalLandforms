@@ -136,8 +136,19 @@ public class NodeUIMapIncidents : NodeUIBase
         if (existing != null && existing != this && canvas.nodes.Contains(existing)) existing.Delete();
         Landform.MapIncidents = this;
 
-        foreach (var entry in IncidentEntries) entry.FetchWorkerType();
-        foreach (var entry in RaidStrategyEntries) entry.FetchWorkerType();
+        for (var i = 0; i < IncidentEntries.Count; i++)
+        {
+            var entry = IncidentEntries[i];
+            entry.FetchWorkerType();
+            IncidentEntries[i] = entry;
+        }
+
+        for (var i = 0; i < RaidStrategyEntries.Count; i++)
+        {
+            var entry = RaidStrategyEntries[i];
+            entry.FetchWorkerType();
+            RaidStrategyEntries[i] = entry;
+        }
     }
 
     protected override void OnDelete()

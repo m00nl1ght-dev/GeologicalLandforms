@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection.Emit;
 using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
+using LunarFramework.XML;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -24,6 +25,8 @@ public class BiomeProperties : DefModExtension
     public bool allowSettlementsOnImpassableTerrain;
 
     public WorldTileGraphicAtlas worldTileGraphicAtlas;
+
+    public XmlDynamicValue<List<ThingDef>, ICtxTile> naturalRockTypes;
 
     public TerrainDef beachTerrain;
     public TerrainDef gravelTerrain;
