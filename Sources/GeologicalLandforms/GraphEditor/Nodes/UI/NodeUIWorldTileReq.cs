@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using LunarFramework.GUI;
+using LunarFramework.Utility;
 using NodeEditorFramework;
 using RimWorld.Planet;
 using UnityEngine;
@@ -9,6 +10,7 @@ using static GeologicalLandforms.Topology;
 
 namespace GeologicalLandforms.GraphEditor;
 
+[HotSwappable]
 [Serializable]
 [Node(false, "World Tile Requirements", 0)]
 public class NodeUIWorldTileReq : NodeUIBase
@@ -17,7 +19,7 @@ public class NodeUIWorldTileReq : NodeUIBase
     public override string GetID => ID;
 
     public override string Title => "World Tile Requirements";
-    public override Vector2 DefaultSize => new(400, 860);
+    public override Vector2 DefaultSize => new(400, 805);
 
     public Topology Topology = Inland;
     public float Commonness = 1f;

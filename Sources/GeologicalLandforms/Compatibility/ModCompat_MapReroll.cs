@@ -4,6 +4,7 @@ using GeologicalLandforms.Patches;
 using HarmonyLib;
 using LunarFramework.Patching;
 using NodeEditorFramework;
+using UnityEngine;
 using Verse;
 
 namespace GeologicalLandforms.Compatibility;
@@ -78,6 +79,10 @@ internal class ModCompat_MapReroll : ModCompat
         if (editor != null && _lastEditedLandform != null && Landform.GeneratingTile == null)
         {
             editor.OpenLandform(_lastEditedLandform, _lastEditorState);
+        }
+        else if (Prefs.DevMode && Input.GetKey(KeyCode.LeftShift))
+        {
+            Find.WindowStack.Add(new LandformGraphEditor());
         }
 
         _lastEditedLandform = null;
