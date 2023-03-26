@@ -47,9 +47,19 @@ public class GeologicalLandformsSettings : LunarModSettings
 
     private void DoGeneralSettingsTab(LayoutRect layout)
     {
+        layout.PushEnabled(!MapPreviewAPI.IsGeneratingPreview);
+        
         if (LunarGUI.Button(layout, Label("OpenEditor")))
         {
             Find.WindowStack.Add(new LandformGraphEditor());
+
+            var worldSelector = Find.World?.UI?.selector;
+            if (worldSelector is { selectedTile: > 0 })
+            {
+                var tileInfo = WorldTileInfo.Get(worldSelector.selectedTile);
+                var landform = tileInfo.Landforms?.FirstOrDefault(lf => !lf.IsLayer);
+                if (landform != null) LandformGraphEditor.ActiveEditor?.OpenLandform(landform);
+            }
         }
 
         if (LunarGUI.Button(layout, Label("OpenDataDir")))
@@ -61,6 +71,8 @@ public class GeologicalLandformsSettings : LunarModSettings
         {
             Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(Label("ConfirmResetAll"), ResetAll));
         }
+
+        layout.PopEnabled();
 
         layout.Abs(10f);
 

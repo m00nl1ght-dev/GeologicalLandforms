@@ -337,10 +337,19 @@ public class WorldTileInfo : IWorldTileInfo
             return;
         }
 
-        if (info.Tile.hilliness == Hilliness.Impassable && data?.GetCaveSystemDepthAt(tileId) > 0)
+        if (info.Tile.hilliness == Hilliness.Impassable)
         {
-            DetermineCaveTopology(info);
-            return;
+            if (data?.GetCaveSystemDepthAt(tileId) > 0)
+            {
+                DetermineCaveTopology(info);
+                return;
+            }
+
+            if (caveSystemTiles.Count > 0)
+            {
+                info.Topology = Topology.Any;
+                return;
+            }
         }
 
         if (waterTiles.Count > 0)

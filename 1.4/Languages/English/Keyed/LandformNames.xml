@@ -35,5 +35,7 @@
   <GeologicalLandforms.Landform.SecludedCove>secluded cove</GeologicalLandforms.Landform.SecludedCove>
   <GeologicalLandforms.Landform.SurfaceCave>surface cave</GeologicalLandforms.Landform.SurfaceCave>
   <GeologicalLandforms.Landform.CaveEntrance>cave entrance</GeologicalLandforms.Landform.CaveEntrance>
+  <GeologicalLandforms.Landform.Sinkhole>sinkhole</GeologicalLandforms.Landform.Sinkhole>
+  <GeologicalLandforms.Landform.SecludedValley>secluded valley</GeologicalLandforms.Landform.SecludedValley>
 
 </LanguageData>

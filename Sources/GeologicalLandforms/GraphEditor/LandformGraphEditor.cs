@@ -19,7 +19,8 @@ public class LandformGraphEditor : Window
     public Landform Landform => (Landform) _canvasCache?.nodeCanvas;
     public bool HasLoadedLandform => Landform != null && Landform.Id != null;
 
-    public static bool IsEditorOpen => Find.WindowStack.IsOpen<LandformGraphEditor>();
+    public static bool IsEditorOpen { get; private set; }
+    
     public static LandformGraphEditor ActiveEditor => Find.WindowStack.WindowOfType<LandformGraphEditor>();
     public NodeEditorState EditorState => _canvasCache?.editorState;
 
@@ -157,8 +158,15 @@ public class LandformGraphEditor : Window
 
     public override void PreOpen()
     {
+        IsEditorOpen = true;
         base.PreOpen();
         Init();
+    }
+
+    public override void PreClose()
+    {
+        base.PreClose();
+        IsEditorOpen = false;
     }
 
     public override void WindowUpdate()
