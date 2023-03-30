@@ -17,7 +17,7 @@ public class TunnelGenerator
 
     public float TunnelWidthMultiplierMin = 0.8f;
     public float TunnelWidthMultiplierMax = 1f;
-    
+
     public float TunnelWidthMin = 1.4f;
     public float WidthReductionPerCell = 0.034f;
 
@@ -34,12 +34,6 @@ public class TunnelGenerator
     public SimpleCurve TunnelsWidthPerRockCount = new() { new(100f, 2f), new(300f, 4f), new(3000f, 5.5f) };
 
     [ThreadStatic]
-    private static HashSet<IntVec3> TmpGroupSet;
-
-    [ThreadStatic]
-    private static List<IntVec3> TmpCells;
-
-    [ThreadStatic]
     private static HashSet<IntVec3> GroupSet;
 
     [ThreadStatic]
@@ -49,42 +43,48 @@ public class TunnelGenerator
     private static List<IntVec3> SubGroup;
 
     private ModuleBase _directionNoise;
-    private Predicate<IntVec2> _cellCondition;
     private double[,] _cavesGrid;
+    private bool[,] _baseGrid;
     private RandInstance _rand;
 
     public double[,] Generate(IntVec2 gridSize, RandInstance rand, Predicate<IntVec2> cellCondition)
     {
-        if (TmpGroupSet == null)
+        if (GroupSet == null)
         {
-            TmpGroupSet = new();
-            TmpCells = new();
             GroupSet = new();
             GroupVisited = new();
             SubGroup = new();
         }
-        
+
         var map = new Map { info = new MapInfo { Size = new IntVec3(gridSize.x, 1, gridSize.z) } };
         var cavesGrid = new double[map.Size.x, map.Size.z];
+        var baseGrid = new bool[map.Size.x, map.Size.z];
 
         map.cellIndices = new CellIndices(map);
         map.floodFiller = new FloodFiller(map);
 
         _directionNoise = new Perlin(DirectionNoiseFrequency, 2.0, 0.5, 4, rand.Int, QualityMode.Medium);
-        _cellCondition = cellCondition;
         _cavesGrid = cavesGrid;
+        _baseGrid = baseGrid;
         _rand = rand;
 
         var visited = new BoolGrid(map);
         var group = new List<IntVec3>();
+        var groupSet = new HashSet<IntVec3>();
 
-        foreach (var allCell in map.AllCells)
+        foreach (var c in map.AllCells)
         {
-            if (!visited[allCell] && MatchesCellCondition(allCell, map))
+            _baseGrid[c.x, c.z] = cellCondition.Invoke(new IntVec2(c.x, c.z));
+        }
+
+        foreach (var c in map.AllCells)
+        {
+            if (!visited[c] && MatchesCellCondition(c, map))
             {
                 group.Clear();
+                groupSet.Clear();
 
-                map.floodFiller.FloodFill(allCell, x => MatchesCellCondition(x, map), x =>
+                map.floodFiller.FloodFill(c, x => MatchesCellCondition(x, map), x =>
                 {
                     visited[x] = true;
                     group.Add(x);
@@ -95,29 +95,34 @@ public class TunnelGenerator
 
                 if (group.Count >= MinRocksToGenerateAnyTunnel)
                 {
-                    DoOpenTunnels(group, map);
-                    DoClosedTunnels(group, map);
+                    groupSet.AddRange(group);
+
+                    DoOpenTunnels(group, groupSet, map);
+                    DoClosedTunnels(group, groupSet, map);
                 }
             }
         }
 
         _directionNoise = null;
-        _cellCondition = null;
         _cavesGrid = null;
+        _baseGrid = null;
+        _rand = null;
 
         return cavesGrid;
     }
 
     private void Trim(List<IntVec3> group, Map map) => GenMorphology.Open(group, 6, map);
 
-    private bool MatchesCellCondition(IntVec3 c, Map map) => c.InBounds(map) && _cellCondition.Invoke(new IntVec2(c.x, c.z));
+    private bool MatchesCellCondition(IntVec3 c, Map map) => c.InBounds(map) && _baseGrid[c.x, c.z];
 
-    private void DoOpenTunnels(List<IntVec3> group, Map map)
+    private void DoOpenTunnels(List<IntVec3> group, HashSet<IntVec3> groupSet, Map map)
     {
         int count = Mathf.Min(_rand.RoundRandom((float) (group.Count * (double) _rand.Range(0.9f, 1.1f) * OpenTunnelsPer10K / 10000.0)), MaxOpenTunnelsPerRockGroup);
         if (count > 0) count = _rand.RangeInclusive(1, count);
 
         float desiredWidth = TunnelsWidthPerRockCount.Evaluate(group.Count);
+
+        var edgeCells = FindEdgeCells(group, groupSet, map);
 
         for (int i = 0; i < count; ++i)
         {
@@ -128,9 +133,9 @@ public class TunnelGenerator
 
             for (int j = 0; j < 10; ++j)
             {
-                var edgeCellForTunnel = FindRandomEdgeCellForTunnel(group, map);
-                float distToCave = GetDistToCave(edgeCellForTunnel, group, map, 40f, false);
-                float bestInitialDir = FindBestInitialDir(edgeCellForTunnel, group, out var dist);
+                var edgeCellForTunnel = FindRandomEdgeCellForTunnel(group, edgeCells);
+                float distToCave = GetDistToCave(edgeCellForTunnel, groupSet, map, 40f, false);
+                float bestInitialDir = FindBestInitialDir(edgeCellForTunnel, groupSet, out var dist);
 
                 if (!start.IsValid || distToCave > (double) num1 || distToCave == (double) num1 && dist > (double) num2)
                 {
@@ -142,11 +147,13 @@ public class TunnelGenerator
             }
 
             float width = _rand.Range(desiredWidth * TunnelWidthMultiplierMin, desiredWidth * TunnelWidthMultiplierMax);
-            Dig(start, dir, width, group, map, false);
+            Dig(start, dir, width, group, groupSet, map, false);
+
+            UpdateEdgeCells(edgeCells);
         }
     }
 
-    private void DoClosedTunnels(List<IntVec3> group, Map map)
+    private void DoClosedTunnels(List<IntVec3> group, HashSet<IntVec3> groupSet, Map map)
     {
         int count = Mathf.Min(_rand.RoundRandom((float) (group.Count * (double) _rand.Range(0.9f, 1.1f) * ClosedTunnelsPer10K / 10000.0)), MaxClosedTunnelsPerRockGroup);
         if (count > 0) count = _rand.RangeInclusive(0, count);
@@ -161,7 +168,7 @@ public class TunnelGenerator
             for (int j = 0; j < 7; ++j)
             {
                 var cell = _rand.RandomElement(group);
-                float distToCave = GetDistToCave(cell, group, map, 30f, true);
+                float distToCave = GetDistToCave(cell, groupSet, map, 30f, true);
 
                 if (!start.IsValid || distToCave > (double) num)
                 {
@@ -171,17 +178,15 @@ public class TunnelGenerator
             }
 
             float width = _rand.Range(desiredWidth * TunnelWidthMultiplierMin, desiredWidth * TunnelWidthMultiplierMax);
-            Dig(start, _rand.Range(0.0f, 360f), width, group, map, true);
+            Dig(start, _rand.Range(0.0f, 360f), width, group, groupSet, map, true);
         }
     }
 
-    private IntVec3 FindRandomEdgeCellForTunnel(List<IntVec3> group, Map map)
+    private List<IntVec3> FindEdgeCells(List<IntVec3> group, HashSet<IntVec3> groupSet, Map map)
     {
         var cardinalDirections = GenAdj.CardinalDirections;
 
-        TmpCells.Clear();
-        TmpGroupSet.Clear();
-        TmpGroupSet.AddRange(group);
+        var edgeCells = new List<IntVec3>();
 
         for (int index1 = 0; index1 < group.Count; ++index1)
         {
@@ -190,31 +195,41 @@ public class TunnelGenerator
                 for (int index2 = 0; index2 < 4; ++index2)
                 {
                     var intVec3 = group[index1] + cardinalDirections[index2];
-                    if (!TmpGroupSet.Contains(intVec3))
+                    if (!groupSet.Contains(intVec3))
                     {
-                        TmpCells.Add(group[index1]);
+                        edgeCells.Add(group[index1]);
                         break;
                     }
                 }
             }
         }
 
-        if (TmpCells.Any()) return _rand.RandomElement(TmpCells);
+        return edgeCells;
+    }
+
+    private void UpdateEdgeCells(List<IntVec3> edgeCells)
+    {
+        edgeCells.RemoveAll(c => _cavesGrid.Get(c) > 0.0);
+    }
+
+    private IntVec3 FindRandomEdgeCellForTunnel(List<IntVec3> group, List<IntVec3> edgeCells)
+    {
+        if (edgeCells.Any()) return _rand.RandomElement(edgeCells);
 
         Log.Warning("Could not find any valid edge cell.");
         return _rand.RandomElement(group);
     }
 
-    private float FindBestInitialDir(IntVec3 start, List<IntVec3> group, out float dist)
+    private float FindBestInitialDir(IntVec3 start, HashSet<IntVec3> groupSet, out float dist)
     {
-        float distToNonRock1 = GetDistToNonRock(start, group, IntVec3.East, 40);
-        float distToNonRock2 = GetDistToNonRock(start, group, IntVec3.West, 40);
-        float distToNonRock3 = GetDistToNonRock(start, group, IntVec3.South, 40);
-        float distToNonRock4 = GetDistToNonRock(start, group, IntVec3.North, 40);
-        float distToNonRock5 = GetDistToNonRock(start, group, IntVec3.NorthWest, 40);
-        float distToNonRock6 = GetDistToNonRock(start, group, IntVec3.NorthEast, 40);
-        float distToNonRock7 = GetDistToNonRock(start, group, IntVec3.SouthWest, 40);
-        float distToNonRock8 = GetDistToNonRock(start, group, IntVec3.SouthEast, 40);
+        float distToNonRock1 = GetDistToNonRock(start, groupSet, IntVec3.East, 40);
+        float distToNonRock2 = GetDistToNonRock(start, groupSet, IntVec3.West, 40);
+        float distToNonRock3 = GetDistToNonRock(start, groupSet, IntVec3.South, 40);
+        float distToNonRock4 = GetDistToNonRock(start, groupSet, IntVec3.North, 40);
+        float distToNonRock5 = GetDistToNonRock(start, groupSet, IntVec3.NorthWest, 40);
+        float distToNonRock6 = GetDistToNonRock(start, groupSet, IntVec3.NorthEast, 40);
+        float distToNonRock7 = GetDistToNonRock(start, groupSet, IntVec3.SouthWest, 40);
+        float distToNonRock8 = GetDistToNonRock(start, groupSet, IntVec3.SouthEast, 40);
 
         dist = Mathf.Max(distToNonRock1, distToNonRock2, distToNonRock3, distToNonRock4, distToNonRock5, distToNonRock6, distToNonRock7, distToNonRock8);
 
@@ -233,6 +248,7 @@ public class TunnelGenerator
         IntVec3 start,
         float dir, float width,
         List<IntVec3> group,
+        HashSet<IntVec3> groupSet,
         Map map, bool closed,
         HashSet<IntVec3> visited = null)
     {
@@ -244,9 +260,6 @@ public class TunnelGenerator
         bool flag2 = false;
         visited ??= new HashSet<IntVec3>();
 
-        TmpGroupSet.Clear();
-        TmpGroupSet.AddRange(group);
-
         int num2 = 0;
         while (true)
         {
@@ -256,7 +269,7 @@ public class TunnelGenerator
                 for (int index = 0; index < num3; ++index)
                 {
                     var c = intVec3 + GenRadial.RadialPattern[index];
-                    if (!visited.Contains(c) && (!TmpGroupSet.Contains(c) || _cavesGrid.Get(c) > 0.0)) return;
+                    if (!visited.Contains(c) && (!groupSet.Contains(c) || _cavesGrid.Get(c) > 0.0)) return;
                 }
             }
 
@@ -266,7 +279,7 @@ public class TunnelGenerator
                 {
                     DigInBestDirection(intVec3, dir, new FloatRange(40f, 90f),
                         width - _rand.Range(BranchedTunnelWidthOffset.min, BranchedTunnelWidthOffset.max) * BranchWidthOffsetMultiplier,
-                        group, map, closed, visited);
+                        group, groupSet, map, closed, visited);
                     flag1 = true;
                 }
 
@@ -274,7 +287,7 @@ public class TunnelGenerator
                 {
                     DigInBestDirection(intVec3, dir, new FloatRange(-90f, -40f),
                         width - _rand.Range(BranchedTunnelWidthOffset.min, BranchedTunnelWidthOffset.max) * BranchWidthOffsetMultiplier,
-                        group, map, closed, visited);
+                        group, groupSet, map, closed, visited);
                     flag2 = true;
                 }
             }
@@ -289,7 +302,7 @@ public class TunnelGenerator
                     num1 += 0.5f;
                 }
 
-                if (TmpGroupSet.Contains(vector3Shifted.ToIntVec3()))
+                if (groupSet.Contains(vector3Shifted.ToIntVec3()))
                 {
                     var c = new IntVec3(intVec3.x, 0, vector3Shifted.ToIntVec3().z);
 
@@ -321,8 +334,8 @@ public class TunnelGenerator
     private void DigInBestDirection(
         IntVec3 curIntVec, float curDir,
         FloatRange dirOffset, float width,
-        List<IntVec3> group, Map map, bool closed,
-        HashSet<IntVec3> visited = null)
+        List<IntVec3> group, HashSet<IntVec3> groupSet,
+        Map map, bool closed, HashSet<IntVec3> visited = null)
     {
         int num = -1;
         float dir1 = -1f;
@@ -330,7 +343,7 @@ public class TunnelGenerator
         for (int index = 0; index < 6; ++index)
         {
             float dir2 = curDir + _rand.Range(dirOffset.min, dirOffset.max);
-            int distToNonRock = GetDistToNonRock(curIntVec, group, dir2, 50);
+            int distToNonRock = GetDistToNonRock(curIntVec, groupSet, dir2, 50);
 
             if (distToNonRock > num)
             {
@@ -340,7 +353,7 @@ public class TunnelGenerator
         }
 
         if (num < 18) return;
-        Dig(curIntVec, dir1, width, group, map, closed, visited);
+        Dig(curIntVec, dir1, width, group, groupSet, map, closed, visited);
     }
 
     private void SetCaveAround(
@@ -363,50 +376,40 @@ public class TunnelGenerator
         }
     }
 
-    private int GetDistToNonRock(IntVec3 from, List<IntVec3> group, IntVec3 offset, int maxDist)
+    private int GetDistToNonRock(IntVec3 from, HashSet<IntVec3> groupSet, IntVec3 offset, int maxDist)
     {
-        GroupSet.Clear();
-        GroupSet.AddRange(group);
-
         for (int distToNonRock = 0; distToNonRock <= maxDist; ++distToNonRock)
         {
             var intVec3 = from + offset * distToNonRock;
-            if (!GroupSet.Contains(intVec3)) return distToNonRock;
+            if (!groupSet.Contains(intVec3)) return distToNonRock;
         }
 
         return maxDist;
     }
 
-    private int GetDistToNonRock(IntVec3 from, List<IntVec3> group, float dir, int maxDist)
+    private int GetDistToNonRock(IntVec3 from, HashSet<IntVec3> groupSet, float dir, int maxDist)
     {
-        GroupSet.Clear();
-        GroupSet.AddRange(group);
-
         var vector3 = Vector3Utility.FromAngleFlat(dir);
         for (int distToNonRock = 0; distToNonRock <= maxDist; ++distToNonRock)
         {
             var intVec3 = (from.ToVector3Shifted() + vector3 * distToNonRock).ToIntVec3();
-            if (!GroupSet.Contains(intVec3)) return distToNonRock;
+            if (!groupSet.Contains(intVec3)) return distToNonRock;
         }
 
         return maxDist;
     }
 
     private float GetDistToCave(
-        IntVec3 cell, List<IntVec3> group,
-        Map map, float maxDist,
-        bool treatOpenSpaceAsCave)
+        IntVec3 cell, HashSet<IntVec3> groupSet,
+        Map map, float maxDist, bool treatOpenSpaceAsCave)
     {
-        TmpGroupSet.Clear();
-        TmpGroupSet.AddRange(group);
-
         int num = GenRadial.NumCellsInRadius(maxDist);
         var radialPattern = GenRadial.RadialPattern;
 
         for (int index = 0; index < num; ++index)
         {
             var intVec3 = cell + radialPattern[index];
-            if (treatOpenSpaceAsCave && !TmpGroupSet.Contains(intVec3) || intVec3.InBounds(map) && _cavesGrid.Get(intVec3) > 0.0)
+            if (treatOpenSpaceAsCave && !groupSet.Contains(intVec3) || intVec3.InBounds(map) && _cavesGrid.Get(intVec3) > 0.0)
                 return cell.DistanceTo(intVec3);
         }
 
