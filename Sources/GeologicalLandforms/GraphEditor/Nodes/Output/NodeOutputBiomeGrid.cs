@@ -8,7 +8,7 @@ using Verse;
 namespace GeologicalLandforms.GraphEditor;
 
 [Serializable]
-[Node(false, "Output/Biome Grid", 403)]
+[Node(false, "Output/Biome Grid", 404)]
 public class NodeOutputBiomeGrid : NodeOutputBase
 {
     public const string ID = "outputBiomeGrid";

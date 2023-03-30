@@ -27,7 +27,7 @@ public static class XmlDynamicValueSetup
         earlyNumSup.Register("pollution", ctx => ctx.Tile.pollution);
         earlyNumSup.Register("longitude", ctx => ctx.World.grid.LongLatOf(ctx.TileId).x);
         earlyNumSup.Register("latitude", ctx => ctx.World.grid.LongLatOf(ctx.TileId).y);
-        
+
         earlyNumSup.Register("perlinWorld", PerlinNoiseInWorld);
         earlyNumSup.Register("randomValueWorld", RandomValueInWorld);
         earlyNumSup.Register("depthInCaveSystem", GetCaveSystemDepthAt);

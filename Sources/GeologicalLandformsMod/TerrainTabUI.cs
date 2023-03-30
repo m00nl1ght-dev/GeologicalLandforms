@@ -46,8 +46,10 @@ internal static class TerrainTabUI
 
                 if (Widgets.ButtonText(rect, "GeologicalLandforms.WorldMap.SetLandform".Translate()))
                 {
+                    var biomeProps = worldTileInfo.Biome.Properties();
+
                     var eligible = LandformManager.Landforms.Values
-                        .Where(e => ignoreReq || worldTileInfo.CanHaveLandform(e, true))
+                        .Where(e => ignoreReq || worldTileInfo.CanHaveLandform(e, biomeProps, true))
                         .Where(e => !e.IsLayer && GeologicalLandformsMod.IsLandformEnabled(e))
                         .ToList();
 

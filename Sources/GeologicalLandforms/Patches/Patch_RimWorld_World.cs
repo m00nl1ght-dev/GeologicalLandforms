@@ -25,7 +25,7 @@ internal static class Patch_RimWorld_World
         WorldTileInfo.RemoveCache();
 
         var landformData = __instance.GetComponent<LandformData>();
-        
+
         var lastWorld = Patch_RimWorld_WorldGenStep_Terrain.LastWorld;
         var caveSystems = Patch_RimWorld_WorldGenStep_Terrain.CaveSystems;
         var biomeTransitions = Patch_RimWorld_WorldGenStep_Terrain.BiomeTransitions;
@@ -55,10 +55,19 @@ internal static class Patch_RimWorld_World
     {
         var worldTileInfo = WorldTileInfo.Get(tile);
         var landform = worldTileInfo.Landforms?.LastOrDefault(l => !l.IsLayer);
+
         if (landform == null) return true;
 
-        int seed = worldTileInfo.MakeSeed(8266);
-        __result = Rand.ChanceSeeded(landform.WorldTileReq.CaveChance, seed);
+        if (landform.WorldTileReq != null)
+        {
+            int seed = worldTileInfo.MakeSeed(8266);
+            __result = Rand.ChanceSeeded(landform.WorldTileReq.CaveChance, seed);
+        }
+        else
+        {
+            __result = landform.OutputCaves != null;
+        }
+
         return false;
     }
 

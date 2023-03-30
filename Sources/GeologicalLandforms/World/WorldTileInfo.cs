@@ -88,10 +88,22 @@ public class WorldTileInfo : IWorldTileInfo
             }
 
             var info = new WorldTileInfoPrimer(tileId, world.grid[tileId], world);
+            var props = info.Biome.Properties();
             var data = world.LandformData();
 
-            DetermineTopology(info, data);
-            DetermineLandforms(info, data);
+            if (_tsc_waterTiles == null)
+            {
+                _tsc_waterTiles = new(6);
+                _tsc_landTiles = new(6);
+                _tsc_cliffTiles = new(6);
+                _tsc_nonCliffTiles = new(6);
+                _tsc_caveSystemTiles = new(6);
+                _tsc_eligible = new(50);
+                _tsc_ids = new(5);
+            }
+
+            DetermineTopology(info, data, props);
+            DetermineLandforms(info, data, props);
             DetermineBiomeVariants(info);
 
             GeologicalLandformsAPI.ApplyWorldTileInfoHook(info);
@@ -131,16 +143,19 @@ public class WorldTileInfo : IWorldTileInfo
     }
 
     [ThreadStatic]
+    private static List<string> _tsc_ids;
+
+    [ThreadStatic]
     private static List<Landform> _tsc_eligible;
 
-    private static void DetermineLandforms(WorldTileInfo info, LandformData data)
+    private static void DetermineLandforms(WorldTileInfo info, LandformData data, BiomeProperties biomeProps)
     {
-        var eligible = _tsc_eligible ??= new List<Landform>();
+        var eligible = _tsc_eligible;
         eligible.Clear();
 
         foreach (var landform in LandformManager.Landforms.Values)
         {
-            if (info.CanHaveLandform(landform)) eligible.Add(landform);
+            if (info.CanHaveLandform(landform, biomeProps)) eligible.Add(landform);
         }
 
         eligible.SortBy(e => e.Manifest.TimeCreated);
@@ -196,15 +211,32 @@ public class WorldTileInfo : IWorldTileInfo
             }
         }
 
+        if (biomeProps.overrideLandforms != null)
+        {
+            var ids = _tsc_ids;
+            ids.Clear();
+
+            if (landforms != null) ids.AddRange(landforms.Select(lf => lf.Id));
+
+            landforms ??= new(3);
+            landforms.Clear();
+
+            foreach (var id in biomeProps.overrideLandforms.Get(new CtxTile(info), ids))
+            {
+                var landform = LandformManager.FindById(id);
+                if (landform != null) landforms.Add(landform);
+            }
+        }
+
         landforms?.SortBy(e => e.Priority);
         info.Landforms = landforms;
     }
 
-    public bool CanHaveLandform(Landform landform, bool lenient = false)
+    public bool CanHaveLandform(Landform landform, BiomeProperties props, bool lenient = false)
     {
         var requirements = landform.WorldTileReq;
         if (requirements == null || !requirements.CheckRequirements(this, lenient)) return false;
-        return Biome.Properties().AllowsLandform(landform);
+        return props.AllowsLandform(landform);
     }
 
     private static void DetermineBiomeVariants(WorldTileInfoPrimer info)
@@ -241,18 +273,9 @@ public class WorldTileInfo : IWorldTileInfo
     [ThreadStatic]
     private static List<Rot6> _tsc_caveSystemTiles;
 
-    private static void DetermineTopology(WorldTileInfo info, LandformData data)
+    private static void DetermineTopology(WorldTileInfo info, LandformData data, BiomeProperties biomeProps)
     {
-        if (_tsc_waterTiles == null)
-        {
-            _tsc_waterTiles = new(6);
-            _tsc_landTiles = new(6);
-            _tsc_cliffTiles = new(6);
-            _tsc_nonCliffTiles = new(6);
-            _tsc_caveSystemTiles = new(6);
-        }
-
-        if (info.Biome.IsWaterCovered())
+        if (biomeProps.isWaterCovered)
         {
             info.Coast = new StructRot4<CoastType>(CoastTypeFromTile(info.Tile));
             info.Topology = Topology.Ocean;

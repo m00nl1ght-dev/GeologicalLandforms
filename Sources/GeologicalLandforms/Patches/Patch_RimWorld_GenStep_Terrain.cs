@@ -38,7 +38,7 @@ internal static class Patch_RimWorld_GenStep_Terrain
     private static void Generate_Postfix(Map map, GenStepParams parms)
     {
         CleanUp();
-        
+
         var biomeGrid = map.BiomeGrid();
         if (biomeGrid != null)
         {

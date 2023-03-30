@@ -20,7 +20,7 @@ public class LandformGraphEditor : Window
     public bool HasLoadedLandform => Landform != null && Landform.Id != null;
 
     public static bool IsEditorOpen { get; private set; }
-    
+
     public static LandformGraphEditor ActiveEditor => Find.WindowStack.WindowOfType<LandformGraphEditor>();
     public NodeEditorState EditorState => _canvasCache?.editorState;
 

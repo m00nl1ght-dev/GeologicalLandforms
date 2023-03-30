@@ -60,6 +60,7 @@ public class Landform : TerrainCanvas
     public NodeOutputCaves OutputCaves { get; internal set; }
     public NodeOutputRoofGrid OutputRoofGrid { get; internal set; }
     public NodeOutputScatterers OutputScatterers { get; internal set; }
+    public NodeOutputTerrainPatches OutputTerrainPatches { get; internal set; }
 
     public override int GridFullSize => GeneratingGridFullSize;
     public override int GridPreviewSize => GeneratingGridPreviewSize;
@@ -85,7 +86,7 @@ public class Landform : TerrainCanvas
     public static void PrepareMapGen(IntVec2 mapSize, int worldTile, int seed, Predicate<Landform> filter = null)
     {
         CleanUp();
-        
+
         GeneratingTile = WorldTileInfo.Get(worldTile);
 
         GeneratingMapSize = mapSize;
@@ -98,11 +99,14 @@ public class Landform : TerrainCanvas
 
         foreach (var landform in GeneratingTile.Landforms)
         {
-            if ((filter == null || filter(landform)) && landform.WorldTileReq.CheckRequirements(GeneratingTile, false))
+            if (filter == null || filter(landform))
             {
-                landform.RandSeed = seed;
-                landform.TraverseAll();
-                landformStack.Add(landform);
+                if (landform.WorldTileReq?.CheckRequirements(GeneratingTile, false) ?? true)
+                {
+                    landform.RandSeed = seed;
+                    landform.TraverseAll();
+                    landformStack.Add(landform);
+                }
             }
         }
     }
@@ -112,13 +116,13 @@ public class Landform : TerrainCanvas
         CleanUp();
 
         var seed = NodeBase.SeedSource.Next();
-        
+
         GeneratingTile = tileInfo;
         GeneratingGridFullSize = GeologicalLandformsAPI.LandformGridSize.Invoke();
         GeneratingMapSize = new IntVec2(250, 250);
-        
+
         if (GeneratingTile.Landforms == null) return;
-        
+
         GeneratingLandforms = GeneratingTile.Landforms;
         foreach (var landform in GeneratingLandforms) landform.RandSeed = seed;
     }
@@ -155,7 +159,6 @@ public class Landform : TerrainCanvas
     {
         base.ValidateSelf();
         if (Manifest == null) Node.Create(NodeUILandformManifest.ID, new Vector2(), this);
-        if (WorldTileReq == null) Node.Create(NodeUIWorldTileReq.ID, new Vector2(), this);
     }
 
     public override void OnNodeChange(Node node)
@@ -169,8 +172,8 @@ public class Landform : TerrainCanvas
         return nodeID switch
         {
             NodeUILandformManifest.ID => !isEditorAction,
-            NodeUIWorldTileReq.ID => !isEditorAction,
-            NodeUILayerConfig.ID => !isEditorAction || IsCustom,
+            NodeUIWorldTileReq.ID => !isEditorAction || WorldTileReq == null,
+            NodeUILayerConfig.ID => !isEditorAction || (IsCustom && LayerConfig == null),
             _ => Id != null || !isEditorAction
         };
     }
@@ -178,7 +181,6 @@ public class Landform : TerrainCanvas
     public override bool CanDeleteNode(Node node)
     {
         if (node == Manifest) return false;
-        if (node == WorldTileReq) return false;
         if (Id == null) return false;
         return true;
     }
@@ -233,6 +235,7 @@ public class Landform : TerrainCanvas
 
     public bool IsPointOfInterest()
     {
+        if (WorldTileReq == null) return false;
         var topology = WorldTileReq.Topology;
         var commonness = WorldTileReq.Commonness;
         if (topology == Topology.Any) return commonness < 0.1f;

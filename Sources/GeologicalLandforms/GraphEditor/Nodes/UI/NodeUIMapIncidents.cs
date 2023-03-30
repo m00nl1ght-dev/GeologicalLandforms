@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
 using LunarFramework.GUI;
-using LunarFramework.Utility;
 using NodeEditorFramework;
 using RimWorld;
 using UnityEngine;
@@ -11,7 +10,6 @@ using Verse;
 
 namespace GeologicalLandforms.GraphEditor;
 
-[HotSwappable]
 [Serializable]
 [Node(false, "World/Map Incidents", 1010)]
 public class NodeUIMapIncidents : NodeUIBase
@@ -23,7 +21,9 @@ public class NodeUIMapIncidents : NodeUIBase
     public override Vector2 DefaultSize => new(400, _lastLayoutMaxY);
 
     public List<Entry> IncidentEntries = new();
+    public List<Entry> GameConditionEntries = new();
     public List<Entry> RaidStrategyEntries = new();
+    public List<Entry> ArrivalModeEntries = new();
 
     private float _lastLayoutMaxY = 200f;
 
@@ -35,7 +35,19 @@ public class NodeUIMapIncidents : NodeUIBase
         {
             var options = typeof(IncidentWorker).AllSubclassesNonAbstract().OrderBy(e => e.Name)
                 .Where(e => !IncidentEntries.Any(o => o.WorkerType == e))
-                .Select(e => new FloatMenuOption(ShortName(e.Name), () => AddIncidentEntry(e))).ToList();
+                .Select(e => new FloatMenuOption(ShortName(e.Name), () => IncidentEntries.Add(new Entry(e, 1f)))).ToList();
+            if (options.Count > 0) Find.WindowStack.Add(new FloatMenu(options));
+        }
+
+        layout.Abs(20f);
+
+        DoListing(layout, GameConditionEntries);
+
+        if (LunarGUI.Button(layout, "Add game condition entry"))
+        {
+            var options = typeof(GameCondition).AllSubclassesNonAbstract().OrderBy(e => e.Name)
+                .Where(e => !GameConditionEntries.Any(o => o.WorkerType == e))
+                .Select(e => new FloatMenuOption(ShortName(e.Name), () => GameConditionEntries.Add(new Entry(e, 1f)))).ToList();
             if (options.Count > 0) Find.WindowStack.Add(new FloatMenu(options));
         }
 
@@ -47,21 +59,23 @@ public class NodeUIMapIncidents : NodeUIBase
         {
             var options = typeof(RaidStrategyWorker).AllSubclassesNonAbstract().OrderBy(e => e.Name)
                 .Where(e => !RaidStrategyEntries.Any(o => o.WorkerType == e))
-                .Select(e => new FloatMenuOption(ShortName(e.Name), () => AddRaidStrategyEntry(e))).ToList();
+                .Select(e => new FloatMenuOption(ShortName(e.Name), () => RaidStrategyEntries.Add(new Entry(e, 1f)))).ToList();
+            if (options.Count > 0) Find.WindowStack.Add(new FloatMenu(options));
+        }
+
+        layout.Abs(20f);
+
+        DoListing(layout, ArrivalModeEntries);
+
+        if (LunarGUI.Button(layout, "Add arrival mode entry"))
+        {
+            var options = typeof(PawnsArrivalModeWorker).AllSubclassesNonAbstract().OrderBy(e => e.Name)
+                .Where(e => !ArrivalModeEntries.Any(o => o.WorkerType == e))
+                .Select(e => new FloatMenuOption(ShortName(e.Name), () => ArrivalModeEntries.Add(new Entry(e, 1f)))).ToList();
             if (options.Count > 0) Find.WindowStack.Add(new FloatMenu(options));
         }
 
         _lastLayoutMaxY = layout.OccupiedSpace + 50f;
-    }
-
-    private void AddIncidentEntry(Type workerType)
-    {
-        IncidentEntries.Add(new Entry(workerType, 1f));
-    }
-
-    private void AddRaidStrategyEntry(Type workerType)
-    {
-        RaidStrategyEntries.Add(new Entry(workerType, 1f));
     }
 
     private static void DoListing(LayoutRect layout, List<Entry> list)
@@ -98,16 +112,12 @@ public class NodeUIMapIncidents : NodeUIBase
 
     public bool CanHaveIncidentNow(IncidentWorker worker)
     {
-        var workerType = worker.GetType();
+        if (!CanUseNow(worker.GetType(), worker.def, IncidentEntries)) return false;
 
-        foreach (var entry in IncidentEntries)
+        var gameCondition = worker.def.gameCondition;
+        if (gameCondition != null)
         {
-            if (entry.WorkerType == workerType)
-            {
-                if (entry.Value <= 0f) return false;
-                if (entry.Value >= 1f) return true;
-                return Rand.ChanceSeeded(entry.Value, worker.def.shortHash ^ QueueIntervalsPassed);
-            }
+            if (!CanUseNow(gameCondition.conditionClass, gameCondition, GameConditionEntries)) return false;
         }
 
         return true;
@@ -115,15 +125,23 @@ public class NodeUIMapIncidents : NodeUIBase
 
     public bool CanUseRaidStrategyNow(RaidStrategyWorker worker)
     {
-        var workerType = worker.GetType();
+        return CanUseNow(worker.GetType(), worker.def, RaidStrategyEntries);
+    }
 
-        foreach (var entry in RaidStrategyEntries)
+    public bool CanUseArrivalModeNow(PawnsArrivalModeWorker worker)
+    {
+        return CanUseNow(worker.GetType(), worker.def, ArrivalModeEntries);
+    }
+
+    private bool CanUseNow(Type type, Def def, List<Entry> entries)
+    {
+        foreach (var entry in entries)
         {
-            if (entry.WorkerType == workerType)
+            if (entry.WorkerType == type)
             {
                 if (entry.Value <= 0f) return false;
                 if (entry.Value >= 1f) return true;
-                return Rand.ChanceSeeded(entry.Value, worker.def.shortHash ^ QueueIntervalsPassed);
+                return Rand.ChanceSeeded(entry.Value, def.shortHash ^ QueueIntervalsPassed);
             }
         }
 
@@ -136,18 +154,19 @@ public class NodeUIMapIncidents : NodeUIBase
         if (existing != null && existing != this && canvas.nodes.Contains(existing)) existing.Delete();
         Landform.MapIncidents = this;
 
-        for (var i = 0; i < IncidentEntries.Count; i++)
-        {
-            var entry = IncidentEntries[i];
-            entry.FetchWorkerType();
-            IncidentEntries[i] = entry;
-        }
+        FetchWorkerTypes(IncidentEntries);
+        FetchWorkerTypes(GameConditionEntries);
+        FetchWorkerTypes(RaidStrategyEntries);
+        FetchWorkerTypes(ArrivalModeEntries);
+    }
 
-        for (var i = 0; i < RaidStrategyEntries.Count; i++)
+    private void FetchWorkerTypes(List<Entry> list)
+    {
+        for (var i = 0; i < list.Count; i++)
         {
-            var entry = RaidStrategyEntries[i];
+            var entry = list[i];
             entry.FetchWorkerType();
-            RaidStrategyEntries[i] = entry;
+            list[i] = entry;
         }
     }
 
@@ -159,7 +178,9 @@ public class NodeUIMapIncidents : NodeUIBase
     private static string ShortName(string str)
     {
         if (str.StartsWith("IncidentWorker_")) return str.Substring(15);
+        if (str.StartsWith("GameCondition_")) return str.Substring(14);
         if (str.StartsWith("RaidStrategyWorker_")) return str.Substring(19);
+        if (str.StartsWith("PawnsArrivalModeWorker_")) return str.Substring(23);
         return str;
     }
 

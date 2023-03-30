@@ -48,7 +48,7 @@ public class GeologicalLandformsSettings : LunarModSettings
     private void DoGeneralSettingsTab(LayoutRect layout)
     {
         layout.PushEnabled(!MapPreviewAPI.IsGeneratingPreview);
-        
+
         if (LunarGUI.Button(layout, Label("OpenEditor")))
         {
             Find.WindowStack.Add(new LandformGraphEditor());
@@ -101,7 +101,7 @@ public class GeologicalLandformsSettings : LunarModSettings
     private void DoLandformsSettingsTab(LayoutRect layout)
     {
         layout.PushChanged();
-        
+
         foreach (var landform in LandformManager.Landforms.Values)
         {
             if (landform.Manifest.IsExperimental && !EnableExperimentalLandforms) continue;
@@ -153,7 +153,7 @@ public class GeologicalLandformsSettings : LunarModSettings
     private void DoBiomeVariantsSettingsTab(LayoutRect layout)
     {
         layout.PushChanged();
-        
+
         foreach (var biomeVariant in DefDatabase<BiomeVariantDef>.AllDefsListForReading)
         {
             LunarGUI.ToggleTableRow(layout, biomeVariant.defName, true, LabelForBiomeVariant(biomeVariant), DisabledBiomeVariants);
@@ -235,7 +235,7 @@ public class GeologicalLandformsSettings : LunarModSettings
     {
         if (!EnableCellFinderOptimization) GeologicalLandformsMod.Logger.Log("CellFinder optimizations are disabled.");
         if (!EnableLandformScaling) GeologicalLandformsMod.Logger.Log("Landform scaling is disabled.");
-        
+
         foreach (var biome in DefDatabase<BiomeDef>.AllDefsListForReading)
         {
             biome.Properties().allowLandformsByUser = !BiomesExcludedFromLandforms.Value.Contains(biome.defName);

@@ -5,7 +5,7 @@ using TerrainGraph;
 namespace GeologicalLandforms.GraphEditor;
 
 [Serializable]
-[Node(false, "Output/Roof Grid", 406)]
+[Node(false, "Output/Roof Grid", 407)]
 public class NodeOutputRoofGrid : NodeOutputBase
 {
     public const string ID = "outputRoofGrid";

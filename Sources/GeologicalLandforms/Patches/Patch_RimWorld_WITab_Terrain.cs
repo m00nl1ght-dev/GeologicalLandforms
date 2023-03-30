@@ -16,7 +16,7 @@ namespace GeologicalLandforms.Patches;
 internal static class Patch_RimWorld_WITab_Terrain
 {
     internal static readonly Type Self = typeof(Patch_RimWorld_WITab_Terrain);
-    
+
     private static int _tileId;
     private static WorldTileInfo _tile;
 

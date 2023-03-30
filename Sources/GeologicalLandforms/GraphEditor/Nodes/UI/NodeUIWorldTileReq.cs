@@ -10,7 +10,7 @@ using static GeologicalLandforms.Topology;
 namespace GeologicalLandforms.GraphEditor;
 
 [Serializable]
-[Node(false, "World Tile Requirements", 0)]
+[Node(false, "World/Tile Requirements", 1000)]
 public class NodeUIWorldTileReq : NodeUIBase
 {
     public const string ID = "worldTileReq";
@@ -212,5 +212,10 @@ public class NodeUIWorldTileReq : NodeUIBase
         Landform.WorldTileReq = this;
 
         _conditions = BuildRequirements();
+    }
+
+    protected override void OnDelete()
+    {
+        if (Landform.WorldTileReq == this) Landform.WorldTileReq = null;
     }
 }

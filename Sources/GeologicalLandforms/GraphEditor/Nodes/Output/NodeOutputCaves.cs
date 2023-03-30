@@ -5,7 +5,7 @@ using TerrainGraph;
 namespace GeologicalLandforms.GraphEditor;
 
 [Serializable]
-[Node(false, "Output/Caves", 404)]
+[Node(false, "Output/Caves", 405)]
 public class NodeOutputCaves : NodeOutputBase
 {
     public const string ID = "outputCaves";

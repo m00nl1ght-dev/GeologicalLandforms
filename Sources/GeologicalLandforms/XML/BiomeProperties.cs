@@ -19,6 +19,8 @@ public class BiomeProperties : DefModExtension
     public List<string> disallowedLandforms;
     public List<BiomeDef> disallowedBiomeTransitions;
 
+    public XmlDynamicValue<List<string>, ICtxTile> overrideLandforms;
+
     public bool isWaterCovered;
     public bool applyToCaves;
     public bool hasStableCaveRoofs;
@@ -48,9 +50,9 @@ public class BiomeProperties : DefModExtension
         if (!AllowBiomeTransitions) return false;
         return !(disallowedBiomeTransitions?.Contains(biome) ?? false);
     }
-    
+
     public static bool AnyHasTileGraphic { get; private set; }
-    
+
     private static BiomeProperties[] _cache;
 
     public static BiomeProperties Get(BiomeDef biomeDef)

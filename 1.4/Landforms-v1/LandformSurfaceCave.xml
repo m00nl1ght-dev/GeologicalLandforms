@@ -204,11 +204,11 @@
 			<double name="Bias">-1</double>
 			<double name="ClampMin">-1</double>
 			<double name="ClampMax">1</double>
-			<double name="OriginX">0.78715290957935635</double>
-			<double name="OriginZ">0.43310513487467123</double>
-			<double name="SpanPx">6.0945510708481425</double>
+			<double name="OriginX">0.43721972790610053</double>
+			<double name="OriginZ">0.52689990189806934</double>
+			<double name="SpanPx">5.0616672234753306</double>
 			<double name="SpanNx">0</double>
-			<double name="SpanPz">18.999987639021125</double>
+			<double name="SpanPz">6.0329463428428731</double>
 			<double name="SpanNz">0</double>
 			<boolean name="Circular">true</boolean>
 			<int name="RandSeed">109824522</int>
@@ -235,7 +235,7 @@
 			<Port ID="37" name="InputKnob" dynamic="False" />
 			<Port ID="38" name="AngleKnob" dynamic="False" />
 			<Port ID="39" name="OutputKnob" dynamic="False" />
-			<double name="Angle">-12.958078417684433</double>
+			<double name="Angle">11.535184891320583</double>
 			<int name="RandSeed">1903772119</int>
 		</Node>
 		<Node name="Dynamic Random Value" ID="15" type="valueRandom" pos="-155,233">
@@ -285,7 +285,7 @@
 			<Variable name="Values" refID="0" />
 			<Operation name="OperationType">Min</Operation>
 			<double name="ApplyChance">1</double>
-			<double name="StackCount">6.919967137491323</double>
+			<double name="StackCount">6.21420239336188</double>
 			<double name="Smoothness">0</double>
 			<int name="RandSeed">1345379053</int>
 		</Node>
@@ -340,8 +340,8 @@
 			<double name="Bias">-0.60000002384185791</double>
 			<double name="ClampMin">-1.7976931348623157E+308</double>
 			<double name="ClampMax">1.7976931348623157E+308</double>
-			<double name="OriginX">0.530635134547782</double>
-			<double name="OriginZ">0.4141012801361697</double>
+			<double name="OriginX">0.40939691874915729</double>
+			<double name="OriginZ">0.68324284388469181</double>
 			<double name="SpanPx">50</double>
 			<double name="SpanNx">0</double>
 			<double name="SpanPz">50</double>
@@ -511,7 +511,7 @@
 			<Variable name="Values" refID="4" />
 			<Operation name="OperationType">Max</Operation>
 			<double name="ApplyChance">1</double>
-			<double name="StackCount">0.54927379417914757</double>
+			<double name="StackCount">2.1687865120286092</double>
 			<double name="Smoothness">0</double>
 			<int name="RandSeed">577140100</int>
 		</Node>
@@ -907,13 +907,15 @@
 			<double name="MaxValue">9999</double>
 			<double name="MinCells">25</double>
 			<double name="MaxCells">9999</double>
-			<int name="MaxTries">3</int>
+			<int name="MaxTries">5</int>
 			<boolean name="EdgeCellsOnly">true</boolean>
 			<int name="RandSeed">611912457</int>
 		</Node>
 		<Node name="Events and Incidents" ID="58" type="mapIncidents" pos="-1378.8,-516.2">
 			<Variable name="IncidentEntries" refID="19" />
-			<Variable name="RaidStrategyEntries" refID="20" />
+			<Variable name="GameConditionEntries" refID="20" />
+			<Variable name="RaidStrategyEntries" refID="21" />
+			<Variable name="ArrivalModeEntries" refID="22" />
 			<int name="RandSeed">1333075478</int>
 		</Node>
 	</Nodes>
@@ -1148,6 +1150,9 @@
 			</ArrayOfEntry>
 		</Object>
 		<Object refID="20" type="System.Collections.Generic.List`1[[GeologicalLandforms.GraphEditor.NodeUIMapIncidents+Entry, GeologicalLandforms, Version=1.6.0.0, Culture=neutral, PublicKeyToken=null]]">
+			<ArrayOfEntry xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		</Object>
+		<Object refID="21" type="System.Collections.Generic.List`1[[GeologicalLandforms.GraphEditor.NodeUIMapIncidents+Entry, GeologicalLandforms, Version=1.6.0.0, Culture=neutral, PublicKeyToken=null]]">
 			<ArrayOfEntry xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 				<Entry>
 					<WorkerName>RaidStrategyWorker_Siege</WorkerName>
@@ -1162,6 +1167,9 @@
 					<Value>0</Value>
 				</Entry>
 			</ArrayOfEntry>
+		</Object>
+		<Object refID="22" type="System.Collections.Generic.List`1[[GeologicalLandforms.GraphEditor.NodeUIMapIncidents+Entry, GeologicalLandforms, Version=1.6.0.0, Culture=neutral, PublicKeyToken=null]]">
+			<ArrayOfEntry xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
 		</Object>
 	</Objects>
 </NodeCanvas>

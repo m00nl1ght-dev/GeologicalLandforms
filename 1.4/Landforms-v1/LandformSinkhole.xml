@@ -560,7 +560,7 @@
 			<double name="MaxValue">9999</double>
 			<double name="MinCells">25</double>
 			<double name="MaxCells">9999</double>
-			<int name="MaxTries">3</int>
+			<int name="MaxTries">5</int>
 			<boolean name="EdgeCellsOnly">true</boolean>
 			<int name="RandSeed">1899756871</int>
 		</Node>
@@ -1055,8 +1055,95 @@
 		</Node>
 		<Node name="Events and Incidents" ID="66" type="mapIncidents" pos="-1405,-517">
 			<Variable name="IncidentEntries" refID="24" />
-			<Variable name="RaidStrategyEntries" refID="25" />
+			<Variable name="GameConditionEntries" refID="25" />
+			<Variable name="RaidStrategyEntries" refID="26" />
+			<Variable name="ArrivalModeEntries" refID="27" />
 			<int name="RandSeed">1894316866</int>
+		</Node>
+		<Node name="Add" ID="67" type="gridOperator" pos="1514.4,-377.4">
+			<Port ID="231" name="OutputKnob" dynamic="False" />
+			<Port ID="232" name="Input 0" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.3.0, Culture=neutral, PublicKeyToken=null">
+				<string name="styleID">GridFunc</string>
+				<Direction name="direction">In</Direction>
+				<ConnectionCount name="maxConnectionCount">Single</ConnectionCount>
+				<NodeSide name="side">Left</NodeSide>
+				<float name="sidePosition">38</float>
+				<float name="sideOffset">0</float>
+			</Port>
+			<Port ID="233" name="Input 1" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.3.0, Culture=neutral, PublicKeyToken=null">
+				<string name="styleID">GridFunc</string>
+				<Direction name="direction">In</Direction>
+				<ConnectionCount name="maxConnectionCount">Single</ConnectionCount>
+				<NodeSide name="side">Left</NodeSide>
+				<float name="sidePosition">66</float>
+				<float name="sideOffset">0</float>
+			</Port>
+			<Variable name="Values" refID="28" />
+			<Operation name="OperationType">Multiply</Operation>
+			<double name="ApplyChance">1</double>
+			<double name="StackCount">1</double>
+			<double name="Smoothness">0</double>
+			<int name="RandSeed">282758022</int>
+		</Node>
+		<Node name="Add" ID="68" type="gridOperator" pos="1791,-329.4">
+			<Port ID="234" name="OutputKnob" dynamic="False" />
+			<Port ID="235" name="Input 0" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.3.0, Culture=neutral, PublicKeyToken=null">
+				<string name="styleID">GridFunc</string>
+				<Direction name="direction">In</Direction>
+				<ConnectionCount name="maxConnectionCount">Single</ConnectionCount>
+				<NodeSide name="side">Left</NodeSide>
+				<float name="sidePosition">38</float>
+				<float name="sideOffset">0</float>
+			</Port>
+			<Port ID="236" name="Input 1" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.3.0, Culture=neutral, PublicKeyToken=null">
+				<string name="styleID">GridFunc</string>
+				<Direction name="direction">In</Direction>
+				<ConnectionCount name="maxConnectionCount">Single</ConnectionCount>
+				<NodeSide name="side">Left</NodeSide>
+				<float name="sidePosition">66</float>
+				<float name="sideOffset">0</float>
+			</Port>
+			<Variable name="Values" refID="29" />
+			<Operation name="OperationType">Add</Operation>
+			<double name="ApplyChance">1</double>
+			<double name="StackCount">1</double>
+			<double name="Smoothness">0</double>
+			<int name="RandSeed">880472581</int>
+		</Node>
+		<Node name="Add" ID="69" type="gridOperator" pos="2068.2,-375">
+			<Port ID="237" name="OutputKnob" dynamic="False" />
+			<Port ID="238" name="Input 0" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.3.0, Culture=neutral, PublicKeyToken=null">
+				<string name="styleID">GridFunc</string>
+				<Direction name="direction">In</Direction>
+				<ConnectionCount name="maxConnectionCount">Single</ConnectionCount>
+				<NodeSide name="side">Left</NodeSide>
+				<float name="sidePosition">38</float>
+				<float name="sideOffset">0</float>
+			</Port>
+			<Port ID="239" name="Input 1" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.3.0, Culture=neutral, PublicKeyToken=null">
+				<string name="styleID">GridFunc</string>
+				<Direction name="direction">In</Direction>
+				<ConnectionCount name="maxConnectionCount">Single</ConnectionCount>
+				<NodeSide name="side">Left</NodeSide>
+				<float name="sidePosition">66</float>
+				<float name="sideOffset">0</float>
+			</Port>
+			<Variable name="Values" refID="30" />
+			<Operation name="OperationType">Min</Operation>
+			<double name="ApplyChance">1</double>
+			<double name="StackCount">1</double>
+			<double name="Smoothness">0</double>
+			<int name="RandSeed">1246036958</int>
+		</Node>
+		<Node name="Preview" ID="70" type="gridPreview" pos="2413.4,-327.6">
+			<Port ID="240" name="InputKnob" dynamic="False" />
+			<Port ID="241" name="OutputKnob" dynamic="False" />
+			<string name="PreviewModelId">Default</string>
+			<int name="RandSeed">1082965027</int>
+		</Node>
+		<Node name="Terrain Patches" ID="71" type="outputTerrainPatches" pos="2650.2,-392.2">
+			<Port ID="242" name="OffsetKnob" dynamic="False" />
+			<int name="RandSeed">705053841</int>
 		</Node>
 	</Nodes>
 	<Connections>
@@ -1075,6 +1162,7 @@
 		<Connection port1ID="21" port2ID="22" />
 		<Connection port1ID="23" port2ID="28" />
 		<Connection port1ID="25" port2ID="37" />
+		<Connection port1ID="25" port2ID="232" />
 		<Connection port1ID="34" port2ID="35" />
 		<Connection port1ID="36" port2ID="58" />
 		<Connection port1ID="38" port2ID="46" />
@@ -1128,11 +1216,15 @@
 		<Connection port1ID="190" port2ID="193" />
 		<Connection port1ID="192" port2ID="213" />
 		<Connection port1ID="222" port2ID="224" />
+		<Connection port1ID="231" port2ID="235" />
+		<Connection port1ID="234" port2ID="238" />
+		<Connection port1ID="237" port2ID="240" />
+		<Connection port1ID="241" port2ID="242" />
 	</Connections>
 	<Objects>
 		<Object refID="0" type="System.Collections.Generic.List`1[[System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]">
 			<ArrayOfDouble xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<double>2</double>
+				<double>10</double>
 				<double>2</double>
 			</ArrayOfDouble>
 		</Object>
@@ -1334,6 +1426,9 @@
 			</ArrayOfEntry>
 		</Object>
 		<Object refID="25" type="System.Collections.Generic.List`1[[GeologicalLandforms.GraphEditor.NodeUIMapIncidents+Entry, GeologicalLandforms, Version=1.6.0.0, Culture=neutral, PublicKeyToken=null]]">
+			<ArrayOfEntry xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		</Object>
+		<Object refID="26" type="System.Collections.Generic.List`1[[GeologicalLandforms.GraphEditor.NodeUIMapIncidents+Entry, GeologicalLandforms, Version=1.6.0.0, Culture=neutral, PublicKeyToken=null]]">
 			<ArrayOfEntry xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 				<Entry>
 					<WorkerName>RaidStrategyWorker_Siege</WorkerName>
@@ -1348,6 +1443,27 @@
 					<Value>0</Value>
 				</Entry>
 			</ArrayOfEntry>
+		</Object>
+		<Object refID="27" type="System.Collections.Generic.List`1[[GeologicalLandforms.GraphEditor.NodeUIMapIncidents+Entry, GeologicalLandforms, Version=1.6.0.0, Culture=neutral, PublicKeyToken=null]]">
+			<ArrayOfEntry xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		</Object>
+		<Object refID="28" type="System.Collections.Generic.List`1[[System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]">
+			<ArrayOfDouble xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<double>0</double>
+				<double>0.40000000596046448</double>
+			</ArrayOfDouble>
+		</Object>
+		<Object refID="29" type="System.Collections.Generic.List`1[[System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]">
+			<ArrayOfDouble xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<double>0</double>
+				<double>-1.1000000238418579</double>
+			</ArrayOfDouble>
+		</Object>
+		<Object refID="30" type="System.Collections.Generic.List`1[[System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]">
+			<ArrayOfDouble xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<double>0</double>
+				<double>0</double>
+			</ArrayOfDouble>
 		</Object>
 	</Objects>
 </NodeCanvas>

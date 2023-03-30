@@ -5,13 +5,13 @@ using RimWorld;
 namespace GeologicalLandforms.Patches;
 
 [PatchGroup("Main")]
-[HarmonyPatch(typeof(IncidentWorker))]
-internal static class Patch_RimWorld_IncidentWorker
+[HarmonyPatch(typeof(PawnsArrivalModeWorker))]
+internal static class Patch_RimWorld_PawnsArrivalModeWorker
 {
     [HarmonyPostfix]
-    [HarmonyPatch("CanFireNow")]
+    [HarmonyPatch("CanUseWith")]
     [HarmonyPriority(Priority.Low)]
-    private static void CanFireNow(IncidentWorker __instance, IncidentParms parms, ref bool __result)
+    private static void CanUseWith(PawnsArrivalModeWorker __instance, IncidentParms parms, ref bool __result)
     {
         if (__result && parms.target is { Tile: >= 0 })
         {
@@ -21,7 +21,7 @@ internal static class Patch_RimWorld_IncidentWorker
                 foreach (var landform in tileInfo.Landforms)
                 {
                     var mapIncidents = landform.MapIncidents;
-                    if (mapIncidents != null && !mapIncidents.CanHaveIncidentNow(__instance))
+                    if (mapIncidents != null && !mapIncidents.CanUseArrivalModeNow(__instance))
                     {
                         __result = false;
                     }

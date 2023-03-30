@@ -5,8 +5,10 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using RimWorld;
 using RimWorld.Planet;
+using TerrainGraph;
 using UnityEngine;
 using Verse;
+using Verse.Noise;
 
 namespace GeologicalLandforms;
 
@@ -71,9 +73,6 @@ public static class ExtensionUtils
     public static BiomeProperties Properties(this BiomeDef biomeDef) => BiomeProperties.Get(biomeDef);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool IsWaterCovered(this BiomeDef biomeDef) => biomeDef == BiomeDefOf.Ocean || BiomeProperties.Get(biomeDef).isWaterCovered;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool HasStableCaveRoofs(this Map map) => map.TileInfo.hilliness == Hilliness.Impassable || map.Biome.Properties().hasStableCaveRoofs;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -115,4 +114,22 @@ public static class ExtensionUtils
 
     public static bool HasRoof(this ICtxMapCell ctx, string defName)
         => (ctx.Map.roofGrid.RoofAt(ctx.MapCell)?.defName ?? "Unroofed") == defName;
+
+    public static ModuleBase AsModule(this IGridFunction<double> gridFunction)
+        => new ModuleAdapter(gridFunction);
+
+    private class ModuleAdapter : ModuleBase
+    {
+        private readonly IGridFunction<double> _inner;
+
+        public ModuleAdapter(IGridFunction<double> inner) : base(0)
+        {
+            _inner = inner;
+        }
+
+        public override double GetValue(double x, double y, double z)
+        {
+            return _inner.ValueAt(x, z);
+        }
+    }
 }

@@ -67,7 +67,7 @@ public class BiomeVariantDef : Def
     public static void InitialLoad()
     {
         AnyHasTileGraphic = DefDatabase<BiomeVariantDef>.AllDefs.Any(def => def.DrawMaterial != null || def.worldTileGraphicAtlas != null);
-        
+
         foreach (var grp in DefDatabase<BiomeVariantDef>.AllDefsListForReading.GroupBy(def => def.modContentPack))
         {
             GeologicalLandformsAPI.Logger.Log($"Found {grp.Count()} biome variants in mod {grp.Key.Name}.");
