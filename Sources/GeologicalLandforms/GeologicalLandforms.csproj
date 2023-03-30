@@ -149,6 +149,7 @@
         <Compile Include="Patches\Patch_RimWorld_RaidStrategyWorker.cs" />
         <Compile Include="Patches\Patch_RimWorld_TerrainPatchMaker.cs" />
         <Compile Include="Patches\Patch_RimWorld_TileFinder.cs" />
+        <Compile Include="Patches\Patch_Verse_CellInspectorDrawer.cs" />
         <Compile Include="Patches\Patch_RimWorld_WorldPathGrid.cs" />
         <Compile Include="Patches\Patch_Verse_AnimalPenManager.cs" />
         <Compile Include="Patches\Patch_RimWorld_GenStep_Caves.cs" />
@@ -215,7 +216,7 @@
         <Publicize Include="Assembly-CSharp:RimWorld.BiomeDef.cachedLowestWildPlantOrder" />
         <Publicize Include="Assembly-CSharp:RimWorld.GameConditionManager.AggregatePlantDensityFactor" />
         <Publicize Include="Assembly-CSharp:RimWorld.GameConditionManager.AggregateAnimalDensityFactor" />
-        <Publicize Include="Assembly-CSharp:RimWorld.WildAnimalSpawner.PollutionAnimalSpawnChanceFromPollutionCurve" />
+        <Publicize Include="Assembly-CSharp:Verse.CellInspectorDrawer.DrawRow" />
     </ItemGroup>
     <PropertyGroup>
         <PublicizerClearCacheOnClean>true</PublicizerClearCacheOnClean>

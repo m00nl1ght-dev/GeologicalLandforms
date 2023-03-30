@@ -116,7 +116,7 @@
       <Publicize Include="Assembly-CSharp:RimWorld.BiomeDef.cachedLowestWildPlantOrder" />
       <Publicize Include="Assembly-CSharp:RimWorld.GameConditionManager.AggregatePlantDensityFactor" />
       <Publicize Include="Assembly-CSharp:RimWorld.GameConditionManager.AggregateAnimalDensityFactor" />
-      <Publicize Include="Assembly-CSharp:RimWorld.WildAnimalSpawner.PollutionAnimalSpawnChanceFromPollutionCurve" />
+      <Publicize Include="Assembly-CSharp:Verse.CellInspectorDrawer.DrawRow" />
     </ItemGroup>
     <PropertyGroup>
       <PublicizerClearCacheOnClean>true</PublicizerClearCacheOnClean>
