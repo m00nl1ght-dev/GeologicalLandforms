@@ -13,9 +13,6 @@ public static class LandformManager
 {
     public const int CurrentVersion = 1;
 
-    public static string LandformsDir(string loadFolder, int version) => Path.Combine(loadFolder, "Landforms-v" + version);
-    public static string CustomLandformsDir(int version) => Path.Combine(GenFilePaths.ConfigFolderPath, "CustomLandforms-v" + version);
-
     private static Dictionary<string, ModContentPack> _mcpLandformDirs = new();
 
     private static Dictionary<string, Landform> _landforms = new();
@@ -39,7 +36,7 @@ public static class LandformManager
             if (mcp?.RootDir == null) continue;
 
             foreach (var dir in mcp.foldersToLoadDescendingOrder
-                         .Select(loadFolder => LandformsDir(loadFolder, CurrentVersion))
+                         .SelectMany(loadFolder => LandformDirs(loadFolder, CurrentVersion))
                          .Reverse().Where(Directory.Exists))
             {
                 _mcpLandformDirs.Add(dir, mcp);
@@ -238,5 +235,16 @@ public static class LandformManager
         {
             GeologicalLandformsAPI.Logger.Error("Failed to save landforms", e);
         }
+    }
+
+    public static IEnumerable<string> LandformDirs(string loadFolder, int version)
+    {
+        yield return Path.Combine(loadFolder, "Landforms-v" + version);
+        yield return Path.Combine(loadFolder, "Landforms");
+    }
+
+    public static string CustomLandformsDir(int version)
+    {
+        return Path.Combine(GenFilePaths.ConfigFolderPath, "CustomLandforms-v" + version);
     }
 }
