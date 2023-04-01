@@ -2,6 +2,7 @@
 using System.Linq;
 using GeologicalLandforms.Compatibility;
 using NodeEditorFramework;
+using NodeEditorFramework.Utilities;
 using RimWorld;
 using TerrainGraph;
 using UnityEngine;
@@ -44,21 +45,8 @@ public class LandformGraphInterface
 
         if (Landform != null && Landform.Id != null)
         {
-            if (GUILayout.Button("GeologicalLandforms.Editor.Copy".Translate(), GUI.skin.GetStyle("toolbarButton"), GUILayout.MinWidth(50f)))
-                Editor.Duplicate();
-            Tooltip("GeologicalLandforms.Editor.Copy.Tooltip".Translate());
-
-            if (!Landform.IsCustom)
-            {
-                if (GUILayout.Button("GeologicalLandforms.Editor.Reset".Translate(), GUI.skin.GetStyle("toolbarButton"), GUILayout.MinWidth(55f))) Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation("GeologicalLandforms.Editor.ConfirmReset".Translate(), Editor.Reset));
-                Tooltip("GeologicalLandforms.Editor.Reset.Tooltip".Translate());
-            }
-
-            if (Landform.IsCustom)
-            {
-                if (GUILayout.Button("GeologicalLandforms.Editor.Delete".Translate(), GUI.skin.GetStyle("toolbarButton"), GUILayout.MinWidth(55f))) Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation("GeologicalLandforms.Editor.ConfirmDelete".Translate(), Editor.Delete));
-                Tooltip("GeologicalLandforms.Editor.Delete.Tooltip".Translate());
-            }
+            if (GUILayout.Button("GeologicalLandforms.Editor.Tools".Translate(), GUI.skin.GetStyle("toolbarButton"), GUILayout.MinWidth(50f)))
+                OpenToolsMenu();
         }
 
         GUILayout.FlexibleSpace();
@@ -121,6 +109,54 @@ public class LandformGraphInterface
 
         if (Event.current.type == EventType.Repaint)
             ToolbarHeight = GUILayoutUtility.GetLastRect().yMax;
+    }
+
+    private void OpenToolsMenu()
+    {
+        var menu = new GenericMenu();
+
+        if (Landform.IsCustom)
+        {
+            menu.AddItem(new GUIContent("GeologicalLandforms.Editor.Delete.Long".Translate()), true,
+                () => ConfirmBox("GeologicalLandforms.Editor.ConfirmDelete".Translate(), Editor.Delete));
+        }
+        else
+        {
+            menu.AddItem(new GUIContent("GeologicalLandforms.Editor.Reset.Long".Translate()), true,
+                () => ConfirmBox("GeologicalLandforms.Editor.ConfirmReset".Translate(), Editor.Reset));
+        }
+
+        menu.AddItem(new GUIContent("GeologicalLandforms.Editor.Copy.Long".Translate()), true, () => Editor.Duplicate());
+
+        var forModDevs = "GeologicalLandforms.Editor.Tools.ForModDevs".Translate();
+
+        if (Landform.ModContentPack != null && Landform.OriginalFileLocation != null)
+        {
+            var mcp = Landform.ModContentPack;
+            if (mcp.ModMetaData.Source == ContentSource.ModsFolder && !mcp.PackageId.StartsWith("m00nl1ght"))
+            {
+                menu.AddSeparator("");
+                menu.AddItem(new GUIContent(forModDevs + "/" + "GeologicalLandforms.Editor.SaveInMod".Translate(mcp.Name)), true, () =>
+                {
+                    if (Landform.Manifest.IsEdited)
+                    {
+                        ConfirmBox("GeologicalLandforms.Editor.ConfirmSaveInMod".Translate(mcp.Name), Editor.SaveInMod);
+                    }
+                    else
+                    {
+                        var msg = "GeologicalLandforms.Editor.SaveInMod.NoChanges".Translate();
+                        Messages.Message(msg, MessageTypeDefOf.SilentInput, false);
+                    }
+                });
+            }
+        }
+
+        menu.ShowAsContext();
+    }
+
+    private void ConfirmBox(string text, Action action)
+    {
+        Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(text, action));
     }
 
     public void DrawModalPanel()

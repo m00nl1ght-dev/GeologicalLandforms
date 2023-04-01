@@ -156,6 +156,14 @@ public class LandformGraphEditor : Window
         }
     }
 
+    public void SaveInMod()
+    {
+        if (HasLoadedLandform)
+        {
+            LandformManager.SaveInMod(Landform);
+        }
+    }
+
     public override void PreOpen()
     {
         IsEditorOpen = true;

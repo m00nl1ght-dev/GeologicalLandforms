@@ -5,6 +5,7 @@ using System.Linq;
 using HarmonyLib;
 using NodeEditorFramework;
 using NodeEditorFramework.IO;
+using RimWorld;
 using Verse;
 
 namespace GeologicalLandforms.GraphEditor;
@@ -131,6 +132,8 @@ public static class LandformManager
         duplicate.Manifest.IsEdited = true;
         duplicate.Manifest.TimeCreated = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         duplicate.Manifest.Id = newId;
+        duplicate.ModContentPack = null;
+        duplicate.OriginalFileLocation = null;
 
         _landforms.Add(newId, duplicate);
         return duplicate;
@@ -146,6 +149,34 @@ public static class LandformManager
         if (landform.Manifest.Id != null) _landforms.Remove(landform.Manifest.Id);
         landform.Manifest.Id = newId;
         _landforms.Add(landform.Manifest.Id, landform);
+    }
+
+    public static void SaveInMod(Landform landform)
+    {
+        var file = landform.OriginalFileLocation;
+        var dir = Path.GetDirectoryName(file);
+        if (dir == null) return;
+
+        landform.Manifest.IsEdited = false;
+        landform.Manifest.IsCustom = false;
+        landform.Manifest.RevisionVersion++;
+
+        try
+        {
+            Directory.CreateDirectory(dir);
+            ImportExportManager.ExportCanvas(landform, IOFormat, file);
+
+            var msg = "GeologicalLandforms.Editor.SaveInMod.Success".Translate(file);
+            Messages.Message(msg, MessageTypeDefOf.SilentInput, false);
+        }
+        catch (Exception e)
+        {
+            GeologicalLandformsAPI.Logger.Warn("Failed to save landform in " + file, e);
+            landform.Manifest.IsEdited = true;
+
+            var msg = "GeologicalLandforms.Editor.SaveInMod.Error".Translate(file);
+            Messages.Message(msg, MessageTypeDefOf.RejectInput, false);
+        }
     }
 
     public static void Delete(Landform landform)
@@ -185,9 +216,31 @@ public static class LandformManager
 
                 if (landform != null && landform.Id != null)
                 {
-                    if (landforms.ContainsKey(landform.Id)) landforms[landform.Id] = landform;
-                    else landforms.Add(landform.Id, landform);
-                    landform.ModContentPack = source;
+                    if (landforms.TryGetValue(landform.Id, out var existing))
+                    {
+                        landforms[landform.Id] = landform;
+
+                        if (source != null)
+                        {
+                            landform.ModContentPack = source;
+                            landform.OriginalFileLocation = file;
+                        }
+                        else
+                        {
+                            landform.ModContentPack = existing.ModContentPack;
+                            landform.OriginalFileLocation = existing.OriginalFileLocation;
+                        }
+                    }
+                    else
+                    {
+                        landforms.Add(landform.Id, landform);
+
+                        if (source != null)
+                        {
+                            landform.ModContentPack = source;
+                            landform.OriginalFileLocation = file;
+                        }
+                    }
                 }
             }
             catch (Exception ex)

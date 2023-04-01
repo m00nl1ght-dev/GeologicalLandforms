@@ -34,12 +34,14 @@ public class Landform : TerrainCanvas
     public string Id => Manifest?.Id;
     public int IdHash => GenText.StableStringHash(Id ?? "");
     public bool IsCustom => Manifest?.IsCustom ?? false;
+    public bool IsEdited => Manifest?.IsEdited ?? false;
     public bool IsLayer => LayerConfig != null;
     public int Priority => IsLayer ? LayerConfig.Priority : 0;
 
     public string DisplayName => Manifest.DisplayName ?? "";
     public bool DisplayNameHasDirection => Manifest?.DisplayNameHasDirection ?? false;
 
+    public string OriginalFileLocation { get; internal set; }
     public ModContentPack ModContentPack { get; internal set; }
 
     public NodeUILandformManifest Manifest { get; internal set; }
