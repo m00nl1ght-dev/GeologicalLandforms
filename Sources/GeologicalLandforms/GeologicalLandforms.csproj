@@ -116,6 +116,7 @@
         <Compile Include="GraphEditor\Nodes\Output\NodeOutputScatterers.cs" />
         <Compile Include="GraphEditor\Nodes\Output\NodeOutputTerrain.cs" />
         <Compile Include="GraphEditor\Nodes\Output\NodeOutputTerrainPatches.cs" />
+        <Compile Include="GraphEditor\Nodes\Output\NodeOutputWaterFlow.cs" />
         <Compile Include="GraphEditor\Nodes\RoofGrid\NodeTerrainGridFromValue.cs" />
         <Compile Include="GraphEditor\Nodes\RoofGrid\RoofGridFunctionConnection.cs" />
         <Compile Include="GraphEditor\Nodes\Roof\BiomeFunctionConnection.cs" />

@@ -63,6 +63,7 @@ public class Landform : TerrainCanvas
     public NodeOutputRoofGrid OutputRoofGrid { get; internal set; }
     public NodeOutputScatterers OutputScatterers { get; internal set; }
     public NodeOutputTerrainPatches OutputTerrainPatches { get; internal set; }
+    public NodeOutputWaterFlow OutputWaterFlow { get; internal set; }
 
     public override int GridFullSize => GeneratingGridFullSize;
     public override int GridPreviewSize => GeneratingGridPreviewSize;

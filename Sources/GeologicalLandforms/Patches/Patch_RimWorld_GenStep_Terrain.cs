@@ -17,6 +17,7 @@ internal static class Patch_RimWorld_GenStep_Terrain
 {
     public static IGridFunction<TerrainData> BaseFunction { get; private set; }
     public static IGridFunction<TerrainData> StoneFunction { get; private set; }
+    public static IGridFunction<TerrainData> RiverFunction { get; private set; }
     public static IGridFunction<BiomeData> BiomeFunction { get; private set; }
 
     public static bool UseVanillaTerrain { get; private set; } = true;
@@ -37,6 +38,7 @@ internal static class Patch_RimWorld_GenStep_Terrain
     [HarmonyPriority(Priority.Last)]
     private static void Generate_Postfix(Map map, GenStepParams parms)
     {
+        ApplyWaterFlow(map);
         CleanUp();
 
         var biomeGrid = map.BiomeGrid();
@@ -71,6 +73,7 @@ internal static class Patch_RimWorld_GenStep_Terrain
 
         BaseFunction = Landform.GetFeatureScaled(l => l.OutputTerrain?.GetBase());
         StoneFunction = Landform.GetFeatureScaled(l => l.OutputTerrain?.GetStone());
+        RiverFunction = Landform.GetFeatureScaled(l => l.OutputWaterFlow?.GetRiverTerrain());
         BiomeFunction = Landform.GetFeatureScaled(l => l.OutputBiomeGrid?.GetBiomeGrid());
 
         _biomeGrid = biomeGrid ?? new BiomeGrid(null, new IntVec3(mapSize.x, 1, mapSize.z), tile.Biome);
@@ -102,7 +105,7 @@ internal static class Patch_RimWorld_GenStep_Terrain
 
     private static bool ShouldUseVanillaTerrain(WorldTileInfo tile)
     {
-        if (BaseFunction != null || StoneFunction != null || BiomeFunction != null) return false;
+        if (BaseFunction != null || StoneFunction != null || RiverFunction != null || BiomeFunction != null) return false;
         if (tile.Biome.Properties().gravelTerrain != null) return false;
         return true;
     }
@@ -157,12 +160,15 @@ internal static class Patch_RimWorld_GenStep_Terrain
         DebugWarnedMissingTerrain = false;
         BaseFunction = null;
         StoneFunction = null;
+        RiverFunction = null;
         BiomeFunction = null;
         _biomeGrid = null;
     }
 
     public static TerrainDef TerrainAt(IntVec3 c, Map map, float elevation, float fertility, TerrainDef tRiver, bool preferSolid)
     {
+        if (RiverFunction != null) tRiver = RiverFunction.ValueAt(c.x, c.z).Terrain;
+        
         if (tRiver == null && preferSolid)
         {
             return GenStep_RocksFromGrid.RockDefAt(c).building.naturalTerrain;
@@ -203,5 +209,50 @@ internal static class Patch_RimWorld_GenStep_Terrain
         if (elevation < 0.55) return null;
         if (elevation < 0.61) return biome.Properties().gravelTerrain ?? TerrainDefOf.Gravel;
         return GenStep_RocksFromGrid.RockDefAt(c).building.naturalTerrain;
+    }
+
+    private static void ApplyWaterFlow(Map map)
+    {
+        if (MapPreviewAPI.IsGeneratingPreview) return;
+
+        var flowFuncAlpha = Landform.GetFeatureScaled(l => l.OutputWaterFlow?.GetFlowAlpha());
+        var flowFuncBeta = Landform.GetFeatureScaled(l => l.OutputWaterFlow?.GetFlowBeta());
+
+        if (flowFuncAlpha == null || flowFuncBeta == null) return;
+
+        var waterInfo = map.waterInfo;
+        if (waterInfo == null) return;
+
+        const int border = WaterInfo.RiverOffsetMapBorder;
+
+        var bounds = new CellRect(-border, -border, map.Size.x + border * 2, map.Size.z + border * 2);
+
+        var bytes = waterInfo.riverOffsetMap;
+        var offsets = new float[bounds.Area * 2];
+
+        if (bytes != null) Buffer.BlockCopy(bytes, 0, offsets, 0, bytes.Length);
+        else bytes = new byte[bounds.Area * 8];
+
+        int idx = 0;
+
+        for (int z = bounds.minZ; z <= bounds.maxZ; ++z)
+        {
+            for (int x = bounds.minX; x <= bounds.maxX; ++x)
+            {
+                if (RiverFunction == null && (offsets[idx] != 0f || offsets[idx + 1] != 0f)) continue;
+
+                var alpha = (float) flowFuncAlpha.ValueAt(x, z);
+                var beta = (float) flowFuncBeta.ValueAt(x, z);
+
+                offsets[idx] = beta;
+                offsets[idx + 1] = alpha;
+                idx += 2;
+            }
+        }
+
+        Buffer.BlockCopy(offsets, 0, bytes, 0, offsets.Length * 4);
+
+        waterInfo.riverOffsetMap = bytes;
+        waterInfo.GenerateRiverFlowMap();
     }
 }
