@@ -74,7 +74,7 @@ public class NodeGridSelectRoof : NodeSelectBase
         List<ISupplier<IGridFunction<RoofData>>> options = new();
         for (int i = 0; i < Math.Min(Values.Count, OptionKnobs.Count); i++)
         {
-            options.Add(new NodeRoofGridFromValue.Output(SupplierOrFixed(OptionKnobs[i], RoofData.FromString(Values[i]))));
+            options.Add(new NodeGridFromValue.Output<RoofData>(SupplierOrFixed(OptionKnobs[i], RoofData.FromString(Values[i]))));
         }
 
         OutputKnob.SetValue<ISupplier<IGridFunction<RoofData>>>(new GridOutput<RoofData>(input, options, Thresholds, PostProcess));

@@ -8,7 +8,7 @@ using UnityEngine;
 namespace GeologicalLandforms.GraphEditor;
 
 [Serializable]
-[Node(false, "Biome/Preview", 340)]
+[Node(false, "Biome/Grid/Preview", 346)]
 public class NodeBiomeGridPreview : NodeDiscreteGridPreview<BiomeData>
 {
     public const string ID = "biomeGridPreview";
@@ -50,10 +50,10 @@ public class NodeBiomeGridPreview : NodeDiscreteGridPreview<BiomeData>
     protected override Color GetColor(BiomeData value)
     {
         if (value.IsEmpty) return Color.black;
-        return GetTerrainColor(value.Biome, value.SelectionIndex);
+        return GetBiomeColor(value.Biome, value.SelectionIndex);
     }
 
-    public Color GetTerrainColor(BiomeDef def, int selIdx)
+    public Color GetBiomeColor(BiomeDef def, int selIdx)
     {
         return _biomeColors[selIdx % _biomeColors.Count];
     }

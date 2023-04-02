@@ -23,11 +23,13 @@ public readonly struct TerrainData
         SelectionIndex = selectionIndex;
     }
 
-    public static void TerrainSelector(NodeBase node, string current, bool enabled, Action<TerrainDef> onSelected)
+    public static void TerrainSelector(NodeBase node, string current, bool enabled, Action<TerrainDef> onSelected, GUILayoutOption[] layout = null)
     {
         GUI.enabled = enabled;
 
-        if (GUILayout.Button(DislayString(current), GUI.skin.box, node.BoxLayout))
+        layout ??= node.BoxLayout;
+
+        if (GUILayout.Button(DislayString(current), GUI.skin.box, layout))
         {
             NodeBase.Dropdown(new[] { (TerrainDef) null }.Concat(DefDatabase<TerrainDef>.AllDefsListForReading).ToList(), onSelected, DislayString);
         }

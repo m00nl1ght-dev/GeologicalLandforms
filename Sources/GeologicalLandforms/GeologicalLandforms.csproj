@@ -93,7 +93,9 @@
         <Compile Include="GraphEditor\LandformPreviewScheduler.cs" />
         <Compile Include="GraphEditor\Nodes\BiomeGrid\BiomeGridFunctionConnection.cs" />
         <Compile Include="GraphEditor\Nodes\BiomeGrid\NodeBiomeGridPreview.cs" />
+        <Compile Include="GraphEditor\Nodes\BiomeGrid\NodeBiomeGridFromValue.cs" />
         <Compile Include="GraphEditor\Nodes\Biome\BiomeFunctionConnection.cs" />
+        <Compile Include="GraphEditor\Nodes\Biome\NodeBiomeConst.cs" />
         <Compile Include="GraphEditor\Nodes\Grid\NodeGridPerlin.cs" />
         <Compile Include="GraphEditor\Nodes\Grid\NodeGridSelectBiomeGrid.cs" />
         <Compile Include="GraphEditor\Nodes\Grid\NodeGridSelectRoof.cs" />
@@ -117,13 +119,16 @@
         <Compile Include="GraphEditor\Nodes\Output\NodeOutputTerrain.cs" />
         <Compile Include="GraphEditor\Nodes\Output\NodeOutputTerrainPatches.cs" />
         <Compile Include="GraphEditor\Nodes\Output\NodeOutputWaterFlow.cs" />
-        <Compile Include="GraphEditor\Nodes\RoofGrid\NodeTerrainGridFromValue.cs" />
+        <Compile Include="GraphEditor\Nodes\RoofGrid\NodeRoofGridPreview.cs" />
+        <Compile Include="GraphEditor\Nodes\RoofGrid\NodeRoofGridFromValue.cs" />
         <Compile Include="GraphEditor\Nodes\RoofGrid\RoofGridFunctionConnection.cs" />
         <Compile Include="GraphEditor\Nodes\Roof\BiomeFunctionConnection.cs" />
+        <Compile Include="GraphEditor\Nodes\Roof\NodeRoofConst.cs" />
         <Compile Include="GraphEditor\Nodes\TerrainGrid\NodeTerrainGridFromValue.cs" />
         <Compile Include="GraphEditor\Nodes\TerrainGrid\NodeTerrainGridNaturalRock.cs" />
         <Compile Include="GraphEditor\Nodes\TerrainGrid\NodeTerrainGridPreview.cs" />
         <Compile Include="GraphEditor\Nodes\TerrainGrid\TerrainGridFunctionConnection.cs" />
+        <Compile Include="GraphEditor\Nodes\Terrain\NodeTerrainConst.cs" />
         <Compile Include="GraphEditor\Nodes\Terrain\NodeTerrainFromBiome.cs" />
         <Compile Include="GraphEditor\Nodes\Terrain\NodeTerrainNaturalWater.cs" />
         <Compile Include="GraphEditor\Nodes\Terrain\TerrainFunctionConnection.cs" />

@@ -6,10 +6,10 @@ using UnityEngine;
 namespace GeologicalLandforms.GraphEditor;
 
 [Serializable]
-[Node(false, "Terrain/Grid/Const", 300)]
-public class NodeTerrainGridFromValue : NodeBase
+[Node(false, "Biome/Grid/Const", 345)]
+public class NodeBiomeGridFromValue : NodeBase
 {
-    public const string ID = "terrainGridFromValue";
+    public const string ID = "biomeGridFromValue";
     public override string GetID => ID;
 
     public override Vector2 DefaultSize => new(100, 55);
@@ -17,10 +17,10 @@ public class NodeTerrainGridFromValue : NodeBase
 
     public override string Title => "Grid";
 
-    [ValueConnectionKnob("Input", Direction.In, TerrainFunctionConnection.Id)]
+    [ValueConnectionKnob("Input", Direction.In, BiomeFunctionConnection.Id)]
     public ValueConnectionKnob InputKnob;
 
-    [ValueConnectionKnob("Output", Direction.Out, TerrainGridFunctionConnection.Id)]
+    [ValueConnectionKnob("Output", Direction.Out, BiomeGridFunctionConnection.Id)]
     public ValueConnectionKnob OutputKnob;
 
     public string Value;
@@ -33,9 +33,9 @@ public class NodeTerrainGridFromValue : NodeBase
         GUILayout.BeginVertical(BoxStyle);
         GUILayout.BeginHorizontal(BoxStyle);
 
-        TerrainData.TerrainSelector(this, Value, !InputKnob.connected(), selected =>
+        BiomeData.BiomeSelector(this, Value, !InputKnob.connected(), selected =>
         {
-            Value = TerrainData.ToString(selected);
+            Value = BiomeData.ToString(selected);
             canvas.OnNodeChange(this);
         }, FullBoxLayout);
 
@@ -48,14 +48,14 @@ public class NodeTerrainGridFromValue : NodeBase
 
     public override void RefreshPreview()
     {
-        var input = GetIfConnected<TerrainData>(InputKnob);
-        if (input != null) Value = TerrainData.ToString(input.ResetAndGet().Terrain);
+        var input = GetIfConnected<BiomeData>(InputKnob);
+        if (input != null) Value = BiomeData.ToString(input.ResetAndGet().Biome);
     }
-    
+
     public override bool Calculate()
     {
-        OutputKnob.SetValue<ISupplier<IGridFunction<TerrainData>>>(new NodeGridFromValue.Output<TerrainData>(
-            SupplierOrFixed(InputKnob, TerrainData.FromString(Value))
+        OutputKnob.SetValue<ISupplier<IGridFunction<BiomeData>>>(new NodeGridFromValue.Output<BiomeData>(
+            SupplierOrFixed(InputKnob, BiomeData.FromString(Value))
         ));
         return true;
     }

@@ -8,7 +8,7 @@ using Verse;
 namespace GeologicalLandforms.GraphEditor;
 
 [Serializable]
-[Node(false, "Terrain/Preview", 320)]
+[Node(false, "Terrain/Grid/Preview", 320)]
 public class NodeTerrainGridPreview : NodeDiscreteGridPreview<TerrainData>
 {
     public static readonly Color RockColor = GenColor.FromHex("36271C");

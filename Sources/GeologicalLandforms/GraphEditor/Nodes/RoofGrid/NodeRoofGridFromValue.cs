@@ -6,10 +6,10 @@ using UnityEngine;
 namespace GeologicalLandforms.GraphEditor;
 
 [Serializable]
-[Node(false, "Terrain/Grid/Const", 300)]
-public class NodeTerrainGridFromValue : NodeBase
+[Node(false, "Roof/Grid/Const", 335)]
+public class NodeRoofGridFromValue : NodeBase
 {
-    public const string ID = "terrainGridFromValue";
+    public const string ID = "roofGridFromValue";
     public override string GetID => ID;
 
     public override Vector2 DefaultSize => new(100, 55);
@@ -17,10 +17,10 @@ public class NodeTerrainGridFromValue : NodeBase
 
     public override string Title => "Grid";
 
-    [ValueConnectionKnob("Input", Direction.In, TerrainFunctionConnection.Id)]
+    [ValueConnectionKnob("Input", Direction.In, RoofFunctionConnection.Id)]
     public ValueConnectionKnob InputKnob;
 
-    [ValueConnectionKnob("Output", Direction.Out, TerrainGridFunctionConnection.Id)]
+    [ValueConnectionKnob("Output", Direction.Out, RoofGridFunctionConnection.Id)]
     public ValueConnectionKnob OutputKnob;
 
     public string Value;
@@ -33,9 +33,9 @@ public class NodeTerrainGridFromValue : NodeBase
         GUILayout.BeginVertical(BoxStyle);
         GUILayout.BeginHorizontal(BoxStyle);
 
-        TerrainData.TerrainSelector(this, Value, !InputKnob.connected(), selected =>
+        RoofData.RoofSelector(this, Value, !InputKnob.connected(), selected =>
         {
-            Value = TerrainData.ToString(selected);
+            Value = RoofData.ToString(selected);
             canvas.OnNodeChange(this);
         }, FullBoxLayout);
 
@@ -48,14 +48,14 @@ public class NodeTerrainGridFromValue : NodeBase
 
     public override void RefreshPreview()
     {
-        var input = GetIfConnected<TerrainData>(InputKnob);
-        if (input != null) Value = TerrainData.ToString(input.ResetAndGet().Terrain);
+        var input = GetIfConnected<RoofData>(InputKnob);
+        if (input != null) Value = RoofData.ToString(input.ResetAndGet().Roof);
     }
-    
+
     public override bool Calculate()
     {
-        OutputKnob.SetValue<ISupplier<IGridFunction<TerrainData>>>(new NodeGridFromValue.Output<TerrainData>(
-            SupplierOrFixed(InputKnob, TerrainData.FromString(Value))
+        OutputKnob.SetValue<ISupplier<IGridFunction<RoofData>>>(new NodeGridFromValue.Output<RoofData>(
+            SupplierOrFixed(InputKnob, RoofData.FromString(Value))
         ));
         return true;
     }

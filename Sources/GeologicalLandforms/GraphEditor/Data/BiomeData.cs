@@ -24,11 +24,13 @@ public readonly struct BiomeData
         SelectionIndex = selectionIndex;
     }
 
-    public static void BiomeSelector(NodeBase node, string current, bool enabled, Action<BiomeDef> onSelected)
+    public static void BiomeSelector(NodeBase node, string current, bool enabled, Action<BiomeDef> onSelected, GUILayoutOption[] layout = null)
     {
         GUI.enabled = enabled;
 
-        if (GUILayout.Button(DislayString(current), GUI.skin.box, node.BoxLayout))
+        layout ??= node.BoxLayout;
+
+        if (GUILayout.Button(DislayString(current), GUI.skin.box, layout))
         {
             NodeBase.Dropdown(new[] { (BiomeDef) null }.Concat(DefDatabase<BiomeDef>.AllDefsListForReading).ToList(), onSelected, DislayString);
         }

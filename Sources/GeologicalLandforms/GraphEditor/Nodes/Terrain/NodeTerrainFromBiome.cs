@@ -7,7 +7,7 @@ using UnityEngine;
 namespace GeologicalLandforms.GraphEditor;
 
 [Serializable]
-[Node(false, "Terrain/Biome", 310)]
+[Node(false, "Terrain/Biome", 311)]
 public class NodeTerrainFromBiome : NodeBase
 {
     public const string ID = "terrainFromBiome";

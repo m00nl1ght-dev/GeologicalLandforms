@@ -10,7 +10,7 @@ using static GeologicalLandforms.IWorldTileInfo.CoastType;
 namespace GeologicalLandforms.GraphEditor;
 
 [Serializable]
-[Node(false, "Terrain/Natural Water", 311)]
+[Node(false, "Terrain/Natural Water", 312)]
 public class NodeTerrainNaturalWater : NodeBase
 {
     public const string ID = "terrainNaturalWater";

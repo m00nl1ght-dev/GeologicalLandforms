@@ -69,12 +69,12 @@ public class NodeGridSelectTerrain : NodeSelectBase
 
     public override bool Calculate()
     {
-        ISupplier<IGridFunction<double>> input = SupplierOrGridFixed(InputKnob, GridFunction.Zero);
+        var input = SupplierOrGridFixed(InputKnob, GridFunction.Zero);
 
         List<ISupplier<IGridFunction<TerrainData>>> options = new();
         for (int i = 0; i < Math.Min(Values.Count, OptionKnobs.Count); i++)
         {
-            options.Add(new NodeTerrainGridFromValue.Output(SupplierOrFixed(OptionKnobs[i], TerrainData.FromString(Values[i]))));
+            options.Add(new NodeGridFromValue.Output<TerrainData>(SupplierOrFixed(OptionKnobs[i], TerrainData.FromString(Values[i]))));
         }
 
         OutputKnob.SetValue<ISupplier<IGridFunction<TerrainData>>>(new GridOutput<TerrainData>(input, options, Thresholds, PostProcess));

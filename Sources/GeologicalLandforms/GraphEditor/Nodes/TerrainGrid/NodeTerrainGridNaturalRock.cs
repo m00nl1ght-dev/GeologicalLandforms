@@ -8,7 +8,7 @@ using Verse;
 namespace GeologicalLandforms.GraphEditor;
 
 [Serializable]
-[Node(false, "Terrain/Natural Rock", 315)]
+[Node(false, "Terrain/Grid/Natural Rock", 315)]
 public class NodeTerrainGridNaturalRock : NodeBase
 {
     public const string ID = "terrainGridNaturalRock";

@@ -23,11 +23,13 @@ public readonly struct RoofData
         SelectionIndex = selectionIndex;
     }
 
-    public static void RoofSelector(NodeBase node, string current, bool enabled, Action<RoofDef> onSelected)
+    public static void RoofSelector(NodeBase node, string current, bool enabled, Action<RoofDef> onSelected, GUILayoutOption[] layout = null)
     {
         GUI.enabled = enabled;
 
-        if (GUILayout.Button(DislayString(current), GUI.skin.box, node.BoxLayout))
+        layout ??= node.BoxLayout;
+
+        if (GUILayout.Button(DislayString(current), GUI.skin.box, layout))
         {
             NodeBase.Dropdown(new[] { (RoofDef) null }.Concat(DefDatabase<RoofDef>.AllDefsListForReading).ToList(), onSelected, DislayString);
         }
