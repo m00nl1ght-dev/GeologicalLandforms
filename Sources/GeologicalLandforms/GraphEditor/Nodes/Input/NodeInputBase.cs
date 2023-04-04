@@ -170,7 +170,7 @@ public abstract class NodeInputBase : NodeBase
 
             var generator = new TunnelGenerator();
             var elevationGrid = new Transform<double>(elevation, 1 / _transformScale);
-            var cavesGrid = generator.Generate(_caveGridSize, _rand, c => elevationGrid.ValueAt(c.x, c.z) > 0.7);
+            var cavesGrid = generator.Generate(_caveGridSize, _rand, c => elevationGrid.ValueAt(c.x, c.z) > 0.7).CavesGrid;
             return new Transform<double>(new Cache<double>(cavesGrid), _transformScale);
         }
 

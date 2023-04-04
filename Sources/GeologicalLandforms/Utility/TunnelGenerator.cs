@@ -42,12 +42,15 @@ public class TunnelGenerator
     [ThreadStatic]
     private static List<IntVec3> SubGroup;
 
-    private ModuleBase _directionNoise;
-    private double[,] _cavesGrid;
     private bool[,] _baseGrid;
+    private double[,] _cavesGrid;
+    private double[,] _depthGrid;
+    private double[,] _offsetGrid;
+
+    private ModuleBase _directionNoise;
     private RandInstance _rand;
 
-    public double[,] Generate(IntVec2 gridSize, RandInstance rand, Predicate<IntVec2> cellCondition)
+    public Result Generate(IntVec2 gridSize, RandInstance rand, Predicate<IntVec2> cellCondition, bool depthGrid = false, bool offsetGrid = false)
     {
         if (GroupSet == null)
         {
@@ -57,16 +60,18 @@ public class TunnelGenerator
         }
 
         var map = new Map { info = new MapInfo { Size = new IntVec3(gridSize.x, 1, gridSize.z) } };
-        var cavesGrid = new double[map.Size.x, map.Size.z];
-        var baseGrid = new bool[map.Size.x, map.Size.z];
 
         map.cellIndices = new CellIndices(map);
         map.floodFiller = new FloodFiller(map);
 
-        _directionNoise = new Perlin(DirectionNoiseFrequency, 2.0, 0.5, 4, rand.Int, QualityMode.Medium);
-        _cavesGrid = cavesGrid;
-        _baseGrid = baseGrid;
         _rand = rand;
+        _directionNoise = new Perlin(DirectionNoiseFrequency, 2.0, 0.5, 4, rand.Int, QualityMode.Medium);
+
+        _baseGrid = new bool[map.Size.x, map.Size.z];
+        _cavesGrid = new double[map.Size.x, map.Size.z];
+        _depthGrid = depthGrid ? new double[map.Size.x, map.Size.z] : null;
+        _offsetGrid = offsetGrid ? new double[map.Size.x, map.Size.z] : null;
+        
 
         var visited = new BoolGrid(map);
         var group = new List<IntVec3>();
@@ -103,12 +108,31 @@ public class TunnelGenerator
             }
         }
 
-        _directionNoise = null;
-        _cavesGrid = null;
-        _baseGrid = null;
-        _rand = null;
+        var result = new Result
+        {
+            BaseGrid = _baseGrid,
+            CavesGrid = _cavesGrid,
+            DepthGrid = _depthGrid,
+            OffsetGrid = _offsetGrid
+        };
 
-        return cavesGrid;
+        _rand = null;
+        _directionNoise = null;
+        
+        _baseGrid = null;
+        _cavesGrid = null;
+        _depthGrid = null;
+        _offsetGrid = null;
+
+        return result;
+    }
+
+    public struct Result
+    {
+        public bool[,] BaseGrid;
+        public double[,] CavesGrid;
+        public double[,] DepthGrid;
+        public double[,] OffsetGrid;
     }
 
     private void Trim(List<IntVec3> group, Map map) => GenMorphology.Open(group, 6, map);
@@ -147,7 +171,7 @@ public class TunnelGenerator
             }
 
             float width = _rand.Range(desiredWidth * TunnelWidthMultiplierMin, desiredWidth * TunnelWidthMultiplierMax);
-            Dig(start, dir, width, group, groupSet, map, false);
+            Dig(start, dir, width, 0f, group, groupSet, map, false);
 
             UpdateEdgeCells(edgeCells);
         }
@@ -178,7 +202,7 @@ public class TunnelGenerator
             }
 
             float width = _rand.Range(desiredWidth * TunnelWidthMultiplierMin, desiredWidth * TunnelWidthMultiplierMax);
-            Dig(start, _rand.Range(0.0f, 360f), width, group, groupSet, map, true);
+            Dig(start, _rand.Range(0.0f, 360f), width, 0f, group, groupSet, map, true);
         }
     }
 
@@ -245,97 +269,86 @@ public class TunnelGenerator
     }
 
     private void Dig(
-        IntVec3 start,
-        float dir, float width,
-        List<IntVec3> group,
-        HashSet<IntVec3> groupSet,
-        Map map, bool closed,
-        HashSet<IntVec3> visited = null)
+        IntVec3 start, float dir, float width, float distFromRoot,
+        List<IntVec3> group, HashSet<IntVec3> groupSet, Map map,
+        bool closed, HashSet<IntVec3> visited = null)
     {
-        var vector3Shifted = start.ToVector3Shifted();
-        var intVec3 = start;
+        var pos = start.ToVector3Shifted();
+        var cell = start;
+        
         float num1 = 0.0f;
 
-        bool flag1 = false;
-        bool flag2 = false;
+        bool branchedRight = false;
+        bool branchedLeft = false;
+        
         visited ??= new HashSet<IntVec3>();
 
-        int num2 = 0;
+        int distFromStart = 0;
+        
         while (true)
         {
             if (closed)
             {
-                int num3 = GenRadial.NumCellsInRadius((float) (width / 2.0 + 1.5));
-                for (int index = 0; index < num3; ++index)
+                int cellsInRadius = GenRadial.NumCellsInRadius((float) (width / 2.0 + 1.5));
+                for (int index = 0; index < cellsInRadius; ++index)
                 {
-                    var c = intVec3 + GenRadial.RadialPattern[index];
+                    var c = cell + GenRadial.RadialPattern[index];
                     if (!visited.Contains(c) && (!groupSet.Contains(c) || _cavesGrid.Get(c) > 0.0)) return;
                 }
             }
 
-            if (num2 >= BranchMinDistanceFromStart && width > TunnelWidthMin + BranchedTunnelWidthOffset.max * BranchWidthOffsetMultiplier)
+            if (distFromStart >= BranchMinDistanceFromStart && width > TunnelWidthMin + BranchedTunnelWidthOffset.max * BranchWidthOffsetMultiplier)
             {
-                if (!flag1 && _rand.Chance(BranchChance))
+                if (!branchedRight && _rand.Chance(BranchChance))
                 {
-                    DigInBestDirection(intVec3, dir, new FloatRange(40f, 90f),
+                    DigInBestDirection(cell, dir, new FloatRange(40f, 90f),
                         width - _rand.Range(BranchedTunnelWidthOffset.min, BranchedTunnelWidthOffset.max) * BranchWidthOffsetMultiplier,
-                        group, groupSet, map, closed, visited);
-                    flag1 = true;
+                        distFromRoot + distFromStart - width, group, groupSet, map, closed, visited);
+                    branchedRight = true;
                 }
 
-                if (!flag2 && _rand.Chance(BranchChance))
+                if (!branchedLeft && _rand.Chance(BranchChance))
                 {
-                    DigInBestDirection(intVec3, dir, new FloatRange(-90f, -40f),
+                    DigInBestDirection(cell, dir, new FloatRange(-90f, -40f),
                         width - _rand.Range(BranchedTunnelWidthOffset.min, BranchedTunnelWidthOffset.max) * BranchWidthOffsetMultiplier,
-                        group, groupSet, map, closed, visited);
-                    flag2 = true;
+                        distFromRoot + distFromStart - width, group, groupSet, map, closed, visited);
+                    branchedLeft = true;
                 }
             }
 
-            SetCaveAround(intVec3, width, map, visited, out var hitAnotherTunnel);
+            SetCaveAround(cell, width, distFromRoot + distFromStart, dir, map, visited, out var hitAnotherTunnel);
 
-            if (!hitAnotherTunnel)
+            if (hitAnotherTunnel) return;
+
+            while (pos.ToIntVec3() == cell)
             {
-                while (vector3Shifted.ToIntVec3() == intVec3)
-                {
-                    vector3Shifted += Vector3Utility.FromAngleFlat(dir) * 0.5f;
-                    num1 += 0.5f;
-                }
-
-                if (groupSet.Contains(vector3Shifted.ToIntVec3()))
-                {
-                    var c = new IntVec3(intVec3.x, 0, vector3Shifted.ToIntVec3().z);
-
-                    if (MatchesCellCondition(c, map))
-                    {
-                        _cavesGrid.Set(c, Math.Max(_cavesGrid.Get(c), width));
-                        visited.Add(c);
-                    }
-
-                    intVec3 = vector3Shifted.ToIntVec3();
-                    dir += (float) _directionNoise.GetValue(num1 * 60.0, start.x * 200.0, start.z * 200.0) * DirectionChangeSpeed;
-                    width -= WidthReductionPerCell;
-
-                    if (width >= TunnelWidthMin) ++num2;
-                    else return;
-                }
-                else
-                {
-                    return;
-                }
+                pos += Vector3Utility.FromAngleFlat(dir) * 0.5f;
+                num1 += 0.5f;
             }
-            else
+
+            if (!groupSet.Contains(pos.ToIntVec3())) return;
+
+            var tempCell = new IntVec3(cell.x, 0, pos.ToIntVec3().z);
+
+            if (MatchesCellCondition(tempCell, map))
             {
-                return;
+                _cavesGrid.Set(tempCell, Math.Max(_cavesGrid.Get(tempCell), width));
+                visited.Add(tempCell);
             }
+
+            cell = pos.ToIntVec3();
+            dir += (float) _directionNoise.GetValue(num1 * 60.0, start.x * 200.0, start.z * 200.0) * DirectionChangeSpeed;
+            width -= WidthReductionPerCell;
+
+            if (width >= TunnelWidthMin) ++distFromStart;
+            else return;
         }
     }
 
     private void DigInBestDirection(
-        IntVec3 curIntVec, float curDir,
-        FloatRange dirOffset, float width,
-        List<IntVec3> group, HashSet<IntVec3> groupSet,
-        Map map, bool closed, HashSet<IntVec3> visited = null)
+        IntVec3 curIntVec, float curDir, FloatRange dirOffset, float width, float distFromRoot,
+        List<IntVec3> group, HashSet<IntVec3> groupSet, Map map,
+        bool closed, HashSet<IntVec3> visited = null)
     {
         int num = -1;
         float dir1 = -1f;
@@ -353,25 +366,44 @@ public class TunnelGenerator
         }
 
         if (num < 18) return;
-        Dig(curIntVec, dir1, width, group, groupSet, map, closed, visited);
+        Dig(curIntVec, dir1, width, distFromRoot, group, groupSet, map, closed, visited);
     }
 
     private void SetCaveAround(
-        IntVec3 around, float tunnelWidth,
-        Map map, HashSet<IntVec3> visited,
-        out bool hitAnotherTunnel)
+        IntVec3 around, float tunnelWidth, float distFromRoot, float dir,
+        Map map, HashSet<IntVec3> visited, out bool hitAnotherTunnel)
     {
         hitAnotherTunnel = false;
-        int num = GenRadial.NumCellsInRadius(tunnelWidth / 2f);
 
-        for (int index = 0; index < num; ++index)
+        int cellsInRadius = GenRadial.NumCellsInRadius(tunnelWidth / 2f);
+
+        for (int i = 0; i < cellsInRadius; ++i)
         {
-            var c = around + GenRadial.RadialPattern[index];
+            var c = around + GenRadial.RadialPattern[i];
+            
             if (MatchesCellCondition(c, map))
             {
                 if (_cavesGrid.Get(c) > 0.0 && !visited.Contains(c)) hitAnotherTunnel = true;
                 _cavesGrid.Set(c, Math.Max(_cavesGrid.Get(c), tunnelWidth));
                 visited.Add(c);
+            }
+        }
+
+        if (_depthGrid != null || _offsetGrid != null)
+        {
+            int cellsInRadiusExtra = GenRadial.NumCellsInRadius(tunnelWidth / 2f + 2f);
+
+            for (int i = 0; i < cellsInRadiusExtra; ++i)
+            {
+                var p = GenRadial.RadialPattern[i];
+                var c = around + p;
+
+                if (c.InBounds(map))
+                {
+                    var vec = p.ToVector3().RotatedBy(-dir);
+                    _depthGrid?.Set(c, distFromRoot + vec.x - tunnelWidth / 2f);
+                    _offsetGrid?.Set(c, vec.z);
+                }
             }
         }
     }

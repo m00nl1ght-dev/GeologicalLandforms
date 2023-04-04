@@ -26,6 +26,12 @@ public class NodeGridTunnels : NodeBase
     [ValueConnectionKnob("Output", Direction.Out, GridFunctionConnection.Id)]
     public ValueConnectionKnob OutputKnob;
 
+    [ValueConnectionKnob("Depths", Direction.Out, GridFunctionConnection.Id)]
+    public ValueConnectionKnob DepthsKnob;
+
+    [ValueConnectionKnob("Offsets", Direction.Out, GridFunctionConnection.Id)]
+    public ValueConnectionKnob OffsetsKnob;
+
     public double InputThreshold = 0.7;
 
     public double OpenTunnelsPer10K = 5.8;
@@ -49,6 +55,8 @@ public class NodeGridTunnels : NodeBase
     {
         InputKnob.SetPosition(FirstKnobPosition);
         OutputKnob.SetPosition(FirstKnobPosition);
+        DepthsKnob.SetPosition(FirstKnobPosition + 28);
+        OffsetsKnob.SetPosition(FirstKnobPosition + 56);
 
         GUILayout.BeginVertical(BoxStyle);
 
@@ -78,7 +86,7 @@ public class NodeGridTunnels : NodeBase
 
     public override bool Calculate()
     {
-        OutputKnob.SetValue<ISupplier<IGridFunction<double>>>(new Output(
+        var output = new Output(
             SupplierOrGridFixed(InputKnob, Zero), InputThreshold,
             new TunnelGenerator
             {
@@ -95,12 +103,17 @@ public class NodeGridTunnels : NodeBase
                 DirectionChangeSpeed = (float) DirectionChangeSpeed
             },
             Landform.MapSpaceToNodeSpaceFactor, Landform.GeneratingMapSize,
-            CombinedSeed, TerrainCanvas.CreateRandomInstance()
-        ));
+            CombinedSeed, TerrainCanvas.CreateRandomInstance(),
+            DepthsKnob.connected(), OffsetsKnob.connected()
+        );
+
+        OutputKnob.SetValue<ISupplier<IGridFunction<double>>>(Supplier.From(output.GetCaves, output.ResetState));
+        DepthsKnob.SetValue<ISupplier<IGridFunction<double>>>(Supplier.From(output.GetDepths, output.ResetState));
+        OffsetsKnob.SetValue<ISupplier<IGridFunction<double>>>(Supplier.From(output.GetOffsets, output.ResetState));
         return true;
     }
 
-    private class Output : ISupplier<IGridFunction<double>>
+    private class Output
     {
         private readonly ISupplier<IGridFunction<double>> _input;
         private readonly double _inputThreshold;
@@ -109,10 +122,14 @@ public class NodeGridTunnels : NodeBase
         private readonly IntVec2 _targetGridSize;
         private readonly int _seed;
         private readonly IRandom _random;
+        private readonly bool _doDepths;
+        private readonly bool _doOffsets;
+
+        private TunnelGenerator.Result _result;
 
         public Output(
             ISupplier<IGridFunction<double>> input, double inputThreshold, TunnelGenerator generator,
-            double transformScale, IntVec2 targetGridSize, int seed, IRandom random)
+            double transformScale, IntVec2 targetGridSize, int seed, IRandom random, bool doDepths, bool doOffsets)
         {
             _input = input;
             _inputThreshold = inputThreshold;
@@ -121,18 +138,45 @@ public class NodeGridTunnels : NodeBase
             _targetGridSize = targetGridSize;
             _seed = seed;
             _random = random;
+            _doDepths = doDepths;
+            _doOffsets = doOffsets;
             _random.Reinitialise(_seed);
         }
 
-        public IGridFunction<double> Get()
+        private void GenerateIfNeeded()
         {
-            var input = new Transform<double>(_input.Get(), 1 / _transformScale);
-            var grid = _generator.Generate(_targetGridSize, new RandInstance(_random.Next()), c => input.ValueAt(c.x, c.z) > _inputThreshold);
-            return new Transform<double>(new Cache<double>(grid), _transformScale);
+            if (_result.CavesGrid == null)
+            {
+                var rand = new RandInstance(_random.Next());
+                var input = new Transform<double>(_input.Get(), 1 / _transformScale);
+                _result = _generator.Generate(_targetGridSize, rand, c => input.ValueAt(c.x, c.z) > _inputThreshold, _doDepths, _doOffsets);
+            }
+        }
+
+        public IGridFunction<double> GetCaves()
+        {
+            GenerateIfNeeded();
+            if (_result.CavesGrid == null) return Zero;
+            return new Transform<double>(new Cache<double>(_result.CavesGrid), _transformScale);
+        }
+
+        public IGridFunction<double> GetDepths()
+        {
+            GenerateIfNeeded();
+            if (_result.DepthGrid == null) return Zero;
+            return new Transform<double>(new Cache<double>(_result.DepthGrid), _transformScale);
+        }
+
+        public IGridFunction<double> GetOffsets()
+        {
+            GenerateIfNeeded();
+            if (_result.OffsetGrid == null) return Zero;
+            return new Transform<double>(new Cache<double>(_result.OffsetGrid), _transformScale);
         }
 
         public void ResetState()
         {
+            _result = new TunnelGenerator.Result();
             _random.Reinitialise(_seed);
             _input.ResetState();
         }
