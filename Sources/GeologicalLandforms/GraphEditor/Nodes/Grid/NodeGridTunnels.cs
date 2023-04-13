@@ -51,6 +51,8 @@ public class NodeGridTunnels : NodeBase
 
     public double DirectionChangeSpeed = 8;
 
+    public int MinEdgeCells;
+
     public override void NodeGUI()
     {
         InputKnob.SetPosition(FirstKnobPosition);
@@ -78,6 +80,8 @@ public class NodeGridTunnels : NodeBase
 
         ValueField("Angle change", ref DirectionChangeSpeed);
 
+        IntField("Min edge cells", ref MinEdgeCells);
+
         GUILayout.EndVertical();
 
         if (GUI.changed)
@@ -104,7 +108,8 @@ public class NodeGridTunnels : NodeBase
             },
             Landform.MapSpaceToNodeSpaceFactor, Landform.GeneratingMapSize,
             CombinedSeed, TerrainCanvas.CreateRandomInstance(),
-            DepthsKnob.connected(), OffsetsKnob.connected()
+            DepthsKnob.connected(), OffsetsKnob.connected(),
+            MinEdgeCells
         );
 
         OutputKnob.SetValue<ISupplier<IGridFunction<double>>>(Supplier.From(output.GetCaves, output.ResetState));
@@ -124,12 +129,13 @@ public class NodeGridTunnels : NodeBase
         private readonly IRandom _random;
         private readonly bool _doDepths;
         private readonly bool _doOffsets;
+        private readonly int _minEdgeCells;
 
         private TunnelGenerator.Result _result;
 
         public Output(
             ISupplier<IGridFunction<double>> input, double inputThreshold, TunnelGenerator generator,
-            double transformScale, IntVec2 targetGridSize, int seed, IRandom random, bool doDepths, bool doOffsets)
+            double transformScale, IntVec2 targetGridSize, int seed, IRandom random, bool doDepths, bool doOffsets, int minEdgeCells)
         {
             _input = input;
             _inputThreshold = inputThreshold;
@@ -140,17 +146,37 @@ public class NodeGridTunnels : NodeBase
             _random = random;
             _doDepths = doDepths;
             _doOffsets = doOffsets;
+            _minEdgeCells = minEdgeCells;
             _random.Reinitialise(_seed);
         }
 
         private void GenerateIfNeeded()
         {
-            if (_result.CavesGrid == null)
+            const int maxTries = 10;
+
+            if (_result.CavesGrid != null) return;
+
+            var maxAccepted = 0;
+
+            for (int i = 0; i < maxTries; i++)
             {
                 var rand = new RandInstance(_random.Next());
                 var input = new Transform<double>(_input.Get(), 1 / _transformScale);
                 _result = _generator.Generate(_targetGridSize, rand, c => input.ValueAt(c.x, c.z) > _inputThreshold, _doDepths, _doOffsets);
+
+                var function = new Cache<double>(_result.CavesGrid);
+                var accepted = NodeGridValidate.Validate(function, _targetGridSize.x, _targetGridSize.z, 1, 9999, true);
+
+                if (accepted > maxAccepted) maxAccepted = accepted;
+
+                if (accepted >= _minEdgeCells)
+                {
+                    GeologicalLandformsAPI.Logger.Debug($"Cave grid passed validation after {i + 1} tries, with {accepted} accepted cells.");
+                    return;
+                }
             }
+
+            GeologicalLandformsAPI.Logger.Debug($"Cave grid failed validation after {maxTries} tries, with {maxAccepted} accepted cells.");
         }
 
         public IGridFunction<double> GetCaves()
