@@ -22,8 +22,6 @@ internal static class Patch_RimWorld_World
     {
         LastKnownInitialWorldSeed = ___info.Seed;
 
-        WorldTileInfo.RemoveCache();
-
         var landformData = __instance.GetComponent<LandformData>();
 
         var lastWorld = Patch_RimWorld_WorldGenStep_Terrain.LastWorld;
@@ -38,13 +36,6 @@ internal static class Patch_RimWorld_World
             Patch_RimWorld_WorldGenStep_Terrain.CaveSystems = null;
             Patch_RimWorld_WorldGenStep_Terrain.LastWorld = null;
         }
-    }
-
-    [HarmonyPostfix]
-    [HarmonyPatch("FinalizeInit")]
-    private static void FinalizeInit(World __instance)
-    {
-        WorldTileInfo.CreateNewCache();
     }
 
     [HarmonyPrefix]
@@ -90,18 +81,20 @@ internal static class Patch_RimWorld_World
                 var xmlTileContext = new CtxTile(worldTileInfo);
                 var biomeProperties = worldTileInfo.Biome.Properties();
 
-                if (biomeProperties.naturalRockTypes != null)
+                var fromBiome = biomeProperties.worldTileOverrides?.stoneTypes;
+                if (fromBiome != null)
                 {
-                    list = biomeProperties.naturalRockTypes.Get(xmlTileContext, list);
+                    list = fromBiome.Get(xmlTileContext, list);
                 }
 
                 if (worldTileInfo.HasBiomeVariants)
                 {
                     foreach (var biomeVariant in worldTileInfo.BiomeVariants)
                     {
-                        if (biomeVariant.naturalRockTypes != null)
+                        var fromBiomeVariant = biomeVariant.worldTileOverrides?.stoneTypes;
+                        if (fromBiomeVariant != null)
                         {
-                            list = biomeVariant.naturalRockTypes.Get(xmlTileContext, list);
+                            list = fromBiomeVariant.Get(xmlTileContext, list);
                         }
                     }
                 }
@@ -112,7 +105,7 @@ internal static class Patch_RimWorld_World
         }
         catch (Exception e)
         {
-            GeologicalLandformsAPI.Logger.Warn("Error in NaturalRockTypesIn for tile " + tile, e);
+            GeologicalLandformsAPI.Logger.Error("Error in NaturalRockTypesIn for tile " + tile, e);
         }
 
         // NaturalRockTypesIn is called many times during map generation, and also while any deep drill is running.

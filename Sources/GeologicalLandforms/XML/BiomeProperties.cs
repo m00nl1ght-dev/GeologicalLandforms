@@ -26,9 +26,8 @@ public class BiomeProperties : DefModExtension
     public bool hasStableCaveRoofs;
     public bool allowSettlementsOnImpassableTerrain;
 
+    public WorldTileOverrides worldTileOverrides;
     public WorldTileGraphicAtlas worldTileGraphicAtlas;
-
-    public XmlDynamicValue<List<ThingDef>, ICtxTile> naturalRockTypes;
 
     public TerrainDef beachTerrain;
     public TerrainDef gravelTerrain;
@@ -49,6 +48,16 @@ public class BiomeProperties : DefModExtension
     {
         if (!AllowBiomeTransitions) return false;
         return !(disallowedBiomeTransitions?.Contains(biome) ?? false);
+    }
+
+    public class WorldTileOverrides
+    {
+        public XmlDynamicValue<float, ICtxTile> elevation;
+        public XmlDynamicValue<float, ICtxTile> temperature;
+        public XmlDynamicValue<float, ICtxTile> rainfall;
+        public XmlDynamicValue<float, ICtxTile> pollution;
+
+        public XmlDynamicValue<List<ThingDef>, ICtxTile> stoneTypes;
     }
 
     public static bool AnyHasTileGraphic { get; private set; }

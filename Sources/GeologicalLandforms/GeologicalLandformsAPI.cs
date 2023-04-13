@@ -59,6 +59,8 @@ public static class GeologicalLandformsAPI
         BiomeProperties.RebuildCache();
         BiomeVariantDef.InitialLoad();
 
+        WorldGenStep_Landforms.Register();
+
         LandformGraphEditor.InitialSetup();
         LandformManager.InitialLoad();
     }

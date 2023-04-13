@@ -181,6 +181,7 @@
         <Compile Include="World\IWorldTileInfo.cs" />
         <Compile Include="World\LandformData.cs" />
         <Compile Include="World\Topology.cs" />
+        <Compile Include="World\WorldGenStep_Landforms.cs" />
         <Compile Include="World\WorldLayer_BiomeTransitions.cs" />
         <Compile Include="World\WorldLayer_Landforms.cs" />
         <Compile Include="World\WorldTileGraphicAtlas.cs" />

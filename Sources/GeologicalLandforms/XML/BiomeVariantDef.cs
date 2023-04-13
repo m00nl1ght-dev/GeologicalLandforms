@@ -6,6 +6,7 @@ using LunarFramework.XML;
 using RimWorld.Planet;
 using UnityEngine;
 using Verse;
+using static GeologicalLandforms.BiomeProperties;
 
 namespace GeologicalLandforms.Defs;
 
@@ -18,8 +19,7 @@ public class BiomeVariantDef : Def
     public XmlDynamicValue<string, ICtxTile> biomeLabel;
     public XmlDynamicValue<string, ICtxTile> biomeDescription;
 
-    public XmlDynamicValue<List<ThingDef>, ICtxTile> naturalRockTypes;
-
+    public WorldTileOverrides worldTileOverrides;
     public WorldTileGraphicAtlas worldTileGraphicAtlas;
 
     [NoTranslate]

@@ -42,7 +42,7 @@ internal static class Patch_Verse_CellInspectorDrawer
         }
 
         var waterInfo = Find.CurrentMap?.waterInfo;
-        if (Prefs.DevMode && waterInfo != null)
+        if (Prefs.DevMode && waterInfo?.riverFlowMap != null && Input.GetKey(KeyCode.LeftShift))
         {
             var x = waterInfo.riverFlowMap[waterInfo.riverFlowMapBounds.IndexOf(cell) * 2];
             var y = waterInfo.riverFlowMap[waterInfo.riverFlowMapBounds.IndexOf(cell) * 2 + 1];
