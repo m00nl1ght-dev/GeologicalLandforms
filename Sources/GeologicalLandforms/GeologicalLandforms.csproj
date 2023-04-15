@@ -124,6 +124,7 @@
         <Compile Include="GraphEditor\Nodes\RoofGrid\RoofGridFunctionConnection.cs" />
         <Compile Include="GraphEditor\Nodes\Roof\BiomeFunctionConnection.cs" />
         <Compile Include="GraphEditor\Nodes\Roof\NodeRoofConst.cs" />
+        <Compile Include="GraphEditor\Nodes\Custom\NodeRunGenStep.cs" />
         <Compile Include="GraphEditor\Nodes\TerrainGrid\NodeTerrainGridFromValue.cs" />
         <Compile Include="GraphEditor\Nodes\TerrainGrid\NodeTerrainGridNaturalRock.cs" />
         <Compile Include="GraphEditor\Nodes\TerrainGrid\NodeTerrainGridPreview.cs" />
