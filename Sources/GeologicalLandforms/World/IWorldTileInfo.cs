@@ -4,6 +4,7 @@ using GeologicalLandforms.GraphEditor;
 using LunarFramework.Utility;
 using RimWorld;
 using RimWorld.Planet;
+using UnityEngine;
 using Verse;
 
 namespace GeologicalLandforms;
@@ -31,6 +32,7 @@ public interface IWorldTileInfo
 
     public RiverDef MainRiver { get; }
     public float MainRiverAngle { get; }
+    public Vector3 MainRiverPosition { get; }
 
     public RoadDef MainRoad { get; }
     public float MainRoadAngle { get; }

@@ -19,6 +19,9 @@ public class NodeValueRiversAndRoads : NodeBase
     [ValueConnectionKnob("Angle", Direction.Out, ValueFunctionConnection.Id)]
     public ValueConnectionKnob AngleOutputKnob;
 
+    [ValueConnectionKnob("Offset", Direction.Out, ValueFunctionConnection.Id)]
+    public ValueConnectionKnob OffsetOutputKnob;
+
     [ValueConnectionKnob("River Width", Direction.Out, ValueFunctionConnection.Id)]
     public ValueConnectionKnob RiverWidthOutputKnob;
 
@@ -33,6 +36,11 @@ public class NodeValueRiversAndRoads : NodeBase
         GUILayout.Label("Angle", DoubleBoxLayout);
         GUILayout.EndHorizontal();
         AngleOutputKnob.SetPosition();
+
+        GUILayout.BeginHorizontal(BoxStyle);
+        GUILayout.Label("Offset", DoubleBoxLayout);
+        GUILayout.EndHorizontal();
+        OffsetOutputKnob.SetPosition();
 
         GUILayout.BeginHorizontal(BoxStyle);
         GUILayout.Label("River Width", DoubleBoxLayout);
@@ -53,9 +61,12 @@ public class NodeValueRiversAndRoads : NodeBase
         float mainRoadMultiplier = Landform.GeneratingTile.MainRoad?.movementCostMultiplier ?? 1f;
 
         float angle = 0f;
+        float offset = 0f;
+        
         if (Landform.GeneratingTile.MainRiver != null)
         {
             angle = Landform.GeneratingTile.MainRiverAngle;
+            offset = PositionToOffset(Landform.GeneratingTile.MainRiverPosition, angle);
         }
         else if (Landform.GeneratingTile.MainRoad != null)
         {
@@ -63,8 +74,17 @@ public class NodeValueRiversAndRoads : NodeBase
         }
 
         AngleOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) angle));
+        OffsetOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) offset));
         RiverWidthOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) riverWidth));
         RoadMultiplierOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) mainRoadMultiplier));
         return true;
+    }
+
+    private static float PositionToOffset(Vector3 position, float angle)
+    {
+        var pos = new Vector2(position.x - 0.5f, position.z - 0.5f);
+        var vec = new Vector2(Mathf.Sin(angle * Mathf.Deg2Rad), Mathf.Cos(angle * Mathf.Deg2Rad));
+        var diff = pos - vec * Vector2.Dot(pos, vec);
+        return Vector2.SignedAngle(vec, pos) > 0f ? -diff.magnitude : diff.magnitude;
     }
 }

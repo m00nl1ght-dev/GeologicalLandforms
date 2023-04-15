@@ -7,6 +7,7 @@ using GeologicalLandforms.Patches;
 using LunarFramework.Utility;
 using RimWorld;
 using RimWorld.Planet;
+using UnityEngine;
 using Verse;
 using static Verse.RotationDirection;
 using static GeologicalLandforms.IWorldTileInfo;
@@ -50,11 +51,12 @@ public class WorldTileInfo : IWorldTileInfo
     public Tile.RoadLink? MainRoadLink => Tile.Roads?.OrderBy(r => r.road.movementCostMultiplier).FirstOrDefault();
 
     public RiverDef MainRiver => MainRiverLink?.river;
-    public float MainRiverAngle => World.grid.GetHeadingFromTo(TileId, MainRiverLink?.neighbor ?? 0);
+    public float MainRiverAngle => MainRiverLink.HasValue ? CalculateRiverAngleFor(MainRiverLink.Value) : 0f;
+    public Vector3 MainRiverPosition => MainRiverLink.HasValue ? CalculateRiverPositionFor(MainRiverLink.Value) : Vector3.zero;
 
     public RoadDef MainRoad => MainRoadLink?.road;
-    public float MainRoadAngle => World.grid.GetHeadingFromTo(TileId, MainRoadLink?.neighbor ?? 0);
-
+    public float MainRoadAngle => World.grid.GetHeadingFromTo(TileId, MainRoadLink?.neighbor ?? TileId);
+    
     public byte DepthInCaveSystem => World.LandformData()?.GetCaveSystemDepthAt(TileId) ?? 0;
 
     public int MakeSeed(int salt) => Gen.HashCombineInt(Patch_RimWorld_World.StableSeedForTile(TileId), salt);
@@ -391,7 +393,7 @@ public class WorldTileInfo : IWorldTileInfo
         info.TopologyDirection = new Rot4(Rand.RangeInclusiveSeeded(0, 3, info.MakeSeed(0087)));
     }
 
-    public static void DetermineCaveTopology(WorldTileInfo info)
+    private static void DetermineCaveTopology(WorldTileInfo info)
     {
         var nonCliffTiles = _tsc_nonCliffTiles;
         var caveTiles = _tsc_caveSystemTiles;
@@ -418,7 +420,7 @@ public class WorldTileInfo : IWorldTileInfo
         info.TopologyDirection = new Rot4(Rand.RangeInclusiveSeeded(0, 3, info.MakeSeed(0087)));
     }
 
-    public static void DetermineCoastTopology(WorldTileInfo info)
+    private static void DetermineCoastTopology(WorldTileInfo info)
     {
         var waterTiles = _tsc_waterTiles;
         var landTiles = _tsc_landTiles;
@@ -532,7 +534,7 @@ public class WorldTileInfo : IWorldTileInfo
         }
     }
 
-    public static void DetermineCliffTopology(WorldTileInfo info)
+    private static void DetermineCliffTopology(WorldTileInfo info)
     {
         var cliffTiles = _tsc_cliffTiles;
         var nonCliffTiles = _tsc_nonCliffTiles;
@@ -643,7 +645,38 @@ public class WorldTileInfo : IWorldTileInfo
         }
     }
 
-    public static CoastType CoastTypeFromTile(Tile tile)
+    private float CalculateRiverAngleFor(Tile.RiverLink riverLink)
+    {
+        var topoAngle = TopologyDirection.AsAngle;
+        var baseAngle = World.grid.GetHeadingFromTo(TileId, riverLink.neighbor);
+
+        if (Mathf.Abs(Mathf.DeltaAngle(baseAngle, topoAngle)) > 90f) baseAngle = (baseAngle + 180f) % 360f;
+
+        if (Topology is Topology.CoastOneSide or Topology.CliffAndCoast)
+        {
+            if (Mathf.DeltaAngle(baseAngle, topoAngle - 30f) > 0f) return topoAngle - 30f;
+            if (Mathf.DeltaAngle(baseAngle, topoAngle + 30f) < 0f) return topoAngle + 30f;
+        }
+        else if (Topology == Topology.CoastTwoSides)
+        {
+            if (Mathf.DeltaAngle(baseAngle, topoAngle) > 0f) return topoAngle;
+            if (Mathf.DeltaAngle(baseAngle, topoAngle + 90f) < 0f) return topoAngle + 90f;
+        }
+        else if (Topology == Topology.CoastThreeSides)
+        {
+            if (Mathf.DeltaAngle(baseAngle, topoAngle - 15f) > 0f) return topoAngle - 15f;
+            if (Mathf.DeltaAngle(baseAngle, topoAngle + 15f) < 0f) return topoAngle + 15f;
+        }
+
+        return baseAngle;
+    }
+
+    private Vector3 CalculateRiverPositionFor(Tile.RiverLink riverLink)
+    {
+        return new Vector3(Rand.RangeSeeded(0.3f, 0.7f, MakeSeed(9332)), 0.0f, Rand.RangeSeeded(0.3f, 0.7f, MakeSeed(2750)));
+    }
+
+    private static CoastType CoastTypeFromTile(Tile tile)
     {
         if (tile.biome == BiomeDefOf.Ocean) return CoastType.Ocean;
         if (tile.biome == BiomeDefOf.Lake) return CoastType.Lake;
@@ -651,7 +684,7 @@ public class WorldTileInfo : IWorldTileInfo
         return CoastType.None;
     }
 
-    public static CoastType CombineCoastTypes(CoastType a, CoastType b)
+    private static CoastType CombineCoastTypes(CoastType a, CoastType b)
     {
         return (CoastType) Math.Max((int) a, (int) b);
     }

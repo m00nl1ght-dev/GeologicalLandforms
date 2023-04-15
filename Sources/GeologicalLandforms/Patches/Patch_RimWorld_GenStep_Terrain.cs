@@ -1,12 +1,16 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using LunarFramework.Patching;
 using LunarFramework.Utility;
 using MapPreview;
 using RimWorld;
+using RimWorld.Planet;
 using TerrainGraph;
+using UnityEngine;
 using Verse;
 
 namespace GeologicalLandforms.Patches;
@@ -15,6 +19,8 @@ namespace GeologicalLandforms.Patches;
 [HarmonyPatch(typeof(GenStep_Terrain))]
 internal static class Patch_RimWorld_GenStep_Terrain
 {
+    private static readonly Type Self = typeof(Patch_RimWorld_GenStep_Terrain);
+    
     public static IGridFunction<TerrainData> BaseFunction { get; private set; }
     public static IGridFunction<TerrainData> StoneFunction { get; private set; }
     public static IGridFunction<TerrainData> RiverFunction { get; private set; }
@@ -60,6 +66,28 @@ internal static class Patch_RimWorld_GenStep_Terrain
         __result = TerrainAt(c, map, elevation, fertility, tRiver, preferSolid);
 
         return false;
+    }
+
+    [HarmonyTranspiler]
+    [HarmonyPatch("GenerateRiver")]
+    [HarmonyPriority(Priority.VeryLow)]
+    private static IEnumerable<CodeInstruction> GenerateRiver_Transpiler(IEnumerable<CodeInstruction> instructions)
+    {
+        var ldlocAngle = new CodeInstruction(OpCodes.Ldloc);
+
+        var findLoc = TranspilerPattern.Build("FindRiverAngleLoc")
+            .MatchCall(typeof(WorldGrid), "GetHeadingFromTo", new[] { typeof(int), typeof(int) }).Keep()
+            .MatchStloc().StoreOperandIn(ldlocAngle).Keep();
+
+        var injectOpt = TranspilerPattern.Build("OptimizeRiverAngleIfNeeded")
+            .OnlyMatchAfter(findLoc)
+            .MatchNewobj(typeof(Vector3), new[] { typeof(float), typeof(float), typeof(float) }).Keep()
+            .Insert(OpCodes.Ldarg_1)
+            .Insert(CodeInstruction.Call(Self, nameof(OptimizeRiverCenterIfNeeded)))
+            .Match(ldlocAngle).Keep()
+            .Insert(CodeInstruction.Call(Self, nameof(OptimizeRiverAngleIfNeeded)));
+
+        return TranspilerPattern.Apply(instructions, findLoc, injectOpt);
     }
 
     public static void Init(BiomeGrid biomeGrid = null)
@@ -209,6 +237,18 @@ internal static class Patch_RimWorld_GenStep_Terrain
         if (elevation < 0.55) return null;
         if (elevation < 0.61) return biome.Properties().gravelTerrain ?? TerrainDefOf.Gravel;
         return GenStep_RocksFromGrid.RockDefAt(c).building.naturalTerrain;
+    }
+
+    private static float OptimizeRiverAngleIfNeeded(float fromMethod)
+    {
+        return Landform.AnyGeneratingNonLayer ? Landform.GeneratingTile.MainRiverAngle : fromMethod;
+    }
+
+    private static Vector3 OptimizeRiverCenterIfNeeded(Vector3 fromMethod, Map map)
+    {
+        if (!Landform.AnyGeneratingNonLayer) return fromMethod;
+        var position = Landform.GeneratingTile.MainRiverPosition;
+        return new Vector3(position.x * map.Size.x, 0f, position.z * map.Size.z);
     }
 
     private static void ApplyWaterFlow(Map map)

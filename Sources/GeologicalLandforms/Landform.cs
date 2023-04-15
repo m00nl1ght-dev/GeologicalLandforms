@@ -24,6 +24,7 @@ public class Landform : TerrainCanvas
     public static IReadOnlyList<Landform> GeneratingLandforms { get; private set; }
 
     public static bool AnyGenerating => GeneratingLandforms is { Count: > 0 };
+    public static bool AnyGeneratingNonLayer => AnyGenerating && GeneratingLandforms.Any(lf => !lf.IsLayer);
 
     public static IntVec2 GeneratingMapSize { get; set; } = new(250, 250);
 

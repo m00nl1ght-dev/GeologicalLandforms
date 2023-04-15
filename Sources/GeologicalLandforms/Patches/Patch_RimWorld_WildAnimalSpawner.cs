@@ -87,7 +87,6 @@ internal static class Patch_RimWorld_WildAnimalSpawner
     [HarmonyTranspiler]
     [HarmonyPatch("SpawnRandomWildAnimalAt")]
     [HarmonyPriority(Priority.Low)]
-    [HarmonyAfter("net.mseal.rimworld.mod.terrain.movement")]
     private static IEnumerable<CodeInstruction> SpawnRandomWildAnimalAt_Transpiler(IEnumerable<CodeInstruction> instructions)
     {
         var pattern = TranspilerPattern.Build("AdjustPotentialAnimalSpawns")
