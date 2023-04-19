@@ -44,6 +44,7 @@
   <GeologicalLandforms.Settings.Landform.RequireCaves>Require caves</GeologicalLandforms.Settings.Landform.RequireCaves>
   <GeologicalLandforms.Settings.Landform.Priority>Priority</GeologicalLandforms.Settings.Landform.Priority>
   <GeologicalLandforms.Settings.Landform.WorldTileGraphic.AtlasSize>Atlas size</GeologicalLandforms.Settings.Landform.WorldTileGraphic.AtlasSize>
+  <GeologicalLandforms.Settings.Landform.WorldTileGraphic.TexPath>Tex path</GeologicalLandforms.Settings.Landform.WorldTileGraphic.TexPath>
   <GeologicalLandforms.Settings.Landform.WorldTileGraphic.DrawMode>Draw mode</GeologicalLandforms.Settings.Landform.WorldTileGraphic.DrawMode>
   <GeologicalLandforms.Settings.Landform.WorldTileGraphic.DrawMode.HexRandom>Hex (random)</GeologicalLandforms.Settings.Landform.WorldTileGraphic.DrawMode.HexRandom>
   <GeologicalLandforms.Settings.Landform.WorldTileGraphic.DrawMode.HexAdjacency>Hex (adjacency)</GeologicalLandforms.Settings.Landform.WorldTileGraphic.DrawMode.HexAdjacency>

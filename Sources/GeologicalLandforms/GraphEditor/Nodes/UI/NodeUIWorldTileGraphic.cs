@@ -15,7 +15,7 @@ public class NodeUIWorldTileGraphic : NodeUIBase
     public override string GetID => ID;
 
     public override string Title => "World Tile Graphic";
-    public override Vector2 DefaultSize => new(400, 115);
+    public override Vector2 DefaultSize => new(400, 155);
 
     [NonSerialized]
     public readonly WorldTileGraphicAtlas Atlas = new();
@@ -24,6 +24,8 @@ public class NodeUIWorldTileGraphic : NodeUIBase
 
     public int AtlasSizeX = 2;
     public int AtlasSizeY = 2;
+
+    public string TexPath = "";
 
     private string _atlasSizeXEdit;
     private string _atlasSizeYEdit;
@@ -45,6 +47,13 @@ public class NodeUIWorldTileGraphic : NodeUIBase
         LunarGUI.IntField(layout.Abs(-1), ref AtlasSizeY, ref _atlasSizeYEdit, 1, 64);
         layout.End();
 
+        layout.Abs(10f);
+
+        layout.BeginAbs(28f);
+        LunarGUI.Label(layout.Rel(0.3f), "GeologicalLandforms.Settings.Landform.WorldTileGraphic.TexPath".Translate());
+        LunarGUI.TextField(layout.Abs(-1), ref TexPath);
+        layout.End();
+
         if (layout.PopChanged())
         {
             UpdateAtlas();
@@ -53,7 +62,7 @@ public class NodeUIWorldTileGraphic : NodeUIBase
 
     private void UpdateAtlas()
     {
-        Atlas.texture = "World/Landforms/" + Landform.Id;
+        Atlas.texture = !TexPath.NullOrEmpty() ? TexPath : "World/Landforms/" + Landform.Id;
         Atlas.atlasSize = new IntVec2(AtlasSizeX, AtlasSizeY);
         Atlas.drawMode = DrawMode;
         Atlas.renderQueue = 3512;
