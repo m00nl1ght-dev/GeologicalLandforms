@@ -48,11 +48,7 @@ internal static class Patch_RimWorld_GenStep_Terrain
         CleanUp();
 
         var biomeGrid = map.BiomeGrid();
-        if (biomeGrid != null)
-        {
-            ApplyBiomeVariants(biomeGrid);
-            biomeGrid.UpdateOpenGroundFraction();
-        }
+        if (biomeGrid != null) ApplyBiomeVariants(biomeGrid);
     }
 
     [HarmonyPrefix]

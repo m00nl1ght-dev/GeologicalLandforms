@@ -37,6 +37,5 @@ internal static class Patch_Verse_MapGenerator
     private static void GenerateContentsIntoMap_Postfix(Map map)
     {
         Landform.CleanUp();
-        map.BiomeGrid()?.UpdateOpenGroundFraction();
     }
 }

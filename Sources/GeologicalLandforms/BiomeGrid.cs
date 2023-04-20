@@ -153,14 +153,18 @@ public class BiomeGrid : MapComponent
     {
         if (map == null) return;
         float total = map.cellIndices.NumGridCells;
-        float walkable = map.AllCells.Sum(GetOpenGroundFractionFor);
+        bool caveBiome = Primary.BiomeBase.Properties().applyToCaves;
+        bool waterPassable = TerrainDefOf.WaterDeep.passability != Traversability.Impassable;
+        float walkable = map.AllCells.Sum(c => GetOpenGroundFractionFor(c, caveBiome, waterPassable));
         OpenGroundFraction = Mathf.Clamp01(walkable / total);
     }
 
-    private float GetOpenGroundFractionFor(IntVec3 cell)
+    private float GetOpenGroundFractionFor(IntVec3 cell, bool caveBiome, bool waterPassable)
     {
-        if (map.terrainGrid.TerrainAt(cell).IsNormalWater()) return 0.1f;
-        if (cell.Roofed(map)) return 0.25f;
+        var terrain = map.terrainGrid.TerrainAt(cell);
+        if (terrain.IsNormalWater()) return waterPassable ? 0.5f : 0.1f;
+        if (!cell.Walkable(map)) return caveBiome ? 0.75f : 0.35f;
+        if (!terrain.natural) return 0.4f;
         return 1f;
     }
 
