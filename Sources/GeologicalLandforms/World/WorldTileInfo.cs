@@ -73,7 +73,7 @@ public class WorldTileInfo : IWorldTileInfo
 
     private int _cacheVersion;
 
-    public static WorldTileInfo Get(int tileId)
+    public static WorldTileInfo Get(int tileId, bool allowFromCache = true)
     {
         try
         {
@@ -83,7 +83,7 @@ public class WorldTileInfo : IWorldTileInfo
             var world = Find.World;
             var canUseCache = cache != null && tileId < cache.Length;
 
-            if (canUseCache)
+            if (canUseCache && allowFromCache)
             {
                 var match = cache[tileId];
                 if (match != null && match._cacheVersion == validVersion && match.World == world) return match;
