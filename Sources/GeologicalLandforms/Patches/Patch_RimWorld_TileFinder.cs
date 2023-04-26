@@ -40,6 +40,7 @@ internal static class Patch_RimWorld_TileFinder
         if (QuestGen.Working) return false; // prevent quest sites from spawning on impassable tiles
         if (tileInfo.Biome.Properties().allowSettlementsOnImpassableTerrain) return true;
         if (tileInfo.HasLandforms && tileInfo.Landforms.Any(lf => !lf.IsLayer)) return true;
+        if (tileInfo.WorldObject is { Faction.IsPlayer: true }) return true;
         return false;
     }
 }
