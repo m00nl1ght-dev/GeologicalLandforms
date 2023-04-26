@@ -123,13 +123,6 @@ public class BiomeProperties : DefModExtension
             }
         },
         {
-            "biomesteam.biomescaverns", new BiomeProperties
-            {
-                allowLandforms = false,
-                allowBiomeTransitions = false
-            }
-        },
-        {
             "biomesteam.oasis", new BiomeProperties
             {
                 allowLandforms = false,
@@ -146,6 +139,14 @@ public class BiomeProperties : DefModExtension
         {
             "mlie.cavebiome", new BiomeProperties
             {
+                allowLandforms = false,
+                allowBiomeTransitions = false
+            }
+        },
+        {
+            "mlie.rfarchipelagos", new BiomeProperties
+            {
+                isWaterCovered = true,
                 allowLandforms = false,
                 allowBiomeTransitions = false
             }
