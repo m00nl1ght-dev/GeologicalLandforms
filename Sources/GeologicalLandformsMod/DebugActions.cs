@@ -182,14 +182,14 @@ public static class DebugActions
 
         if (world != null)
         {
-            if (LunarGUI.Button(layout, Label("ClearWorldTileDataCache")))
+            if (LunarGUI.Button(layout, Label("RefreshWorldTileData")))
             {
-                WorldTileInfo.CreateNewCache();
+                RefreshWorldTileInfo(false);
             }
 
-            if (LunarGUI.Button(layout, Label("FillWorldTileDataCache")))
+            if (LunarGUI.Button(layout, Label("RefreshWorldTileDataForced")))
             {
-                FillWorldTileInfoCache();
+                RefreshWorldTileInfo(true);
             }
         }
     }
@@ -250,6 +250,16 @@ public static class DebugActions
         }
 
         map.regionAndRoomUpdater.Enabled = true;
+    }
+
+    public static void RefreshWorldTileInfo(bool force)
+    {
+        if (force) Find.World.LandformData().ResetAll();
+
+        WorldTileInfo.CreateNewCache();
+        FillWorldTileInfoCache();
+
+        Find.World.renderer.SetDirty<WorldLayer_Landforms>();
     }
 
     public static void FillWorldTileInfoCache()

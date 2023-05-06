@@ -44,6 +44,12 @@ public class LandformData : WorldComponent
         MapPreviewAPI.NotifyWorldChanged();
     }
 
+    public void ResetAll()
+    {
+        _entries.Clear();
+        MapPreviewAPI.NotifyWorldChanged();
+    }
+
     public bool HasBiomeTransitions()
     {
         return _biomeTransitions.Length > 0;

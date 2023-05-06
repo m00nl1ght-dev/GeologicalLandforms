@@ -35,8 +35,8 @@
   <GeologicalLandforms.Settings.Debug.IgnoreWorldTileReqInGodMode>Ignore world tile requirements (unsafe)</GeologicalLandforms.Settings.Debug.IgnoreWorldTileReqInGodMode>
   <GeologicalLandforms.Settings.Debug.ReplaceStoneOnCurrentMap>Replace all stone on current map</GeologicalLandforms.Settings.Debug.ReplaceStoneOnCurrentMap>
   <GeologicalLandforms.Settings.Debug.SetTerrainInArea>Set terrain in area</GeologicalLandforms.Settings.Debug.SetTerrainInArea>
-  <GeologicalLandforms.Settings.Debug.ClearWorldTileDataCache>Clear world tile data cache</GeologicalLandforms.Settings.Debug.ClearWorldTileDataCache>
-  <GeologicalLandforms.Settings.Debug.FillWorldTileDataCache>Fill world tile data cache</GeologicalLandforms.Settings.Debug.FillWorldTileDataCache>
+  <GeologicalLandforms.Settings.Debug.RefreshWorldTileData>Refresh all world tiles</GeologicalLandforms.Settings.Debug.RefreshWorldTileData>
+  <GeologicalLandforms.Settings.Debug.RefreshWorldTileDataForced>Refresh all world tiles (forced)</GeologicalLandforms.Settings.Debug.RefreshWorldTileDataForced>
   <GeologicalLandforms.Settings.Debug.BiomeGridEntriesHeader>Biome grid entries</GeologicalLandforms.Settings.Debug.BiomeGridEntriesHeader>
   <GeologicalLandforms.Settings.Debug.WholeMapDesiredPlants>Total capacity of plant ecosystem</GeologicalLandforms.Settings.Debug.WholeMapDesiredPlants>
   <GeologicalLandforms.Settings.Debug.OpenGroundFactor>Open ground factor</GeologicalLandforms.Settings.Debug.OpenGroundFactor>

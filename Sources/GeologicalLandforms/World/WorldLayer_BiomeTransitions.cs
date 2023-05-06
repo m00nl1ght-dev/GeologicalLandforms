@@ -8,7 +8,7 @@ using Verse;
 
 namespace GeologicalLandforms;
 
-internal class WorldLayer_BiomeTransitions : WorldLayer
+public class WorldLayer_BiomeTransitions : WorldLayer
 {
     public override IEnumerable Regenerate()
     {
