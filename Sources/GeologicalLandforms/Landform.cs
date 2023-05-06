@@ -84,28 +84,42 @@ public class Landform : TerrainCanvas
         
         LandformGraphEditor.ActiveEditor?.Close();
 
-        if (map.Biome != map.TileInfo.biome) return;
-
-        var seed = SeedRerollData.GetMapSeed(Find.World, map.Tile);
-
-        PrepareMapGen(new IntVec2(map.Size.x, map.Size.z), map.Tile, seed);
+        // Support for special-purpose maps from mods that patch the map.Biome getter (e.g. DeepRim, SOS2)
+        if (map.Biome != map.TileInfo.biome)
+        {
+            var mapBiomeProps = map.Biome.Properties();
+            if (mapBiomeProps.overrideLandforms != null)
+            {
+                var tileInfo = WorldTileInfo.Get(map.Tile, false);
+                var landformSeed = SeedRerollData.GetMapSeed(Find.World, map.Tile);
+                var landformIds = mapBiomeProps.overrideLandforms.Get(new CtxTile(tileInfo), new List<string>());
+                var landforms = landformIds.Select(LandformManager.FindById).Where(lf => lf != null).OrderBy(lf => lf.Priority);
+                PrepareMapGen(tileInfo, new IntVec2(map.Size.x, map.Size.z), landformSeed, landforms.Distinct());
+            }
+        }
+        else
+        {
+            var tileInfo = WorldTileInfo.Get(map.Tile, false);
+            var landformSeed = SeedRerollData.GetMapSeed(Find.World, map.Tile);
+            PrepareMapGen(tileInfo, new IntVec2(map.Size.x, map.Size.z), landformSeed);
+        }
     }
 
-    public static void PrepareMapGen(IntVec2 mapSize, int worldTile, int seed)
+    public static void PrepareMapGen(WorldTileInfo tileInfo, IntVec2 mapSize, int seed, IEnumerable<Landform> landforms = null)
     {
         CleanUp();
 
-        GeneratingTile = WorldTileInfo.Get(worldTile, false);
-
+        GeneratingTile = tileInfo;
         GeneratingMapSize = mapSize;
         GeneratingGridFullSize = GeologicalLandformsAPI.LandformGridSize.Invoke();
 
-        if (GeneratingTile.Landforms == null) return;
+        landforms ??= GeneratingTile.Landforms;
+        if (landforms == null) return;
 
         var landformStack = new List<Landform>();
         GeneratingLandforms = landformStack;
 
-        foreach (var landform in GeneratingTile.Landforms)
+        foreach (var landform in landforms)
         {
             landform.RandSeed = seed;
             landform.TraverseAll();

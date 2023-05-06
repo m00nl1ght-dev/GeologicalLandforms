@@ -25,8 +25,9 @@ internal class ModCompat_MapReroll : ModCompat
     [HarmonyPatch("MapReroll.MapPreviewGenerator", "GeneratePreviewForSeed")]
     private static void MapPreviewGenerator_GeneratePreviewForSeed_Prefix(string seed, int mapTile, int mapSize)
     {
+        var tileInfo = WorldTileInfo.Get(mapTile);
         int seedInt = Gen.HashCombineInt(GenText.StableStringHash(seed), mapTile);
-        Landform.PrepareMapGen(new IntVec2(mapSize, mapSize), mapTile, seedInt);
+        Landform.PrepareMapGen(tileInfo, new IntVec2(mapSize, mapSize), seedInt);
         Patch_RimWorld_GenStep_Terrain.Init();
     }
 
