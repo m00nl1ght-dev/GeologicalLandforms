@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using GeologicalLandforms.Patches;
 using RimWorld;
 using RimWorld.Planet;
 using TerrainGraph;
@@ -81,6 +82,9 @@ public static class ExtensionUtils
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int MurmurCombine(this int value, int other) => MurmurHash.GetInt((uint) value, (uint) other);
+
+    public static bool HasFinishedGenerating(this World world)
+        => world != null && Patch_RimWorld_World.LastFinalizedWorldRef?.Target == world;
 
     public static bool HasLandform(this IWorldTileInfo tile, string landformId)
         => tile.Landforms != null && tile.Landforms.Any(l => l.Id == landformId);

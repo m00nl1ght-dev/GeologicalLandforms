@@ -38,7 +38,7 @@ public class WorldTileInfo : IWorldTileInfo
     public Rot4 TopologyDirection { get; protected set; }
     public StructRot4<CoastType> Coast { get; protected set; }
 
-    public MapParent WorldObject => World.worldObjects.MapParentAt(TileId);
+    public MapParent WorldObject => World.worldObjects?.MapParentAt(TileId);
     public BiomeDef Biome => Tile.biome;
 
     public Hilliness Hilliness => Tile.hilliness;
@@ -226,7 +226,7 @@ public class WorldTileInfo : IWorldTileInfo
             foreach (var id in biomeProps.overrideLandforms.Get(new CtxTile(info), ids))
             {
                 var landform = LandformManager.FindById(id);
-                if (landform != null) landforms.Add(landform);
+                if (landform != null) landforms.AddDistinct(landform);
             }
         }
 

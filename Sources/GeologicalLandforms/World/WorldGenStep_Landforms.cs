@@ -11,6 +11,8 @@ public class WorldGenStep_Landforms : WorldGenStep
 
     public override void GenerateFresh(string seed)
     {
+        WorldTileInfo.CreateNewCache();
+        
         var world = Find.World;
         var grid = world.grid;
 
@@ -18,8 +20,6 @@ public class WorldGenStep_Landforms : WorldGenStep
 
         var stopwatch = new Stopwatch();
         stopwatch.Start();
-
-        WorldTileInfo.CreateNewCache();
 
         for (int tileIdx = 0; tileIdx < grid.TilesCount; ++tileIdx)
         {
@@ -41,6 +41,11 @@ public class WorldGenStep_Landforms : WorldGenStep
 
         stopwatch.Stop();
         GeologicalLandformsAPI.Logger.Debug("Calculation of initial world tile data took " + stopwatch.ElapsedMilliseconds + " ms.");
+    }
+
+    public override void GenerateFromScribe(string seed)
+    {
+        WorldTileInfo.CreateNewCache();
     }
 
     private void ApplyOverrides(WorldTileInfo info, WorldTileOverrides overrides)

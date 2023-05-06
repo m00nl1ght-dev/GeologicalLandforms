@@ -6,6 +6,7 @@ using HarmonyLib;
 using LunarFramework.Patching;
 using RimWorld.Planet;
 using RimWorld.QuestGen;
+using Verse;
 
 namespace GeologicalLandforms.Patches;
 
@@ -33,14 +34,21 @@ internal static class Patch_RimWorld_TileFinder
         return TranspilerPattern.Apply(instructions, pattern);
     }
 
-    internal static bool CanSettleOnTile(int tile)
+    private static bool CanSettleOnTile(int tile)
     {
-        var tileInfo = WorldTileInfo.Get(tile);
-        if (tileInfo.Hilliness != Hilliness.Impassable) return true;
+        var world = Find.World;
+
+        if (world.grid[tile].hilliness != Hilliness.Impassable) return true;
+        
         if (QuestGen.Working) return false; // prevent quest sites from spawning on impassable tiles
-        if (tileInfo.Biome.Properties().allowSettlementsOnImpassableTerrain) return true;
-        if (tileInfo.HasLandforms && tileInfo.Landforms.Any(lf => !lf.IsLayer)) return true;
-        if (tileInfo.WorldObject is { Faction.IsPlayer: true }) return true;
+
+        if (world.HasFinishedGenerating())
+        {
+            var tileInfo = WorldTileInfo.Get(tile);
+            if (tileInfo.Biome.Properties().allowSettlementsOnImpassableTerrain) return true;
+            if (tileInfo.HasLandforms && tileInfo.Landforms.Any(lf => !lf.IsLayer)) return true;
+        }
+
         return false;
     }
 }

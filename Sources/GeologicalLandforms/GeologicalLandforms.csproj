@@ -173,6 +173,7 @@
         <Compile Include="Patches\Patch_RimWorld_WildPlantSpawner.cs" />
         <Compile Include="Patches\Patch_RimWorld_World.cs" />
         <Compile Include="Patches\Patch_Verse_Command_SetPlantToGrow.cs" />
+        <Compile Include="Patches\Patch_Verse_MemoryUtility.cs" />
         <Compile Include="Patches\Patch_Verse_RoofCollapseUtility.cs" />
         <Compile Include="Utility\ExtensionUtils.cs" />
         <Compile Include="GeologicalLandformsAPI.cs" />

@@ -14,10 +14,12 @@ internal static class Patch_RimWorld_World
 {
     public static int LastKnownInitialWorldSeed { get; private set; }
 
+    public static WeakReference LastFinalizedWorldRef { get; private set; }
+
     public static int StableSeedForTile(int tileId) => Gen.HashCombineInt(LastKnownInitialWorldSeed, tileId);
 
     [HarmonyPostfix]
-    [HarmonyPatch("ConstructComponents")]
+    [HarmonyPatch(nameof(World.ConstructComponents))]
     private static void ConstructComponents(WorldInfo ___info, World __instance)
     {
         LastKnownInitialWorldSeed = ___info.Seed;
@@ -39,11 +41,20 @@ internal static class Patch_RimWorld_World
     }
 
     [HarmonyPrefix]
+    [HarmonyPatch(nameof(World.FinalizeInit))]
+    private static void FinalizeInit(World __instance)
+    {
+        LastFinalizedWorldRef = new WeakReference(__instance);
+    }
+
+    [HarmonyPrefix]
     [HarmonyPatch(nameof(World.HasCaves))]
     [HarmonyAfter("zylle.MapDesigner")]
     [PatchExcludedFromConflictCheck]
-    private static bool HasCaves(ref bool __result, int tile)
+    private static bool HasCaves(World __instance, int tile, ref bool __result)
     {
+        if (!__instance.HasFinishedGenerating()) return true;
+        
         var worldTileInfo = WorldTileInfo.Get(tile);
         var landform = worldTileInfo.Landforms?.LastOrDefault(l => !l.IsLayer);
 
@@ -63,19 +74,40 @@ internal static class Patch_RimWorld_World
     }
 
     [ThreadStatic]
-    private static int _rockCacheTile;
+    private static Tile _rockCacheTile;
 
     [ThreadStatic]
     private static IEnumerable<ThingDef> _rockCacheValue;
 
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(World.NaturalRockTypesIn))]
+    [HarmonyPriority(Priority.Last)]
+    [PatchExcludedFromConflictCheck]
+    private static bool NaturalRockTypesIn_Prefix(World __instance, int tile, out bool __state)
+    {
+        // NaturalRockTypesIn is called many times during map generation, and also while a deep drill is running.
+        // It's not like the rock types for a tile ever change, so it's much more efficient to cache this and only calculate once.
+        // The patch priority of the prefix is the lowest possible, so that other mods can override the cache
+        // in case they want to change the result in their own prefix.
+        __state = _rockCacheTile == __instance.grid[tile];
+        return !__state;
+    }
+    
     [HarmonyPostfix]
     [HarmonyPatch(nameof(World.NaturalRockTypesIn))]
     [HarmonyPriority(Priority.First)]
-    private static void NaturalRockTypesIn_Postfix(ref IEnumerable<ThingDef> __result, int tile)
+    private static void NaturalRockTypesIn_Postfix(World __instance, int tile, ref bool __state, ref IEnumerable<ThingDef> __result)
     {
+        if (__state)
+        {
+            // Cache match, return the already computed list.
+            __result = _rockCacheValue;
+            return;
+        }
+
         try
         {
-            if (__result is List<ThingDef> list)
+            if (__instance.HasFinishedGenerating() && __result is List<ThingDef> list)
             {
                 var worldTileInfo = WorldTileInfo.Get(tile);
                 var xmlTileContext = new CtxTile(worldTileInfo);
@@ -108,27 +140,8 @@ internal static class Patch_RimWorld_World
             GeologicalLandformsAPI.Logger.Error("Error in NaturalRockTypesIn for tile " + tile, e);
         }
 
-        // NaturalRockTypesIn is called many times during map generation, and also while any deep drill is running.
-        // It's not like the rock types for a tile ever change, so it's much more efficient to cache this and only calculate once.
-        // This postfix stores the result in a thread-safe field and the prefix below returns when the tile matches.
-        // The patch priority of the prefix is the lowest possible, so that other mods can override the cache
-        // in case they want to change the result in their own prefix.
+        // Store the result in the cache.
+        _rockCacheTile = __instance.grid[tile];
         _rockCacheValue = __result;
-        _rockCacheTile = tile;
-    }
-
-    [HarmonyPrefix]
-    [HarmonyPatch(nameof(World.NaturalRockTypesIn))]
-    [HarmonyPriority(Priority.Last)]
-    [PatchExcludedFromConflictCheck]
-    private static bool NaturalRockTypesIn_Prefix(ref IEnumerable<ThingDef> __result, int tile)
-    {
-        if (_rockCacheTile == tile && _rockCacheValue != null)
-        {
-            __result = _rockCacheValue;
-            return false;
-        }
-
-        return true;
     }
 }
