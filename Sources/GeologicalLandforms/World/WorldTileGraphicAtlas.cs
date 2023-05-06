@@ -14,7 +14,7 @@ public class WorldTileGraphicAtlas
 
     public float altitude = -1f;
 
-    public int renderQueue = 3515;
+    public int renderQueue = 3518;
 
     public IntVec2 atlasSize = new(4, 4);
 

@@ -65,7 +65,7 @@ public class NodeUIWorldTileGraphic : NodeUIBase
         Atlas.texture = !TexPath.NullOrEmpty() ? TexPath : "World/Landforms/" + Landform.Id;
         Atlas.atlasSize = new IntVec2(AtlasSizeX, AtlasSizeY);
         Atlas.drawMode = DrawMode;
-        Atlas.renderQueue = 3512;
+        Atlas.renderQueue = 3517;
         Atlas.Refresh();
     }
 
