@@ -19,6 +19,9 @@ internal static class Patch_RimWorld_WorldGenStep_Terrain
 {
     internal static readonly Type Self = typeof(Patch_RimWorld_WorldGenStep_Terrain);
 
+    internal static float CaveSystemNoiseThreshold = -0.3f;
+    internal static float HillinessNoiseOffset = 0f;
+
     internal static World LastWorld;
     internal static bool[] BiomeTransitions;
     internal static byte[] CaveSystems;
@@ -40,8 +43,13 @@ internal static class Patch_RimWorld_WorldGenStep_Terrain
 
     [HarmonyPostfix]
     [HarmonyPatch("SetupHillinessNoise")]
-    private static void SetupHillinessNoise_Postfix(ModuleBase ___noiseMountainLines, ModuleBase ___noiseElevation)
+    private static void SetupHillinessNoise_Postfix(ref ModuleBase ___noiseMountainLines, ModuleBase ___noiseElevation)
     {
+        if (HillinessNoiseOffset != 0f)
+        {
+            ___noiseMountainLines = new Add(___noiseMountainLines, new Const(HillinessNoiseOffset));
+        }
+        
         try
         {
             CalcCaveSystems(___noiseMountainLines, ___noiseElevation);
@@ -115,7 +123,7 @@ internal static class Patch_RimWorld_WorldGenStep_Terrain
     private static bool InCaveSystemNoiseThreshold(int tileId, Vector3 pos, int seed)
     {
         var perlin = Perlin.GetValue(pos.x, pos.y, pos.z, 0.35f, seed, 2f, 0.5f, 6, QualityMode.Low);
-        return perlin > -0.3f && Rand.ChanceSeeded(0.5f, Gen.HashCombineInt(seed, tileId));
+        return perlin > CaveSystemNoiseThreshold && Rand.ChanceSeeded(0.5f, Gen.HashCombineInt(seed, tileId));
     }
 
     private static void CalcTransitions(WorldGenStep_Terrain instance)

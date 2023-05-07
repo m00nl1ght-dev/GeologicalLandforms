@@ -8,6 +8,9 @@
   <GeologicalLandforms.WorldMap.Landform>Landform</GeologicalLandforms.WorldMap.Landform>
   <GeologicalLandforms.WorldMap.BorderingBiomes>Bordering biomes</GeologicalLandforms.WorldMap.BorderingBiomes>
   <GeologicalLandforms.WorldMap.SelectLandform>Select landform</GeologicalLandforms.WorldMap.SelectLandform>
+
+  <GeologicalLandforms.WorldParams.Mountains>Mountains</GeologicalLandforms.WorldParams.Mountains>
+  <GeologicalLandforms.WorldParams.CaveSystems>Cave systems</GeologicalLandforms.WorldParams.CaveSystems>
   
   <GeologicalLandforms.Rot4.0>northern</GeologicalLandforms.Rot4.0>
   <GeologicalLandforms.Rot4.1>eastern</GeologicalLandforms.Rot4.1>
