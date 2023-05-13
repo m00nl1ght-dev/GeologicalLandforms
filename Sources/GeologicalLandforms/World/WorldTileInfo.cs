@@ -4,6 +4,7 @@ using System.Linq;
 using GeologicalLandforms.Defs;
 using GeologicalLandforms.GraphEditor;
 using GeologicalLandforms.Patches;
+using HarmonyLib;
 using LunarFramework.Utility;
 using RimWorld;
 using RimWorld.Planet;
@@ -105,11 +106,19 @@ public class WorldTileInfo : IWorldTileInfo
             }
 
             DetermineTopology(info, data, props);
-            DetermineLandforms(info, data, props);
-            DetermineBiomeVariants(info);
 
+            if (data != null && data.TryGet(tileId, out var tileData))
+            {
+                tileData.Apply(info);
+            }
+            else
+            {
+                DetermineLandforms(info, props);
+                DetermineBiomeVariants(info);
+            }
+            
             GeologicalLandformsAPI.ApplyWorldTileInfoHook(info);
-
+            
             if (canUseCache)
             {
                 info._cacheVersion = validVersion;
@@ -150,7 +159,7 @@ public class WorldTileInfo : IWorldTileInfo
     [ThreadStatic]
     private static List<Landform> _tsc_eligible;
 
-    private static void DetermineLandforms(WorldTileInfo info, LandformData data, BiomeProperties biomeProps)
+    private static void DetermineLandforms(WorldTileInfo info, BiomeProperties biomeProps)
     {
         var eligible = _tsc_eligible;
         eligible.Clear();
@@ -173,44 +182,31 @@ public class WorldTileInfo : IWorldTileInfo
             }
         }
 
-        if (data != null && data.TryGet(info.TileId, out var entry))
+        float sum = 0;
+        foreach (var e in eligible)
+            if (!e.IsLayer)
+                sum += e.WorldTileReq.Commonness;
+
+        float rand = new FloatRange(0f, Math.Max(1f, sum)).RandomInRangeSeeded(info.MakeSeed(1754));
+
+        Landform main = null;
+        foreach (var landform in eligible)
         {
-            var main = entry.Landform;
-            if (main != null)
+            if (landform.IsLayer) continue;
+
+            if (rand < landform.WorldTileReq.Commonness)
             {
-                landforms ??= new(1);
-                landforms.Add(main);
-                info.TopologyDirection = entry.LandformDirection;
+                main = landform;
+                break;
             }
+
+            rand -= landform.WorldTileReq.Commonness;
         }
-        else
+
+        if (main != null)
         {
-            float sum = 0;
-            foreach (var e in eligible)
-                if (!e.IsLayer)
-                    sum += e.WorldTileReq.Commonness;
-
-            float rand = new FloatRange(0f, Math.Max(1f, sum)).RandomInRangeSeeded(info.MakeSeed(1754));
-
-            Landform main = null;
-            foreach (var landform in eligible)
-            {
-                if (landform.IsLayer) continue;
-
-                if (rand < landform.WorldTileReq.Commonness)
-                {
-                    main = landform;
-                    break;
-                }
-
-                rand -= landform.WorldTileReq.Commonness;
-            }
-
-            if (main != null)
-            {
-                landforms ??= new(1);
-                landforms.Add(main);
-            }
+            landforms ??= new(1);
+            landforms.Add(main);
         }
 
         if (biomeProps.overrideLandforms != null)
@@ -688,4 +684,12 @@ public class WorldTileInfo : IWorldTileInfo
     {
         return (CoastType) Math.Max((int) a, (int) b);
     }
+
+    public override string ToString() =>
+        $"{nameof(TileId)}: {TileId}, " +
+        $"{nameof(Landforms)}: {Landforms?.Join(null, " ")}, " +
+        $"{nameof(BiomeVariants)}: {BiomeVariants?.Join(null, " ")}, " +
+        $"{nameof(Topology)}: {Topology}, " +
+        $"{nameof(TopologyValue)}: {TopologyValue}, " +
+        $"{nameof(TopologyDirection)}: {TopologyDirection.ToStringWord()}";
 }

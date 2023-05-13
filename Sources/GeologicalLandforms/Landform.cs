@@ -121,9 +121,12 @@ public class Landform : TerrainCanvas
 
         foreach (var landform in landforms)
         {
-            landform.RandSeed = seed;
-            landform.TraverseAll();
-            landformStack.Add(landform);
+            if (landform.WorldTileReq == null || landform.WorldTileReq.CheckWorldObject(tileInfo))
+            {
+                landform.RandSeed = seed;
+                landform.TraverseAll();
+                landformStack.Add(landform);
+            }
         }
     }
 
@@ -257,6 +260,11 @@ public class Landform : TerrainCanvas
         if (topology == Topology.Any) return commonness < 0.1f;
         if (topology.IsCommon()) return commonness < 0.5f;
         return true;
+    }
+
+    public override string ToString()
+    {
+        return Id;
     }
 
     private class MinimalRandom : IRandom

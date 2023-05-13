@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using GeologicalLandforms.Defs;
 using GeologicalLandforms.GraphEditor;
 using MapPreview;
 using RimWorld.Planet;
@@ -10,43 +11,39 @@ namespace GeologicalLandforms;
 
 public class LandformData : WorldComponent
 {
-    private Dictionary<int, Entry> _entries = new();
+    private Dictionary<int, TileData> _tileData = new();
     private bool[] _biomeTransitions = Array.Empty<bool>();
     private byte[] _caveSystems = Array.Empty<byte>();
 
     public LandformData(World world) : base(world) { }
 
-    public bool TryGet(int tileId, out Entry entry)
+    public bool TryGet(int tileId, out TileData data)
     {
-        return _entries.TryGetValue(tileId, out entry);
+        var hasData = _tileData.TryGetValue(tileId, out data);
+        if (data != null) data = new TileData(data);
+        return hasData;
     }
 
-    public bool IsLocked(int tileId)
+    public bool HasData(int tileId)
     {
-        if (!_entries.TryGetValue(tileId, out var entry)) return false;
-        return entry.Locked;
+        return _tileData.ContainsKey(tileId);
     }
 
-    public void Commit(int tileId, IWorldTileInfo worldTileInfo, bool locked = false)
+    public void Commit(int tileId, TileData data)
     {
-        Commit(tileId, worldTileInfo.Landforms?.LastOrDefault(v => !v.IsLayer), worldTileInfo.TopologyDirection, locked);
-    }
-
-    public void Commit(int tileId, Landform landform, Rot4 landformDirection, bool locked = false)
-    {
-        _entries[tileId] = new Entry { LandformId = landform?.Id, LandformDirectionInt = landformDirection.AsInt, Locked = locked };
+        _tileData[tileId] = new TileData(data);
         MapPreviewAPI.NotifyWorldChanged();
     }
 
     public void Reset(int tileId)
     {
-        _entries.Remove(tileId);
+        _tileData.Remove(tileId);
         MapPreviewAPI.NotifyWorldChanged();
     }
 
     public void ResetAll()
     {
-        _entries.Clear();
+        _tileData.Clear();
         MapPreviewAPI.NotifyWorldChanged();
     }
 
@@ -82,11 +79,9 @@ public class LandformData : WorldComponent
         _caveSystems = caveSystems ?? Array.Empty<byte>();
     }
 
-    static LandformData() => ParseHelper.Parsers<Entry>.Register(Entry.FromString);
-
     public override void ExposeData()
     {
-        Scribe_Collections.Look(ref _entries, "entries", LookMode.Value, LookMode.Value);
+        Scribe_Collections.Look(ref _tileData, "tileData", LookMode.Value, LookMode.Deep);
 
         var hasBiomeTransitions = HasBiomeTransitions();
 
@@ -110,32 +105,76 @@ public class LandformData : WorldComponent
             DataExposeUtility.ByteArray(ref _caveSystems, "caveSystems");
         }
 
-        _entries ??= new();
+        _tileData ??= new();
         _biomeTransitions ??= Array.Empty<bool>();
         _caveSystems ??= Array.Empty<byte>();
 
         ExtensionUtils.ClearCaches();
     }
 
-    public struct Entry
+    public class TileData : IExposable
     {
-        public string LandformId;
-        public int LandformDirectionInt;
-        public bool Locked;
+        public Topology Topology;
+        public float TopologyValue;
+        public Rot4 TopologyDirection;
 
-        public Landform Landform => LandformId == null ? null : LandformManager.FindById(LandformId);
-        public Rot4 LandformDirection => new(LandformDirectionInt);
+        public List<string> Landforms;
+        public List<string> BiomeVariants;
 
-        public static Entry FromString(string s)
+        public TileData() { }
+
+        public TileData(IWorldTileInfo tileInfo)
         {
-            return new Entry
-            {
-                LandformId = s.Length > 2 ? s.Substring(2) : null,
-                LandformDirectionInt = Convert.ToInt32(s[1]),
-                Locked = s[0] == 'L'
-            };
+            Topology = tileInfo.Topology;
+            TopologyValue = tileInfo.TopologyValue;
+            TopologyDirection = tileInfo.TopologyDirection;
+            Landforms = tileInfo.Landforms?.Select(lf => lf.Id).ToList();
+            BiomeVariants = tileInfo.BiomeVariants?.Select(bv => bv.defName).ToList();
         }
 
-        public override string ToString() => (Locked ? 'L' : 'U').ToString() + LandformDirectionInt + (LandformId ?? "");
+        public TileData(TileData other)
+        {
+            Topology = other.Topology;
+            TopologyValue = other.TopologyValue;
+            TopologyDirection = other.TopologyDirection;
+            Landforms = other.Landforms?.ToList();
+            BiomeVariants = other.BiomeVariants?.ToList();
+        }
+
+        public void Apply(WorldTileInfoPrimer primer)
+        {
+            primer.Topology = Topology;
+            primer.TopologyValue = TopologyValue;
+            primer.TopologyDirection = TopologyDirection;
+            primer.Landforms = Landforms?.Select(ResolveLandform).Where(lf => lf != null).OrderBy(e => e.Priority).ToList();
+            primer.BiomeVariants = BiomeVariants?.Select(ResolveBiomeVariant).Where(bv => bv != null).ToList();
+        }
+
+        public void ExposeData()
+        {
+            Scribe_Values.Look(ref Topology, "topology");
+            Scribe_Values.Look(ref TopologyValue, "topologyValue");
+            Scribe_Values.Look(ref TopologyDirection, "topologyDirection", Rot4.North);
+            Scribe_Collections.Look(ref Landforms, "landforms", LookMode.Value);
+            Scribe_Collections.Look(ref BiomeVariants, "biomeVariants", LookMode.Value);
+        }
+    }
+
+    internal static Landform ResolveLandform(string id)
+    {
+        var landform = LandformManager.FindById(id);
+        if (landform != null) return landform;
+
+        GeologicalLandformsAPI.Logger.Warn("Could not resolve landform: " + id);
+        return null;
+    }
+
+    internal static BiomeVariantDef ResolveBiomeVariant(string defName)
+    {
+        var def = DefDatabase<BiomeVariantDef>.GetNamed(defName);
+        if (def != null) return def;
+
+        GeologicalLandformsAPI.Logger.Warn("Could not resolve biome variant: " + defName);
+        return null;
     }
 }

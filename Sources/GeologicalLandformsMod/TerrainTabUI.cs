@@ -13,7 +13,7 @@ internal static class TerrainTabUI
     internal static void DoTerrainTabUI(Listing_Standard listing)
     {
         int tileId = Find.WorldSelector.selectedTile;
-        var worldTileInfo = WorldTileInfo.Get(tileId);
+        var tileInfo = WorldTileInfo.Get(tileId);
 
         var rect = listing.GetRect(28f);
         if (!listing.BoundingRectCached.HasValue || rect.Overlaps(listing.BoundingRectCached.Value))
@@ -40,16 +40,16 @@ internal static class TerrainTabUI
             var landformData = Find.World.LandformData();
             bool ignoreReq = Prefs.DevMode && GeologicalLandformsMod.Settings.IgnoreWorldTileReqInGodMode;
 
-            if (landformData != null && !landformData.IsLocked(tileId))
+            if (landformData != null && tileInfo.WorldObject is not { HasMap: true })
             {
                 rect = listing.GetRect(28f);
 
                 if (Widgets.ButtonText(rect, "GeologicalLandforms.WorldMap.SetLandform".Translate()))
                 {
-                    var biomeProps = worldTileInfo.Biome.Properties();
+                    var biomeProps = tileInfo.Biome.Properties();
 
                     var eligible = LandformManager.Landforms.Values
-                        .Where(e => ignoreReq || worldTileInfo.CanHaveLandform(e, biomeProps, true))
+                        .Where(e => ignoreReq || tileInfo.CanHaveLandform(e, biomeProps, true))
                         .Where(e => !e.IsLayer && GeologicalLandformsMod.IsLandformEnabled(e))
                         .ToList();
 
@@ -61,7 +61,10 @@ internal static class TerrainTabUI
                         }),
                         new("None".Translate(), () =>
                         {
-                            landformData.Commit(tileId, null, worldTileInfo.TopologyDirection);
+                            landformData.Commit(tileId, new LandformData.TileData(tileInfo)
+                            {
+                                Landforms = tileInfo.Landforms?.Where(lf => lf.IsLayer).Select(lf => lf.Id).ToList()
+                            });
                         })
                     };
 
@@ -69,20 +72,32 @@ internal static class TerrainTabUI
                         .OrderBy(e => e.TranslatedNameForSelection)
                         .Select(e => new FloatMenuOption(e.TranslatedNameForSelection.CapitalizeFirst(), () =>
                         {
+                            var layers = tileInfo.Landforms?.Where(lf => lf.IsLayer) ?? new List<Landform>();
+                            
                             if (ignoreReq)
                             {
                                 var dirOptions = new List<FloatMenuOption>(new[] { Rot4.North, Rot4.East, Rot4.South, Rot4.West }
-                                    .Select(d => new FloatMenuOption(e.TranslatedDirection(d).CapitalizeFirst(), () =>
+                                    .Select(dir => new FloatMenuOption(e.TranslatedDirection(dir).CapitalizeFirst(), () =>
                                     {
-                                        landformData.Commit(tileId, e, d);
+                                        landformData.Commit(tileId, new LandformData.TileData(tileInfo)
+                                        {
+                                            Landforms = layers.Append(e).Select(lf => lf.Id).ToList(),
+                                            TopologyDirection = dir,
+                                            TopologyValue = 0f
+                                        });
                                     })));
                                 Find.WindowStack.Add(new FloatMenu(dirOptions) { vanishIfMouseDistant = false });
                             }
                             else
                             {
-                                landformData.Commit(tileId, e, worldTileInfo.TopologyDirection);
+                                landformData.Commit(tileId, new LandformData.TileData(tileInfo)
+                                {
+                                    Landforms = layers.Append(e).Select(lf => lf.Id).ToList(),
+                                    TopologyValue = 0f
+                                });
                             }
                         })));
+                    
                     Find.WindowStack.Add(new FloatMenu(options));
                 }
             }
@@ -92,12 +107,12 @@ internal static class TerrainTabUI
 
         if (Prefs.DevMode && GeologicalLandformsMod.Settings.ShowWorldTileDebugInfo)
         {
-            listing.LabelDouble("GeologicalLandforms.WorldMap.Topology".Translate(), worldTileInfo.Topology.ToString());
-            listing.LabelDouble("GeologicalLandforms.WorldMap.TopologyDirection".Translate(), worldTileInfo.TopologyDirection.ToStringHuman());
-            listing.LabelDouble("GeologicalLandforms.WorldMap.DepthInCaveSystem".Translate(), worldTileInfo.DepthInCaveSystem.ToString());
-            listing.LabelDouble("GeologicalLandforms.WorldMap.Swampiness".Translate(), worldTileInfo.Swampiness.ToString(CultureInfo.InvariantCulture));
-            listing.LabelDouble("GeologicalLandforms.WorldMap.RiverAngle".Translate(), worldTileInfo.MainRiverAngle.ToString(CultureInfo.InvariantCulture));
-            listing.LabelDouble("GeologicalLandforms.WorldMap.MainRoadAngle".Translate(), worldTileInfo.MainRoadAngle.ToString(CultureInfo.InvariantCulture));
+            listing.LabelDouble("GeologicalLandforms.WorldMap.Topology".Translate(), tileInfo.Topology.ToString());
+            listing.LabelDouble("GeologicalLandforms.WorldMap.TopologyDirection".Translate(), tileInfo.TopologyDirection.ToStringHuman());
+            listing.LabelDouble("GeologicalLandforms.WorldMap.DepthInCaveSystem".Translate(), tileInfo.DepthInCaveSystem.ToString());
+            listing.LabelDouble("GeologicalLandforms.WorldMap.Swampiness".Translate(), tileInfo.Swampiness.ToString(CultureInfo.InvariantCulture));
+            listing.LabelDouble("GeologicalLandforms.WorldMap.RiverAngle".Translate(), tileInfo.MainRiverAngle.ToString(CultureInfo.InvariantCulture));
+            listing.LabelDouble("GeologicalLandforms.WorldMap.MainRoadAngle".Translate(), tileInfo.MainRoadAngle.ToString(CultureInfo.InvariantCulture));
         }
     }
 

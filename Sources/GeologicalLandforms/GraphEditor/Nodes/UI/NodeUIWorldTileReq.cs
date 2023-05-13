@@ -88,11 +88,6 @@ public class NodeUIWorldTileReq : NodeUIBase
         else if (RoadRequirement.min > 0f)
             conditions.Add(Road);
 
-        if (!AllowSettlements)
-            conditions.Add(info => info.WorldObject is not Settlement { Faction.IsPlayer: false });
-        if (!AllowSites)
-            conditions.Add(info => info.WorldObject is null or Settlement or { Faction.IsPlayer: true });
-
         return conditions;
     }
 
@@ -104,6 +99,13 @@ public class NodeUIWorldTileReq : NodeUIBase
             if (!condition(worldTile))
                 return false;
 
+        return true;
+    }
+
+    public bool CheckWorldObject(IWorldTileInfo worldTile)
+    {
+        if (!AllowSettlements && worldTile.WorldObject is not { Faction.IsPlayer: true } and Settlement) return false;
+        if (!AllowSites && worldTile.WorldObject is not { Faction.IsPlayer: true } and not Settlement) return false;
         return true;
     }
 

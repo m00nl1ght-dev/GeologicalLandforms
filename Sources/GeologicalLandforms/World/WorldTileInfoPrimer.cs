@@ -34,6 +34,12 @@ public class WorldTileInfoPrimer : WorldTileInfo
         set => base.Topology = value;
     }
 
+    public new float TopologyValue
+    {
+        get => base.TopologyValue;
+        set => base.TopologyValue = value;
+    }
+
     public new Rot4 TopologyDirection
     {
         get => base.TopologyDirection;
