@@ -19,6 +19,7 @@ internal static class Patch_RimWorld_GenStep_CaveHives
     [HarmonyTranspiler]
     [HarmonyPatch("Generate")]
     [HarmonyPriority(Priority.VeryLow)]
+    [PatchExcludedFromConflictCheck]
     private static IEnumerable<CodeInstruction> Generate_Transpiler(IEnumerable<CodeInstruction> instructions)
     {
         var pattern = TranspilerPattern.Build("AdjustCaveHiveCount")

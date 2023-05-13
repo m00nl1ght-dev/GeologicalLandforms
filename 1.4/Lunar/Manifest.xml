@@ -3,7 +3,7 @@
   <Name>Geological Landforms</Name>
   <PackageId>m00nl1ght.GeologicalLandforms</PackageId>
   <Authors>m00nl1ght</Authors>
-  <MinGameVersion>1.4</MinGameVersion>
+  <MinGameVersion>1.4.3613</MinGameVersion>
   <Components>
     <Component>
       <AssemblyName>HugsLogPublisher</AssemblyName>
