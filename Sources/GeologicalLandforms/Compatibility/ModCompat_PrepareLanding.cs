@@ -15,17 +15,19 @@ internal class ModCompat_PrepareLanding : ModCompat
     public override string TargetAssemblyName => "PrepareLanding";
     public override string DisplayName => "Prepare Landing";
 
-    private static MethodInfo MethodUtilEntryHeader;
-    private static PropertyInfo PropertyUtilListing;
+    private static MethodInfo _methodUtilEntryHeader;
+    private static PropertyInfo _propertyUtilListing;
 
-    private static Landform LandformFilter;
+    private static Landform _landformFilter;
+
+    private static bool _impOptionFlag;
 
     protected override bool OnApply()
     {
         var utilType = FindType("PrepareLanding.Core.Gui.Tab.TabGuiUtility");
 
-        MethodUtilEntryHeader = Require(AccessTools.Method(utilType, "DrawEntryHeader"));
-        PropertyUtilListing = Require(AccessTools.Property(utilType, "ListingStandard"));
+        _methodUtilEntryHeader = Require(AccessTools.Method(utilType, "DrawEntryHeader"));
+        _propertyUtilListing = Require(AccessTools.Property(utilType, "ListingStandard"));
 
         return true;
     }
@@ -34,11 +36,11 @@ internal class ModCompat_PrepareLanding : ModCompat
     [HarmonyPatch("PrepareLanding.Filters.TileFilterHasCave", "Filter")]
     private static void TileFilterHasCave_Filter(ref List<int> ____filteredTiles)
     {
-        if (LandformFilter == null) return;
+        if (_landformFilter == null) return;
         ____filteredTiles.RemoveAll(tile =>
         {
             var landforms = WorldTileInfo.Get(tile).Landforms;
-            return landforms == null || !landforms.Contains(LandformFilter);
+            return landforms == null || !landforms.Contains(_landformFilter);
         });
     }
 
@@ -46,20 +48,31 @@ internal class ModCompat_PrepareLanding : ModCompat
     [HarmonyPatch("PrepareLanding.Filters.TileFilterHasCave", "IsFilterActive", MethodType.Getter)]
     private static void TileFilterHasCave_FilterActive(ref bool __result)
     {
-        __result = __result || LandformFilter != null;
+        __result = __result || _landformFilter != null;
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch("PrepareLanding.TabTerrain", "DrawBiomeTypesSelection")]
+    private static void TabTerrain_DrawBiomeTypesSelection(object ____gameData)
+    {
+        if (!_impOptionFlag)
+        {
+            _impOptionFlag = true;
+            Traverse.Create(____gameData).Property("UserData").Property("Options").Field("_allowImpassableHilliness").SetValue(true);
+        }
     }
 
     [HarmonyPostfix]
     [HarmonyPatch("PrepareLanding.TabTemperature", "DrawCaveSelection")]
     private static void TabTemperature_DrawCaveSelection(object __instance)
     {
-        MethodUtilEntryHeader.Invoke(__instance, new object[]
+        _methodUtilEntryHeader.Invoke(__instance, new object[]
         {
             (string) "GeologicalLandforms.Integration.PrepareLanding.Title".Translate(),
             true, false, Color.magenta, 0.2f
         });
 
-        var listingStandard = (Listing_Standard) PropertyUtilListing.GetValue(__instance);
+        var listingStandard = (Listing_Standard) _propertyUtilListing.GetValue(__instance);
 
         if (listingStandard.ButtonText("GeologicalLandforms.WorldMap.SelectLandform".Translate()))
         {
@@ -67,7 +80,7 @@ internal class ModCompat_PrepareLanding : ModCompat
             {
                 new FloatMenuOption("PLMW_SelectAny".Translate(), () =>
                 {
-                    LandformFilter = null;
+                    _landformFilter = null;
                 })
             };
 
@@ -75,7 +88,7 @@ internal class ModCompat_PrepareLanding : ModCompat
             {
                 floatMenuOptions.Add(new FloatMenuOption(landform.TranslatedNameForSelection.CapitalizeFirst(), () =>
                 {
-                    LandformFilter = landform;
+                    _landformFilter = landform;
                 }));
             }
 
@@ -83,8 +96,8 @@ internal class ModCompat_PrepareLanding : ModCompat
             Find.WindowStack.Add(floatMenu);
         }
 
-        var rightLabel = LandformFilter != null
-            ? LandformFilter.TranslatedNameForSelection.CapitalizeFirst()
+        var rightLabel = _landformFilter != null
+            ? _landformFilter.TranslatedNameForSelection.CapitalizeFirst()
             : (string) "PLMW_SelectAny".Translate();
 
         listingStandard.LabelDouble($"{"GeologicalLandforms.WorldMap.Landform".Translate()}:", rightLabel);
@@ -94,6 +107,6 @@ internal class ModCompat_PrepareLanding : ModCompat
     [HarmonyPatch("PrepareLanding.GameData.UserData", "ResetAllFields")]
     private static void UserData_ResetAllFields()
     {
-        LandformFilter = null;
+        _landformFilter = null;
     }
 }
