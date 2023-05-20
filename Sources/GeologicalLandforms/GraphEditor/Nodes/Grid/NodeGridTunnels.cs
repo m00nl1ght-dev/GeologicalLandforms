@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using LunarFramework.Utility;
 using NodeEditorFramework;
+using RimWorld.Planet;
 using TerrainGraph;
 using TerrainGraph.Util;
 using UnityEngine;
@@ -164,19 +166,46 @@ public class NodeGridTunnels : NodeBase
                 var input = new Transform<double>(_input.Get(), 1 / _transformScale);
                 _result = _generator.Generate(_targetGridSize, rand, c => input.ValueAt(c.x, c.z) > _inputThreshold, _doDepths, _doOffsets);
 
+                if (_minEdgeCells <= 0) return;
+
+                var walkable = new StructRot4<int>();
                 var function = new Cache<double>(_result.CavesGrid);
-                var accepted = NodeGridValidate.Validate(function, _targetGridSize.x, _targetGridSize.z, 1, 9999, true);
 
-                if (accepted > maxAccepted) maxAccepted = accepted;
+                walkable[Rot4.West] = NodeGridValidate.ValidateCol(function, 0, _targetGridSize.z, 1, 9999);
+                walkable[Rot4.South] = NodeGridValidate.ValidateRow(function, 0, _targetGridSize.x, 1, 9999);
+                walkable[Rot4.East] = NodeGridValidate.ValidateCol(function, _targetGridSize.x - 1, _targetGridSize.z, 1, 9999);
+                walkable[Rot4.North] = NodeGridValidate.ValidateRow(function, _targetGridSize.z - 1, _targetGridSize.x, 1, 9999);
 
-                if (accepted >= _minEdgeCells)
+                var total = walkable[Rot4.West] + walkable[Rot4.South] + walkable[Rot4.East] + walkable[Rot4.North];
+                if (total > maxAccepted) maxAccepted = total;
+
+                if (total >= _minEdgeCells)
                 {
-                    GeologicalLandformsAPI.Logger.Debug($"Cave grid passed validation after {i + 1} tries, with {accepted} accepted cells.");
+                    if (Landform.GeneratingTile is WorldTileInfo tileInfo && !CheckMapSides(tileInfo, walkable)) continue;
+
+                    GeologicalLandformsAPI.Logger.Debug($"Cave grid passed validation after {i + 1} tries, with {total} accepted cells.");
                     return;
                 }
             }
 
             GeologicalLandformsAPI.Logger.Debug($"Cave grid failed validation after {maxTries} tries, with {maxAccepted} accepted cells.");
+        }
+
+        [ThreadStatic]
+        private static List<int> _tscNeighbors;
+
+        private bool CheckMapSides(WorldTileInfo tileInfo, StructRot4<int> walkable)
+        {
+            tileInfo.World.grid.GetTileNeighbors(tileInfo.TileId, _tscNeighbors ??= new());
+            _tscNeighbors.RemoveAll(nb => tileInfo.World.Impassable(nb));
+
+            foreach (var nb in _tscNeighbors)
+            {
+                CaravanExitMapUtility.GetExitMapEdges(tileInfo.World.grid, tileInfo.TileId, nb, out var primary, out var secondary);
+                if ((primary.IsValid && walkable[primary] >= 3) || (secondary.IsValid && walkable[secondary] >= 3)) return true;
+            }
+
+            return _tscNeighbors.Count == 0;
         }
 
         public IGridFunction<double> GetCaves()
