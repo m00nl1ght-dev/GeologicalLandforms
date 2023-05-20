@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using LunarFramework.XML;
 using RimWorld;
 using RimWorld.Planet;
@@ -44,6 +45,7 @@ public class ConfigurableBiomeWorker : BiomeWorker
         {
             return ScoreSupplier.Get(new CtxEarlyTile(tileID, tile, Find.World));
         }
+        catch (ThreadAbortException) { throw; }
         catch (Exception e)
         {
             var worldHash = Find.World.GetHashCode();

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using GeologicalLandforms.Defs;
 using GeologicalLandforms.GraphEditor;
 using GeologicalLandforms.Patches;
@@ -127,6 +128,7 @@ public class WorldTileInfo : IWorldTileInfo
 
             return info;
         }
+        catch (ThreadAbortException) { throw; }
         catch (Exception e)
         {
             InvalidateCache();

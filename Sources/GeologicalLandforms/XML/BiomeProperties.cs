@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Emit;
+using System.Threading;
 using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using LunarFramework.XML;
@@ -70,6 +71,7 @@ public class BiomeProperties : DefModExtension
         {
             return _cache[biomeDef.index];
         }
+        catch (ThreadAbortException) { throw; }
         catch (Exception e)
         {
             Debug.LogException(e);

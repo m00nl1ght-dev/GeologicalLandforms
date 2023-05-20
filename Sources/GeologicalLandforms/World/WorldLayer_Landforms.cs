@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using GeologicalLandforms.Defs;
 using GeologicalLandforms.GraphEditor;
 using LunarFramework.Utility;
@@ -102,6 +103,7 @@ public class WorldLayer_Landforms : WorldLayer
                     }
                 }
             }
+            catch (ThreadAbortException) { throw; }
             catch (Exception e)
             {
                 if (failedCount == 0)

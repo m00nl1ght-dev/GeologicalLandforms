@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection.Emit;
+using System.Threading;
 using HarmonyLib;
 using LunarFramework.Patching;
 using RimWorld;
@@ -34,6 +35,7 @@ internal static class Patch_RimWorld_WorldGenStep_Terrain
         {
             CalcTransitions(__instance);
         }
+        catch (ThreadAbortException) { throw; }
         catch (Exception e)
         {
             GeologicalLandformsAPI.Logger.Error("Failed to calculate extended biome data.", e);
@@ -54,6 +56,7 @@ internal static class Patch_RimWorld_WorldGenStep_Terrain
         {
             CalcCaveSystems(___noiseMountainLines, ___noiseElevation);
         }
+        catch (ThreadAbortException) { throw; }
         catch (Exception e)
         {
             GeologicalLandformsAPI.Logger.Error("Failed to calculate cave systems.", e);
