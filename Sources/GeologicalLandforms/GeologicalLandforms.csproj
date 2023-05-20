@@ -84,6 +84,7 @@
         <Compile Include="BiomeTransition.cs" />
         <Compile Include="Compatibility\ModCompat_BiomesCore.cs" />
         <Compile Include="Compatibility\ModCompat_MapDesigner.cs" />
+        <Compile Include="Compatibility\ModCompat_RealisticPlanets.cs" />
         <Compile Include="Compatibility\ModCompat_RimWar.cs" />
         <Compile Include="Compatibility\ModCompat_RocketMan.cs" />
         <Compile Include="GraphEditor\Data\BiomeData.cs" />

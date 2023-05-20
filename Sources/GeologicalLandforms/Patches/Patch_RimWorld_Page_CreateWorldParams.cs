@@ -21,7 +21,7 @@ internal static class Patch_RimWorld_Page_CreateWorldParams
 
     [HarmonyPostfix]
     [HarmonyPatch("Reset")]
-    private static void Reset()
+    internal static void Reset()
     {
         _mountains = 1f;
         _caveSystems = 1f;
@@ -54,7 +54,7 @@ internal static class Patch_RimWorld_Page_CreateWorldParams
         return TranspilerPattern.Apply(instructions, patternPos, pattern);
     }
 
-    private static float DoExtraSliders(float pos, float width)
+    internal static float DoExtraSliders(float pos, float width)
     {
         pos += 40f;
 
