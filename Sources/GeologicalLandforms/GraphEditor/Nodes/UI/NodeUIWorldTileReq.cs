@@ -104,8 +104,10 @@ public class NodeUIWorldTileReq : NodeUIBase
 
     public bool CheckWorldObject(IWorldTileInfo worldTile)
     {
-        if (!AllowSettlements && worldTile.WorldObject is not { Faction.IsPlayer: true } and Settlement) return false;
-        if (!AllowSites && worldTile.WorldObject is not { Faction.IsPlayer: true } and not Settlement) return false;
+        var worldObject = worldTile.WorldObject;
+        if (worldObject == null || worldObject.Faction is { IsPlayer: true }) return true;
+        if (!AllowSettlements && worldObject is Settlement) return false;
+        if (!AllowSites && worldObject is not Settlement) return false;
         return true;
     }
 
