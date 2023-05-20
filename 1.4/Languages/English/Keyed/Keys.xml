@@ -41,6 +41,11 @@
   <GeologicalLandforms.Settings.Debug.WholeMapDesiredPlants>Total capacity of plant ecosystem</GeologicalLandforms.Settings.Debug.WholeMapDesiredPlants>
   <GeologicalLandforms.Settings.Debug.OpenGroundFactor>Open ground factor</GeologicalLandforms.Settings.Debug.OpenGroundFactor>
   <GeologicalLandforms.Settings.Debug.AnimalDensityFactor>Animal density factor</GeologicalLandforms.Settings.Debug.AnimalDensityFactor>
+
+  <GeologicalLandforms.Settings.Debug.DevQuickTestOverrideEnabled>Override dev quick test map generation</GeologicalLandforms.Settings.Debug.DevQuickTestOverrideEnabled>
+  <GeologicalLandforms.Settings.Debug.DevQuickTestOverrideLandform>Dev quick test landform</GeologicalLandforms.Settings.Debug.DevQuickTestOverrideLandform>
+  <GeologicalLandforms.Settings.Debug.DevQuickTestOverrideBiome>Dev quick test biome</GeologicalLandforms.Settings.Debug.DevQuickTestOverrideBiome>
+  <GeologicalLandforms.Settings.Debug.DevQuickTestOverrideMapSize>Dev quick test map size</GeologicalLandforms.Settings.Debug.DevQuickTestOverrideMapSize>
   
   <GeologicalLandforms.Settings.Debug.BiomeGridEntryAddShort>+</GeologicalLandforms.Settings.Debug.BiomeGridEntryAddShort>
   <GeologicalLandforms.Settings.Debug.BiomeGridEntryRemoveShort>-</GeologicalLandforms.Settings.Debug.BiomeGridEntryRemoveShort>

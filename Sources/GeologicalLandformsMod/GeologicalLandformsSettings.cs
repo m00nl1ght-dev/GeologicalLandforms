@@ -28,6 +28,11 @@ public class GeologicalLandformsSettings : LunarModSettings
     public readonly Entry<bool> UnidirectionalBiomeTransitions = MakeEntry(false);
     public readonly Entry<bool> DisableBiomeTransitionPostProcessing = MakeEntry(false);
 
+    public readonly Entry<bool> DevQuickTestOverrideEnabled = MakeEntry(false);
+    public readonly Entry<int> DevQuickTestOverrideMapSize = MakeEntry(150);
+    public readonly Entry<string> DevQuickTestOverrideBiome = MakeEntry("None");
+    public readonly Entry<string> DevQuickTestOverrideLandform = MakeEntry("None");
+
     public readonly Entry<List<string>> DisabledLandforms = MakeEntry(new List<string>());
     public readonly Entry<List<string>> DisabledBiomeVariants = MakeEntry(new List<string>());
 
@@ -174,6 +179,77 @@ public class GeologicalLandformsSettings : LunarModSettings
 
         LunarGUI.Checkbox(layout, ref UnidirectionalBiomeTransitions.Value, Label("Debug.UnidirectionalBiomeTransitions"));
         LunarGUI.Checkbox(layout, ref DisableBiomeTransitionPostProcessing.Value, Label("Debug.DisableBiomeTransitionPostProcessing"));
+
+        LunarGUI.Checkbox(layout, ref DevQuickTestOverrideEnabled.Value, Label("Debug.DevQuickTestOverrideEnabled"));
+
+        if (DevQuickTestOverrideEnabled)
+        {
+            LunarGUI.SeparatorLine(layout);
+
+            layout.BeginAbs(28f);
+
+            LunarGUI.Label(layout.Rel(0.3f), Label("Debug.DevQuickTestOverrideLandform"));
+
+            if (LunarGUI.Button(layout, DevQuickTestOverrideLandform))
+            {
+                var options = new List<FloatMenuOption>
+                {
+                    new("None".Translate(), () => DevQuickTestOverrideLandform.Value = "None")
+                };
+
+                options.AddRange(LandformManager.Landforms.Values.Where(e => !e.IsLayer).OrderBy(e => e.Id)
+                    .Select(e => new FloatMenuOption(e.Id, () => DevQuickTestOverrideLandform.Value = e.Id)));
+
+                Find.WindowStack.Add(new FloatMenu(options));
+            }
+
+            layout.End();
+
+            layout.BeginAbs(28f);
+
+            LunarGUI.Label(layout.Rel(0.3f), Label("Debug.DevQuickTestOverrideBiome"));
+
+            if (LunarGUI.Button(layout, DevQuickTestOverrideBiome))
+            {
+                var options = new List<FloatMenuOption>
+                {
+                    new("None".Translate(), () => DevQuickTestOverrideBiome.Value = "None")
+                };
+
+                options.AddRange(DefDatabase<BiomeDef>.AllDefs.OrderBy(e => e.defName)
+                    .Select(e => new FloatMenuOption(e.defName, () => DevQuickTestOverrideBiome.Value = e.defName)));
+
+                Find.WindowStack.Add(new FloatMenu(options));
+            }
+
+            layout.End();
+
+            layout.BeginAbs(28f);
+
+            LunarGUI.Label(layout.Rel(0.3f), Label("Debug.DevQuickTestOverrideMapSize"));
+
+            if (LunarGUI.Button(layout, DevQuickTestOverrideMapSize.Value + " x " + DevQuickTestOverrideMapSize.Value))
+            {
+                var options = new List<FloatMenuOption>
+                {
+                    new("25 x 25", () => DevQuickTestOverrideMapSize.Value = 25),
+                    new("50 x 50", () => DevQuickTestOverrideMapSize.Value = 50),
+                    new("75 x 75", () => DevQuickTestOverrideMapSize.Value = 75),
+                    new("100 x 100", () => DevQuickTestOverrideMapSize.Value = 100),
+                    new("150 x 150", () => DevQuickTestOverrideMapSize.Value = 150),
+                    new("200 x 200", () => DevQuickTestOverrideMapSize.Value = 200),
+                    new("250 x 250", () => DevQuickTestOverrideMapSize.Value = 250),
+                    new("300 x 300", () => DevQuickTestOverrideMapSize.Value = 300),
+                    new("400 x 400", () => DevQuickTestOverrideMapSize.Value = 400)
+                };
+
+                Find.WindowStack.Add(new FloatMenu(options));
+            }
+
+            layout.End();
+
+            LunarGUI.SeparatorLine(layout);
+        }
 
         DebugActions.DebugActionsGUI(layout);
     }

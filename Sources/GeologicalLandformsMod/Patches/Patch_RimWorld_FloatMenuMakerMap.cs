@@ -14,7 +14,7 @@ internal static class Patch_RimWorld_FloatMenuMakerMap
     [HarmonyPostfix]
     [HarmonyPatch("AddHumanlikeOrders")]
     [HarmonyPriority(Priority.High)]
-    private static void FloatMenuMakerMap_AddHumanlikeOrders(ref Vector3 clickPos, ref Pawn pawn, ref List<FloatMenuOption> opts)
+    private static void AddHumanlikeOrders(ref Vector3 clickPos, ref Pawn pawn, ref List<FloatMenuOption> opts)
     {
         if (!Prefs.DevMode || !GeologicalLandformsMod.Settings.EnableMapDebugPawnCommands) return;
 
