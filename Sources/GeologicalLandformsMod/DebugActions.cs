@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using GeologicalLandforms.Defs;
+using HarmonyLib;
 using LunarFramework.GUI;
 using RimWorld;
 using UnityEngine;
@@ -175,7 +176,18 @@ public static class DebugActions
             {
                 var options = DefDatabase<ThingDef>.AllDefsListForReading
                     .Where(d => d.IsNonResourceNaturalRock)
-                    .Select(e => new FloatMenuOption(e.defName, () => ReplaceNaturalRock(e))).ToList();
+                    .Select(e => new FloatMenuOption(e.defName, () =>
+                    {
+                        var options = DefDatabase<ThingDef>.AllDefsListForReading
+                            .Where(d => d.IsNonResourceNaturalRock)
+                            .Select(t => new FloatMenuOption(t.defName, () =>
+                            {
+                                ReplaceNaturalRock(e, t);
+                            }))
+                            .ToList();
+                        if (options.Count > 0) Find.WindowStack.Add(new FloatMenu(options));
+                    }))
+                    .ToList();
                 if (options.Count > 0) Find.WindowStack.Add(new FloatMenu(options));
             }
         }
@@ -231,21 +243,57 @@ public static class DebugActions
         entries?.Remove(entry);
     }
 
-    public static void ReplaceNaturalRock(ThingDef thingDef)
+    public static void ReplaceNaturalRock(ThingDef filter, ThingDef replacement)
     {
         var map = Find.CurrentMap;
         map.regionAndRoomUpdater.Enabled = false;
 
-        var terrainDef = thingDef.building.naturalTerrain;
+        var terrainFilter = filter.building.naturalTerrain;
+        var terrainReplacement = replacement.building.naturalTerrain;
+
+        var graphicField = AccessTools.Field(typeof(Thing), "graphicInt");
 
         foreach (var allCell in map.AllCells)
         {
-            if (map.edificeGrid[allCell]?.def?.IsNonResourceNaturalRock ?? false)
-                GenSpawn.Spawn(thingDef, allCell, map);
-
-            if (map.terrainGrid.TerrainAt(allCell)?.smoothedTerrain != null)
+            var building = map.edificeGrid[allCell];
+            if (building != null)
             {
-                map.terrainGrid.SetTerrain(allCell, terrainDef);
+                if (building.def == filter)
+                {
+                    building.def = replacement;
+                    graphicField.SetValue(building, null);
+                    building.DirtyMapMesh(map);
+                }
+                else if (building.def == filter.building.smoothedThing)
+                {
+                    building.def = replacement.building.smoothedThing;
+                    graphicField.SetValue(building, null);
+                    building.DirtyMapMesh(map);
+                }
+            }
+
+            var terrain = map.terrainGrid.TerrainAt(allCell);
+            if (terrain == terrainFilter)
+            {
+                map.terrainGrid.SetTerrain(allCell, terrainReplacement);
+            }
+            else if (terrain == terrainFilter.smoothedTerrain)
+            {
+                map.terrainGrid.SetTerrain(allCell, terrainReplacement.smoothedTerrain);
+            }
+            else if (terrain == filter.building.leaveTerrain)
+            {
+                map.terrainGrid.SetTerrain(allCell, replacement.building.leaveTerrain);
+            }
+        }
+
+        foreach (var thing in map.listerThings.AllThings)
+        {
+            if (thing.def == filter.building.mineableThing)
+            {
+                thing.def = replacement.building.mineableThing;
+                graphicField.SetValue(thing, null);
+                thing.DirtyMapMesh(map);
             }
         }
 

@@ -161,6 +161,7 @@ public class GeologicalLandformsSettings : LunarModSettings
 
         foreach (var biomeVariant in DefDatabase<BiomeVariantDef>.AllDefsListForReading)
         {
+            if (biomeVariant.label.NullOrEmpty()) continue;
             LunarGUI.ToggleTableRow(layout, biomeVariant.defName, true, LabelForBiomeVariant(biomeVariant), DisabledBiomeVariants);
         }
 
