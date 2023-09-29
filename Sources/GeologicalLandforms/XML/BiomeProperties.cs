@@ -7,6 +7,7 @@ using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using LunarFramework.XML;
 using RimWorld;
+using RimWorld.Planet;
 using UnityEngine;
 using Verse;
 
@@ -191,7 +192,7 @@ public class BiomeProperties : DefModExtension
 
         try
         {
-            var method = AccessTools.Method(biome.workerClass, nameof(BiomeWorker.GetScore));
+            var method = AccessTools.Method(biome.workerClass, nameof(BiomeWorker.GetScore), new [] { typeof(Tile), typeof(int) });
             if (method == null) throw new Exception("method GetScore not found");
 
             var instructions = PatchProcessor.ReadMethodBody(method);
