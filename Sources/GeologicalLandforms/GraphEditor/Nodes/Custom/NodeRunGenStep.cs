@@ -12,7 +12,6 @@ using Verse.Noise;
 
 namespace GeologicalLandforms.GraphEditor;
 
-[HotSwappable]
 [Serializable]
 [Node(false, "Custom/Run GenStep", 2000)]
 public class NodeRunGenStep : NodeBase
