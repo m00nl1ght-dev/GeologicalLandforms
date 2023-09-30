@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -79,6 +80,7 @@ internal static class TerrainTabUI
                                 var dirOptions = new List<FloatMenuOption>(new[] { Rot4.North, Rot4.East, Rot4.South, Rot4.West }
                                     .Select(dir => new FloatMenuOption(e.TranslatedDirection(dir).CapitalizeFirst(), () =>
                                     {
+                                        CoerceTileToRequirements(tileInfo, landformData, e);
                                         landformData.Commit(tileId, new LandformData.TileData(tileInfo)
                                         {
                                             Landforms = layers.Append(e).Select(lf => lf.Id).ToList(),
@@ -113,6 +115,30 @@ internal static class TerrainTabUI
             listing.LabelDouble("GeologicalLandforms.WorldMap.Swampiness".Translate(), tileInfo.Swampiness.ToString(CultureInfo.InvariantCulture));
             listing.LabelDouble("GeologicalLandforms.WorldMap.RiverAngle".Translate(), tileInfo.MainRiverAngle.ToString(CultureInfo.InvariantCulture));
             listing.LabelDouble("GeologicalLandforms.WorldMap.MainRoadAngle".Translate(), tileInfo.MainRoadAngle.ToString(CultureInfo.InvariantCulture));
+        }
+    }
+
+    private static void CoerceTileToRequirements(WorldTileInfo tile, LandformData data, Landform landform)
+    {
+        if (landform.WorldTileReq != null)
+        {
+            if (landform.WorldTileReq.HillinessRequirement.min > 5f)
+            {
+                tile.Tile.hilliness = Hilliness.Impassable;
+            }
+            else if (tile.Tile.hilliness == Hilliness.Impassable && landform.WorldTileReq.HillinessRequirement.max <= 5f)
+            {
+                tile.Tile.hilliness = (Hilliness) landform.WorldTileReq.HillinessRequirement.max;
+            }
+            
+            if (landform.WorldTileReq.DepthInCaveSystemRequirement.min >= 1)
+            {
+                data.SetCaveSystemDepthAt(tile.TileId, (byte) (int) landform.WorldTileReq.DepthInCaveSystemRequirement.min);
+            }
+            else if (landform.WorldTileReq.Topology is Topology.CaveEntrance or Topology.CaveTunnel)
+            {
+                data.SetCaveSystemDepthAt(tile.TileId, 1);
+            }
         }
     }
 

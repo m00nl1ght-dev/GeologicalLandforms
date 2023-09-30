@@ -78,6 +78,12 @@ public class LandformData : WorldComponent
     {
         _caveSystems = caveSystems ?? Array.Empty<byte>();
     }
+    
+    public void SetCaveSystemDepthAt(int tileId, byte depth)
+    {
+        if (tileId < 0 || tileId >= _caveSystems.Length) return;
+        _caveSystems[tileId] = depth;
+    }
 
     public override void ExposeData()
     {
