@@ -84,7 +84,9 @@ internal class ModCompat_PrepareLanding : ModCompat
                 })
             };
 
-            foreach (var landform in LandformManager.Landforms.Values.Where(l => !l.IsLayer).OrderBy(e => e.TranslatedNameForSelection))
+            foreach (var landform in LandformManager.Landforms.Values
+                .Where(l => !l.IsLayer && !l.IsInternal)
+                .OrderBy(e => e.TranslatedNameForSelection))
             {
                 floatMenuOptions.Add(new FloatMenuOption(landform.TranslatedNameForSelection.CapitalizeFirst(), () =>
                 {

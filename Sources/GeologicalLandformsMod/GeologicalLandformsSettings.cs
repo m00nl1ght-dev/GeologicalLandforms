@@ -111,6 +111,7 @@ public class GeologicalLandformsSettings : LunarModSettings
         {
             if (landform.Manifest.IsExperimental && !EnableExperimentalLandforms) continue;
             if (landform.WorldTileReq == null) continue;
+            if (landform.IsInternal) continue;
 
             LunarGUI.ToggleTableRow(layout, landform.Id, true, LabelForLandform(landform), DisabledLandforms);
         }

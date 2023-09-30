@@ -20,7 +20,7 @@ internal static class Patch_Verse_CellInspectorDrawer
         if (tile < 0) return;
 
         var info = WorldTileInfo.Get(tile);
-        var landform = info.Landforms?.FirstOrDefault(lf => !lf.IsLayer);
+        var landform = info.Landforms?.FirstOrDefault(lf => !lf.IsLayer && !lf.IsInternal);
 
         if (landform != null)
         {

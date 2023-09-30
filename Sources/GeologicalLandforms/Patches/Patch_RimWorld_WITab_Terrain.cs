@@ -93,7 +93,7 @@ internal static class Patch_RimWorld_WITab_Terrain
     {
         if (_tile.Landforms != null)
         {
-            var mainLandform = _tile.Landforms.LastOrDefault(l => !l.IsLayer);
+            var mainLandform = _tile.Landforms.LastOrDefault(l => !l.IsLayer && !l.IsInternal);
             if (mainLandform != null)
             {
                 var lfStr = mainLandform.TranslatedNameWithDirection(_tile.TopologyDirection).CapitalizeFirst();
