@@ -71,12 +71,11 @@ jobs:
           unzip $ZIP_FILE -d ws-upload
 
       - name: Upload to workshop
-        uses: AnarkisGaming/workshop@v1
-        env:
-          STEAM_ACCOUNT_NAME: ${{ secrets.STEAM_ACCOUNT }}
-          STEAM_PASSWORD: ${{ secrets.STEAM_PASSWORD }}
+        uses: m00nl1ght-dev/steam-workshop-deploy@main
         with:
-          appID: 294100
-          publishedFileID: 2773943594
-          path: "ws-upload/"
-          changelog: ${{ steps.read_changelog.outputs.changes_h }}
+          username: ${{ secrets.STEAM_ACCOUNT }}
+          configVdf: ${{ secrets.STEAM_CONFIG_VDF }}
+          appId: 294100
+          publishedFileId: 2773943594
+          path: ws-upload
+          changeNote: ${{ steps.read_changelog.outputs.changes_h }}
