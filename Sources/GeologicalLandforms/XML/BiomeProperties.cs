@@ -18,7 +18,10 @@ public class BiomeProperties : DefModExtension
     public bool allowLandforms = true;
     public bool allowBiomeTransitions = true;
 
+    public List<string> allowedLandforms;
     public List<string> disallowedLandforms;
+    
+    public List<BiomeDef> allowedBiomeTransitions;
     public List<BiomeDef> disallowedBiomeTransitions;
 
     public XmlDynamicValue<List<string>, ICtxTile> overrideLandforms;
@@ -42,12 +45,14 @@ public class BiomeProperties : DefModExtension
 
     public bool AllowsLandform(Landform landform)
     {
+        if (allowedLandforms != null) return allowedLandforms.Contains(landform.Id);
         if (!AllowLandforms && (!landform.IsLayer || !AllowBiomeTransitions)) return false;
         return !(disallowedLandforms?.Contains(landform.Id) ?? false);
     }
 
     public bool AllowsBiomeTransition(BiomeDef biome)
     {
+        if (allowedBiomeTransitions != null) return allowedBiomeTransitions.Contains(biome);
         if (!AllowBiomeTransitions) return false;
         return !(disallowedBiomeTransitions?.Contains(biome) ?? false);
     }
@@ -102,7 +107,9 @@ public class BiomeProperties : DefModExtension
     public BiomeProperties Copy()
     {
         var copy = (BiomeProperties) MemberwiseClone();
+        copy.allowedLandforms = allowedLandforms?.ToList();
         copy.disallowedLandforms = disallowedLandforms?.ToList();
+        copy.allowedBiomeTransitions = allowedBiomeTransitions?.ToList();
         copy.disallowedBiomeTransitions = disallowedBiomeTransitions?.ToList();
         return copy;
     }

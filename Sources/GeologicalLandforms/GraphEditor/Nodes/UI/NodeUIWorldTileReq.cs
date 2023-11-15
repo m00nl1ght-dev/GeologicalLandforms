@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using HarmonyLib;
 using LunarFramework.GUI;
 using NodeEditorFramework;
+using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
 using Verse;
@@ -17,11 +19,14 @@ public class NodeUIWorldTileReq : NodeUIBase
     public override string GetID => ID;
 
     public override string Title => "World Tile Requirements";
-    public override Vector2 DefaultSize => new(400, 860);
+    public override Vector2 DefaultSize => new(400, 880);
 
     public Topology Topology = Inland;
+    
     public float Commonness = 1f;
     public float CaveChance;
+    
+    public List<string> AllowedBiomes;
 
     public static readonly FloatRange DefaultHillinessRequirement = new(1f, 5f);
     public static readonly FloatRange DefaultRoadRequirement = new(0f, 1f);
@@ -59,6 +64,9 @@ public class NodeUIWorldTileReq : NodeUIBase
             info => CheckHilliness(HillinessRequirement, info.Hilliness),
             info => ElevationRequirement.Includes(info.Elevation)
         };
+
+        if (AllowedBiomes != null)
+            conditions.Add(info => AllowedBiomes.Contains(info.Biome.defName));
 
         if (AvgTemperatureRequirement != DefaultAvgTemperatureRequirement)
             conditions.Add(info => AvgTemperatureRequirement.Includes(info.Temperature));
@@ -129,52 +137,66 @@ public class NodeUIWorldTileReq : NodeUIBase
         LunarGUI.Dropdown(layout, Topology, e => Topology = e, "GeologicalLandforms.Settings.Landform.Topology");
         layout.End();
 
+        layout.Abs(10f);
+        
+        layout.BeginAbs(28f);
+        
+        LunarGUI.Label(layout.Rel(0.3f), "GeologicalLandforms.Settings.Landform.AllowedBiomes".Translate());
+        
+        if (LunarGUI.Button(layout.Rel(AllowedBiomes == null ? 0.7f : 0.6f), LabelForBiomesButton())) 
+            LunarGUI.OpenGenericWindow(GeologicalLandformsAPI.LunarAPI, new(500, 500), BiomeSelectorGUI);
+
+        if (AllowedBiomes != null && LunarGUI.Button(layout, "X"))
+            AllowedBiomes = null;
+        
+        layout.End();
+        
         layout.Abs(20f);
 
         LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.HillinessRequirement".Translate());
         LunarGUI.RangeSlider(layout, ref HillinessRequirement, 1f, 6f, LabelForHilliness);
 
-        layout.Abs(10f);
+        layout.Abs(8f);
 
         LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.TopologyValueRequirement".Translate());
         LunarGUI.RangeSlider(layout, ref TopologyValueRequirement, -1f, 1f);
 
-        layout.Abs(10f);
+        layout.Abs(8f);
 
         LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.RoadRequirement".Translate());
         LunarGUI.RangeSlider(layout, ref RoadRequirement, 0f, 1f);
 
-        layout.Abs(10f);
+        layout.Abs(8f);
 
         LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.RiverRequirement".Translate());
         LunarGUI.RangeSlider(layout, ref RiverRequirement, 0f, 1f);
 
-        layout.Abs(10f);
+        layout.Abs(8f);
 
         LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.ElevationRequirement".Translate());
         LunarGUI.RangeSlider(layout, ref ElevationRequirement, -1000f, 5000f);
 
-        layout.Abs(10f);
+        layout.Abs(8f);
 
         LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.AvgTemperatureRequirement".Translate());
         LunarGUI.RangeSlider(layout, ref AvgTemperatureRequirement, -100f, 100f);
 
-        layout.Abs(10f);
+        layout.Abs(8f);
 
         LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.RainfallRequirement".Translate());
         LunarGUI.RangeSlider(layout, ref RainfallRequirement, 0f, 5000f);
 
-        layout.Abs(10f);
+        layout.Abs(8f);
 
         LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.SwampinessRequirement".Translate());
         LunarGUI.RangeSlider(layout, ref SwampinessRequirement, 0f, 1f);
 
-        layout.Abs(10f);
+        layout.Abs(8f);
 
         LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.BiomeTransitionsRequirement".Translate());
         LunarGUI.RangeSlider(layout, ref BiomeTransitionsRequirement, 0f, 6f);
 
-        layout.Abs(10f);
+        layout.Abs(8f);
 
         LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.DepthInCaveSystemRequirement".Translate());
         LunarGUI.RangeSlider(layout, ref DepthInCaveSystemRequirement, 0f, 10f);
@@ -190,12 +212,49 @@ public class NodeUIWorldTileReq : NodeUIBase
         if (GUI.changed) _conditions = BuildRequirements();
     }
 
+    private void BiomeSelectorGUI(Window window, LayoutRect layout)
+    {
+        AllowedBiomes ??= new List<string>();
+        
+        foreach (var biome in DefDatabase<BiomeDef>.AllDefsListForReading)
+        {
+            var props = biome.Properties();
+            var label = LabelForBiome(biome);
+            var allowed = props.AllowsLandform(Landform);
+            
+            if (!allowed && biome.modContentPack is { IsOfficialMod: true }) continue;
+            
+            LunarGUI.ToggleTableRow(layout, biome.defName, false, label, allowed ? AllowedBiomes : null);
+        }
+    }
+    
+    private static readonly List<string> LabelBuffer = new();
+
+    private string LabelForBiomesButton()
+    {
+        if (AllowedBiomes == null) return "GeologicalLandforms.Settings.Landform.AllowedBiomes.Any".Translate();
+        return "GeologicalLandforms.Settings.Landform.AllowedBiomes.Some".Translate(AllowedBiomes.Count);
+    }
+
     private string LabelForHilliness(float val)
     {
         if (val > 5f) return Hilliness.Impassable.GetLabelCap();
         var hilliness = (Hilliness) (int) Math.Floor(val);
         if (hilliness == Hilliness.Impassable) hilliness = Hilliness.Mountainous;
         return hilliness.GetLabelCap();
+    }
+    
+    private string LabelForBiome(BiomeDef biome)
+    {
+        var mcp = biome.modContentPack;
+        var label = biome.label.CapitalizeFirst();
+
+        if (mcp is { IsOfficialMod: false })
+            LabelBuffer.Add("GeologicalLandforms.Settings.Landforms.DefinedInMod".Translate(mcp.Name));
+
+        if (LabelBuffer.Count > 0) label += " <color=#777777>(" + LabelBuffer.Join(s => s) + ")</color>";
+        LabelBuffer.Clear();
+        return label;
     }
 
     private bool CheckHilliness(FloatRange range, Hilliness hilliness)

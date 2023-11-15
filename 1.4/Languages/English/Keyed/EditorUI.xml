@@ -26,6 +26,9 @@
   <GeologicalLandforms.Settings.Landform.DisplayName>Display name</GeologicalLandforms.Settings.Landform.DisplayName>
   <GeologicalLandforms.Settings.Landform.DisplayNameHasDirection>Show direction</GeologicalLandforms.Settings.Landform.DisplayNameHasDirection>
   <GeologicalLandforms.Settings.Landform.Topology>Topology</GeologicalLandforms.Settings.Landform.Topology>
+  <GeologicalLandforms.Settings.Landform.AllowedBiomes>Biome</GeologicalLandforms.Settings.Landform.AllowedBiomes>
+  <GeologicalLandforms.Settings.Landform.AllowedBiomes.Any>Any</GeologicalLandforms.Settings.Landform.AllowedBiomes.Any>
+  <GeologicalLandforms.Settings.Landform.AllowedBiomes.Some>({0} biomes selected)</GeologicalLandforms.Settings.Landform.AllowedBiomes.Some>
   <GeologicalLandforms.Settings.Landform.Commonness>Commonness</GeologicalLandforms.Settings.Landform.Commonness>
   <GeologicalLandforms.Settings.Landform.HillinessRequirement>Hilliness requirement</GeologicalLandforms.Settings.Landform.HillinessRequirement>
   <GeologicalLandforms.Settings.Landform.RoadRequirement>Road requirement</GeologicalLandforms.Settings.Landform.RoadRequirement>
