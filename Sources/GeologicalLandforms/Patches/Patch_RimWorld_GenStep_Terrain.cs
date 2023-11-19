@@ -20,7 +20,7 @@ namespace GeologicalLandforms.Patches;
 internal static class Patch_RimWorld_GenStep_Terrain
 {
     private static readonly Type Self = typeof(Patch_RimWorld_GenStep_Terrain);
-    
+
     public static IGridFunction<TerrainData> BaseFunction { get; private set; }
     public static IGridFunction<TerrainData> StoneFunction { get; private set; }
     public static IGridFunction<TerrainData> RiverFunction { get; private set; }
@@ -62,6 +62,14 @@ internal static class Patch_RimWorld_GenStep_Terrain
         __result = TerrainAt(c, map, elevation, fertility, tRiver, preferSolid);
 
         return false;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch("GenerateRiver")]
+    [HarmonyPriority(Priority.VeryHigh)]
+    private static bool GenerateRiver_Prefix()
+    {
+        return RiverFunction == null;
     }
 
     [HarmonyTranspiler]
@@ -192,7 +200,7 @@ internal static class Patch_RimWorld_GenStep_Terrain
     public static TerrainDef TerrainAt(IntVec3 c, Map map, float elevation, float fertility, TerrainDef tRiver, bool preferSolid)
     {
         if (RiverFunction != null) tRiver = RiverFunction.ValueAt(c.x, c.z).Terrain;
-        
+
         if (tRiver == null && preferSolid)
         {
             return GenStep_RocksFromGrid.RockDefAt(c).building.naturalTerrain;
