@@ -16,6 +16,9 @@ public class NodeValueRiversAndRoads : NodeBase
 
     public override string Title => "Rivers & Roads";
 
+    // TODO somehow provide angles not just for river entering, but also leaving the map (can be different based on world tiles)
+    // TODO provide data for second river link as well (if any, e.g. confluence)
+
     [ValueConnectionKnob("Angle", Direction.Out, ValueFunctionConnection.Id)]
     public ValueConnectionKnob AngleOutputKnob;
 
@@ -62,7 +65,7 @@ public class NodeValueRiversAndRoads : NodeBase
 
         float angle = 0f;
         float offset = 0f;
-        
+
         if (Landform.GeneratingTile.MainRiver != null)
         {
             angle = Landform.GeneratingTile.MainRiverAngle;

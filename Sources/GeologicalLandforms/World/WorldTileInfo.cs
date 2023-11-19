@@ -58,7 +58,7 @@ public class WorldTileInfo : IWorldTileInfo
 
     public RoadDef MainRoad => MainRoadLink?.road;
     public float MainRoadAngle => World.grid.GetHeadingFromTo(TileId, MainRoadLink?.neighbor ?? TileId);
-    
+
     public byte DepthInCaveSystem => World.LandformData()?.GetCaveSystemDepthAt(TileId) ?? 0;
 
     public int MakeSeed(int salt) => Gen.HashCombineInt(Patch_RimWorld_World.StableSeedForTile(TileId), salt);
@@ -117,9 +117,9 @@ public class WorldTileInfo : IWorldTileInfo
                 DetermineLandforms(info, props);
                 DetermineBiomeVariants(info);
             }
-            
+
             GeologicalLandformsAPI.ApplyWorldTileInfoHook(info);
-            
+
             if (canUseCache)
             {
                 info._cacheVersion = validVersion;
@@ -643,7 +643,7 @@ public class WorldTileInfo : IWorldTileInfo
         }
     }
 
-    private float CalculateRiverAngleFor(Tile.RiverLink riverLink)
+    private float CalculateRiverAngleFor(Tile.RiverLink riverLink) // TODO fix (direction inverted sometimes)
     {
         var topoAngle = TopologyDirection.AsAngle;
         var baseAngle = World.grid.GetHeadingFromTo(TileId, riverLink.neighbor);

@@ -50,6 +50,7 @@ public class GeologicalLandformsMod : Mod
         if (assetBundle == null) throw new Exception("terraingraph asset bundle is missing");
 
         ResourceManager.InitAssetBundle(assetBundle);
+        DebugActions.SetupDebugActions();
     }
 
     private static void Cleanup()

@@ -229,7 +229,7 @@ public class NodeGridTunnels : NodeBase
             return new Transform<double>(new Cache<double>(_result.OffsetGrid), _transformScale);
         }
 
-        public void ResetState()
+        public void ResetState() // TODO investigate: this might cause it to be generated multiple times if all grids are used by output nodes
         {
             _result = new TunnelGenerator.Result();
             _random.Reinitialise(_seed);
