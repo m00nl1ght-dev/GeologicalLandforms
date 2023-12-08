@@ -42,6 +42,8 @@ public class LandformGraphEditor : Window
         };
 
         NodeGridPreview.RegisterPreviewModel(new NodeOutputElevation.ElevationPreviewModel(), "Elevation");
+
+        NodePathTrace.OnError = exc => GeologicalLandformsAPI.Logger.Error("Error during flow path generation", exc);
     }
 
     private void Init()

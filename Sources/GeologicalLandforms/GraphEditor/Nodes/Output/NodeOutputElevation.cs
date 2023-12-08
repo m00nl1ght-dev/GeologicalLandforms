@@ -50,7 +50,10 @@ public class NodeOutputElevation : NodeOutputBase
     {
         public Color GetColorFor(float val, int x, int y)
         {
-            return val >= 0.7f ? Color.white : Color.black;
+            if (val >= 0.7f) return Color.white;
+            if (val >= 0.61f) return new Color(0.4f, 0.4f, 0.4f);
+            if (val >= 0.55f) return new Color(0.2f, 0.2f, 0.2f);
+            return Color.black;
         }
     }
 }

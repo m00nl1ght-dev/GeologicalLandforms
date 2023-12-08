@@ -43,7 +43,7 @@ public abstract class NodeInputBase : NodeBase
     /// </summary>
     public static IGridFunction<double> BuildVanillaElevationGrid(IWorldTileInfo tile, int seed)
     {
-        IGridFunction<double> function = new NoiseGenerator(NodeGridPerlin.PerlinNoise, 0.021, 2, 0.5, 6, seed);
+        IGridFunction<double> function = new NodeGridPerlin.NoiseFunction(0.021, 2, 0.5, 6, seed);
         function = new ScaleWithBias(function, 0.5, 0.5);
         function = new Multiply(function, Of(NodeValueWorldTile.GetHillinessFactor(tile.Hilliness)));
         if (tile.Elevation <= 0) function = new Min(function, Of<double>(0f));
@@ -86,7 +86,7 @@ public abstract class NodeInputBase : NodeBase
     /// </summary>
     public static IGridFunction<double> BuildVanillaFertilityGrid(IWorldTileInfo tile, int seed)
     {
-        IGridFunction<double> function = new NoiseGenerator(NodeGridPerlin.PerlinNoise, 0.021, 2, 0.5, 6, seed);
+        IGridFunction<double> function = new NodeGridPerlin.NoiseFunction(0.021, 2, 0.5, 6, seed);
         function = new ScaleWithBias(function, 0.5, 0.5);
         return function;
     }

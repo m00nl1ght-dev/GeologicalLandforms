@@ -2,60 +2,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using GeologicalLandforms.Defs;
-using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using LunarFramework.GUI;
 using RimWorld;
-using RimWorld.Planet;
-using TerrainGraph;
 using UnityEngine;
 using Verse;
+
+#if DEBUG
+using GeologicalLandforms.GraphEditor;
+using RimWorld.Planet;
+#endif
 
 namespace GeologicalLandforms;
 
 public static class DebugActions
 {
-    public static void SetupDebugActions()
-    {
-        if (Prefs.DevMode && GeologicalLandformsMod.Settings.ShowWorldTileDebugInfo)
-        {
-            PathTracer.DebugOutput = s =>
-            {
-                if (Input.GetKey(KeyCode.LeftShift)) Log.Message(s);
-            };
-
-            GeologicalLandformsMod.LunarAPI.LifecycleHooks.DoOnGUI(() =>
-            {
-                if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyUp(KeyCode.L) && !LandformGraphEditor.IsEditorOpen)
-                {
-                    Find.WindowStack.Add(new LandformGraphEditor());
-
-                    var tileId = -1;
-
-                    if (WorldRendererUtility.WorldRenderedNow)
-                    {
-                        var worldSelector = Find.World?.UI?.selector;
-                        if (worldSelector is { selectedTile: >= 0 })
-                        {
-                            tileId = worldSelector.selectedTile;
-                        }
-                    }
-                    else if (Find.CurrentMap != null)
-                    {
-                        tileId = Find.CurrentMap.Tile;
-                    }
-
-                    if (tileId >= 0)
-                    {
-                        var tileInfo = WorldTileInfo.Get(tileId);
-                        var landform = tileInfo.Landforms?.FirstOrDefault(lf => !lf.IsLayer);
-                        if (landform != null) LandformGraphEditor.ActiveEditor?.OpenLandform(landform);
-                    }
-                }
-            });
-        }
-    }
-
     public static void DebugActionsGUI(LayoutRect layout)
     {
         var world = Find.World;
@@ -371,4 +332,44 @@ public static class DebugActions
     }
 
     private static string Label(string translationKey) => ("GeologicalLandforms.Settings.Debug." + translationKey).Translate();
+
+    #if DEBUG
+
+    public static void SetupDebugActions()
+    {
+        if (Prefs.DevMode && GeologicalLandformsMod.Settings.ShowWorldTileDebugInfo)
+        {
+            GeologicalLandformsMod.LunarAPI.LifecycleHooks.DoOnGUI(() =>
+            {
+                if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyUp(KeyCode.L) && !LandformGraphEditor.IsEditorOpen)
+                {
+                    Find.WindowStack.Add(new LandformGraphEditor());
+
+                    var tileId = -1;
+
+                    if (WorldRendererUtility.WorldRenderedNow)
+                    {
+                        var worldSelector = Find.World?.UI?.selector;
+                        if (worldSelector is { selectedTile: >= 0 })
+                        {
+                            tileId = worldSelector.selectedTile;
+                        }
+                    }
+                    else if (Find.CurrentMap != null)
+                    {
+                        tileId = Find.CurrentMap.Tile;
+                    }
+
+                    if (tileId >= 0)
+                    {
+                        var tileInfo = WorldTileInfo.Get(tileId);
+                        var landform = tileInfo.Landforms?.FirstOrDefault(lf => lf.IsLayer) ?? tileInfo.Landforms?.FirstOrDefault();
+                        if (landform != null) LandformGraphEditor.ActiveEditor?.OpenLandform(landform);
+                    }
+                }
+            });
+        }
+    }
+
+    #endif
 }

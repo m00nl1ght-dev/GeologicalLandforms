@@ -114,5 +114,7 @@ public class NodeOutputBiomeGrid : NodeOutputBase
 
             return new BiomeData(b);
         }
+
+        public override string ToString() => "BIOME BORDER {}";
     }
 }

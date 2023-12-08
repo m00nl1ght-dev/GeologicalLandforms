@@ -46,5 +46,7 @@ public class NodeTerrainGridNaturalRock : NodeBase
             if (RockNoises.rockNoises == null) return new TerrainData(ThingDefOf.Sandstone.building.naturalTerrain);
             return new TerrainData(GenStep_RocksFromGrid.RockDefAt(new IntVec3((int) Math.Round(x, 0), 0, (int) Math.Round(z, 0))).building.naturalTerrain);
         }
+
+        public override string ToString() => "ROCK GRID {}";
     }
 }

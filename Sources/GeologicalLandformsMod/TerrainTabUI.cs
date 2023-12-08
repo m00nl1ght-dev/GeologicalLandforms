@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -74,7 +73,7 @@ internal static class TerrainTabUI
                         .Select(e => new FloatMenuOption(e.TranslatedNameForSelection.CapitalizeFirst(), () =>
                         {
                             var layers = tileInfo.Landforms?.Where(lf => lf.IsLayer) ?? new List<Landform>();
-                            
+
                             if (ignoreReq)
                             {
                                 var dirOptions = new List<FloatMenuOption>(new[] { Rot4.North, Rot4.East, Rot4.South, Rot4.West }
@@ -99,7 +98,7 @@ internal static class TerrainTabUI
                                 });
                             }
                         })));
-                    
+
                     Find.WindowStack.Add(new FloatMenu(options));
                 }
             }
@@ -130,7 +129,7 @@ internal static class TerrainTabUI
             {
                 tile.Tile.hilliness = (Hilliness) landform.WorldTileReq.HillinessRequirement.max;
             }
-            
+
             if (landform.WorldTileReq.DepthInCaveSystemRequirement.min >= 1)
             {
                 data.SetCaveSystemDepthAt(tile.TileId, (byte) (int) landform.WorldTileReq.DepthInCaveSystemRequirement.min);

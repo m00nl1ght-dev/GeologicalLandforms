@@ -109,7 +109,7 @@ public class NodeGridRotateToMapSides : NodeBase
         for (int i = 0; i < InputKnobs.Count; i++)
         {
             OutputKnobs[i].SetValue<ISupplier<IGridFunction<double>>>(new NodeGridRotate.Output(
-                SupplierOrGridFixed(InputKnobs[i], GridFunction.Zero),
+                SupplierOrFallback(InputKnobs[i], GridFunction.Zero),
                 Supplier.Of(MapSideToAngle(MapSides[i]) + Landform.GeneratingTile.TopologyDirection.AsAngle),
                 GridSize / 2, GridSize / 2
             ));

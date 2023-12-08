@@ -306,7 +306,7 @@ internal static class Patch_RimWorld_CellFinder
     private static IntVec3 ConsiderCacheForRandomCell(Map map, IntVec3 pos, int failedTries)
     {
         if (failedTries < 200) return pos;
-        if (failedTries > 500) throw new Exception("Failed to find valid cell after 1000 tries");
+        if (failedTries > 500) throw new Exception("Failed to find valid cell after 500 tries");
 
         var cache = GetOrBuildUnroofedCacheForMap(map);
         if (cache.Length == 0) return pos;

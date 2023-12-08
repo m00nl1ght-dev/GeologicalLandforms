@@ -24,7 +24,6 @@ public class GeologicalLandformsSettings : LunarModSettings
 
     public readonly Entry<bool> IgnoreWorldTileReqInGodMode = MakeEntry(false);
     public readonly Entry<bool> ShowWorldTileDebugInfo = MakeEntry(false);
-    public readonly Entry<bool> EnableMapDebugPawnCommands = MakeEntry(false);
     public readonly Entry<bool> UnidirectionalBiomeTransitions = MakeEntry(false);
     public readonly Entry<bool> DisableBiomeTransitionPostProcessing = MakeEntry(false);
 
@@ -172,7 +171,6 @@ public class GeologicalLandformsSettings : LunarModSettings
     private void DoDebugSettingsTab(LayoutRect layout)
     {
         LunarGUI.Checkbox(layout, ref ShowWorldTileDebugInfo.Value, Label("Debug.ShowWorldTileDebugInfo"));
-        LunarGUI.Checkbox(layout, ref EnableMapDebugPawnCommands.Value, Label("Debug.EnableMapDebugPawnCommands"));
 
         if (EnableGodMode)
         {

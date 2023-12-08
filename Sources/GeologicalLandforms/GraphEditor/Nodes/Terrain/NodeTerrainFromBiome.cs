@@ -63,8 +63,8 @@ public class NodeTerrainFromBiome : NodeBase
     public override bool Calculate()
     {
         OutputKnob.SetValue<ISupplier<TerrainData>>(new Output(
-            SupplierOrValueFixed(FertilityKnob, Fertility),
-            SupplierOrFixed(BiomeKnob, BiomeData.FromString(Biome, Landform.GeneratingTile.Biome))
+            SupplierOrFallback(FertilityKnob, Fertility),
+            SupplierOrFallback(BiomeKnob, BiomeData.FromString(Biome, Landform.GeneratingTile.Biome))
         ));
         return true;
     }

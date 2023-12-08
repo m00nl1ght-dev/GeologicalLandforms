@@ -39,7 +39,7 @@ public class NodeGridTransformByMapSize : NodeBase
     public override bool Calculate()
     {
         OutputKnob.SetValue<ISupplier<IGridFunction<double>>>(new Output(
-            SupplierOrGridFixed(InputKnob, GridFunction.Zero),
+            SupplierOrFallback(InputKnob, GridFunction.Zero),
             Landform.MapSpaceToNodeSpaceFactor
         ));
         return true;

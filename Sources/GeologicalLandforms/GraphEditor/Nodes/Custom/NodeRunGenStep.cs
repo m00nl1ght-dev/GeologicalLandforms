@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
-using LunarFramework.Utility;
 using NodeEditorFramework;
 using RimWorld;
 using TerrainGraph;
@@ -102,14 +101,14 @@ public class NodeRunGenStep : NodeBase
 
     private object GetFieldValue(ValueConnectionKnob knob, Type type)
     {
-        if (type == typeof(double)) return SupplierOrFixed<double>(knob, 0).ResetAndGet();
-        if (type == typeof(float)) return (float) SupplierOrFixed<double>(knob, 0).ResetAndGet();
-        if (type == typeof(int)) return (int) SupplierOrFixed<double>(knob, 0).ResetAndGet();
-        if (type == typeof(bool)) return SupplierOrFixed<double>(knob, 0).ResetAndGet() > 0f;
-        if (type == typeof(TerrainDef)) return SupplierOrFixed(knob, TerrainData.Empty).ResetAndGet().Terrain;
-        if (type == typeof(BiomeDef)) return SupplierOrFixed(knob, BiomeData.Empty).ResetAndGet().Biome;
-        if (type == typeof(RoofDef)) return SupplierOrFixed(knob, RoofData.Empty).ResetAndGet().Roof;
-        if (type == typeof(ModuleBase)) return SupplierOrFixed(knob, GridFunction.Zero).ResetAndGet().AsModule();
+        if (type == typeof(double)) return SupplierOrFallback(knob, 0d).ResetAndGet();
+        if (type == typeof(float)) return (float) SupplierOrFallback(knob, 0d).ResetAndGet();
+        if (type == typeof(int)) return (int) SupplierOrFallback(knob, 0d).ResetAndGet();
+        if (type == typeof(bool)) return SupplierOrFallback(knob, 0d).ResetAndGet() > 0f;
+        if (type == typeof(TerrainDef)) return SupplierOrFallback(knob, TerrainData.Empty).ResetAndGet().Terrain;
+        if (type == typeof(BiomeDef)) return SupplierOrFallback(knob, BiomeData.Empty).ResetAndGet().Biome;
+        if (type == typeof(RoofDef)) return SupplierOrFallback(knob, RoofData.Empty).ResetAndGet().Roof;
+        if (type == typeof(ModuleBase)) return SupplierOrFallback(knob, GridFunction.Zero).ResetAndGet().AsModule();
         return null;
     }
 

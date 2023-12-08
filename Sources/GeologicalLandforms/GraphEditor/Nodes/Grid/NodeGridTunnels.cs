@@ -7,6 +7,7 @@ using TerrainGraph;
 using TerrainGraph.Util;
 using UnityEngine;
 using Verse;
+using static GeologicalLandforms.TunnelGenerator;
 using static TerrainGraph.GridFunction;
 
 namespace GeologicalLandforms.GraphEditor;
@@ -92,8 +93,10 @@ public class NodeGridTunnels : NodeBase
 
     public override bool Calculate()
     {
+        var cache = new List<Result>(5);
+
         var output = new Output(
-            SupplierOrGridFixed(InputKnob, Zero), InputThreshold,
+            SupplierOrFallback(InputKnob, Zero), InputThreshold,
             new TunnelGenerator
             {
                 OpenTunnelsPer10K = (float) OpenTunnelsPer10K,
@@ -114,13 +117,22 @@ public class NodeGridTunnels : NodeBase
             MinEdgeCells
         );
 
-        OutputKnob.SetValue<ISupplier<IGridFunction<double>>>(Supplier.From(output.GetCaves, output.ResetState));
-        DepthsKnob.SetValue<ISupplier<IGridFunction<double>>>(Supplier.From(output.GetDepths, output.ResetState));
-        OffsetsKnob.SetValue<ISupplier<IGridFunction<double>>>(Supplier.From(output.GetOffsets, output.ResetState));
+        OutputKnob.SetValue<ISupplier<IGridFunction<double>>>(
+            new Supplier.CompoundCached<Result,IGridFunction<double>>(output, t => output.GridToFunc(t.CavesGrid), cache)
+        );
+
+        DepthsKnob.SetValue<ISupplier<IGridFunction<double>>>(
+            new Supplier.CompoundCached<Result,IGridFunction<double>>(output, t => output.GridToFunc(t.DepthGrid), cache)
+        );
+
+        OffsetsKnob.SetValue<ISupplier<IGridFunction<double>>>(
+            new Supplier.CompoundCached<Result,IGridFunction<double>>(output, t => output.GridToFunc(t.OffsetGrid), cache)
+        );
+
         return true;
     }
 
-    private class Output
+    private class Output : ISupplier<Result>
     {
         private readonly ISupplier<IGridFunction<double>> _input;
         private readonly double _inputThreshold;
@@ -132,8 +144,6 @@ public class NodeGridTunnels : NodeBase
         private readonly bool _doDepths;
         private readonly bool _doOffsets;
         private readonly int _minEdgeCells;
-
-        private TunnelGenerator.Result _result;
 
         public Output(
             ISupplier<IGridFunction<double>> input, double inputThreshold, TunnelGenerator generator,
@@ -152,24 +162,25 @@ public class NodeGridTunnels : NodeBase
             _random.Reinitialise(_seed);
         }
 
-        private void GenerateIfNeeded()
+        public Result Get()
         {
             const int maxTries = 10;
 
-            if (_result.CavesGrid != null) return;
-
             var maxAccepted = 0;
+
+            var result = new Result();
 
             for (int i = 0; i < maxTries; i++)
             {
                 var rand = new RandInstance(_random.Next());
                 var input = new Transform<double>(_input.Get(), 1 / _transformScale);
-                _result = _generator.Generate(_targetGridSize, rand, c => input.ValueAt(c.x, c.z) > _inputThreshold, _doDepths, _doOffsets);
 
-                if (_minEdgeCells <= 0) return;
+                result = _generator.Generate(_targetGridSize, rand, c => input.ValueAt(c.x, c.z) > _inputThreshold, _doDepths, _doOffsets);
+
+                if (_minEdgeCells <= 0) return result;
 
                 var walkable = new StructRot4<int>();
-                var function = new Cache<double>(_result.CavesGrid);
+                var function = new Cache<double>(result.CavesGrid);
 
                 walkable[Rot4.West] = NodeGridValidate.ValidateCol(function, 0, _targetGridSize.z, 1, 9999);
                 walkable[Rot4.South] = NodeGridValidate.ValidateRow(function, 0, _targetGridSize.x, 1, 9999);
@@ -184,11 +195,12 @@ public class NodeGridTunnels : NodeBase
                     if (Landform.GeneratingTile is WorldTileInfo tileInfo && !CheckMapSides(tileInfo, walkable)) continue;
 
                     GeologicalLandformsAPI.Logger.Debug($"Cave grid passed validation after {i + 1} tries, with {total} accepted cells.");
-                    return;
+                    return result;
                 }
             }
 
             GeologicalLandformsAPI.Logger.Debug($"Cave grid failed validation after {maxTries} tries, with {maxAccepted} accepted cells.");
+            return result;
         }
 
         [ThreadStatic]
@@ -208,30 +220,14 @@ public class NodeGridTunnels : NodeBase
             return _tscNeighbors.Count == 0;
         }
 
-        public IGridFunction<double> GetCaves()
+        public IGridFunction<double> GridToFunc(double[,] grid)
         {
-            GenerateIfNeeded();
-            if (_result.CavesGrid == null) return Zero;
-            return new Transform<double>(new Cache<double>(_result.CavesGrid), _transformScale);
+            if (grid == null) return Zero;
+            return new Transform<double>(new Cache<double>(grid), _transformScale);
         }
 
-        public IGridFunction<double> GetDepths()
+        public void ResetState()
         {
-            GenerateIfNeeded();
-            if (_result.DepthGrid == null) return Zero;
-            return new Transform<double>(new Cache<double>(_result.DepthGrid), _transformScale);
-        }
-
-        public IGridFunction<double> GetOffsets()
-        {
-            GenerateIfNeeded();
-            if (_result.OffsetGrid == null) return Zero;
-            return new Transform<double>(new Cache<double>(_result.OffsetGrid), _transformScale);
-        }
-
-        public void ResetState() // TODO investigate: this might cause it to be generated multiple times if all grids are used by output nodes
-        {
-            _result = new TunnelGenerator.Result();
             _random.Reinitialise(_seed);
             _input.ResetState();
         }

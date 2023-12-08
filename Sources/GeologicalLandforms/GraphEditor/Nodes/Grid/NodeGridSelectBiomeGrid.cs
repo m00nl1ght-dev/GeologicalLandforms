@@ -58,12 +58,12 @@ public class NodeGridSelectBiomeGrid : NodeSelectBase
 
     public override bool Calculate()
     {
-        ISupplier<IGridFunction<double>> input = SupplierOrGridFixed(InputKnob, GridFunction.Zero);
+        ISupplier<IGridFunction<double>> input = SupplierOrFallback(InputKnob, GridFunction.Zero);
 
         List<ISupplier<IGridFunction<BiomeData>>> options = new();
         for (int i = 0; i < Math.Min(Values.Count, OptionKnobs.Count); i++)
         {
-            options.Add(SupplierOrGridFixed(OptionKnobs[i], GridFunction.Of(BiomeData.FromString(Values[i]))));
+            options.Add(SupplierOrFallback(OptionKnobs[i], GridFunction.Of(BiomeData.FromString(Values[i]))));
         }
 
         OutputKnob.SetValue<ISupplier<IGridFunction<BiomeData>>>(new GridOutput<BiomeData>(input, options, Thresholds, PostProcess));

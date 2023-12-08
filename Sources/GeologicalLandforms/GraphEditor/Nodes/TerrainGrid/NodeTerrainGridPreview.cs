@@ -55,22 +55,24 @@ public class NodeTerrainGridPreview : NodeDiscreteGridPreview<TerrainData>
     {
         var previewSize = PreviewSize;
         var previewBuffer = PreviewBuffer;
-        var previewRatio = TerrainCanvas.GridPreviewRatio;
 
-        var supplier = InputKnob.connected() ? InputKnobRef.GetValue<ISupplier<IGridFunction<TerrainData>>>() : null;
-        var elevSupplier = ElevationInputKnob.connected() ? ElevationInputKnob.GetValue<ISupplier<IGridFunction<double>>>() : null;
+        var previewTransform = NodeGridPreview.GetPreviewTransform(PreviewTransformId);
+
+        var supplier = SupplierOrFallback(InputKnob, Default);
+        var elevSupplier = SupplierOrFallback(ElevationInputKnob, GridFunction.Zero);
 
         TerrainCanvas.PreviewScheduler.ScheduleTask(new PreviewTask(this, () =>
         {
-            var previewFunction = PreviewFunction = supplier != null ? supplier.ResetAndGet() : Default;
-            var elevationFunction = ElevationFunction = elevSupplier != null ? elevSupplier.ResetAndGet() : GridFunction.Zero;
+            var previewFunction = PreviewFunction = supplier.ResetAndGet();
+            var elevationFunction = ElevationFunction = elevSupplier.ResetAndGet();
 
             for (int x = 0; x < previewSize; x++)
             {
                 for (int y = 0; y < previewSize; y++)
                 {
-                    var value = previewFunction.ValueAt(x * previewRatio, y * previewRatio);
-                    var elevation = elevationFunction.ValueAt(x * previewRatio, y * previewRatio);
+                    var pos = previewTransform.PreviewToCanvasSpace(TerrainCanvas, new Vector2Int(x, y));
+                    var value = previewFunction.ValueAt(pos.x, pos.y);
+                    var elevation = elevationFunction.ValueAt(pos.x, pos.y);
                     var color = elevation > 0.7f ? RockColor : GetColor(value);
                     previewBuffer[y * previewSize + x] = color;
                 }

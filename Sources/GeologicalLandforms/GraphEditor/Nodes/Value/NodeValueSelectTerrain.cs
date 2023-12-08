@@ -69,12 +69,12 @@ public class NodeValueSelectTerrain : NodeSelectBase
 
     public override bool Calculate()
     {
-        ISupplier<double> input = SupplierOrValueFixed(InputKnob, 0d);
+        ISupplier<double> input = SupplierOrFallback(InputKnob, 0d);
 
         List<ISupplier<TerrainData>> options = new();
         for (int i = 0; i < Math.Min(Values.Count, OptionKnobs.Count); i++)
         {
-            options.Add(SupplierOrFixed(OptionKnobs[i], TerrainData.FromString(Values[i])));
+            options.Add(SupplierOrFallback(OptionKnobs[i], TerrainData.FromString(Values[i])));
         }
 
         OutputKnob.SetValue<ISupplier<TerrainData>>(new Output<TerrainData>(input, options, Thresholds));

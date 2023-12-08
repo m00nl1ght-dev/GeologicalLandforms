@@ -55,7 +55,7 @@ public class NodeTerrainGridFromValue : NodeBase
     public override bool Calculate()
     {
         OutputKnob.SetValue<ISupplier<IGridFunction<TerrainData>>>(new NodeGridFromValue.Output<TerrainData>(
-            SupplierOrFixed(InputKnob, TerrainData.FromString(Value))
+            SupplierOrFallback(InputKnob, TerrainData.FromString(Value))
         ));
         return true;
     }

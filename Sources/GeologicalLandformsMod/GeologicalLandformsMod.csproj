@@ -84,6 +84,7 @@
         <Compile Include="GeologicalLandformsMod.cs" />
         <Compile Include="Patches\Patch_RimWorld_FloatMenuMakerMap.cs" />
         <Compile Include="Patches\Patch_Verse_Root_Play.cs" />
+        <Compile Include="Patches\Patch_Verse_WaterInfo.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
         <Compile Include="GeologicalLandformsSettings.cs" />
         <Compile Include="TerrainTabUI.cs" />

@@ -55,7 +55,7 @@ public class NodeBiomeGridFromValue : NodeBase
     public override bool Calculate()
     {
         OutputKnob.SetValue<ISupplier<IGridFunction<BiomeData>>>(new NodeGridFromValue.Output<BiomeData>(
-            SupplierOrFixed(InputKnob, BiomeData.FromString(Value))
+            SupplierOrFallback(InputKnob, BiomeData.FromString(Value))
         ));
         return true;
     }

@@ -55,7 +55,7 @@ public class NodeRoofGridFromValue : NodeBase
     public override bool Calculate()
     {
         OutputKnob.SetValue<ISupplier<IGridFunction<RoofData>>>(new NodeGridFromValue.Output<RoofData>(
-            SupplierOrFixed(InputKnob, RoofData.FromString(Value))
+            SupplierOrFallback(InputKnob, RoofData.FromString(Value))
         ));
         return true;
     }
