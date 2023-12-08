@@ -51,7 +51,7 @@ internal static class Patch_RimWorld_WorldGenStep_Terrain
         {
             ___noiseMountainLines = new Add(___noiseMountainLines, new Const(HillinessNoiseOffset));
         }
-        
+
         try
         {
             CalcCaveSystems(___noiseMountainLines, ___noiseElevation);
@@ -81,13 +81,13 @@ internal static class Patch_RimWorld_WorldGenStep_Terrain
         const int minSize = 4;
         const int maxDist = 10;
 
-        const double impassableThrshold = 0.03629999980330467;
+        const double impassableThreshold = 0.03629999980330467;
 
         for (int tileIdx = 0; tileIdx < tilesCount; ++tileIdx)
         {
             var tileCenter = grid.GetTileCenter(tileIdx);
 
-            if (hillinessModule.GetValue(tileCenter) > impassableThrshold) continue;
+            if (hillinessModule.GetValue(tileCenter) > impassableThreshold) continue;
             if (!InCaveSystemNoiseThreshold(tileIdx, tileCenter, noiseSeed)) continue;
             if (elevationModule.GetValue(tileCenter) <= 0) continue;
 
@@ -98,7 +98,7 @@ internal static class Patch_RimWorld_WorldGenStep_Terrain
             {
                 var tc = grid.GetTileCenter(t);
 
-                if (hillinessModule.GetValue(tc) > impassableThrshold)
+                if (hillinessModule.GetValue(tc) > impassableThreshold)
                 {
                     if (d < dist) dist = d;
                     return size >= minSize ? TraverseAction.Stop : TraverseAction.Ignore;
