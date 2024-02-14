@@ -41,7 +41,7 @@ public class NodeRunGenStep : NodeBase
 
         if (GUILayout.Button(ShortTypeName(GenStepTypeName), GUI.skin.box, FullBoxLayout))
         {
-            Dropdown(typeof(GenStep).AllSubclassesNonAbstract(), OnGenStepTypeSelected, t => t.FullName);
+            Dropdown(AvailableGenStepClasses, OnGenStepTypeSelected, t => t.FullName);
         }
 
         GUILayout.EndHorizontal();
@@ -61,6 +61,11 @@ public class NodeRunGenStep : NodeBase
         if (GUI.changed)
             canvas.OnNodeChange(this);
     }
+
+    private static readonly IReadOnlyList<string> IgnoredAssemblies = ["MapPreview"];
+
+    private static List<Type> AvailableGenStepClasses => typeof(GenStep).AllSubclassesNonAbstract()
+        .Where(t => !IgnoredAssemblies.Contains(t.Assembly.GetName().Name)).ToList();
 
     private void OnGenStepTypeSelected(Type type)
     {
@@ -114,6 +119,7 @@ public class NodeRunGenStep : NodeBase
 
     private string ShortTypeName(string fullName)
     {
+        if (fullName == null) return "None";
         var idx = fullName.IndexOf(".GenStep_", StringComparison.Ordinal);
         return idx < 0 ? fullName : fullName.Substring(idx + 9);
     }
