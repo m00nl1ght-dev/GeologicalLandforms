@@ -185,6 +185,7 @@
         <Compile Include="Patches\Patch_RimWorld_GenStep_ElevationFertility.cs" />
         <Compile Include="Patches\Patch_RimWorld_WITab_Terrain.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
+        <Compile Include="Utility\LabelUtils.cs" />
         <Compile Include="Utility\WorldTileTraverser.cs" />
         <Compile Include="Utility\TunnelGenerator.cs" />
         <Compile Include="World\IWorldTileInfo.cs" />

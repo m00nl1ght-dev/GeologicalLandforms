@@ -21,7 +21,7 @@
   <GeologicalLandforms.Editor.ConfirmReset>Are you sure you want to reset the config for the selected landform to default?</GeologicalLandforms.Editor.ConfirmReset>
   <GeologicalLandforms.Editor.ConfirmDelete>Are you sure you want to delete the selected custom landform? It will be gone forever!</GeologicalLandforms.Editor.ConfirmDelete>
   <GeologicalLandforms.Editor.ConfirmSaveInMod>This landform is provided by the mod "{0}". By default, when you make changes to this landform, they will be saved in your personal config folder, while the original file in the mod folder stays untouched. This has the advantage that your changes will not be overridden when the mod is updated, for example through Steam.\n\nHowever, if you are a mod developer working on "{0}", you probably want to apply your changes to the original file in the mod's folder, so that you can commit it via Git, or push out the changes as part of an update of your mod. Apply your changes to the original file in the mod folder now?</GeologicalLandforms.Editor.ConfirmSaveInMod>
-  
+
   <GeologicalLandforms.Settings.Landform.Id>Id</GeologicalLandforms.Settings.Landform.Id>
   <GeologicalLandforms.Settings.Landform.DisplayName>Display name</GeologicalLandforms.Settings.Landform.DisplayName>
   <GeologicalLandforms.Settings.Landform.DisplayNameHasDirection>Show direction</GeologicalLandforms.Settings.Landform.DisplayNameHasDirection>
@@ -30,16 +30,18 @@
   <GeologicalLandforms.Settings.Landform.AllowedBiomes.Any>Any</GeologicalLandforms.Settings.Landform.AllowedBiomes.Any>
   <GeologicalLandforms.Settings.Landform.AllowedBiomes.Some>({0} biomes selected)</GeologicalLandforms.Settings.Landform.AllowedBiomes.Some>
   <GeologicalLandforms.Settings.Landform.Commonness>Commonness</GeologicalLandforms.Settings.Landform.Commonness>
-  <GeologicalLandforms.Settings.Landform.HillinessRequirement>Hilliness requirement</GeologicalLandforms.Settings.Landform.HillinessRequirement>
-  <GeologicalLandforms.Settings.Landform.RoadRequirement>Road requirement</GeologicalLandforms.Settings.Landform.RoadRequirement>
-  <GeologicalLandforms.Settings.Landform.RiverRequirement>River requirement</GeologicalLandforms.Settings.Landform.RiverRequirement>
-  <GeologicalLandforms.Settings.Landform.ElevationRequirement>Elevation requirement</GeologicalLandforms.Settings.Landform.ElevationRequirement>
-  <GeologicalLandforms.Settings.Landform.AvgTemperatureRequirement>Average temperature requirement</GeologicalLandforms.Settings.Landform.AvgTemperatureRequirement>
-  <GeologicalLandforms.Settings.Landform.RainfallRequirement>Rainfall requirement</GeologicalLandforms.Settings.Landform.RainfallRequirement>
-  <GeologicalLandforms.Settings.Landform.SwampinessRequirement>Swampiness requirement</GeologicalLandforms.Settings.Landform.SwampinessRequirement>
-  <GeologicalLandforms.Settings.Landform.BiomeTransitionsRequirement>Biome transitions requirement</GeologicalLandforms.Settings.Landform.BiomeTransitionsRequirement>
-  <GeologicalLandforms.Settings.Landform.TopologyValueRequirement>Topology value requirement</GeologicalLandforms.Settings.Landform.TopologyValueRequirement>
-  <GeologicalLandforms.Settings.Landform.DepthInCaveSystemRequirement>Depth in cave system requirement</GeologicalLandforms.Settings.Landform.DepthInCaveSystemRequirement>
+  <GeologicalLandforms.Settings.Landform.HillinessRequirement>Hilliness</GeologicalLandforms.Settings.Landform.HillinessRequirement>
+  <GeologicalLandforms.Settings.Landform.RoadRequirement>Road</GeologicalLandforms.Settings.Landform.RoadRequirement>
+  <GeologicalLandforms.Settings.Landform.RiverRequirement>River</GeologicalLandforms.Settings.Landform.RiverRequirement>
+  <GeologicalLandforms.Settings.Landform.RoadOrRiverRequirement>Road or river</GeologicalLandforms.Settings.Landform.RoadOrRiverRequirement>
+  <GeologicalLandforms.Settings.Landform.ElevationRequirement>Elevation</GeologicalLandforms.Settings.Landform.ElevationRequirement>
+  <GeologicalLandforms.Settings.Landform.AvgTemperatureRequirement>Average temperature</GeologicalLandforms.Settings.Landform.AvgTemperatureRequirement>
+  <GeologicalLandforms.Settings.Landform.RainfallRequirement>Rainfall</GeologicalLandforms.Settings.Landform.RainfallRequirement>
+  <GeologicalLandforms.Settings.Landform.SwampinessRequirement>Swampiness</GeologicalLandforms.Settings.Landform.SwampinessRequirement>
+  <GeologicalLandforms.Settings.Landform.BiomeTransitionsRequirement>Bordering biomes</GeologicalLandforms.Settings.Landform.BiomeTransitionsRequirement>
+  <GeologicalLandforms.Settings.Landform.TopologyValueRequirement>Topology value</GeologicalLandforms.Settings.Landform.TopologyValueRequirement>
+  <GeologicalLandforms.Settings.Landform.DepthInCaveSystemRequirement>Depth in cave system</GeologicalLandforms.Settings.Landform.DepthInCaveSystemRequirement>
+  <GeologicalLandforms.Settings.Landform.AddRequirement>Add requirement</GeologicalLandforms.Settings.Landform.AddRequirement>
   <GeologicalLandforms.Settings.Landform.AllowSettlements>Allow non-player settlements</GeologicalLandforms.Settings.Landform.AllowSettlements>
   <GeologicalLandforms.Settings.Landform.AllowSites>Allow quest sites</GeologicalLandforms.Settings.Landform.AllowSites>
   <GeologicalLandforms.Settings.Landform.CaveChance>Cave chance</GeologicalLandforms.Settings.Landform.CaveChance>

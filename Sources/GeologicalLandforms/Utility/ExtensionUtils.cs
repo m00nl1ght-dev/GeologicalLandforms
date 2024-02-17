@@ -108,7 +108,7 @@ public static class ExtensionUtils
         => tile.MainRiver?.widthOnWorld ?? 0f;
 
     public static float MainRoadSize(this IWorldTileInfo tile)
-        => 1f - (tile.MainRoad?.movementCostMultiplier ?? 1f);
+        => 1f - (tile.MainRoad?.movementCostMultiplier ?? 1f); // TODO use different def value (this one is the same for all roads in vanilla)
 
     public static bool HasTerrain(this ICtxMapCell ctx, string defName)
         => ctx.Map.terrainGrid.TerrainAt(ctx.MapCell)?.defName == defName;

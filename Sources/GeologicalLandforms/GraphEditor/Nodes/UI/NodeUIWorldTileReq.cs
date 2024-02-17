@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using HarmonyLib;
+using System.Linq;
 using LunarFramework.GUI;
 using NodeEditorFramework;
 using RimWorld;
@@ -19,95 +19,39 @@ public class NodeUIWorldTileReq : NodeUIBase
     public override string GetID => ID;
 
     public override string Title => "World Tile Requirements";
-    public override Vector2 DefaultSize => new(400, 880);
+    public override Vector2 DefaultSize => new(400, _lastLayoutMaxY);
 
-    public Topology Topology = Inland;
-    
+    public Topology Topology;
+
     public float Commonness = 1f;
     public float CaveChance;
-    
+
     public List<string> AllowedBiomes;
 
-    public static readonly FloatRange DefaultHillinessRequirement = new(1f, 5f);
-    public static readonly FloatRange DefaultRoadRequirement = new(0f, 1f);
-    public static readonly FloatRange DefaultRiverRequirement = new(0f, 1f);
-    public static readonly FloatRange DefaultElevationRequirement = new(0f, 5000f);
-    public static readonly FloatRange DefaultAvgTemperatureRequirement = new(-100f, 100f);
-    public static readonly FloatRange DefaultRainfallRequirement = new(0f, 5000f);
-    public static readonly FloatRange DefaultSwampinessRequirement = new(0f, 1f);
-    public static readonly FloatRange DefaultMapSizeRequirement = new(250f, 1000f);
-    public static readonly FloatRange DefaultBiomeTransitionsRequirement = new(0f, 6f);
-    public static readonly FloatRange DefaultTopologyValueRequirement = new(-1f, 1f);
-    public static readonly FloatRange DefaultDepthInCaveSystemRequirement = new(0f, 10f);
-
-    public FloatRange HillinessRequirement = DefaultHillinessRequirement;
-    public FloatRange RoadRequirement = DefaultRoadRequirement;
-    public FloatRange RiverRequirement = DefaultRiverRequirement;
-    public FloatRange ElevationRequirement = DefaultElevationRequirement;
-    public FloatRange AvgTemperatureRequirement = DefaultAvgTemperatureRequirement;
-    public FloatRange RainfallRequirement = DefaultRainfallRequirement;
-    public FloatRange SwampinessRequirement = DefaultSwampinessRequirement;
-    public FloatRange MapSizeRequirement = DefaultMapSizeRequirement;
-    public FloatRange BiomeTransitionsRequirement = DefaultBiomeTransitionsRequirement;
-    public FloatRange TopologyValueRequirement = DefaultTopologyValueRequirement;
-    public FloatRange DepthInCaveSystemRequirement = DefaultDepthInCaveSystemRequirement;
+    public FloatRange HillinessRequirement;
+    public FloatRange RoadRequirement;
+    public FloatRange RiverRequirement;
+    public FloatRange ElevationRequirement;
+    public FloatRange AvgTemperatureRequirement;
+    public FloatRange RainfallRequirement;
+    public FloatRange SwampinessRequirement;
+    public FloatRange BiomeTransitionsRequirement;
+    public FloatRange TopologyValueRequirement;
+    public FloatRange DepthInCaveSystemRequirement;
 
     public bool AllowSettlements;
     public bool AllowSites;
 
-    private List<Predicate<IWorldTileInfo>> _conditions;
+    private List<ICondition> _activeConditions = [];
 
-    private List<Predicate<IWorldTileInfo>> BuildRequirements()
+    public NodeUIWorldTileReq()
     {
-        var conditions = new List<Predicate<IWorldTileInfo>>
-        {
-            info => CheckHilliness(HillinessRequirement, info.Hilliness),
-            info => ElevationRequirement.Includes(info.Elevation)
-        };
-
-        if (AllowedBiomes != null)
-            conditions.Add(info => AllowedBiomes.Contains(info.Biome.defName));
-
-        if (AvgTemperatureRequirement != DefaultAvgTemperatureRequirement)
-            conditions.Add(info => AvgTemperatureRequirement.Includes(info.Temperature));
-        if (RainfallRequirement != DefaultRainfallRequirement)
-            conditions.Add(info => RainfallRequirement.Includes(info.Rainfall));
-        if (SwampinessRequirement != DefaultSwampinessRequirement)
-            conditions.Add(info => SwampinessRequirement.Includes(info.Swampiness));
-        if (BiomeTransitionsRequirement != DefaultBiomeTransitionsRequirement)
-            conditions.Add(info => BiomeTransitionsRequirement.Includes(info.BorderingBiomesCount()));
-        if (TopologyValueRequirement != DefaultTopologyValueRequirement)
-            conditions.Add(info => TopologyValueRequirement.Includes(info.TopologyValue));
-        if (DepthInCaveSystemRequirement != DefaultDepthInCaveSystemRequirement)
-            conditions.Add(info => DepthInCaveSystemRequirement.Includes(info.DepthInCaveSystem));
-
-        if (RiverRequirement.max <= 0f)
-            conditions.Add(info => info.MainRiver == null);
-        if (RoadRequirement.max <= 0f)
-            conditions.Add(info => info.MainRoad == null);
-
-        bool River(IWorldTileInfo info) => RiverRequirement.Includes(info.MainRiverSize());
-        bool Road(IWorldTileInfo info) => RoadRequirement.Includes(info.MainRoadSize());
-
-        if (RiverRequirement.min > 0f && RoadRequirement.min > 0f)
-            conditions.Add(info => River(info) || Road(info));
-        else if (RiverRequirement.min > 0f)
-            conditions.Add(River);
-        else if (RoadRequirement.min > 0f)
-            conditions.Add(Road);
-
-        return conditions;
+        foreach (var condition in Conditions) condition.Reset(this, false);
     }
 
     public bool CheckRequirements(IWorldTileInfo worldTile, bool lenient)
     {
-        if (!Topology.IsCompatible(worldTile.Topology, lenient)) return false;
-
-        foreach (var condition in _conditions)
-            if (!condition(worldTile))
-                return false;
-
-        return true;
+        return _activeConditions.All(c => !c.IsActive(this) || c.Check(this, worldTile, lenient));
     }
 
     public bool CheckWorldObject(IWorldTileInfo worldTile)
@@ -119,148 +63,69 @@ public class NodeUIWorldTileReq : NodeUIBase
         return true;
     }
 
+    private const string LabelKeyPrefix = "GeologicalLandforms.Settings.Landform";
+
+    private float _lastLayoutMaxY = 400f;
+
     protected override void DoWindowContents(LayoutRect layout)
     {
-        LunarGUI.LabelDouble(layout, "GeologicalLandforms.Settings.Landform.Commonness".Translate(), Commonness.ToString("F2"));
+        LunarGUI.LabelDouble(layout, $"{LabelKeyPrefix}.Commonness".Translate(), Commonness.ToString("F2"));
         LunarGUI.Slider(layout, ref Commonness, 0f, 1f);
 
         layout.PushEnabled(!Landform.IsLayer);
 
-        LunarGUI.LabelDouble(layout, "GeologicalLandforms.Settings.Landform.CaveChance".Translate(), CaveChance.ToString("F2"));
+        LunarGUI.LabelDouble(layout, $"{LabelKeyPrefix}.CaveChance".Translate(), CaveChance.ToString("F2"));
         LunarGUI.Slider(layout, ref CaveChance, 0f, 1f);
 
         layout.PopEnabled();
-        layout.Abs(10f);
 
-        layout.BeginAbs(28f);
-        LunarGUI.Label(layout.Rel(0.3f), "GeologicalLandforms.Settings.Landform.Topology".Translate());
-        LunarGUI.Dropdown(layout, Topology, e => Topology = e, "GeologicalLandforms.Settings.Landform.Topology");
-        layout.End();
-
-        layout.Abs(10f);
-        
-        layout.BeginAbs(28f);
-        
-        LunarGUI.Label(layout.Rel(0.3f), "GeologicalLandforms.Settings.Landform.AllowedBiomes".Translate());
-        
-        if (LunarGUI.Button(layout.Rel(AllowedBiomes == null ? 0.7f : 0.6f), LabelForBiomesButton())) 
-            LunarGUI.OpenGenericWindow(GeologicalLandformsAPI.LunarAPI, new(500, 500), BiomeSelectorGUI);
-
-        if (AllowedBiomes != null && LunarGUI.Button(layout, "X"))
-            AllowedBiomes = null;
-        
-        layout.End();
-        
-        layout.Abs(20f);
-
-        LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.HillinessRequirement".Translate());
-        LunarGUI.RangeSlider(layout, ref HillinessRequirement, 1f, 6f, LabelForHilliness);
-
-        layout.Abs(8f);
-
-        LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.TopologyValueRequirement".Translate());
-        LunarGUI.RangeSlider(layout, ref TopologyValueRequirement, -1f, 1f);
-
-        layout.Abs(8f);
-
-        LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.RoadRequirement".Translate());
-        LunarGUI.RangeSlider(layout, ref RoadRequirement, 0f, 1f);
-
-        layout.Abs(8f);
-
-        LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.RiverRequirement".Translate());
-        LunarGUI.RangeSlider(layout, ref RiverRequirement, 0f, 1f);
-
-        layout.Abs(8f);
-
-        LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.ElevationRequirement".Translate());
-        LunarGUI.RangeSlider(layout, ref ElevationRequirement, -1000f, 5000f);
-
-        layout.Abs(8f);
-
-        LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.AvgTemperatureRequirement".Translate());
-        LunarGUI.RangeSlider(layout, ref AvgTemperatureRequirement, -100f, 100f);
-
-        layout.Abs(8f);
-
-        LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.RainfallRequirement".Translate());
-        LunarGUI.RangeSlider(layout, ref RainfallRequirement, 0f, 5000f);
-
-        layout.Abs(8f);
-
-        LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.SwampinessRequirement".Translate());
-        LunarGUI.RangeSlider(layout, ref SwampinessRequirement, 0f, 1f);
-
-        layout.Abs(8f);
-
-        LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.BiomeTransitionsRequirement".Translate());
-        LunarGUI.RangeSlider(layout, ref BiomeTransitionsRequirement, 0f, 6f);
-
-        layout.Abs(8f);
-
-        LunarGUI.LabelCentered(layout, "GeologicalLandforms.Settings.Landform.DepthInCaveSystemRequirement".Translate());
-        LunarGUI.RangeSlider(layout, ref DepthInCaveSystemRequirement, 0f, 10f);
-
-        layout.Abs(20f);
-
-        LunarGUI.Checkbox(layout, ref AllowSettlements, "GeologicalLandforms.Settings.Landform.AllowSettlements".Translate());
-
-        layout.Abs(10f);
-
-        LunarGUI.Checkbox(layout, ref AllowSites, "GeologicalLandforms.Settings.Landform.AllowSites".Translate());
-
-        if (GUI.changed) _conditions = BuildRequirements();
-    }
-
-    private void BiomeSelectorGUI(Window window, LayoutRect layout)
-    {
-        AllowedBiomes ??= new List<string>();
-        
-        foreach (var biome in DefDatabase<BiomeDef>.AllDefsListForReading)
+        for (var i = 0; i < _activeConditions.Count; i++)
         {
-            var props = biome.Properties();
-            var label = LabelForBiome(biome);
-            var allowed = props.AllowsLandform(Landform);
-            
-            if (!allowed && biome.modContentPack is { IsOfficialMod: true }) continue;
-            
-            LunarGUI.ToggleTableRow(layout, biome.defName, false, label, allowed ? AllowedBiomes : null);
+            var rect1 = layout.Abs(10f);
+            _activeConditions[i].EditorGUI(this, layout);
+            var rect2 = layout.Abs(10f);
+
+            var rect3 = new Rect(rect1.xMin, rect1.yMax, rect1.width, rect2.yMin - rect1.yMax);
+
+            if (Mouse.IsOver(rect3))
+            {
+                var rect4 = new Rect(rect1.xMax - 20f, rect1.yMax, 20f, 20f);
+
+                if (Widgets.ButtonImage(rect4, LabelUtils.DismissIcon))
+                {
+                    _activeConditions.RemoveAt(i);
+                    i--;
+                }
+            }
         }
-    }
-    
-    private static readonly List<string> LabelBuffer = new();
 
-    private string LabelForBiomesButton()
-    {
-        if (AllowedBiomes == null) return "GeologicalLandforms.Settings.Landform.AllowedBiomes.Any".Translate();
-        return "GeologicalLandforms.Settings.Landform.AllowedBiomes.Some".Translate(AllowedBiomes.Count);
-    }
+        layout.Abs(15f);
 
-    private string LabelForHilliness(float val)
-    {
-        if (val > 5f) return Hilliness.Impassable.GetLabelCap();
-        var hilliness = (Hilliness) (int) Math.Floor(val);
-        if (hilliness == Hilliness.Impassable) hilliness = Hilliness.Mountainous;
-        return hilliness.GetLabelCap();
-    }
-    
-    private string LabelForBiome(BiomeDef biome)
-    {
-        var mcp = biome.modContentPack;
-        var label = biome.label.CapitalizeFirst();
+        if (LunarGUI.Button(layout, $"{LabelKeyPrefix}.AddRequirement".Translate()))
+        {
+            var options = Conditions
+                .Except(_activeConditions)
+                .Select(c => new FloatMenuOption($"{LabelKeyPrefix}.{c.LabelKey}".Translate(), () => Add(c)))
+                .ToList();
 
-        if (mcp is { IsOfficialMod: false })
-            LabelBuffer.Add("GeologicalLandforms.Settings.Landforms.DefinedInMod".Translate(mcp.Name));
+            if (options.Count > 0) Find.WindowStack.Add(new FloatMenu(options));
+        }
 
-        if (LabelBuffer.Count > 0) label += " <color=#777777>(" + LabelBuffer.Join(s => s) + ")</color>";
-        LabelBuffer.Clear();
-        return label;
+        layout.Abs(20f);
+
+        LunarGUI.Checkbox(layout, ref AllowSettlements, $"{LabelKeyPrefix}.AllowSettlements".Translate());
+
+        layout.Abs(10f);
+
+        LunarGUI.Checkbox(layout, ref AllowSites, $"{LabelKeyPrefix}.AllowSites".Translate());
+
+        _lastLayoutMaxY = layout.OccupiedSpace + 50f;
     }
 
-    private bool CheckHilliness(FloatRange range, Hilliness hilliness)
+    private void Add(ICondition condition)
     {
-        if (hilliness == Hilliness.Impassable) return range.max > 5f;
-        return range.Includes((float) hilliness);
+        _activeConditions.Add(condition);
+        _activeConditions = Conditions.Where(c => _activeConditions.Contains(c)).ToList();
     }
 
     public override void DrawNode()
@@ -274,11 +139,262 @@ public class NodeUIWorldTileReq : NodeUIBase
         if (existing != null && existing != this && canvas.nodes.Contains(existing)) existing.Delete();
         Landform.WorldTileReq = this;
 
-        _conditions = BuildRequirements();
+        _activeConditions.Clear();
+        _activeConditions.AddRange(Conditions.Where(c => c.IsActive(this)));
     }
 
     protected override void OnDelete()
     {
         if (Landform.WorldTileReq == this) Landform.WorldTileReq = null;
+    }
+
+    private static readonly IReadOnlyList<ICondition> Conditions = typeof(NodeUIWorldTileReq).Assembly.GetTypes()
+        .Where(t => typeof(ICondition).IsAssignableFrom(t) && !t.IsAbstract)
+        .Select(Activator.CreateInstance)
+        .Cast<ICondition>()
+        .ToList();
+
+    private interface ICondition
+    {
+        public string LabelKey { get; }
+
+        public bool IsActive(NodeUIWorldTileReq node);
+
+        public void Reset(NodeUIWorldTileReq node, bool clear);
+
+        public bool Check(NodeUIWorldTileReq node, IWorldTileInfo tile, bool lenient);
+
+        public void EditorGUI(NodeUIWorldTileReq node, LayoutRect layout);
+    }
+
+    private abstract class FloatRangeCondition : ICondition
+    {
+        public abstract string LabelKey { get; }
+
+        public virtual FloatRange AllowedRange => new(0f, 1f);
+        public virtual FloatRange DefaultRange => AllowedRange;
+
+        protected abstract FloatRange Get(NodeUIWorldTileReq node);
+        protected abstract void Set(NodeUIWorldTileReq node, FloatRange range);
+        protected abstract bool Check(IWorldTileInfo tile, FloatRange range);
+
+        public bool IsActive(NodeUIWorldTileReq node) => Get(node) != AllowedRange;
+        public void Reset(NodeUIWorldTileReq node, bool clear) => Set(node, clear ? AllowedRange : DefaultRange);
+        public bool Check(NodeUIWorldTileReq node, IWorldTileInfo tile, bool lenient) => Check(tile, Get(node));
+
+        public virtual void EditorGUI(NodeUIWorldTileReq node, LayoutRect layout)
+        {
+            var range = Get(node);
+            LunarGUI.LabelCentered(layout, $"{LabelKeyPrefix}.{LabelKey}".Translate());
+            LunarGUI.RangeSlider(layout, ref range, AllowedRange.min, AllowedRange.max);
+            Set(node, range);
+        }
+    }
+
+    private class TopologyCondition : ICondition
+    {
+        public string LabelKey => "Topology";
+
+        public bool IsActive(NodeUIWorldTileReq node) => node.Topology != Any;
+
+        public void Reset(NodeUIWorldTileReq node, bool clear) => node.Topology = clear ? Any : Inland;
+
+        public bool Check(NodeUIWorldTileReq node, IWorldTileInfo tile, bool lenient) =>
+            node.Topology.IsCompatible(tile.Topology, lenient);
+
+        public void EditorGUI(NodeUIWorldTileReq node, LayoutRect layout)
+        {
+            LunarGUI.LabelCentered(layout, $"{LabelKeyPrefix}.{LabelKey}".Translate());
+
+            layout.Abs(3f);
+
+            LunarGUI.Dropdown(layout, node.Topology, e => node.Topology = e, $"{LabelKeyPrefix}.{LabelKey}");
+        }
+    }
+
+    private class BiomeCondition : ICondition
+    {
+        public string LabelKey => "AllowedBiomes";
+
+        public bool IsActive(NodeUIWorldTileReq node) => node.AllowedBiomes != null;
+
+        public void Reset(NodeUIWorldTileReq node, bool clear) => node.AllowedBiomes = null;
+
+        public bool Check(NodeUIWorldTileReq node, IWorldTileInfo tile, bool lenient) =>
+            node.AllowedBiomes.Contains(tile.Biome.defName);
+
+        public void EditorGUI(NodeUIWorldTileReq node, LayoutRect layout)
+        {
+            node.AllowedBiomes ??= [];
+
+            LunarGUI.LabelCentered(layout, $"{LabelKeyPrefix}.{LabelKey}".Translate());
+
+            layout.Abs(3f);
+
+            if (LunarGUI.Button(layout, $"{LabelKeyPrefix}.{LabelKey}.Some".Translate(node.AllowedBiomes.Count)))
+            {
+                LunarGUI.OpenGenericWindow(GeologicalLandformsAPI.LunarAPI, new(500, 500), (_, layoutW) =>
+                {
+                    foreach (var biome in DefDatabase<BiomeDef>.AllDefsListForReading)
+                    {
+                        var props = biome.Properties();
+                        var label = LabelUtils.LabelForBiome(biome, false);
+                        var allowed = props.AllowsLandform(node.Landform);
+
+                        if (!allowed && biome.modContentPack is { IsOfficialMod: true }) continue;
+
+                        LunarGUI.ToggleTableRow(layoutW, biome.defName, false, label, allowed ? node.AllowedBiomes : null);
+                    }
+                });
+            }
+        }
+    }
+
+    private class HillinessCondition : FloatRangeCondition
+    {
+        public override string LabelKey => "HillinessRequirement";
+
+        public override FloatRange AllowedRange => new(1f, 6f);
+        public override FloatRange DefaultRange => new(1f, 5f);
+
+        protected override FloatRange Get(NodeUIWorldTileReq node) => node.HillinessRequirement;
+        protected override void Set(NodeUIWorldTileReq node, FloatRange range) => node.HillinessRequirement = range;
+
+        protected override bool Check(IWorldTileInfo tile, FloatRange range) =>
+            tile.Hilliness == Hilliness.Impassable ? range.max > 5f : range.Includes((float) tile.Hilliness);
+
+        private string LabelFor(float val)
+        {
+            return (val > 5f ? Hilliness.Impassable : (Hilliness) (int) Math.Min(val, 4f)).GetLabelCap();
+        }
+
+        public override void EditorGUI(NodeUIWorldTileReq node, LayoutRect layout)
+        {
+            var range = Get(node);
+            LunarGUI.LabelCentered(layout, $"{LabelKeyPrefix}.{LabelKey}".Translate());
+            LunarGUI.RangeSlider(layout, ref range, AllowedRange.min, AllowedRange.max, LabelFor);
+            Set(node, range);
+        }
+    }
+
+    private class ElevationCondition : FloatRangeCondition
+    {
+        public override string LabelKey => "ElevationRequirement";
+
+        public override FloatRange AllowedRange => new(-1000f, 5000f);
+        public override FloatRange DefaultRange => new(0f, 5000f);
+
+        protected override FloatRange Get(NodeUIWorldTileReq node) => node.ElevationRequirement;
+        protected override void Set(NodeUIWorldTileReq node, FloatRange range) => node.ElevationRequirement = range;
+        protected override bool Check(IWorldTileInfo tile, FloatRange range) => range.Includes(tile.Elevation);
+    }
+
+    private class TopologyValueCondition : FloatRangeCondition
+    {
+        public override string LabelKey => "TopologyValueRequirement";
+
+        public override FloatRange AllowedRange => new(-1f, 1f);
+
+        protected override FloatRange Get(NodeUIWorldTileReq node) => node.TopologyValueRequirement;
+        protected override void Set(NodeUIWorldTileReq node, FloatRange range) => node.TopologyValueRequirement = range;
+        protected override bool Check(IWorldTileInfo tile, FloatRange range) => range.Includes(tile.TopologyValue);
+    }
+
+    private class RoadOrRiverCondition : ICondition
+    {
+        public string LabelKey => "RoadOrRiverRequirement";
+
+        public FloatRange AllowedRange => new(0f, 1f);
+
+        public bool IsActive(NodeUIWorldTileReq node)
+        {
+            return node.RoadRequirement != AllowedRange || node.RiverRequirement != AllowedRange;
+        }
+
+        public void Reset(NodeUIWorldTileReq node, bool clear)
+        {
+            node.RoadRequirement = AllowedRange;
+            node.RiverRequirement = AllowedRange;
+        }
+
+        public bool Check(NodeUIWorldTileReq node, IWorldTileInfo tile, bool lenient)
+        {
+            var road = Math.Min(1f, tile.MainRoadSize());
+            var river = Math.Min(1f, tile.MainRiverSize());
+
+            if (road > node.RoadRequirement.max || river > node.RiverRequirement.max) return false;
+            if (node.RiverRequirement.min > 0f) return river >= node.RiverRequirement.min;
+            if (node.RoadRequirement.min > 0f) return road >= node.RoadRequirement.min;
+
+            return true;
+        }
+
+        public void EditorGUI(NodeUIWorldTileReq node, LayoutRect layout)
+        {
+            LunarGUI.LabelCentered(layout, $"{LabelKeyPrefix}.RoadRequirement".Translate());
+            LunarGUI.RangeSlider(layout, ref node.RoadRequirement, AllowedRange.min, AllowedRange.max);
+
+            layout.Abs(20f);
+
+            LunarGUI.LabelCentered(layout, $"{LabelKeyPrefix}.RiverRequirement".Translate());
+            LunarGUI.RangeSlider(layout, ref node.RiverRequirement, AllowedRange.min, AllowedRange.max);
+        }
+    }
+
+    private class AvgTemperatureCondition : FloatRangeCondition
+    {
+        public override string LabelKey => "AvgTemperatureRequirement";
+
+        public override FloatRange AllowedRange => new(-100f, 100f);
+
+        protected override FloatRange Get(NodeUIWorldTileReq node) => node.AvgTemperatureRequirement;
+        protected override void Set(NodeUIWorldTileReq node, FloatRange range) => node.AvgTemperatureRequirement = range;
+        protected override bool Check(IWorldTileInfo tile, FloatRange range) => range.Includes(tile.Temperature);
+    }
+
+    private class RainfallCondition : FloatRangeCondition
+    {
+        public override string LabelKey => "RainfallRequirement";
+
+        public override FloatRange AllowedRange => new(0f, 5000f);
+
+        protected override FloatRange Get(NodeUIWorldTileReq node) => node.RainfallRequirement;
+        protected override void Set(NodeUIWorldTileReq node, FloatRange range) => node.RainfallRequirement = range;
+
+        protected override bool Check(IWorldTileInfo tile, FloatRange range)
+        {
+            return range.Includes(tile.Rainfall) || (tile.Rainfall > AllowedRange.max && range.max == AllowedRange.max);
+        }
+    }
+
+    private class SwampinessCondition : FloatRangeCondition
+    {
+        public override string LabelKey => "SwampinessRequirement";
+
+        protected override FloatRange Get(NodeUIWorldTileReq node) => node.SwampinessRequirement;
+        protected override void Set(NodeUIWorldTileReq node, FloatRange range) => node.SwampinessRequirement = range;
+        protected override bool Check(IWorldTileInfo tile, FloatRange range) => range.Includes(tile.Swampiness);
+    }
+
+    private class BiomeTransitionsCondition : FloatRangeCondition
+    {
+        public override string LabelKey => "BiomeTransitionsRequirement";
+
+        public override FloatRange AllowedRange => new(0f, 6f);
+
+        protected override FloatRange Get(NodeUIWorldTileReq node) => node.BiomeTransitionsRequirement;
+        protected override void Set(NodeUIWorldTileReq node, FloatRange range) => node.BiomeTransitionsRequirement = range;
+        protected override bool Check(IWorldTileInfo tile, FloatRange range) => range.Includes(tile.BorderingBiomesCount());
+    }
+
+    private class DepthInCaveSystemCondition : FloatRangeCondition
+    {
+        public override string LabelKey => "DepthInCaveSystemRequirement";
+
+        public override FloatRange AllowedRange => new(0f, 10f);
+
+        protected override FloatRange Get(NodeUIWorldTileReq node) => node.DepthInCaveSystemRequirement;
+        protected override void Set(NodeUIWorldTileReq node, FloatRange range) => node.DepthInCaveSystemRequirement = range;
+        protected override bool Check(IWorldTileInfo tile, FloatRange range) => range.Includes(tile.DepthInCaveSystem);
     }
 }

@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using GeologicalLandforms.Defs;
 using GeologicalLandforms.GraphEditor;
-using HarmonyLib;
 using LunarFramework.GUI;
 using LunarFramework.Utility;
 using MapPreview;
@@ -112,7 +111,7 @@ public class GeologicalLandformsSettings : LunarModSettings
             if (landform.WorldTileReq == null) continue;
             if (landform.IsInternal) continue;
 
-            LunarGUI.ToggleTableRow(layout, landform.Id, true, LabelForLandform(landform), DisabledLandforms);
+            LunarGUI.ToggleTableRow(layout, landform.Id, true, LabelUtils.LabelForLandform(landform), DisabledLandforms);
         }
 
         if (layout.PopChanged()) MapPreviewAPI.NotifyWorldChanged();
@@ -134,7 +133,7 @@ public class GeologicalLandformsSettings : LunarModSettings
         {
             var properties = biome.Properties();
             var preconfigured = !properties.allowLandforms || !properties.allowBiomeTransitions;
-            var label = LabelForBiomeConfig(biome, preconfigured);
+            var label = LabelUtils.LabelForBiome(biome, preconfigured);
 
             if (preconfigured && biome.modContentPack is { IsOfficialMod: true }) continue;
 
@@ -162,7 +161,7 @@ public class GeologicalLandformsSettings : LunarModSettings
         foreach (var biomeVariant in DefDatabase<BiomeVariantDef>.AllDefsListForReading)
         {
             if (biomeVariant.label.NullOrEmpty()) continue;
-            LunarGUI.ToggleTableRow(layout, biomeVariant.defName, true, LabelForBiomeVariant(biomeVariant), DisabledBiomeVariants);
+            LunarGUI.ToggleTableRow(layout, biomeVariant.defName, true, LabelUtils.LabelForBiomeVariant(biomeVariant), DisabledBiomeVariants);
         }
 
         if (layout.PopChanged()) MapPreviewAPI.NotifyWorldChanged();
@@ -252,59 +251,6 @@ public class GeologicalLandformsSettings : LunarModSettings
         }
 
         DebugActions.DebugActionsGUI(layout);
-    }
-
-    private static readonly List<string> LabelBuffer = new();
-
-    private string LabelForLandform(Landform landform)
-    {
-        var label = landform.TranslatedNameForSelection.CapitalizeFirst();
-
-        if (landform.Manifest.IsCustom)
-            LabelBuffer.Add("GeologicalLandforms.Settings.Landforms.Custom".Translate());
-        if (landform.Manifest.IsExperimental)
-            LabelBuffer.Add("GeologicalLandforms.Settings.Landforms.Experimental".Translate());
-        if (landform.ModContentPack != null && landform.ModContentPack != GeologicalLandformsMod.Settings.Mod.Content)
-            LabelBuffer.Add("GeologicalLandforms.Settings.Landforms.DefinedInMod".Translate(landform.ModContentPack.Name));
-        if (landform.WorldTileReq.Commonness <= 0)
-            LabelBuffer.Add("GeologicalLandforms.Settings.Landforms.ZeroCommonness".Translate());
-        if (landform.WorldTileReq is { Topology: Topology.CliffOneSide, Commonness: >= 1f } && !landform.IsLayer)
-            LabelBuffer.Add("GeologicalLandforms.Settings.Landforms.ReplacesVanillaCliff".Translate());
-        if (landform.WorldTileReq is { Topology: Topology.CoastOneSide, Commonness: >= 1f } && !landform.IsLayer)
-            LabelBuffer.Add("GeologicalLandforms.Settings.Landforms.ReplacesVanillaCoast".Translate());
-
-        if (LabelBuffer.Count > 0) label += " <color=#777777>(" + LabelBuffer.Join(s => s) + ")</color>";
-        LabelBuffer.Clear();
-        return label;
-    }
-
-    private string LabelForBiomeConfig(BiomeDef biome, bool preconfigured)
-    {
-        var mcp = biome.modContentPack;
-        var label = biome.label.CapitalizeFirst();
-
-        if (mcp is { IsOfficialMod: false } && mcp != GeologicalLandformsMod.Settings.Mod.Content)
-            LabelBuffer.Add("GeologicalLandforms.Settings.Landforms.DefinedInMod".Translate(mcp.Name));
-
-        if (preconfigured)
-            LabelBuffer.Add("GeologicalLandforms.Settings.BiomeConfig.ExcludedByAuthor".Translate());
-
-        if (LabelBuffer.Count > 0) label += " <color=#777777>(" + LabelBuffer.Join(s => s) + ")</color>";
-        LabelBuffer.Clear();
-        return label;
-    }
-
-    private string LabelForBiomeVariant(BiomeVariantDef biomeVariant)
-    {
-        var mcp = biomeVariant.modContentPack;
-        var label = biomeVariant.label.CapitalizeFirst();
-
-        if (mcp is { IsOfficialMod: false } && mcp != GeologicalLandformsMod.Settings.Mod.Content)
-            LabelBuffer.Add("GeologicalLandforms.Settings.Landforms.DefinedInMod".Translate(mcp.Name));
-
-        if (LabelBuffer.Count > 0) label += " <color=#777777>(" + LabelBuffer.Join(s => s) + ")</color>";
-        LabelBuffer.Clear();
-        return label;
     }
 
     public void ApplyDefEffects()
