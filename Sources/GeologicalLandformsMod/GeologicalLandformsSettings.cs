@@ -111,7 +111,8 @@ public class GeologicalLandformsSettings : LunarModSettings
             if (landform.WorldTileReq == null) continue;
             if (landform.IsInternal) continue;
 
-            LunarGUI.ToggleTableRow(layout, landform.Id, true, LabelUtils.LabelForLandform(landform), DisabledLandforms);
+            var label = UserInterfaceUtils.LabelForLandform(landform);
+            LunarGUI.ToggleTableRow(layout, landform.Id, true, label, DisabledLandforms);
         }
 
         if (layout.PopChanged()) MapPreviewAPI.NotifyWorldChanged();
@@ -133,7 +134,7 @@ public class GeologicalLandformsSettings : LunarModSettings
         {
             var properties = biome.Properties();
             var preconfigured = !properties.allowLandforms || !properties.allowBiomeTransitions;
-            var label = LabelUtils.LabelForBiome(biome, preconfigured);
+            var label = UserInterfaceUtils.LabelForBiome(biome, preconfigured);
 
             if (preconfigured && biome.modContentPack is { IsOfficialMod: true }) continue;
 
@@ -161,7 +162,8 @@ public class GeologicalLandformsSettings : LunarModSettings
         foreach (var biomeVariant in DefDatabase<BiomeVariantDef>.AllDefsListForReading)
         {
             if (biomeVariant.label.NullOrEmpty()) continue;
-            LunarGUI.ToggleTableRow(layout, biomeVariant.defName, true, LabelUtils.LabelForBiomeVariant(biomeVariant), DisabledBiomeVariants);
+            var label = UserInterfaceUtils.LabelForBiomeVariant(biomeVariant);
+            LunarGUI.ToggleTableRow(layout, biomeVariant.defName, true, label, DisabledBiomeVariants);
         }
 
         if (layout.PopChanged()) MapPreviewAPI.NotifyWorldChanged();

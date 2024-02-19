@@ -37,8 +37,8 @@ public static class XmlDynamicValueSetup
         var tileNumSup = XmlDynamicValue<float, ICtxTile>.SupplierSpecs;
 
         tileNumSup.Register("borderingBiomes", ctx => ctx.TileInfo.BorderingBiomesCount());
-        tileNumSup.Register("river", ctx => ctx.TileInfo.MainRiverSize());
-        tileNumSup.Register("road", ctx => ctx.TileInfo.MainRoadSize());
+        tileNumSup.Register("river", ctx => ctx.TileInfo.MainRiver.WidthOnWorld());
+        tileNumSup.Register("road", ctx => ctx.TileInfo.MainRoad.WidthOnWorld());
         tileNumSup.Register("topologyValue", ctx => ctx.TileInfo.TopologyValue);
         tileNumSup.Register("depthInCaveSystem", ctx => ctx.TileInfo.DepthInCaveSystem);
 

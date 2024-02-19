@@ -35,10 +35,11 @@ public class WorldTileInfo : IWorldTileInfo
     public IReadOnlyList<BiomeVariantDef> BiomeVariants { get; protected set; }
     public bool HasBiomeVariants => BiomeVariants?.Count > 0;
 
-    public Topology Topology { get; protected set; } = Topology.Any;
+    public Topology Topology { get; protected set; }
     public float TopologyValue { get; protected set; }
     public Rot4 TopologyDirection { get; protected set; }
     public StructRot4<CoastType> Coast { get; protected set; }
+    public RiverType River { get; protected set; }
 
     public MapParent WorldObject => World.worldObjects?.MapParentAt(TileId);
     public BiomeDef Biome => Tile.biome;
@@ -49,15 +50,8 @@ public class WorldTileInfo : IWorldTileInfo
     public float Rainfall => Tile.rainfall;
     public float Swampiness => Tile.swampiness;
 
-    public Tile.RiverLink? MainRiverLink => Tile.Rivers?.OrderBy(r => -r.river.degradeThreshold).FirstOrDefault();
-    public Tile.RoadLink? MainRoadLink => Tile.Roads?.OrderBy(r => r.road.movementCostMultiplier).FirstOrDefault();
-
-    public RiverDef MainRiver => MainRiverLink?.river;
-    public float MainRiverAngle => MainRiverLink.HasValue ? CalculateRiverAngleFor(MainRiverLink.Value) : 0f;
-    public Vector3 MainRiverPosition => MainRiverLink.HasValue ? CalculateRiverPositionFor(MainRiverLink.Value) : Vector3.zero;
-
-    public RoadDef MainRoad => MainRoadLink?.road;
-    public float MainRoadAngle => World.grid.GetHeadingFromTo(TileId, MainRoadLink?.neighbor ?? TileId);
+    public RiverDef MainRiver => Tile.LargestRiverLink().river;
+    public RoadDef MainRoad => Tile.LargestRoadLink().road;
 
     public byte DepthInCaveSystem => World.LandformData()?.GetCaveSystemDepthAt(TileId) ?? 0;
 
@@ -171,6 +165,7 @@ public class WorldTileInfo : IWorldTileInfo
             if (info.CanHaveLandform(landform, biomeProps)) eligible.Add(landform);
         }
 
+        // TODO cache in LandformManager instead of sorting here each time! (cache one sorted list per lf layer)
         eligible.SortBy(e => e.Manifest.TimeCreated);
 
         List<Landform> landforms = null;
@@ -228,7 +223,7 @@ public class WorldTileInfo : IWorldTileInfo
             }
         }
 
-        landforms?.SortBy(e => e.Priority);
+        landforms?.Sort((a, b) => a.Priority - b.Priority);
         info.Landforms = landforms;
     }
 
@@ -277,7 +272,8 @@ public class WorldTileInfo : IWorldTileInfo
     {
         if (biomeProps.isWaterCovered)
         {
-            info.Coast = new StructRot4<CoastType>(CoastTypeFromTile(info.Tile));
+            var coastType = WorldTileUtils.CoastTypeFromTile(info.Tile);
+            info.Coast = new StructRot4<CoastType>(coastType);
             info.Topology = Topology.Ocean;
             return;
         }
@@ -318,11 +314,11 @@ public class WorldTileInfo : IWorldTileInfo
             // because tileIDToNeighbors order is cw for some tiles but ccw for others
             var rot6 = new Rot6(idx, grid.GetHeadingFromTo(tileCenter, grid.GetTileCenter(nbId)));
 
-            var coastType = CoastTypeFromTile(nbTile);
+            var coastType = WorldTileUtils.CoastTypeFromTile(nbTile);
             if (coastType != CoastType.None)
             {
                 var rot4 = rot6.AsRot4();
-                coast[rot4] = CombineCoastTypes(coastType, coast[rot4]);
+                coast[rot4] = WorldTileUtils.CombineCoastTypes(coastType, coast[rot4]);
                 nonCliffTiles.Add(rot6);
                 waterTiles.Add(rot6);
             }
@@ -351,7 +347,19 @@ public class WorldTileInfo : IWorldTileInfo
             }
         }
 
-        info.BorderingBiomes = borderingBiomes;
+        if (info.Tile.potentialRivers != null && info.Biome.allowRivers)
+        {
+            info.River = info.Tile.potentialRivers.Count switch
+            {
+                0 => RiverType.None,
+                1 => RiverType.Source,
+                2 => RiverType.Normal,
+                _ => info.Tile.potentialRivers.Count(r => grid[r.neighbor].WaterCovered) > 1
+                     ? RiverType.Delta : RiverType.Confluence
+            };
+        }
+
+        info.BorderingBiomes = borderingBiomes?.ToArray();
         info.Coast = coast;
 
         if (nbBound - nbOffset != 6)
@@ -643,12 +651,9 @@ public class WorldTileInfo : IWorldTileInfo
         }
     }
 
-    private float CalculateRiverAngleFor(Tile.RiverLink riverLink) // TODO fix (direction inverted sometimes)
+    internal float RiverAngle(float baseAngle)
     {
         var topoAngle = TopologyDirection.AsAngle;
-        var baseAngle = World.grid.GetHeadingFromTo(TileId, riverLink.neighbor);
-
-        if (Mathf.Abs(Mathf.DeltaAngle(baseAngle, topoAngle)) > 90f) baseAngle = (baseAngle + 180f) % 360f;
 
         if (Topology is Topology.CoastOneSide or Topology.CliffAndCoast)
         {
@@ -669,22 +674,11 @@ public class WorldTileInfo : IWorldTileInfo
         return baseAngle;
     }
 
-    private Vector3 CalculateRiverPositionFor(Tile.RiverLink riverLink)
+    internal Vector3 RiverPosition(int salt)
     {
-        return new Vector3(Rand.RangeSeeded(0.3f, 0.7f, MakeSeed(9332)), 0.0f, Rand.RangeSeeded(0.3f, 0.7f, MakeSeed(2750)));
-    }
-
-    private static CoastType CoastTypeFromTile(Tile tile)
-    {
-        if (tile.biome == BiomeDefOf.Ocean) return CoastType.Ocean;
-        if (tile.biome == BiomeDefOf.Lake) return CoastType.Lake;
-        if (tile.WaterCovered && tile.biome.Properties().isWaterCovered) return CoastType.Ocean;
-        return CoastType.None;
-    }
-
-    private static CoastType CombineCoastTypes(CoastType a, CoastType b)
-    {
-        return (CoastType) Math.Max((int) a, (int) b);
+        var x = Rand.RangeSeeded(0.3f, 0.7f, MakeSeed(9332 + salt));
+        var z = Rand.RangeSeeded(0.3f, 0.7f, MakeSeed(2750 + salt));
+        return new Vector3(x, 0f, z);
     }
 
     public override string ToString() =>

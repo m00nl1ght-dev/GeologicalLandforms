@@ -8,6 +8,7 @@ using RimWorld.Planet;
 using UnityEngine;
 using Verse;
 using static GeologicalLandforms.Topology;
+using static GeologicalLandforms.IWorldTileInfo;
 
 namespace GeologicalLandforms.GraphEditor;
 
@@ -27,6 +28,7 @@ public class NodeUIWorldTileReq : NodeUIBase
     public float CaveChance;
 
     public List<string> AllowedBiomes;
+    public List<RiverType> AllowedRiverTypes;
 
     public FloatRange HillinessRequirement;
     public FloatRange RoadRequirement;
@@ -38,6 +40,7 @@ public class NodeUIWorldTileReq : NodeUIBase
     public FloatRange BiomeTransitionsRequirement;
     public FloatRange TopologyValueRequirement;
     public FloatRange DepthInCaveSystemRequirement;
+    public FloatRange MapSizeRequirement;
 
     public bool AllowSettlements;
     public bool AllowSites;
@@ -82,7 +85,10 @@ public class NodeUIWorldTileReq : NodeUIBase
         for (var i = 0; i < _activeConditions.Count; i++)
         {
             var rect1 = layout.Abs(10f);
-            _activeConditions[i].EditorGUI(this, layout);
+
+            var condition = _activeConditions[i];
+            condition.EditorGUI(this, layout);
+
             var rect2 = layout.Abs(10f);
 
             var rect3 = new Rect(rect1.xMin, rect1.yMax, rect1.width, rect2.yMin - rect1.yMax);
@@ -91,8 +97,9 @@ public class NodeUIWorldTileReq : NodeUIBase
             {
                 var rect4 = new Rect(rect1.xMax - 20f, rect1.yMax, 20f, 20f);
 
-                if (Widgets.ButtonImage(rect4, LabelUtils.DismissIcon))
+                if (Widgets.ButtonImage(rect4, UserInterfaceUtils.IconDismiss))
                 {
+                    condition.Reset(this, true);
                     _activeConditions.RemoveAt(i);
                     i--;
                 }
@@ -238,12 +245,44 @@ public class NodeUIWorldTileReq : NodeUIBase
                     foreach (var biome in DefDatabase<BiomeDef>.AllDefsListForReading)
                     {
                         var props = biome.Properties();
-                        var label = LabelUtils.LabelForBiome(biome, false);
+                        var label = UserInterfaceUtils.LabelForBiome(biome, false);
                         var allowed = props.AllowsLandform(node.Landform);
 
                         if (!allowed && biome.modContentPack is { IsOfficialMod: true }) continue;
 
                         LunarGUI.ToggleTableRow(layoutW, biome.defName, false, label, allowed ? node.AllowedBiomes : null);
+                    }
+                });
+            }
+        }
+    }
+
+    private class RiverTypeCondition : ICondition
+    {
+        public string LabelKey => "AllowedRiverTypes";
+
+        public bool IsActive(NodeUIWorldTileReq node) => node.AllowedRiverTypes != null;
+
+        public void Reset(NodeUIWorldTileReq node, bool clear) => node.AllowedRiverTypes = null;
+
+        public bool Check(NodeUIWorldTileReq node, IWorldTileInfo tile, bool lenient) =>
+            node.AllowedRiverTypes.Contains(tile.River);
+
+        public void EditorGUI(NodeUIWorldTileReq node, LayoutRect layout)
+        {
+            node.AllowedRiverTypes ??= [];
+
+            LunarGUI.LabelCentered(layout, $"{LabelKeyPrefix}.{LabelKey}".Translate());
+
+            layout.Abs(3f);
+
+            if (LunarGUI.Button(layout, $"{LabelKeyPrefix}.{LabelKey}.Some".Translate(node.AllowedRiverTypes.Count)))
+            {
+                LunarGUI.OpenGenericWindow(GeologicalLandformsAPI.LunarAPI, new(500, 500), (_, layoutW) =>
+                {
+                    foreach (var riverType in typeof(RiverType).GetEnumValues().Cast<RiverType>())
+                    {
+                        LunarGUI.ToggleTableRow(layoutW, riverType, false, riverType.ToString(), node.AllowedRiverTypes);
                     }
                 });
             }
@@ -300,29 +339,30 @@ public class NodeUIWorldTileReq : NodeUIBase
         protected override bool Check(IWorldTileInfo tile, FloatRange range) => range.Includes(tile.TopologyValue);
     }
 
-    private class RoadOrRiverCondition : ICondition
+    private class RiverOrRoadCondition : ICondition
     {
-        public string LabelKey => "RoadOrRiverRequirement";
+        public string LabelKey => "RiverOrRoadRequirement";
 
         public FloatRange AllowedRange => new(0f, 1f);
 
         public bool IsActive(NodeUIWorldTileReq node)
         {
-            return node.RoadRequirement != AllowedRange || node.RiverRequirement != AllowedRange;
+            return node.RiverRequirement != AllowedRange || node.RoadRequirement != AllowedRange;
         }
 
         public void Reset(NodeUIWorldTileReq node, bool clear)
         {
-            node.RoadRequirement = AllowedRange;
             node.RiverRequirement = AllowedRange;
+            node.RoadRequirement = AllowedRange;
         }
 
         public bool Check(NodeUIWorldTileReq node, IWorldTileInfo tile, bool lenient)
         {
-            var road = Math.Min(1f, tile.MainRoadSize());
-            var river = Math.Min(1f, tile.MainRiverSize());
+            var river = tile.MainRiver.WidthOnWorld();
+            var road = tile.MainRoad.WidthOnWorld();
 
-            if (road > node.RoadRequirement.max || river > node.RiverRequirement.max) return false;
+            if (river > node.RiverRequirement.max && node.RiverRequirement.max < 1f) return false;
+            if (road > node.RoadRequirement.max && node.RoadRequirement.max < 1f) return false;
             if (node.RiverRequirement.min > 0f) return river >= node.RiverRequirement.min;
             if (node.RoadRequirement.min > 0f) return road >= node.RoadRequirement.min;
 
@@ -331,13 +371,13 @@ public class NodeUIWorldTileReq : NodeUIBase
 
         public void EditorGUI(NodeUIWorldTileReq node, LayoutRect layout)
         {
-            LunarGUI.LabelCentered(layout, $"{LabelKeyPrefix}.RoadRequirement".Translate());
-            LunarGUI.RangeSlider(layout, ref node.RoadRequirement, AllowedRange.min, AllowedRange.max);
+            LunarGUI.LabelCentered(layout, $"{LabelKeyPrefix}.RiverRequirement".Translate());
+            LunarGUI.RangeSlider(layout, ref node.RiverRequirement, AllowedRange.min, AllowedRange.max);
 
             layout.Abs(20f);
 
-            LunarGUI.LabelCentered(layout, $"{LabelKeyPrefix}.RiverRequirement".Translate());
-            LunarGUI.RangeSlider(layout, ref node.RiverRequirement, AllowedRange.min, AllowedRange.max);
+            LunarGUI.LabelCentered(layout, $"{LabelKeyPrefix}.RoadRequirement".Translate());
+            LunarGUI.RangeSlider(layout, ref node.RoadRequirement, AllowedRange.min, AllowedRange.max);
         }
     }
 

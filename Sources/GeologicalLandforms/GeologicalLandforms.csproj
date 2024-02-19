@@ -142,6 +142,7 @@
         <Compile Include="GraphEditor\Nodes\UI\NodeUIMapIncidents.cs" />
         <Compile Include="GraphEditor\Nodes\UI\NodeUIWorldTileGraphic.cs" />
         <Compile Include="GraphEditor\Nodes\UI\NodeUIWorldTileReq.cs" />
+        <Compile Include="GraphEditor\Nodes\Value\NodeValueRiverLinks.cs" />
         <Compile Include="GraphEditor\Nodes\Value\NodeValueRiversAndRoads.cs" />
         <Compile Include="GraphEditor\Nodes\Value\NodeValueWorldTile.cs" />
         <Compile Include="GraphEditor\Nodes\Value\NodeValueSelectTerrain.cs" />
@@ -185,9 +186,10 @@
         <Compile Include="Patches\Patch_RimWorld_GenStep_ElevationFertility.cs" />
         <Compile Include="Patches\Patch_RimWorld_WITab_Terrain.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
-        <Compile Include="Utility\LabelUtils.cs" />
+        <Compile Include="Utility\UserInterfaceUtils.cs" />
         <Compile Include="Utility\WorldTileTraverser.cs" />
         <Compile Include="Utility\TunnelGenerator.cs" />
+        <Compile Include="Utility\WorldTileUtils.cs" />
         <Compile Include="World\IWorldTileInfo.cs" />
         <Compile Include="World\LandformData.cs" />
         <Compile Include="World\Topology.cs" />

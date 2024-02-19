@@ -4,7 +4,6 @@ using GeologicalLandforms.GraphEditor;
 using LunarFramework.Utility;
 using RimWorld;
 using RimWorld.Planet;
-using UnityEngine;
 using Verse;
 
 namespace GeologicalLandforms;
@@ -20,6 +19,7 @@ public interface IWorldTileInfo
     public Rot4 TopologyDirection { get; }
     public byte DepthInCaveSystem { get; }
     public StructRot4<CoastType> Coast { get; }
+    public RiverType River { get; }
 
     public MapParent WorldObject { get; }
     public BiomeDef Biome { get; }
@@ -31,11 +31,7 @@ public interface IWorldTileInfo
     public float Swampiness { get; }
 
     public RiverDef MainRiver { get; }
-    public float MainRiverAngle { get; }
-    public Vector3 MainRiverPosition { get; }
-
     public RoadDef MainRoad { get; }
-    public float MainRoadAngle { get; }
 
     public readonly struct BorderingBiome
     {
@@ -54,5 +50,14 @@ public interface IWorldTileInfo
         None,
         Lake,
         Ocean
+    }
+
+    public enum RiverType : byte
+    {
+        None,
+        Source,
+        Normal,
+        Confluence,
+        Delta
     }
 }

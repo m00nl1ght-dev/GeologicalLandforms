@@ -80,16 +80,16 @@ internal static class Patch_RimWorld_GenStep_Terrain
         var ldlocAngle = new CodeInstruction(OpCodes.Ldloc);
 
         var findLoc = TranspilerPattern.Build("FindRiverAngleLoc")
-            .MatchCall(typeof(WorldGrid), "GetHeadingFromTo", new[] { typeof(int), typeof(int) }).Keep()
+            .MatchCall(typeof(WorldGrid), "GetHeadingFromTo", [typeof(int), typeof(int)]).Keep()
             .MatchStloc().StoreOperandIn(ldlocAngle).Keep();
 
         var injectOpt = TranspilerPattern.Build("OptimizeRiverAngleIfNeeded")
             .OnlyMatchAfter(findLoc)
-            .MatchNewobj(typeof(Vector3), new[] { typeof(float), typeof(float), typeof(float) }).Keep()
+            .MatchNewobj(typeof(Vector3), [typeof(float), typeof(float), typeof(float)]).Keep()
             .Insert(OpCodes.Ldarg_1)
-            .Insert(CodeInstruction.Call(Self, nameof(OptimizeRiverCenterIfNeeded)))
+            .Insert(CodeInstruction.Call(Self, nameof(OptimizeVanillaRiverCenterIfNeeded)))
             .Match(ldlocAngle).Keep()
-            .Insert(CodeInstruction.Call(Self, nameof(OptimizeRiverAngleIfNeeded)));
+            .Insert(CodeInstruction.Call(Self, nameof(OptimizeVanillaRiverAngleIfNeeded)));
 
         return TranspilerPattern.Apply(instructions, findLoc, injectOpt);
     }
@@ -243,16 +243,26 @@ internal static class Patch_RimWorld_GenStep_Terrain
         return GenStep_RocksFromGrid.RockDefAt(c).building.naturalTerrain;
     }
 
-    private static float OptimizeRiverAngleIfNeeded(float fromMethod)
+    private static float OptimizeVanillaRiverAngleIfNeeded(float fromMethod)
     {
-        return Landform.AnyGeneratingNonLayer ? Landform.GeneratingTile.MainRiverAngle : fromMethod;
+        if (Landform.AnyGeneratingNonLayer && Landform.GeneratingTile is WorldTileInfo tile)
+        {
+            var baseAngle = WorldTileUtils.CalculateMainRiverAngle(tile.World.grid, tile.TileId);
+            return tile.RiverAngle(baseAngle);
+        }
+
+        return fromMethod;
     }
 
-    private static Vector3 OptimizeRiverCenterIfNeeded(Vector3 fromMethod, Map map)
+    private static Vector3 OptimizeVanillaRiverCenterIfNeeded(Vector3 fromMethod, Map map)
     {
-        if (!Landform.AnyGeneratingNonLayer) return fromMethod;
-        var position = Landform.GeneratingTile.MainRiverPosition;
-        return new Vector3(position.x * map.Size.x, 0f, position.z * map.Size.z);
+        if (Landform.AnyGeneratingNonLayer && Landform.GeneratingTile is WorldTileInfo tile)
+        {
+            var position = tile.RiverPosition(0);
+            return new Vector3(position.x * map.Size.x, 0f, position.z * map.Size.z);
+        }
+
+        return fromMethod;
     }
 
     private static void ApplyWaterFlow(Map map)

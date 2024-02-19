@@ -3,8 +3,8 @@ using GeologicalLandforms.Defs;
 using LunarFramework.Utility;
 using RimWorld;
 using RimWorld.Planet;
-using UnityEngine;
 using Verse;
+using static GeologicalLandforms.IWorldTileInfo;
 
 namespace GeologicalLandforms.GraphEditor;
 
@@ -13,8 +13,8 @@ public class EditorMockTileInfo : IWorldTileInfo
     public IReadOnlyList<Landform> Landforms => LandformsList;
     public List<Landform> LandformsList { get; set; }
 
-    public IReadOnlyList<IWorldTileInfo.BorderingBiome> BorderingBiomes => BorderingBiomesList;
-    public List<IWorldTileInfo.BorderingBiome> BorderingBiomesList { get; set; }
+    public IReadOnlyList<BorderingBiome> BorderingBiomes => BorderingBiomesList;
+    public List<BorderingBiome> BorderingBiomesList { get; set; }
 
     public IReadOnlyList<BiomeVariantDef> BiomeVariants => BiomeVariantsList;
     public List<BiomeVariantDef> BiomeVariantsList { get; set; }
@@ -23,7 +23,8 @@ public class EditorMockTileInfo : IWorldTileInfo
     public float TopologyValue { get; set; }
     public Rot4 TopologyDirection { get; set; } = Rot4.North;
     public byte DepthInCaveSystem { get; set; }
-    public StructRot4<IWorldTileInfo.CoastType> Coast { get; set; }
+    public StructRot4<CoastType> Coast { get; set; }
+    public RiverType River { get; set; }
 
     public MapParent WorldObject => null;
     public BiomeDef Biome { get; set; } = BiomeDefOf.TemperateForest;
@@ -34,10 +35,14 @@ public class EditorMockTileInfo : IWorldTileInfo
     public float Rainfall { get; set; } = 1000f;
     public float Swampiness { get; set; } = 0f;
 
-    public RiverDef MainRiver { get; set; } = null;
-    public float MainRiverAngle { get; set; } = 0f;
-    public Vector3 MainRiverPosition { get; set; } = new(0.5f, 0f, 0.5f);
+    public RiverDef MainRiver { get; set; }
+    public RoadDef MainRoad { get; set; }
 
-    public RoadDef MainRoad { get; set; } = null;
-    public float MainRoadAngle { get; set; } = 0f;
+    public float RiverInflowAngle { get; set; } = 30f;
+    public float RiverInflowOffset { get; set; } = 0.1f;
+    public float RiverInflowWidth { get; set; } = 20f;
+    public float RiverTributaryAngle { get; set; } = -80f;
+    public float RiverTributaryOffset { get; set; } = -0.1f;
+    public float RiverTributaryWidth { get; set; } = 10f;
+    public float RiverOutflowAngle { get; set; } = -45f;
 }

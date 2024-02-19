@@ -27,13 +27,14 @@
   <GeologicalLandforms.Settings.Landform.DisplayNameHasDirection>Show direction</GeologicalLandforms.Settings.Landform.DisplayNameHasDirection>
   <GeologicalLandforms.Settings.Landform.Topology>Topology</GeologicalLandforms.Settings.Landform.Topology>
   <GeologicalLandforms.Settings.Landform.AllowedBiomes>Biome</GeologicalLandforms.Settings.Landform.AllowedBiomes>
-  <GeologicalLandforms.Settings.Landform.AllowedBiomes.Any>Any</GeologicalLandforms.Settings.Landform.AllowedBiomes.Any>
   <GeologicalLandforms.Settings.Landform.AllowedBiomes.Some>({0} biomes selected)</GeologicalLandforms.Settings.Landform.AllowedBiomes.Some>
+  <GeologicalLandforms.Settings.Landform.AllowedRiverTypes>River shape</GeologicalLandforms.Settings.Landform.AllowedRiverTypes>
+  <GeologicalLandforms.Settings.Landform.AllowedRiverTypes.Some>({0} shapes selected)</GeologicalLandforms.Settings.Landform.AllowedRiverTypes.Some>
   <GeologicalLandforms.Settings.Landform.Commonness>Commonness</GeologicalLandforms.Settings.Landform.Commonness>
   <GeologicalLandforms.Settings.Landform.HillinessRequirement>Hilliness</GeologicalLandforms.Settings.Landform.HillinessRequirement>
   <GeologicalLandforms.Settings.Landform.RoadRequirement>Road</GeologicalLandforms.Settings.Landform.RoadRequirement>
   <GeologicalLandforms.Settings.Landform.RiverRequirement>River</GeologicalLandforms.Settings.Landform.RiverRequirement>
-  <GeologicalLandforms.Settings.Landform.RoadOrRiverRequirement>Road or river</GeologicalLandforms.Settings.Landform.RoadOrRiverRequirement>
+  <GeologicalLandforms.Settings.Landform.RiverOrRoadRequirement>River or road</GeologicalLandforms.Settings.Landform.RiverOrRoadRequirement>
   <GeologicalLandforms.Settings.Landform.ElevationRequirement>Elevation</GeologicalLandforms.Settings.Landform.ElevationRequirement>
   <GeologicalLandforms.Settings.Landform.AvgTemperatureRequirement>Average temperature</GeologicalLandforms.Settings.Landform.AvgTemperatureRequirement>
   <GeologicalLandforms.Settings.Landform.RainfallRequirement>Rainfall</GeologicalLandforms.Settings.Landform.RainfallRequirement>

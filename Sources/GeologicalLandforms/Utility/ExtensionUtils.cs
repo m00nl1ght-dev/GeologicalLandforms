@@ -104,11 +104,17 @@ public static class ExtensionUtils
     public static int BorderingBiomesCount(this IWorldTileInfo tile)
         => tile.BorderingBiomes?.Count ?? 0;
 
-    public static float MainRiverSize(this IWorldTileInfo tile)
-        => tile.MainRiver?.widthOnWorld ?? 0f;
+    public static Tile.RiverLink LargestRiverLink(this Tile tile)
+        => tile.Rivers?.OrderByDescending(r => r.river.WidthOnWorld()).FirstOrDefault() ?? default;
 
-    public static float MainRoadSize(this IWorldTileInfo tile)
-        => 1f - (tile.MainRoad?.movementCostMultiplier ?? 1f); // TODO use different def value (this one is the same for all roads in vanilla)
+    public static Tile.RoadLink LargestRoadLink(this Tile tile)
+        => tile.Roads?.OrderByDescending(r => r.road.WidthOnWorld()).FirstOrDefault() ?? default;
+
+    public static float WidthOnWorld(this RiverDef riverDef)
+        => riverDef?.widthOnWorld ?? 0f;
+
+    public static float WidthOnWorld(this RoadDef roadDef)
+        => roadDef?.worldRenderSteps is { Count: > 0 } ? roadDef.worldRenderSteps[0].width : 0f;
 
     public static bool HasTerrain(this ICtxMapCell ctx, string defName)
         => ctx.Map.terrainGrid.TerrainAt(ctx.MapCell)?.defName == defName;

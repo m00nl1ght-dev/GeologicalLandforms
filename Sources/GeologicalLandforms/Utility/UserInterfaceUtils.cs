@@ -9,11 +9,11 @@ using Verse;
 namespace GeologicalLandforms;
 
 [StaticConstructorOnStartup]
-public static class LabelUtils
+public static class UserInterfaceUtils
 {
-    public static readonly Texture2D DismissIcon = ContentFinder<Texture2D>.Get("UI/Buttons/Dismiss");
+    public static readonly Texture2D IconDismiss = ContentFinder<Texture2D>.Get("UI/Buttons/Dismiss");
 
-    private const string OwnPackageId = "m00nl1ght.GeologicalLandforms";
+    private const string OwnPackageId = "m00nl1ght.geologicallandforms";
 
     private static readonly List<string> LabelBuffer = [];
 

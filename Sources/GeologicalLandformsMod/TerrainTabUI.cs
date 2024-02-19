@@ -112,8 +112,6 @@ internal static class TerrainTabUI
             listing.LabelDouble("GeologicalLandforms.WorldMap.TopologyDirection".Translate(), tileInfo.TopologyDirection.ToStringHuman());
             listing.LabelDouble("GeologicalLandforms.WorldMap.DepthInCaveSystem".Translate(), tileInfo.DepthInCaveSystem.ToString());
             listing.LabelDouble("GeologicalLandforms.WorldMap.Swampiness".Translate(), tileInfo.Swampiness.ToString(CultureInfo.InvariantCulture));
-            listing.LabelDouble("GeologicalLandforms.WorldMap.RiverAngle".Translate(), tileInfo.MainRiverAngle.ToString(CultureInfo.InvariantCulture));
-            listing.LabelDouble("GeologicalLandforms.WorldMap.MainRoadAngle".Translate(), tileInfo.MainRoadAngle.ToString(CultureInfo.InvariantCulture));
         }
     }
 

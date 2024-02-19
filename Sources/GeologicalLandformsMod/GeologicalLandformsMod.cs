@@ -64,8 +64,8 @@ public class GeologicalLandformsMod : Mod
 
     private static void WorldTileInfoHook(WorldTileInfoPrimer info)
     {
-        info.Landforms = info.Landforms?.Where(IsLandformEnabled).ToList();
-        info.BiomeVariants = info.BiomeVariants?.Where(IsBiomeVariantEnabled).ToList();
+        info.Landforms = info.Landforms?.Where(IsLandformEnabled).ToArray();
+        info.BiomeVariants = info.BiomeVariants?.Where(IsBiomeVariantEnabled).ToArray();
     }
 
     private static int GridSizeProvider()

@@ -78,7 +78,7 @@ public class LandformData : WorldComponent
     {
         _caveSystems = caveSystems ?? Array.Empty<byte>();
     }
-    
+
     public void SetCaveSystemDepthAt(int tileId, byte depth)
     {
         if (tileId < 0 || tileId >= _caveSystems.Length) return;
@@ -152,8 +152,8 @@ public class LandformData : WorldComponent
             primer.Topology = Topology;
             primer.TopologyValue = TopologyValue;
             primer.TopologyDirection = TopologyDirection;
-            primer.Landforms = Landforms?.Select(ResolveLandform).Where(lf => lf != null).OrderBy(e => e.Priority).ToList();
-            primer.BiomeVariants = BiomeVariants?.Select(ResolveBiomeVariant).Where(bv => bv != null).ToList();
+            primer.Landforms = Landforms?.Select(ResolveLandform).Where(lf => lf != null).OrderBy(e => e.Priority).ToArray();
+            primer.BiomeVariants = BiomeVariants?.Select(ResolveBiomeVariant).Where(bv => bv != null).ToArray();
         }
 
         public void ExposeData()
