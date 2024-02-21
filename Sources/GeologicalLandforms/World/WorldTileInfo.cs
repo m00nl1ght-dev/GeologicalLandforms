@@ -12,7 +12,6 @@ using RimWorld.Planet;
 using UnityEngine;
 using Verse;
 using static Verse.RotationDirection;
-using static GeologicalLandforms.IWorldTileInfo;
 
 // ReSharper disable ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
 // ReSharper disable ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
@@ -349,14 +348,22 @@ public class WorldTileInfo : IWorldTileInfo
 
         if (info.Tile.potentialRivers != null && info.Biome.allowRivers)
         {
-            info.River = info.Tile.potentialRivers.Count switch
+            var linkCount = info.Tile.potentialRivers.Count;
+
+            if (linkCount > 1 && info.Tile.potentialRivers.Any(r => grid[r.neighbor].WaterCovered))
             {
-                0 => RiverType.None,
-                1 => RiverType.Source,
-                2 => RiverType.Normal,
-                _ => info.Tile.potentialRivers.Count(r => grid[r.neighbor].WaterCovered) > 1
-                     ? RiverType.Delta : RiverType.Confluence
-            };
+                info.River = RiverType.Estuary;
+            }
+            else
+            {
+                info.River = linkCount switch
+                {
+                    0 => RiverType.None,
+                    1 => RiverType.Source,
+                    2 => RiverType.Normal,
+                    _ => RiverType.Confluence
+                };
+            }
         }
 
         info.BorderingBiomes = borderingBiomes?.ToArray();

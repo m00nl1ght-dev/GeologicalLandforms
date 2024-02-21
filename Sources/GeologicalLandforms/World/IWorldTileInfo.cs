@@ -32,32 +32,32 @@ public interface IWorldTileInfo
 
     public RiverDef MainRiver { get; }
     public RoadDef MainRoad { get; }
+}
 
-    public readonly struct BorderingBiome
+public readonly struct BorderingBiome
+{
+    public readonly BiomeDef Biome;
+    public readonly float Angle;
+
+    public BorderingBiome(BiomeDef biome, float angle)
     {
-        public readonly BiomeDef Biome;
-        public readonly float Angle;
-
-        public BorderingBiome(BiomeDef biome, float angle)
-        {
-            Biome = biome;
-            Angle = angle;
-        }
+        Biome = biome;
+        Angle = angle;
     }
+}
 
-    public enum CoastType : byte
-    {
-        None,
-        Lake,
-        Ocean
-    }
+public enum CoastType : byte
+{
+    None,
+    Lake,
+    Ocean
+}
 
-    public enum RiverType : byte
-    {
-        None,
-        Source,
-        Normal,
-        Confluence,
-        Delta
-    }
+public enum RiverType : byte
+{
+    None,
+    Source,
+    Normal,
+    Confluence,
+    Estuary
 }

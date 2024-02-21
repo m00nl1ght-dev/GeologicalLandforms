@@ -3,7 +3,6 @@ using System.Linq;
 using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
-using static GeologicalLandforms.IWorldTileInfo;
 
 namespace GeologicalLandforms;
 

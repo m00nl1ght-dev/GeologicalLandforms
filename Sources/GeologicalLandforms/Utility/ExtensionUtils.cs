@@ -92,7 +92,7 @@ public static class ExtensionUtils
     public static bool IsTopologyCompatible(this IWorldTileInfo tile, Topology topology)
         => topology.IsCompatible(tile.Topology, false);
 
-    public static bool HasCoast(this IWorldTileInfo tile, IWorldTileInfo.CoastType coast)
+    public static bool HasCoast(this IWorldTileInfo tile, CoastType coast)
         => tile.Coast.Any(c => c == coast);
 
     public static bool HasBiome(this IWorldTileInfo tile, string defName)

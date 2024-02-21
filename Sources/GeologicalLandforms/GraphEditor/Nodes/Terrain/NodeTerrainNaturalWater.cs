@@ -4,8 +4,7 @@ using RimWorld;
 using TerrainGraph;
 using UnityEngine;
 using Verse;
-using static GeologicalLandforms.IWorldTileInfo;
-using static GeologicalLandforms.IWorldTileInfo.CoastType;
+using static GeologicalLandforms.CoastType;
 
 namespace GeologicalLandforms.GraphEditor;
 

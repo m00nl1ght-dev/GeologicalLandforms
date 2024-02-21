@@ -161,6 +161,8 @@ public static class LandformManager
         landform.Manifest.IsCustom = false;
         landform.Manifest.RevisionVersion++;
 
+        landform.ResetView();
+
         try
         {
             Directory.CreateDirectory(dir);

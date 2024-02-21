@@ -86,7 +86,7 @@ public class NodeOutputBiomeGrid : NodeOutputBase
             selSupplier.ResetState();
             for (var i = 0; i < _biomes.Length; i++)
             {
-                IWorldTileInfo.BorderingBiome borderingBiome = tile.BorderingBiomes[i];
+                var borderingBiome = tile.BorderingBiomes[i];
                 _biomes[i] = borderingBiome.Biome;
 
                 var func = selSupplier.Get();

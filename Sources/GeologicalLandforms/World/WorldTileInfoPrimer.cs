@@ -4,7 +4,6 @@ using GeologicalLandforms.GraphEditor;
 using LunarFramework.Utility;
 using RimWorld.Planet;
 using Verse;
-using static GeologicalLandforms.IWorldTileInfo;
 
 namespace GeologicalLandforms;
 

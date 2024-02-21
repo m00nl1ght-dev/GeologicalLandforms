@@ -8,7 +8,6 @@ using RimWorld.Planet;
 using UnityEngine;
 using Verse;
 using static GeologicalLandforms.Topology;
-using static GeologicalLandforms.IWorldTileInfo;
 
 namespace GeologicalLandforms.GraphEditor;
 

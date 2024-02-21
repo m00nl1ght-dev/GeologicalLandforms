@@ -7,7 +7,6 @@ using UnityEngine;
 using Verse;
 using Verse.Noise;
 using static LunarFramework.XML.XmlDynamicValueSupport;
-using static GeologicalLandforms.IWorldTileInfo;
 
 namespace GeologicalLandforms;
 
