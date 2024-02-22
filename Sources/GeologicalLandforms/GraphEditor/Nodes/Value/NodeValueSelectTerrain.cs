@@ -21,7 +21,7 @@ public class NodeValueSelectTerrain : NodeSelectBase
     public override ValueConnectionKnob InputKnobRef => InputKnob;
     public override ValueConnectionKnob OutputKnobRef => OutputKnob;
 
-    public List<string> Values = new();
+    public List<string> Values = [];
 
     public override void NodeGUI()
     {
@@ -51,7 +51,7 @@ public class NodeValueSelectTerrain : NodeSelectBase
     public override void RefreshPreview()
     {
         base.RefreshPreview();
-        List<ISupplier<TerrainData>> suppliers = new();
+        List<ISupplier<TerrainData>> suppliers = [];
 
         for (int i = 0; i < Math.Min(Values.Count, OptionKnobs.Count); i++)
         {
@@ -71,7 +71,7 @@ public class NodeValueSelectTerrain : NodeSelectBase
     {
         ISupplier<double> input = SupplierOrFallback(InputKnob, 0d);
 
-        List<ISupplier<TerrainData>> options = new();
+        List<ISupplier<TerrainData>> options = [];
         for (int i = 0; i < Math.Min(Values.Count, OptionKnobs.Count); i++)
         {
             options.Add(SupplierOrFallback(OptionKnobs[i], TerrainData.FromString(Values[i])));

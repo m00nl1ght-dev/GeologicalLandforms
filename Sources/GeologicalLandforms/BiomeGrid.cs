@@ -35,7 +35,7 @@ public class BiomeGrid : MapComponent
     internal object LoadId = new();
 
     private bool _enabled;
-    private List<Entry> _entries = new();
+    private List<Entry> _entries = [];
 
     private readonly Entry[] _grid;
     private readonly IntVec3 _mapSize;
@@ -210,7 +210,7 @@ public class BiomeGrid : MapComponent
             {
                 GeologicalLandformsAPI.Logger.Log("Upgrading BiomeGrid data from old version.");
                 biomeDefsByShortHash = DefDatabase<BiomeDef>.AllDefs.ToDictionary(allDef => allDef.shortHash);
-                _entries = new List<Entry>();
+                _entries = [];
                 BiomeDef primaryBiome = null;
                 Scribe_Defs.Look(ref primaryBiome, "primary");
                 MakeEntry(primaryBiome ?? BiomeDefOf.TemperateForest);
@@ -286,7 +286,7 @@ public class BiomeGrid : MapComponent
 
         public IReadOnlyList<BiomeVariantLayer> VariantLayers => _variantLayers;
         public bool HasVariants => VariantLayers.Count > 0;
-        private List<BiomeVariantLayer> _variantLayers = new();
+        private List<BiomeVariantLayer> _variantLayers = [];
 
         public BiomeDef Biome { get; private set; }
         public bool ApplyToCaves { get; private set; }
@@ -296,7 +296,7 @@ public class BiomeGrid : MapComponent
         public void Set(BiomeDef biomeBase, IEnumerable<BiomeVariantLayer> variantLayers = null)
         {
             _biomeBase = biomeBase;
-            _variantLayers = variantLayers?.ToList() ?? new();
+            _variantLayers = variantLayers?.ToList() ?? [];
         }
 
         public void Add(BiomeVariantLayer layer)

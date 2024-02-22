@@ -20,12 +20,12 @@ public class NodeGridRotateToMapSides : NodeBase
     public override string Title => "Map Sides";
 
     [NonSerialized]
-    public List<ValueConnectionKnob> InputKnobs = new();
+    public List<ValueConnectionKnob> InputKnobs = [];
 
     [NonSerialized]
-    public List<ValueConnectionKnob> OutputKnobs = new();
+    public List<ValueConnectionKnob> OutputKnobs = [];
 
-    public List<MapSide> MapSides = new();
+    public List<MapSide> MapSides = [];
 
     public override void RefreshDynamicKnobs()
     {

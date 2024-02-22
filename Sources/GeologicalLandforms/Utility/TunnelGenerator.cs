@@ -31,7 +31,7 @@ public class TunnelGenerator
     public int MinRocksToGenerateAnyTunnel = 300;
 
     public FloatRange BranchedTunnelWidthOffset = new(0.2f, 0.4f);
-    public SimpleCurve TunnelsWidthPerRockCount = new() { new(100f, 2f), new(300f, 4f), new(3000f, 5.5f) };
+    public SimpleCurve TunnelsWidthPerRockCount = [new(100f, 2f), new(300f, 4f), new(3000f, 5.5f)];
 
     [ThreadStatic]
     private static HashSet<IntVec3> GroupSet;
@@ -54,9 +54,9 @@ public class TunnelGenerator
     {
         if (GroupSet == null)
         {
-            GroupSet = new();
-            GroupVisited = new();
-            SubGroup = new();
+            GroupSet = [];
+            GroupVisited = [];
+            SubGroup = [];
         }
 
         var map = new Map { info = new MapInfo { Size = new IntVec3(gridSize.x, 1, gridSize.z) } };
@@ -71,7 +71,7 @@ public class TunnelGenerator
         _cavesGrid = new double[map.Size.x, map.Size.z];
         _depthGrid = depthGrid ? new double[map.Size.x, map.Size.z] : null;
         _offsetGrid = offsetGrid ? new double[map.Size.x, map.Size.z] : null;
-        
+
 
         var visited = new BoolGrid(map);
         var group = new List<IntVec3>();
@@ -118,7 +118,7 @@ public class TunnelGenerator
 
         _rand = null;
         _directionNoise = null;
-        
+
         _baseGrid = null;
         _cavesGrid = null;
         _depthGrid = null;
@@ -275,16 +275,16 @@ public class TunnelGenerator
     {
         var pos = start.ToVector3Shifted();
         var cell = start;
-        
+
         float num1 = 0.0f;
 
         bool branchedRight = false;
         bool branchedLeft = false;
-        
-        visited ??= new HashSet<IntVec3>();
+
+        visited ??= [];
 
         int distFromStart = 0;
-        
+
         while (true)
         {
             if (closed)
@@ -380,7 +380,7 @@ public class TunnelGenerator
         for (int i = 0; i < cellsInRadius; ++i)
         {
             var c = around + GenRadial.RadialPattern[i];
-            
+
             if (MatchesCellCondition(c, map))
             {
                 if (_cavesGrid.Get(c) > 0.0 && !visited.Contains(c)) hitAnotherTunnel = true;

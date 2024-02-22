@@ -66,23 +66,22 @@ internal class ModCompat_PrepareLanding : ModCompat
     [HarmonyPatch("PrepareLanding.TabTemperature", "DrawCaveSelection")]
     private static void TabTemperature_DrawCaveSelection(object __instance)
     {
-        _methodUtilEntryHeader.Invoke(__instance, new object[]
-        {
+        _methodUtilEntryHeader.Invoke(__instance, [
             (string) "GeologicalLandforms.Integration.PrepareLanding.Title".Translate(),
             true, false, Color.magenta, 0.2f
-        });
+        ]);
 
         var listingStandard = (Listing_Standard) _propertyUtilListing.GetValue(__instance);
 
         if (listingStandard.ButtonText("GeologicalLandforms.WorldMap.SelectLandform".Translate()))
         {
-            List<FloatMenuOption> floatMenuOptions = new()
-            {
+            List<FloatMenuOption> floatMenuOptions =
+            [
                 new FloatMenuOption("PLMW_SelectAny".Translate(), () =>
                 {
                     _landformFilter = null;
                 })
-            };
+            ];
 
             foreach (var landform in LandformManager.Landforms.Values
                 .Where(l => !l.IsLayer && !l.IsInternal)

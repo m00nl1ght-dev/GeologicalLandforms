@@ -41,7 +41,7 @@ internal static class Patch_RimWorld_Page_CreateWorldParams
             .MatchLdloc().StoreOperandIn(ldlocPos, stlocPos).Keep()
             .MatchLdloc().StoreOperandIn(ldlocWidth).Keep()
             .Match(OpCodes.Ldc_R4).Keep()
-            .Match(ci => (ConstructorInfo) ci.operand == AccessTools.Constructor(typeof(Rect), new[] { typeof(float), typeof(float), typeof(float), typeof(float) })).Keep()
+            .Match(ci => (ConstructorInfo) ci.operand == AccessTools.Constructor(typeof(Rect), [typeof(float), typeof(float), typeof(float), typeof(float)])).Keep()
             .Greedy();
 
         var pattern = TranspilerPattern.Build("DoWindowContents")

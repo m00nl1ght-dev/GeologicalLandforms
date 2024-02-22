@@ -161,7 +161,7 @@ internal static class Patch_RimWorld_CellFinder
 
         var pattern = TranspilerPattern.Build("FindRaidDropCenterDistant")
             .MatchLdarg().Keep()
-            .MatchCall(typeof(CellFinder), "RandomCell", new[] { typeof(Map) }).Keep()
+            .MatchCall(typeof(CellFinder), "RandomCell", [typeof(Map)]).Keep()
             .MatchStloc().StoreOperandIn(ldlocPos, stlocPos).Keep()
             .MatchLdloc().StoreOperandIn(ldlocNum).Keep()
             .Match(OpCodes.Ldc_I4_1).Keep()
@@ -180,7 +180,7 @@ internal static class Patch_RimWorld_CellFinder
     private static IEnumerable<CodeInstruction> TryFindWalkPath_Transpiler(IEnumerable<CodeInstruction> instructions)
     {
         var pattern = TranspilerPattern.Build("TryFindWalkPath")
-            .MatchCall(typeof(GridsUtility), "Roofed", new[] { typeof(IntVec3), typeof(Map) }).Remove()
+            .MatchCall(typeof(GridsUtility), "Roofed", [typeof(IntVec3), typeof(Map)]).Remove()
             .Insert(CodeInstruction.Call(Self, nameof(RoofedAndTileNotImpassable)));
 
         return TranspilerPattern.Apply(instructions, pattern);

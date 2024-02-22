@@ -20,10 +20,10 @@ public class NodeUIMapIncidents : NodeUIBase
     public override string Title => "Events and Incidents";
     public override Vector2 DefaultSize => new(400, _lastLayoutMaxY);
 
-    public List<Entry> IncidentEntries = new();
-    public List<Entry> GameConditionEntries = new();
-    public List<Entry> RaidStrategyEntries = new();
-    public List<Entry> ArrivalModeEntries = new();
+    public List<Entry> IncidentEntries = [];
+    public List<Entry> GameConditionEntries = [];
+    public List<Entry> RaidStrategyEntries = [];
+    public List<Entry> ArrivalModeEntries = [];
 
     private float _lastLayoutMaxY = 200f;
 

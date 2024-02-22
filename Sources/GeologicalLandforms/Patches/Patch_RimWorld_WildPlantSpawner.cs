@@ -49,11 +49,11 @@ internal static class Patch_RimWorld_WildPlantSpawner
                 .MatchLdloc().StoreOperandIn(ldlocPos).Keep()
                 .MatchLdloc().Replace(OpCodes.Ldarg_1)
                 .Insert(ldlocPos)
-                .Insert(CodeInstruction.Call(typeof(BiomeGrid), nameof(BiomeGrid.BiomeAt), new[] { typeof(IntVec3) }))
+                .Insert(CodeInstruction.Call(typeof(BiomeGrid), nameof(BiomeGrid.BiomeAt), [typeof(IntVec3)]))
                 .Insert(CodeInstruction.LoadField(typeof(BiomeDef), "plantDensity"))
                 .Insert(OpCodes.Ldloc, localCondFactor)
                 .Insert(OpCodes.Mul)
-                .MatchCall(typeof(WildPlantSpawner), "GetDesiredPlantsCountAt", new[] { typeof(IntVec3), typeof(IntVec3), typeof(float) }).Keep();
+                .MatchCall(typeof(WildPlantSpawner), "GetDesiredPlantsCountAt", [typeof(IntVec3), typeof(IntVec3), typeof(float)]).Keep();
 
             return TranspilerPattern.Apply(instructions, getCondFactor, getPlantDensity);
         }
@@ -105,7 +105,7 @@ internal static class Patch_RimWorld_WildPlantSpawner
                 .MatchStloc().StoreOperandIn(ldlocPos).Keep()
                 .Insert(OpCodes.Ldarg_1)
                 .Insert(ldlocPos)
-                .Insert(CodeInstruction.Call(typeof(BiomeGrid), nameof(BiomeGrid.EntryAt), new[] { typeof(IntVec3) }))
+                .Insert(CodeInstruction.Call(typeof(BiomeGrid), nameof(BiomeGrid.EntryAt), [typeof(IntVec3)]))
                 .Insert(OpCodes.Stloc, localBiomeEntry)
                 .Insert(OpCodes.Ldloc, localBiomeEntry)
                 .Insert(CodeInstruction.Call(typeof(BiomeGrid.Entry), "get_Biome"))

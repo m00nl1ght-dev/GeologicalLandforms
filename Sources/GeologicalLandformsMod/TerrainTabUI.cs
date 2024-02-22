@@ -144,8 +144,8 @@ internal static class TerrainTabUI
         int tileId = Find.WorldSelector.selectedTile;
         var grid = Find.WorldGrid;
 
-        HashSet<int> tested = new();
-        HashSet<int> pending = new() { tileId };
+        HashSet<int> tested = [];
+        HashSet<int> pending = [tileId];
 
         var nbData = grid.tileIDToNeighbors_values;
         var nbOffsets = grid.tileIDToNeighbors_offsets;

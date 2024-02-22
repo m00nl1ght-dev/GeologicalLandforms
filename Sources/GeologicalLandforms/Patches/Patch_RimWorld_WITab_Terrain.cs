@@ -39,7 +39,7 @@ internal static class Patch_RimWorld_WITab_Terrain
             .MatchCall(typeof(WITab), "get_SelTile").Keep()
             .MatchLoad(typeof(Tile), "biome").Keep()
             .MatchCall(typeof(Def), "get_LabelCap").Keep()
-            .MatchCall(typeof(Widgets), "Label", new[] { typeof(Rect), typeof(TaggedString) }).Remove()
+            .MatchCall(typeof(Widgets), "Label", [typeof(Rect), typeof(TaggedString)]).Remove()
             .Insert(CodeInstruction.Call(Self, nameof(DoBiomeLabel)));
 
         var patternBd = TranspilerPattern.Build("BiomeDescriptionExt")
@@ -48,7 +48,7 @@ internal static class Patch_RimWorld_WITab_Terrain
             .MatchLoad(typeof(Def), "description").Keep()
             .Match(OpCodes.Ldc_R4).Keep()
             .Match(OpCodes.Ldnull).Keep()
-            .MatchCall(typeof(Listing_Standard), "Label", new[] { typeof(string), typeof(float), typeof(string) }).Remove()
+            .MatchCall(typeof(Listing_Standard), "Label", [typeof(string), typeof(float), typeof(string)]).Remove()
             .Insert(CodeInstruction.Call(Self, nameof(DoBiomeDescription)));
 
         var patternSfc = TranspilerPattern.Build("SpecialFeaturesCond")
@@ -61,7 +61,7 @@ internal static class Patch_RimWorld_WITab_Terrain
 
         var patternSfr = TranspilerPattern.Build("SpecialFeaturesExt")
             .OnlyMatchAfter(patternSfc)
-            .MatchCall(typeof(Listing_Standard), "LabelDouble", new[] { typeof(string), typeof(string), typeof(string) }).Remove()
+            .MatchCall(typeof(Listing_Standard), "LabelDouble", [typeof(string), typeof(string), typeof(string)]).Remove()
             .Insert(CodeInstruction.Call(Self, nameof(DoSpecialFeatures)));
 
         return TranspilerPattern.Apply(instructions, patternBl, patternBd, patternSfc, patternSfr);

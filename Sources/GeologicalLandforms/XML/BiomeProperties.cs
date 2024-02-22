@@ -20,7 +20,7 @@ public class BiomeProperties : DefModExtension
 
     public List<string> allowedLandforms;
     public List<string> disallowedLandforms;
-    
+
     public List<BiomeDef> allowedBiomeTransitions;
     public List<BiomeDef> disallowedBiomeTransitions;
 
@@ -189,7 +189,7 @@ public class BiomeProperties : DefModExtension
         }
     };
 
-    private static readonly List<OpCode> _extAccessOps = new() { OpCodes.Call, OpCodes.Callvirt, OpCodes.Ldfld };
+    private static readonly List<OpCode> _extAccessOps = [OpCodes.Call, OpCodes.Callvirt, OpCodes.Ldfld];
 
     private static bool IsSpecialPurposeBiome(BiomeDef biome)
     {
@@ -199,7 +199,7 @@ public class BiomeProperties : DefModExtension
 
         try
         {
-            var method = AccessTools.Method(biome.workerClass, nameof(BiomeWorker.GetScore), new [] { typeof(Tile), typeof(int) });
+            var method = AccessTools.Method(biome.workerClass, nameof(BiomeWorker.GetScore), [typeof(Tile), typeof(int)]);
             if (method == null) throw new Exception("method GetScore not found");
 
             var instructions = PatchProcessor.ReadMethodBody(method);

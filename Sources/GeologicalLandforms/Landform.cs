@@ -67,7 +67,7 @@ public class Landform : TerrainCanvas
     public NodeOutputTerrainPatches OutputTerrainPatches { get; internal set; }
     public NodeOutputWaterFlow OutputWaterFlow { get; internal set; }
 
-    public List<NodeRunGenStep> CustomGenSteps { get; } = new();
+    public List<NodeRunGenStep> CustomGenSteps { get; } = [];
 
     public override int GridFullSize => GeneratingGridFullSize;
     public override int GridPreviewSize => GeneratingGridPreviewSize;
@@ -82,7 +82,7 @@ public class Landform : TerrainCanvas
     public static void PrepareMapGen(Map map)
     {
         CleanUp();
-        
+
         LandformGraphEditor.ActiveEditor?.Close();
 
         // Support for special-purpose maps from mods that patch the map.Biome getter (e.g. DeepRim, SOS2)
@@ -93,7 +93,7 @@ public class Landform : TerrainCanvas
             {
                 var tileInfo = WorldTileInfo.Get(map.Tile, false);
                 var landformSeed = SeedRerollData.GetMapSeed(Find.World, map.Tile);
-                var landformIds = mapBiomeProps.overrideLandforms.Get(new CtxTile(tileInfo), new List<string>());
+                var landformIds = mapBiomeProps.overrideLandforms.Get(new CtxTile(tileInfo), []);
                 var landforms = landformIds.Select(LandformManager.FindById).Where(lf => lf != null).OrderBy(lf => lf.Priority);
                 PrepareMapGen(tileInfo, new IntVec2(map.Size.x, map.Size.z), landformSeed, landforms.Distinct());
             }

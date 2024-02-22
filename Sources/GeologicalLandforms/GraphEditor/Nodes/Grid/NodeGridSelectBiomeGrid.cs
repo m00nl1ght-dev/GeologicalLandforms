@@ -22,7 +22,7 @@ public class NodeGridSelectBiomeGrid : NodeSelectBase
     public override ValueConnectionKnob InputKnobRef => InputKnob;
     public override ValueConnectionKnob OutputKnobRef => OutputKnob;
 
-    public List<string> Values = new();
+    public List<string> Values = [];
 
     public override void NodeGUI()
     {
@@ -60,7 +60,7 @@ public class NodeGridSelectBiomeGrid : NodeSelectBase
     {
         ISupplier<IGridFunction<double>> input = SupplierOrFallback(InputKnob, GridFunction.Zero);
 
-        List<ISupplier<IGridFunction<BiomeData>>> options = new();
+        List<ISupplier<IGridFunction<BiomeData>>> options = [];
         for (int i = 0; i < Math.Min(Values.Count, OptionKnobs.Count); i++)
         {
             options.Add(SupplierOrFallback(OptionKnobs[i], GridFunction.Of(BiomeData.FromString(Values[i]))));

@@ -22,7 +22,7 @@ internal static class Patch_RimWorld_GenStep_RocksFromGrid
     private static IEnumerable<CodeInstruction> Generate_Transpiler(IEnumerable<CodeInstruction> instructions)
     {
         var setRoofs = TranspilerPattern.Build("SetRoofsFromLandform")
-            .MatchNewobj(typeof(BoolGrid), new[] { typeof(Map) }).Keep()
+            .MatchNewobj(typeof(BoolGrid), [typeof(Map)]).Keep()
             .Match(OpCodes.Stfld).Keep()
             .Insert(OpCodes.Ldarg_1)
             .Insert(CodeInstruction.Call(Self, nameof(SetRoofsFromLandform)));

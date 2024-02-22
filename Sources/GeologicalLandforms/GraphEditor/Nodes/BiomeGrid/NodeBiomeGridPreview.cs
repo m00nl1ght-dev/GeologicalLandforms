@@ -38,14 +38,14 @@ public class NodeBiomeGridPreview : NodeDiscreteGridPreview<BiomeData>
         return BiomeData.DislayString(value.Biome) + " ( " + Math.Round(x, 0) + " | " + Math.Round(y, 0) + " )";
     }
 
-    private static List<Color> _biomeColors = new()
-    {
+    private static List<Color> _biomeColors =
+    [
         new Color(0.2f, 0.2f, 0.2f),
         new Color(0.4f, 0.4f, 0.4f),
         new Color(0.6f, 0.6f, 0.6f),
         new Color(0.8f, 0.8f, 0.8f),
         new Color(1f, 1f, 1f)
-    };
+    ];
 
     protected override Color GetColor(BiomeData value)
     {

@@ -63,7 +63,7 @@ public static class BiomeTransition
         var tempMap = CreateMinimalMap(tile.TileId, mapSize);
         var floodFiller = new FloodFiller(tempMap);
 
-        _tpmProcessed = DebugBiomeTransitions ? new() : null;
+        _tpmProcessed = DebugBiomeTransitions ? [] : null;
         for (int x = 0; x < mapSize.x; x++)
         for (int z = 0; z < mapSize.z; z++)
         {

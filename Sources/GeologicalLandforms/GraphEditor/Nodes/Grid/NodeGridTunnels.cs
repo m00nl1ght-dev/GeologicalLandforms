@@ -208,7 +208,7 @@ public class NodeGridTunnels : NodeBase
 
         private bool CheckMapSides(WorldTileInfo tileInfo, StructRot4<int> walkable)
         {
-            tileInfo.World.grid.GetTileNeighbors(tileInfo.TileId, _tscNeighbors ??= new());
+            tileInfo.World.grid.GetTileNeighbors(tileInfo.TileId, _tscNeighbors ??= []);
             _tscNeighbors.RemoveAll(nb => tileInfo.World.Impassable(nb));
 
             foreach (var nb in _tscNeighbors)

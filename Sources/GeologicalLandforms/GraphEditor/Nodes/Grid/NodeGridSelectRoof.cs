@@ -21,7 +21,7 @@ public class NodeGridSelectRoof : NodeSelectBase
     public override ValueConnectionKnob InputKnobRef => InputKnob;
     public override ValueConnectionKnob OutputKnobRef => OutputKnob;
 
-    public List<string> Values = new();
+    public List<string> Values = [];
 
     public override void NodeGUI()
     {
@@ -51,7 +51,7 @@ public class NodeGridSelectRoof : NodeSelectBase
     public override void RefreshPreview()
     {
         base.RefreshPreview();
-        List<ISupplier<RoofData>> suppliers = new();
+        List<ISupplier<RoofData>> suppliers = [];
 
         for (int i = 0; i < Math.Min(Values.Count, OptionKnobs.Count); i++)
         {
@@ -71,7 +71,7 @@ public class NodeGridSelectRoof : NodeSelectBase
     {
         var input = SupplierOrFallback(InputKnob, GridFunction.Zero);
 
-        List<ISupplier<IGridFunction<RoofData>>> options = new();
+        List<ISupplier<IGridFunction<RoofData>>> options = [];
         for (int i = 0; i < Math.Min(Values.Count, OptionKnobs.Count); i++)
         {
             options.Add(new NodeGridFromValue.Output<RoofData>(SupplierOrFallback(OptionKnobs[i], RoofData.FromString(Values[i]))));

@@ -39,7 +39,7 @@ internal static class Patch_RimWorld_GenStep_Plants
                 .MatchLdloc().StoreOperandIn(ldlocPos).Keep()
                 .MatchLdloc().Replace(OpCodes.Ldarg_3)
                 .Insert(ldlocPos)
-                .Insert(CodeInstruction.Call(typeof(BiomeGrid), nameof(BiomeGrid.EntryAt), new[] { typeof(IntVec3) }))
+                .Insert(CodeInstruction.Call(typeof(BiomeGrid), nameof(BiomeGrid.EntryAt), [typeof(IntVec3)]))
                 .Insert(OpCodes.Stloc, localBiomeEntry)
                 .Insert(OpCodes.Ldloc, localBiomeEntry)
                 .Insert(CodeInstruction.Call(typeof(BiomeGrid.Entry), "get_Biome"))

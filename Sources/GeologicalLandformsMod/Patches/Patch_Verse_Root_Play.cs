@@ -52,7 +52,7 @@ internal static class Patch_Verse_Root_Play
 
                     var tileData = new LandformData.TileData(tileInfo)
                     {
-                        Landforms = new List<string> { landform.Id }
+                        Landforms = [landform.Id]
                     };
 
                     if (landform.WorldTileReq?.HillinessRequirement.max > 5)

@@ -9,7 +9,7 @@ public class WorldTileTraverser
     private bool _reentryFlag;
 
     private readonly Queue<QueuedTile> _queue = new();
-    private readonly List<int> _visited = new();
+    private readonly List<int> _visited = [];
 
     public delegate TraverseAction Processor(int tileId, int distance);
 
