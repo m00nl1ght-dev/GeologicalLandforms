@@ -17,6 +17,8 @@ internal static class Patch_Verse_MapGenerator
     [HarmonyPriority(Priority.First)]
     private static void GenerateContentsIntoMap_Prefix(Map map, ref IEnumerable<GenStepWithParams> genStepDefs)
     {
+        LandformGraphEditor.ActiveEditor?.Close();
+
         Landform.PrepareMapGen(map);
 
         if (Landform.AnyGenerating)

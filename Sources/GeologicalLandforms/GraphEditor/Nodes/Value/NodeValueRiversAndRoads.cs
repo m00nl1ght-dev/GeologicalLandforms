@@ -67,6 +67,7 @@ public class NodeValueRiversAndRoads : NodeBase
         {
             if (mainRiver != null)
             {
+                // TODO if there is a river landform, use mean of inflow and outflow angle instead
                 angle = tile.RiverAngle(WorldTileUtils.CalculateMainRiverAngle(tile.World.grid, tile.TileId));
                 offset = WorldTileUtils.RiverPositionToOffset(tile.RiverPosition(0), angle);
             }

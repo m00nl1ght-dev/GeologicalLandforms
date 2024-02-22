@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using GeologicalLandforms.GraphEditor;
 using GeologicalLandforms.Patches;
 using RimWorld;
 using RimWorld.Planet;
@@ -97,6 +98,9 @@ public static class ExtensionUtils
 
     public static bool HasBiome(this IWorldTileInfo tile, string defName)
         => tile.Biome != null && tile.Biome.defName == defName;
+
+    public static bool HasLandform(this IWorldTileInfo tile, Landform landform)
+        => tile.Landforms != null && tile.Landforms.Contains(landform);
 
     public static bool HasWorldObject(this IWorldTileInfo tile, string defName)
         => tile.WorldObject != null && tile.WorldObject.def.defName == defName;

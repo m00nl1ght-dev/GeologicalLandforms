@@ -24,7 +24,7 @@ public class LandformGraphInterface
 
     public void DrawToolbarGUI()
     {
-        GUI.enabled = Landform.GeneratingTile is null or EditorMockTileInfo && !ModCompat_MapReroll.IsPreviewWindowOpen;
+        GUI.enabled = !ModCompat_MapReroll.IsPreviewWindowOpen;
 
         GUILayout.BeginHorizontal(GUI.skin.GetStyle("toolbar"));
 
@@ -67,7 +67,12 @@ public class LandformGraphInterface
 
             GUILayout.Space(50f);
 
-            if (GUILayout.Button(Editor.EditorTileInfo.Biome.label.CapitalizeFirst(), GUI.skin.GetStyle("toolbarButton"), GUILayout.MinWidth(150f)))
+            var currentBiome = Landform.GeneratingTile?.Biome ?? BiomeDefOf.TemperateForest;
+
+            var preEnabled = GUI.enabled;
+            GUI.enabled = preEnabled && Editor.EditorTileInfo != null;
+
+            if (GUILayout.Button(currentBiome.label.CapitalizeFirst(), GUI.skin.GetStyle("toolbarButton"), GUILayout.MinWidth(150f)))
             {
                 var options = DefDatabase<BiomeDef>.AllDefsListForReading
                     .Select(e => new FloatMenuOption(e.label.CapitalizeFirst(), () =>
@@ -78,6 +83,8 @@ public class LandformGraphInterface
                     .ToList();
                 Find.WindowStack.Add(new FloatMenu(options));
             }
+
+            GUI.enabled = preEnabled;
 
             GUILayout.Space(50f);
 

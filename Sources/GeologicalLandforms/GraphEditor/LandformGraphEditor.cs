@@ -92,8 +92,18 @@ public class LandformGraphEditor : Window
 
         if (landform != null)
         {
-            EditorTileInfo = new EditorMockTileInfo { LandformsList = [landform] };
-            Landform.PrepareEditor(EditorTileInfo);
+            var map = Find.CurrentMap;
+
+            if (map != null && WorldTileInfo.Get(map.Tile).HasLandform(landform))
+            {
+                Landform.PrepareMapGen(map); // TODO properly test and fix (e.g. reseed button)
+            }
+            else
+            {
+                EditorTileInfo = new EditorMockTileInfo { LandformsList = [landform] };
+                Landform.PrepareEditor(EditorTileInfo);
+            }
+
             _canvasCache.nodeCanvas = landform;
 
             if (editorState != null)

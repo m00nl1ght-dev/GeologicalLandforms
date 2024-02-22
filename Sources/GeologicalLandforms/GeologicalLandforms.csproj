@@ -142,6 +142,7 @@
         <Compile Include="GraphEditor\Nodes\UI\NodeUIMapIncidents.cs" />
         <Compile Include="GraphEditor\Nodes\UI\NodeUIWorldTileGraphic.cs" />
         <Compile Include="GraphEditor\Nodes\UI\NodeUIWorldTileReq.cs" />
+        <Compile Include="GraphEditor\Nodes\Value\NodeValueMapSize.cs" />
         <Compile Include="GraphEditor\Nodes\Value\NodeValueRiverLinks.cs" />
         <Compile Include="GraphEditor\Nodes\Value\NodeValueRiversAndRoads.cs" />
         <Compile Include="GraphEditor\Nodes\Value\NodeValueWorldTile.cs" />
