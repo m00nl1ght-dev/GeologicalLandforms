@@ -157,52 +157,47 @@ public class WorldTileInfo : IWorldTileInfo
     private static void DetermineLandforms(WorldTileInfo info, BiomeProperties biomeProps)
     {
         var eligible = _tsc_eligible;
-        eligible.Clear();
-
-        foreach (var landform in LandformManager.Landforms.Values)
-        {
-            if (info.CanHaveLandform(landform, biomeProps)) eligible.Add(landform);
-        }
-
-        // TODO cache in LandformManager instead of sorting here each time! (cache one sorted list per lf layer)
-        eligible.SortBy(e => e.Manifest.TimeCreated);
 
         List<Landform> landforms = null;
 
-        foreach (var landform in eligible)
+        foreach (var layer in LandformManager.LandformLayers)
         {
-            if (landform.IsLayer && Rand.ChanceSeeded(landform.WorldTileReq.Commonness, info.MakeSeed(landform.IdHash)))
+            eligible.Clear();
+
+            foreach (var landform in layer.Landforms)
             {
-                landforms ??= new(2);
-                landforms.Add(landform);
-            }
-        }
-
-        float sum = 0;
-        foreach (var e in eligible)
-            if (!e.IsLayer)
-                sum += e.WorldTileReq.Commonness;
-
-        float rand = new FloatRange(0f, Math.Max(1f, sum)).RandomInRangeSeeded(info.MakeSeed(1754));
-
-        Landform main = null;
-        foreach (var landform in eligible)
-        {
-            if (landform.IsLayer) continue;
-
-            if (rand < landform.WorldTileReq.Commonness)
-            {
-                main = landform;
-                break;
+                if (info.CanHaveLandform(landform, biomeProps)) eligible.Add(landform);
             }
 
-            rand -= landform.WorldTileReq.Commonness;
-        }
+            if (layer.LayerId == "")
+            {
+                foreach (var landform in eligible)
+                {
+                    if (Rand.ChanceSeeded(landform.WorldTileReq.Commonness, info.MakeSeed(landform.IdHash)))
+                    {
+                        landforms ??= new(2);
+                        landforms.Add(landform);
+                    }
+                }
+            }
+            else
+            {
+                var seed = info.MakeSeed(layer.SelectionSeed);
+                var sum = eligible.Sum(lf => lf.WorldTileReq.Commonness);
+                var rand = new FloatRange(0f, Math.Max(1f, sum)).RandomInRangeSeeded(seed);
 
-        if (main != null)
-        {
-            landforms ??= new(1);
-            landforms.Add(main);
+                foreach (var landform in eligible)
+                {
+                    if (rand < landform.WorldTileReq.Commonness)
+                    {
+                        landforms ??= new(2);
+                        landforms.Add(landform);
+                        break;
+                    }
+
+                    rand -= landform.WorldTileReq.Commonness;
+                }
+            }
         }
 
         if (biomeProps.overrideLandforms != null)

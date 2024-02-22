@@ -79,8 +79,6 @@ public class NodeUIWorldTileGraphic : NodeUIBase
         var existing = Landform.WorldTileGraphic;
         if (existing != null && existing != this && canvas.nodes.Contains(existing)) existing.Delete();
         Landform.WorldTileGraphic = this;
-
-        LandformManager.AnyHasTileGraphic = true;
         UpdateAtlas();
     }
 

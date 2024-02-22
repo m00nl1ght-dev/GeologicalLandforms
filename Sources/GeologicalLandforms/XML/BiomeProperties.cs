@@ -46,7 +46,7 @@ public class BiomeProperties : DefModExtension
     public bool AllowsLandform(Landform landform)
     {
         if (allowedLandforms != null) return allowedLandforms.Contains(landform.Id);
-        if (!AllowLandforms && (!landform.IsLayer || !AllowBiomeTransitions)) return false;
+        if (!AllowLandforms && (!landform.IsLayer || !landform.IsInternal || !AllowBiomeTransitions)) return false;
         return !(disallowedLandforms?.Contains(landform.Id) ?? false);
     }
 

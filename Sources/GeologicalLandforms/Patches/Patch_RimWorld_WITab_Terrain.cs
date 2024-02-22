@@ -93,11 +93,15 @@ internal static class Patch_RimWorld_WITab_Terrain
     {
         if (_tile.Landforms != null)
         {
-            var mainLandform = _tile.Landforms.LastOrDefault(l => !l.IsLayer && !l.IsInternal);
-            if (mainLandform != null)
+            var str = _tile.Landforms
+                .Where(lf => !lf.IsInternal)
+                .OrderBy(lf => lf.Manifest.TimeCreated)
+                .Select(lf => lf.TranslatedNameWithDirection(_tile.TopologyDirection).CapitalizeFirst())
+                .Join();
+
+            if (str.Length > 0)
             {
-                var lfStr = mainLandform.TranslatedNameWithDirection(_tile.TopologyDirection).CapitalizeFirst();
-                listingStandard.LabelDouble("GeologicalLandforms.WorldMap.Landform".Translate(), lfStr);
+                listingStandard.LabelDouble("GeologicalLandforms.WorldMap.Landform".Translate(), str);
             }
 
             if (_tile.BorderingBiomes?.Count > 0)

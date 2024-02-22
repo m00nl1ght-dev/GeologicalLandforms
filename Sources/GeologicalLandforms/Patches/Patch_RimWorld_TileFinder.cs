@@ -39,7 +39,7 @@ internal static class Patch_RimWorld_TileFinder
         var world = Find.World;
 
         if (world.grid[tile].hilliness != Hilliness.Impassable) return true;
-        
+
         if (QuestGen.Working) return false; // prevent quest sites from spawning on impassable tiles
 
         if (world.HasFinishedGenerating())

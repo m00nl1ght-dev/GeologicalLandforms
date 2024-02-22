@@ -13,7 +13,7 @@ internal static class Patch_RimWorld_GenStep_Scatterer
     [HarmonyPrefix]
     [HarmonyPatch("Generate")]
     [HarmonyPriority(Priority.High)]
-    private static void Generate_Prefix(GenStep_Scatterer __instance, Map map, ref State __state)
+    private static void Generate_Prefix(GenStep_Scatterer __instance, ref State __state)
     {
         if (Landform.AnyGeneratingNonLayer)
         {
@@ -36,7 +36,7 @@ internal static class Patch_RimWorld_GenStep_Scatterer
     [HarmonyPostfix]
     [HarmonyPatch("Generate")]
     [HarmonyPriority(Priority.Low)]
-    private static void Generate_Postfix(GenStep_Scatterer __instance, Map map, State __state)
+    private static void Generate_Postfix(GenStep_Scatterer __instance, State __state)
     {
         if (__state.hasData)
         {

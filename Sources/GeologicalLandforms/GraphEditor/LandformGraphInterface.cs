@@ -34,7 +34,7 @@ public class LandformGraphInterface
                     "GeologicalLandforms.Editor.Open.Tooltip".Translate()), GUI.skin.GetStyle("toolbarDropdown"),
                 GUILayout.MinWidth(Landform?.Id != null ? 150f : 50f)))
         {
-            var options = LandformManager.Landforms.Values
+            var options = LandformManager.LandformsById.Values
                 .OrderBy(e => e.TranslatedNameForSelection)
                 .Select(e => new FloatMenuOption(e.TranslatedNameForSelection.CapitalizeFirst(), () => Editor.OpenLandform(e)))
                 .ToList();

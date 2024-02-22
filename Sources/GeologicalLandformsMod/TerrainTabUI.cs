@@ -25,10 +25,12 @@ internal static class TerrainTabUI
                     new("GeologicalLandforms.WorldMap.FindLandformAny".Translate(), () => FindLandform(null)),
                     new("GeologicalLandforms.WorldMap.FindLandformAnyPOI".Translate(), () => FindLandform(null, true))
                 };
-                options.AddRange(LandformManager.Landforms.Values
-                    .Where(e => !e.IsLayer && !e.IsInternal && GeologicalLandformsMod.IsLandformEnabled(e))
+
+                options.AddRange(LandformManager.LandformsById.Values
+                    .Where(e => !e.IsInternal && GeologicalLandformsMod.IsLandformEnabled(e))
                     .OrderBy(e => e.TranslatedNameForSelection)
                     .Select(e => new FloatMenuOption(e.TranslatedNameForSelection.CapitalizeFirst(), () => FindLandform(e))));
+
                 Find.WindowStack.Add(new FloatMenu(options));
             }
         }
@@ -48,7 +50,7 @@ internal static class TerrainTabUI
                 {
                     var biomeProps = tileInfo.Biome.Properties();
 
-                    var eligible = LandformManager.Landforms.Values
+                    var eligible = LandformManager.LandformsById.Values
                         .Where(e => ignoreReq || tileInfo.CanHaveLandform(e, biomeProps, true))
                         .Where(e => !e.IsLayer && (ignoreReq || !e.IsInternal) && GeologicalLandformsMod.IsLandformEnabled(e))
                         .ToList();

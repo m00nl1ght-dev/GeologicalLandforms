@@ -7,6 +7,7 @@ using NodeEditorFramework;
 using NodeEditorFramework.IO;
 using RimWorld;
 using Verse;
+using static GeologicalLandforms.GeologicalLandformsAPI;
 
 namespace GeologicalLandforms.GraphEditor;
 
@@ -14,14 +15,17 @@ public static class LandformManager
 {
     public const int CurrentVersion = 1;
 
-    private static Dictionary<string, ModContentPack> _mcpLandformDirs = new();
+    public static IReadOnlyDictionary<string, Landform> LandformsById => _landformsById;
 
-    private static Dictionary<string, Landform> _landforms = new();
-    public static IReadOnlyDictionary<string, Landform> Landforms => _landforms;
+    public static IReadOnlyList<Layer> LandformLayers { get; private set; }
+
+    public static bool AnyHasTileGraphic { get; private set; }
+
+    private static Dictionary<string, Landform> _landformsById = new();
+    private static Dictionary<string, ModContentPack> _landformDirs = new();
 
     private static ImportExportFormat IOFormat => ImportExportManager.ParseFormat("XML");
-
-    public static bool AnyHasTileGraphic { get; internal set; }
+    private static readonly IReadOnlyList<string> KnownInternalLandforms = ["BiomeTransitions"];
 
     public static void InitialLoad()
     {
@@ -29,33 +33,40 @@ public static class LandformManager
 
         Directory.CreateDirectory(CustomLandformsDir(CurrentVersion));
 
-        var landformSources = new HashSet<string>();
-        _mcpLandformDirs = new();
+        _landformDirs = new();
 
         foreach (var mcp in LoadedModManager.RunningMods)
         {
             if (mcp?.RootDir == null) continue;
 
             foreach (var dir in mcp.foldersToLoadDescendingOrder
-                         .SelectMany(loadFolder => LandformDirs(loadFolder, CurrentVersion))
-                         .Reverse().Where(Directory.Exists))
+                .SelectMany(loadFolder => LandformDirs(loadFolder, CurrentVersion))
+                .Reverse().Where(Directory.Exists))
             {
-                _mcpLandformDirs.Add(dir, mcp);
-                landformSources.Add(mcp.Name);
+                _landformDirs.Add(dir, mcp);
             }
         }
 
-        Log.ResetMessageCount();
-        GeologicalLandformsAPI.Logger.Log("Found landform data in the following mods: " + landformSources.Join());
+        Logger.Log("Found landform data in the following mods: " + _landformDirs.Values.Distinct().Join());
 
-        _landforms = LoadAll();
+        _landformsById = LoadAll();
 
-        AnyHasTileGraphic = _landforms.Values.Any(lf => lf.WorldTileGraphic != null);
+        RefreshLayers();
+    }
+
+    internal static void RefreshLayers()
+    {
+        LandformLayers = _landformsById.Values
+            .GroupBy(lf => lf.IsLayer ? lf.LayerConfig.LayerId : null)
+            .Select(g => new Layer(g.Key, g.OrderBy(lf => lf.Manifest.TimeCreated).ToArray()))
+            .ToArray();
+
+        AnyHasTileGraphic = _landformsById.Values.Any(lf => lf.WorldTileGraphic != null);
     }
 
     public static Dictionary<string, Landform> LoadAll(string fileFilter = "*", bool includeCustom = true)
     {
-        var mcpLandforms = _mcpLandformDirs.Aggregate<KeyValuePair<string, ModContentPack>, Dictionary<string, Landform>>(null,
+        var mcpLandforms = _landformDirs.Aggregate<KeyValuePair<string, ModContentPack>, Dictionary<string, Landform>>(null,
             (current, source) => LoadLandformsFromDirectory(source.Key, current, fileFilter, source.Value));
 
         foreach (var landform in mcpLandforms.Values)
@@ -74,11 +85,11 @@ public static class LandformManager
         int customCount = mergedLandforms.Values.Count(l => l.IsCustom);
         int editedCount = mergedLandforms.Values.Count(l => l.Manifest.IsEdited);
 
-        GeologicalLandformsAPI.Logger.Log("Loaded " + mergedLandforms.Count + " landforms of which " + editedCount + " are edited and " + customCount + " are custom.");
+        Logger.Log("Loaded " + mergedLandforms.Count + " landforms of which " + editedCount + " are edited and " + customCount + " are custom.");
 
         if (upgradableLandforms.Count > 0)
         {
-            GeologicalLandformsAPI.LunarAPI.LifecycleHooks.DoOnceOnMainMenu(() =>
+            LunarAPI.LifecycleHooks.DoOnceOnMainMenu(() =>
             {
                 string msg = "GeologicalLandforms.LandformManager.LandformUpgrade".Translate() + "\n";
                 msg = upgradableLandforms.Aggregate(msg, (current, lf) => current + ("\n" + lf.TranslatedNameForSelection.CapitalizeFirst()));
@@ -106,12 +117,12 @@ public static class LandformManager
 
     public static void SaveAllEdited()
     {
-        SaveLandformsToDirectory(CustomLandformsDir(CurrentVersion), _landforms);
+        SaveLandformsToDirectory(CustomLandformsDir(CurrentVersion), _landformsById);
     }
 
     public static Landform FindById(string id)
     {
-        return Landforms.TryGetValue(id, out var landform) ? landform : null;
+        return LandformsById.TryGetValue(id, out var landform) ? landform : null;
     }
 
     public static Landform Duplicate(Landform landform)
@@ -123,7 +134,7 @@ public static class LandformManager
         if (duplicate == null) return null;
 
         string newId = landform.Manifest.Id + "Copy";
-        while (Landforms.ContainsKey(newId))
+        while (LandformsById.ContainsKey(newId))
         {
             newId += "Copy";
         }
@@ -135,20 +146,23 @@ public static class LandformManager
         duplicate.ModContentPack = null;
         duplicate.OriginalFileLocation = null;
 
-        _landforms.Add(newId, duplicate);
+        _landformsById.Add(newId, duplicate);
+
+        RefreshLayers();
+
         return duplicate;
     }
 
     public static void Rename(Landform landform, string newId)
     {
-        while (_landforms.ContainsKey(newId))
+        while (_landformsById.ContainsKey(newId))
         {
             newId = "New" + newId;
         }
 
-        if (landform.Manifest.Id != null) _landforms.Remove(landform.Manifest.Id);
+        if (landform.Manifest.Id != null) _landformsById.Remove(landform.Manifest.Id);
         landform.Manifest.Id = newId;
-        _landforms.Add(landform.Manifest.Id, landform);
+        _landformsById.Add(landform.Manifest.Id, landform);
     }
 
     public static void SaveInMod(Landform landform)
@@ -173,7 +187,7 @@ public static class LandformManager
         }
         catch (Exception e)
         {
-            GeologicalLandformsAPI.Logger.Warn("Failed to save landform in " + file, e);
+            Logger.Warn("Failed to save landform in " + file, e);
             landform.Manifest.IsEdited = true;
 
             var msg = "GeologicalLandforms.Editor.SaveInMod.Error".Translate(file);
@@ -183,7 +197,8 @@ public static class LandformManager
 
     public static void Delete(Landform landform)
     {
-        _landforms.Remove(landform.Manifest.Id);
+        _landformsById.Remove(landform.Manifest.Id);
+        RefreshLayers();
     }
 
     public static Landform Reset(Landform landform)
@@ -192,13 +207,16 @@ public static class LandformManager
         reset ??= LoadAll("*", false).TryGetValue(landform.Id);
         if (reset == null) return landform;
 
-        _landforms[landform.Id] = reset;
+        _landformsById[landform.Id] = reset;
+        RefreshLayers();
+
         return reset;
     }
 
     public static void ResetAll()
     {
-        _landforms = LoadAll("*", false);
+        _landformsById = LoadAll("*", false);
+        RefreshLayers();
     }
 
     public static Dictionary<string, Landform> LoadLandformsFromDirectory(string directory, Dictionary<string, Landform> fallback, string fileFilter = "*", ModContentPack source = null)
@@ -218,6 +236,11 @@ public static class LandformManager
 
                 if (landform != null && landform.Id != null)
                 {
+                    if (KnownInternalLandforms.Contains(landform.Id))
+                    {
+                        landform.Manifest.IsInternal = true;
+                    }
+
                     if (landforms.TryGetValue(landform.Id, out var existing))
                     {
                         landforms[landform.Id] = landform;
@@ -247,7 +270,7 @@ public static class LandformManager
             }
             catch (Exception ex)
             {
-                GeologicalLandformsAPI.Logger.Warn($"Caught exception while loading landform from file {file}.", ex);
+                Logger.Warn($"Caught exception while loading landform from file {file}.", ex);
             }
         }
 
@@ -288,7 +311,7 @@ public static class LandformManager
         }
         catch (Exception e)
         {
-            GeologicalLandformsAPI.Logger.Error("Failed to save landforms", e);
+            Logger.Error("Failed to save landforms", e);
         }
     }
 
@@ -301,5 +324,20 @@ public static class LandformManager
     public static string CustomLandformsDir(int version)
     {
         return Path.Combine(GenFilePaths.ConfigFolderPath, "CustomLandforms-v" + version);
+    }
+
+    public readonly struct Layer
+    {
+        public readonly string LayerId;
+        public readonly int SelectionSeed;
+
+        public readonly IReadOnlyList<Landform> Landforms;
+
+        public Layer(string layerId, IReadOnlyList<Landform> landforms)
+        {
+            LayerId = layerId;
+            SelectionSeed = layerId == null ? 1754 : GenText.StableStringHash(layerId);
+            Landforms = landforms;
+        }
     }
 }

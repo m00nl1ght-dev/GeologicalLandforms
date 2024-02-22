@@ -33,6 +33,9 @@ public static class UserInterfaceUtils
             LabelBuffer.Add("GeologicalLandforms.Settings.Landforms.ReplacesVanillaCliff".Translate());
         if (landform.WorldTileReq is { Topology: Topology.CoastOneSide, Commonness: >= 1f } && !landform.IsLayer)
             LabelBuffer.Add("GeologicalLandforms.Settings.Landforms.ReplacesVanillaCoast".Translate());
+        if (landform.WorldTileReq is { Topology: Topology.Any, Commonness: >= 1f } &&
+            (landform.WorldTileReq.AllowedRiverTypes?.Contains(RiverType.Normal) ?? false))
+            LabelBuffer.Add("GeologicalLandforms.Settings.Landforms.ReplacesVanillaRiver".Translate());
 
         if (LabelBuffer.Count > 0) label += " <color=#777777>(" + LabelBuffer.Join(s => s) + ")</color>";
         LabelBuffer.Clear();

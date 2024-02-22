@@ -42,8 +42,8 @@ public class GeologicalLandformsSettings : LunarModSettings
     public GeologicalLandformsSettings() : base(GeologicalLandformsMod.LunarAPI)
     {
         MakeTab("Tab.General", DoGeneralSettingsTab);
-        MakeTab("Tab.Landforms", DoLandformsSettingsTab, () => LandformManager.Landforms.Count > 0);
-        MakeTab("Tab.BiomeConfig", DoBiomeConfigSettingsTab, () => LandformManager.Landforms.Count > 0);
+        MakeTab("Tab.Landforms", DoLandformsSettingsTab, () => LandformManager.LandformsById.Count > 0);
+        MakeTab("Tab.BiomeConfig", DoBiomeConfigSettingsTab, () => LandformManager.LandformsById.Count > 0);
         MakeTab("Tab.BiomeVariants", DoBiomeVariantsSettingsTab, () => DefDatabase<BiomeVariantDef>.DefCount > 0);
         MakeTab("Tab.Debug", DoDebugSettingsTab, () => Prefs.DevMode);
     }
@@ -89,7 +89,7 @@ public class GeologicalLandformsSettings : LunarModSettings
 
         layout.PushChanged();
 
-        if (LandformManager.Landforms.Values.Any(lf => lf.Manifest.IsExperimental))
+        if (LandformManager.LandformsById.Values.Any(lf => lf.Manifest.IsExperimental))
         {
             LunarGUI.Checkbox(layout, ref EnableExperimentalLandforms.Value, Label("EnableExperimentalLandforms"));
         }
@@ -105,7 +105,7 @@ public class GeologicalLandformsSettings : LunarModSettings
     {
         layout.PushChanged();
 
-        foreach (var landform in LandformManager.Landforms.Values)
+        foreach (var landform in LandformManager.LandformsById.Values)
         {
             if (landform.Manifest.IsExperimental && !EnableExperimentalLandforms) continue;
             if (landform.WorldTileReq == null) continue;
@@ -198,7 +198,7 @@ public class GeologicalLandformsSettings : LunarModSettings
                     new("None".Translate(), () => DevQuickTestOverrideLandform.Value = "None")
                 };
 
-                options.AddRange(LandformManager.Landforms.Values.Where(e => !e.IsLayer).OrderBy(e => e.Id)
+                options.AddRange(LandformManager.LandformsById.Values.Where(e => !e.IsInternal).OrderBy(e => e.Id)
                     .Select(e => new FloatMenuOption(e.Id, () => DevQuickTestOverrideLandform.Value = e.Id)));
 
                 Find.WindowStack.Add(new FloatMenu(options));

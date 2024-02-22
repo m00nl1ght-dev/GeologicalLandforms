@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using MapPreview;
 using NodeEditorFramework;
@@ -62,6 +61,7 @@ public class LandformGraphEditor : Window
         Landform.CleanUp();
         Landform.CleanUpGUI();
         LandformManager.SaveAllEdited();
+        LandformManager.RefreshLayers();
         MapPreviewAPI.NotifyWorldChanged();
         LandformPreviewScheduler.Instance.Shutdown();
     }

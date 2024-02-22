@@ -25,12 +25,18 @@ internal static class Patch_Verse_CellInspectorDrawer
         if (tile < 0) return;
 
         var info = WorldTileInfo.Get(tile);
-        var landform = info.Landforms?.FirstOrDefault(lf => !lf.IsLayer && !lf.IsInternal);
-
-        if (landform != null)
+        if (info.Landforms != null)
         {
-            var label = landform.TranslatedNameWithDirection(info.TopologyDirection).CapitalizeFirst();
-            CellInspectorDrawer.DrawRow("GeologicalLandforms.WorldMap.Landform".Translate(), label);
+            var str = info.Landforms
+                .Where(lf => !lf.IsInternal)
+                .OrderBy(lf => lf.Manifest.TimeCreated)
+                .Select(lf => lf.TranslatedNameWithDirection(info.TopologyDirection).CapitalizeFirst())
+                .Join();
+
+            if (str.Length > 0)
+            {
+                CellInspectorDrawer.DrawRow("GeologicalLandforms.WorldMap.Landform".Translate(), str);
+            }
         }
     }
 

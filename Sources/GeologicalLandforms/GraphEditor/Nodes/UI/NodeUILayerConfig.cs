@@ -14,8 +14,9 @@ public class NodeUILayerConfig : NodeUIBase
     public override string GetID => ID;
 
     public override string Title => "Layer Config";
-    public override Vector2 DefaultSize => new(400, 75);
+    public override Vector2 DefaultSize => new(400, 115);
 
+    public string LayerId = "";
     public int Priority;
 
     private string _priorityEdit;
@@ -23,13 +24,22 @@ public class NodeUILayerConfig : NodeUIBase
     protected override void DoWindowContents(LayoutRect layout)
     {
         layout.PushEnabled(Landform.IsCustom);
-        layout.BeginAbs(28f);
 
+        layout.BeginAbs(28f);
+        LunarGUI.Label(layout.Rel(0.3f), "GeologicalLandforms.Settings.Landform.LayerId".Translate());
+        LunarGUI.TextField(layout, ref LayerId);
+        layout.End();
+
+        layout.Abs(10f);
+
+        layout.BeginAbs(28f);
         LunarGUI.Label(layout.Rel(0.3f), "GeologicalLandforms.Settings.Landform.Priority".Translate());
         LunarGUI.IntField(layout, ref Priority, ref _priorityEdit, -999, 999);
-
         layout.End();
+
         layout.PopEnabled();
+
+        LayerId = LayerId.ToLower();
     }
 
     public override void DrawNode()

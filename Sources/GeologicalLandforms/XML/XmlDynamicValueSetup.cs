@@ -51,6 +51,7 @@ public static class XmlDynamicValueSetup
         tileBoolSup.Register("topology", SupplierWithParam<bool, ICtxTile, Topology>((p, ctx) => ctx.TileInfo.IsTopologyCompatible(p)));
         tileBoolSup.Register("coast", SupplierWithParam<bool, ICtxTile, CoastType>((p, ctx) => ctx.TileInfo.HasCoast(p)));
         tileBoolSup.Register("biome", SupplierWithParam<bool, ICtxTile>((str, ctx) => ctx.TileInfo.HasBiome(str)));
+        tileBoolSup.Register("riverType", SupplierWithParam<bool, ICtxTile>((str, ctx) => ctx.TileInfo.River.ToString() == str));
         tileBoolSup.Register("worldObject", SupplierWithParam<bool, ICtxTile>((str, ctx) => ctx.TileInfo.HasWorldObject(str)));
 
         // ### Numeric suppliers for map cell context ###
