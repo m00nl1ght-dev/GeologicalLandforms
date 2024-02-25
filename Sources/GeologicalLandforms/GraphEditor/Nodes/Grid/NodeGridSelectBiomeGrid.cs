@@ -54,6 +54,7 @@ public class NodeGridSelectBiomeGrid : NodeSelectBase
     {
         CreateValueConnectionKnob(new("Option " + OptionKnobs.Count, Direction.In, BiomeGridFunctionConnection.Id));
         RefreshDynamicKnobs();
+        canvas.OnNodeChange(this);
     }
 
     public override bool Calculate()
@@ -66,7 +67,7 @@ public class NodeGridSelectBiomeGrid : NodeSelectBase
             options.Add(SupplierOrFallback(OptionKnobs[i], GridFunction.Of(BiomeData.FromString(Values[i]))));
         }
 
-        OutputKnob.SetValue<ISupplier<IGridFunction<BiomeData>>>(new GridOutput<BiomeData>(input, options, Thresholds, PostProcess));
+        OutputKnob.SetValue<ISupplier<IGridFunction<BiomeData>>>(new GridOutput<BiomeData>(input, options, Thresholds, null, PostProcess));
         return true;
     }
 

@@ -46,6 +46,7 @@ public class NodeGridSelectRoof : NodeSelectBase
     {
         CreateValueConnectionKnob(new("Option " + OptionKnobs.Count, Direction.In, RoofFunctionConnection.Id));
         RefreshDynamicKnobs();
+        canvas.OnNodeChange(this);
     }
 
     public override void RefreshPreview()
@@ -77,7 +78,7 @@ public class NodeGridSelectRoof : NodeSelectBase
             options.Add(new NodeGridFromValue.Output<RoofData>(SupplierOrFallback(OptionKnobs[i], RoofData.FromString(Values[i]))));
         }
 
-        OutputKnob.SetValue<ISupplier<IGridFunction<RoofData>>>(new GridOutput<RoofData>(input, options, Thresholds, PostProcess));
+        OutputKnob.SetValue<ISupplier<IGridFunction<RoofData>>>(new GridOutput<RoofData>(input, options, Thresholds, null, PostProcess));
         return true;
     }
 

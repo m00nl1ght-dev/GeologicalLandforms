@@ -46,6 +46,7 @@ public class NodeGridSelectTerrain : NodeSelectBase
     {
         CreateValueConnectionKnob(new("Option " + OptionKnobs.Count, Direction.In, TerrainFunctionConnection.Id));
         RefreshDynamicKnobs();
+        canvas.OnNodeChange(this);
     }
 
     public override void RefreshPreview()
@@ -77,7 +78,7 @@ public class NodeGridSelectTerrain : NodeSelectBase
             options.Add(new NodeGridFromValue.Output<TerrainData>(SupplierOrFallback(OptionKnobs[i], TerrainData.FromString(Values[i]))));
         }
 
-        OutputKnob.SetValue<ISupplier<IGridFunction<TerrainData>>>(new GridOutput<TerrainData>(input, options, Thresholds, PostProcess));
+        OutputKnob.SetValue<ISupplier<IGridFunction<TerrainData>>>(new GridOutput<TerrainData>(input, options, Thresholds, null, PostProcess));
         return true;
     }
 

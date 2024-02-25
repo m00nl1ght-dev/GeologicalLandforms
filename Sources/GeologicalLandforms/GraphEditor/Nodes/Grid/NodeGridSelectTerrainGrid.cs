@@ -54,11 +54,12 @@ public class NodeGridSelectTerrainGrid : NodeSelectBase
     {
         CreateValueConnectionKnob(new("Option " + OptionKnobs.Count, Direction.In, TerrainGridFunctionConnection.Id));
         RefreshDynamicKnobs();
+        canvas.OnNodeChange(this);
     }
 
     public override bool Calculate()
     {
-        ISupplier<IGridFunction<double>> input = SupplierOrFallback(InputKnob, GridFunction.Zero);
+        var input = SupplierOrFallback(InputKnob, GridFunction.Zero);
 
         List<ISupplier<IGridFunction<TerrainData>>> options = [];
         for (int i = 0; i < Math.Min(Values.Count, OptionKnobs.Count); i++)
@@ -66,7 +67,7 @@ public class NodeGridSelectTerrainGrid : NodeSelectBase
             options.Add(SupplierOrFallback(OptionKnobs[i], GridFunction.Of(TerrainData.FromString(Values[i]))));
         }
 
-        OutputKnob.SetValue<ISupplier<IGridFunction<TerrainData>>>(new GridOutput<TerrainData>(input, options, Thresholds, PostProcess));
+        OutputKnob.SetValue<ISupplier<IGridFunction<TerrainData>>>(new GridOutput<TerrainData>(input, options, Thresholds, null));
         return true;
     }
 
