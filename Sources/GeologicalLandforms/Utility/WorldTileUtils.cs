@@ -1,16 +1,18 @@
 using System;
 using System.Linq;
+using LunarFramework.Utility;
 using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
 
 namespace GeologicalLandforms;
 
+[HotSwappable]
 public static class WorldTileUtils
 {
     public static float CalculateMainRiverAngle(WorldGrid grid, int tile)
     {
-        var riverLinks = grid[tile].Rivers;
+        var riverLinks = grid[tile].potentialRivers;
         if (riverLinks == null) return 0f;
 
         var link = riverLinks.Where(r => !IsRiverInflow(grid, tile, r))
@@ -27,16 +29,19 @@ public static class WorldTileUtils
         if (grid[link.neighbor].WaterCovered) return false;
 
         var linkWidth = link.river.WidthOnWorld();
-        var nextLinks = grid[link.neighbor].Rivers;
+        var nextLinks = grid[link.neighbor].potentialRivers;
 
-        foreach (var nextLink in nextLinks)
+        if (nextLinks != null)
         {
-            if (nextLink.neighbor != tile)
+            foreach (var nextLink in nextLinks)
             {
-                var nextLinkWidth = nextLink.river.WidthOnWorld();
-                if (nextLinkWidth > linkWidth) return false;
-                if (nextLinkWidth < linkWidth) continue;
-                if (!IsRiverInflow(grid, link.neighbor, nextLink, searchLimit - 1)) return false;
+                if (nextLink.neighbor != tile)
+                {
+                    var nextLinkWidth = nextLink.river.WidthOnWorld();
+                    if (nextLinkWidth > linkWidth) return false;
+                    if (nextLinkWidth < linkWidth) continue;
+                    if (!IsRiverInflow(grid, link.neighbor, nextLink, searchLimit - 1)) return false;
+                }
             }
         }
 
