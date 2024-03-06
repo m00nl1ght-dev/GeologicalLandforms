@@ -46,9 +46,6 @@ internal static class Patch_RimWorld_GenStep_Terrain
     {
         ApplyWaterFlow(map);
         CleanUp();
-
-        var biomeGrid = map.BiomeGrid();
-        if (biomeGrid != null) ApplyBiomeVariants(biomeGrid);
     }
 
     [HarmonyPrefix]
