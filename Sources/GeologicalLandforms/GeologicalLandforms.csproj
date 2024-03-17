@@ -82,6 +82,7 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="BiomeTransition.cs" />
+        <Compile Include="BiomeVariantsGenStep.cs" />
         <Compile Include="Compatibility\ModCompat_BiomesCore.cs" />
         <Compile Include="Compatibility\ModCompat_MapDesigner.cs" />
         <Compile Include="Compatibility\ModCompat_RealisticPlanets.cs" />

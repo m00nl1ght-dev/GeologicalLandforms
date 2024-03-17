@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection.Emit;
 using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
@@ -20,7 +19,7 @@ namespace GeologicalLandforms.Patches;
 internal static class Patch_RimWorld_GenStep_Terrain
 {
     private static readonly Type Self = typeof(Patch_RimWorld_GenStep_Terrain);
-    
+
     public static IGridFunction<TerrainData> BaseFunction { get; private set; }
     public static IGridFunction<TerrainData> StoneFunction { get; private set; }
     public static IGridFunction<TerrainData> RiverFunction { get; private set; }
@@ -46,9 +45,6 @@ internal static class Patch_RimWorld_GenStep_Terrain
     {
         ApplyWaterFlow(map);
         CleanUp();
-
-        var biomeGrid = map.BiomeGrid();
-        if (biomeGrid != null) ApplyBiomeVariants(biomeGrid);
     }
 
     [HarmonyPrefix]
@@ -134,50 +130,6 @@ internal static class Patch_RimWorld_GenStep_Terrain
         return true;
     }
 
-    public static void ApplyBiomeVariants(BiomeGrid biomeGrid)
-    {
-        var map = biomeGrid.map;
-        var props = map.Biome.Properties();
-
-        if (props.applyToCaves) biomeGrid.Enabled = true;
-        if (!props.AllowBiomeTransitions) return;
-
-        if (Landform.GeneratingTile is WorldTileInfo { HasBiomeVariants: true } tile)
-        {
-            try
-            {
-                var layers = Landform.GeneratingTile.BiomeVariants.SelectMany(v => v.layers).OrderByDescending(l => l.priority).ToList();
-
-                if (!MapPreviewAPI.IsGeneratingPreview)
-                {
-                    biomeGrid.ApplyVariantLayers(layers);
-                    biomeGrid.Enabled = true;
-                }
-
-                foreach (var layer in layers.Where(layer => layer.terrainOverrides != null))
-                {
-                    var conditions = layer.mapGridConditions;
-                    var overrides = layer.terrainOverrides;
-
-                    foreach (var pos in map.AllCells)
-                    {
-                        var ctx = new CtxMapCell(tile, map, pos);
-
-                        if (conditions == null || conditions.Get(ctx))
-                        {
-                            var terrainDef = overrides.Get(ctx);
-                            if (terrainDef != null) map.terrainGrid.SetTerrain(pos, terrainDef);
-                        }
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                GeologicalLandformsAPI.Logger.Error("Failed to apply biome variants!", e);
-            }
-        }
-    }
-
     public static void CleanUp()
     {
         UseVanillaTerrain = true;
@@ -192,7 +144,7 @@ internal static class Patch_RimWorld_GenStep_Terrain
     public static TerrainDef TerrainAt(IntVec3 c, Map map, float elevation, float fertility, TerrainDef tRiver, bool preferSolid)
     {
         if (RiverFunction != null) tRiver = RiverFunction.ValueAt(c.x, c.z).Terrain;
-        
+
         if (tRiver == null && preferSolid)
         {
             return GenStep_RocksFromGrid.RockDefAt(c).building.naturalTerrain;
