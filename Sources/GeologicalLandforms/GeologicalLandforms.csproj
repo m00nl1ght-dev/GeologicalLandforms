@@ -161,6 +161,7 @@
         <Compile Include="Patches\Patch_RimWorld_IncidentWorker.cs" />
         <Compile Include="Patches\Patch_RimWorld_Page_CreateWorldParams.cs" />
         <Compile Include="Patches\Patch_RimWorld_PawnsArrivalModeWorker.cs" />
+        <Compile Include="Patches\Patch_RimWorld_QuestNode_SpawnMechCluster.cs" />
         <Compile Include="Patches\Patch_RimWorld_RaidStrategyWorker.cs" />
         <Compile Include="Patches\Patch_RimWorld_TerrainPatchMaker.cs" />
         <Compile Include="Patches\Patch_RimWorld_TileFinder.cs" />
