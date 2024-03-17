@@ -39,13 +39,10 @@ public class NodeInputCaves : NodeInputBase
             return true;
         }
 
-        if (Landform.GeneratingTile is WorldTileInfo tile)
+        if (!Landform.GeneratingTile.HasCaves)
         {
-            if (!tile.World.HasCaves(tile.TileId))
-            {
-                Knob.SetValue(Supplier.Of(GridFunction.Zero));
-                return true;
-            }
+            Knob.SetValue(Supplier.Of(GridFunction.Zero));
+            return true;
         }
 
         Knob.SetValue(BuildVanillaCaveGridSupplier());

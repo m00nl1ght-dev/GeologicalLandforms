@@ -17,7 +17,7 @@ public static class DebugActions
         var world = Find.World;
         var map = Find.CurrentMap;
 
-        if (map != null)
+        if (map is { Tile: >= 0 })
         {
             var biomeGrid = map.BiomeGrid();
 
