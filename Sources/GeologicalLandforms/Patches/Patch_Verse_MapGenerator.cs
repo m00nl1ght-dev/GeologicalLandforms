@@ -19,7 +19,7 @@ internal static class Patch_Verse_MapGenerator
     {
         Landform.PrepareMapGen(map);
 
-        genStepDefs = genStepDefs.Concat(new GenStepWithParams(BiomeVariantsGenStep.Def, new GenStepParams()));
+        genStepDefs = genStepDefs.Concat(new GenStepWithParams(GenStep_BiomeVariants.Def, new GenStepParams()));
 
         if (Landform.AnyGenerating)
         {

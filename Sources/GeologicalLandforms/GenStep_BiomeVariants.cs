@@ -6,9 +6,9 @@ using Verse;
 
 namespace GeologicalLandforms;
 
-public class BiomeVariantsGenStep : GenStep
+public class GenStep_BiomeVariants : GenStep
 {
-    public static readonly GenStepDef Def = new() { genStep = new BiomeVariantsGenStep(), order = 225 };
+    public static readonly GenStepDef Def = new() { genStep = new GenStep_BiomeVariants(), order = 225 };
 
     public override int SeedPart => 27405;
 
