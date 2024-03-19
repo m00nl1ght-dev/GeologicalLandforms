@@ -1,4 +1,10 @@
 
+v1.6.8
+
+- Fix animal and plant spawning on multi-biome maps
+- Fix compatibility with the recently updated BetterLoading mod
+- Fix compatibility with the Map Reroll mod
+
 v1.6.7
 
 - Support for RimWorld 1.5 (unstable)

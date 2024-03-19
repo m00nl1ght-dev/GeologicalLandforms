@@ -6,9 +6,6 @@
   <MinGameVersion>1.5</MinGameVersion>
   <Components>
     <Component>
-      <AssemblyName>HugsLogPublisher</AssemblyName>
-    </Component>
-    <Component>
       <AssemblyName>MapPreview</AssemblyName>
     </Component>
     <Component>
