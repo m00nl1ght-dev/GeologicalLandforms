@@ -63,7 +63,7 @@ public class BiomeGrid : MapComponent
     /// The world tile info if available, otherwise null.
     /// It may not be available for map previews and during savegame loading.
     /// </summary>
-    public WorldTileInfo TileInfo => map.Tile < 0 ? null : WorldTileInfo.Get(map.Tile);
+    public WorldTileInfo TileInfo => map?.Parent == null || map.Tile < 0 ? null : WorldTileInfo.Get(map.Tile);
 
     public Entry EntryAt(int cell)
     {
