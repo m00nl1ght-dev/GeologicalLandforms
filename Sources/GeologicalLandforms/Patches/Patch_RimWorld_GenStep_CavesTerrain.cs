@@ -35,13 +35,4 @@ internal static class Patch_RimWorld_GenStep_CavesTerrain
 
         return false;
     }
-
-    [HarmonyPostfix]
-    [HarmonyPatch("Generate")]
-    [HarmonyPriority(Priority.Low)]
-    private static void Generate_Postfix(Map map, GenStepParams parms)
-    {
-        var biomeGrid = map.BiomeGrid();
-        if (biomeGrid != null) Patch_RimWorld_GenStep_Terrain.ApplyBiomeVariants(biomeGrid);
-    }
 }

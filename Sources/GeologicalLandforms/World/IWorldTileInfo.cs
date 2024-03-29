@@ -29,6 +29,7 @@ public interface IWorldTileInfo
     public float Temperature { get; }
     public float Rainfall { get; }
     public float Swampiness { get; }
+    public bool HasCaves { get; }
 
     public RiverDef MainRiver { get; }
     public RoadDef MainRoad { get; }

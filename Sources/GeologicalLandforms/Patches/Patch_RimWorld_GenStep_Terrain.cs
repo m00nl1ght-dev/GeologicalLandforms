@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection.Emit;
 using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
@@ -137,50 +136,6 @@ internal static class Patch_RimWorld_GenStep_Terrain
         if (BaseFunction != null || StoneFunction != null || RiverFunction != null || BiomeFunction != null) return false;
         if (tile.Biome.Properties().gravelTerrain != null) return false;
         return true;
-    }
-
-    public static void ApplyBiomeVariants(BiomeGrid biomeGrid)
-    {
-        var map = biomeGrid.map;
-        var props = map.Biome.Properties();
-
-        if (props.applyToCaves) biomeGrid.Enabled = true;
-        if (!props.AllowBiomeTransitions) return;
-
-        if (Landform.GeneratingTile is WorldTileInfo { HasBiomeVariants: true } tile)
-        {
-            try
-            {
-                var layers = Landform.GeneratingTile.BiomeVariants.SelectMany(v => v.layers).OrderByDescending(l => l.priority).ToList();
-
-                if (!MapPreviewAPI.IsGeneratingPreview)
-                {
-                    biomeGrid.ApplyVariantLayers(layers);
-                    biomeGrid.Enabled = true;
-                }
-
-                foreach (var layer in layers.Where(layer => layer.terrainOverrides != null))
-                {
-                    var conditions = layer.mapGridConditions;
-                    var overrides = layer.terrainOverrides;
-
-                    foreach (var pos in map.AllCells)
-                    {
-                        var ctx = new CtxMapCell(tile, map, pos);
-
-                        if (conditions == null || conditions.Get(ctx))
-                        {
-                            var terrainDef = overrides.Get(ctx);
-                            if (terrainDef != null) map.terrainGrid.SetTerrain(pos, terrainDef);
-                        }
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                GeologicalLandformsAPI.Logger.Error("Failed to apply biome variants!", e);
-            }
-        }
     }
 
     public static void CleanUp()

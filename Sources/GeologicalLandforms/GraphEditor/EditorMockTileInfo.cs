@@ -33,6 +33,7 @@ public class EditorMockTileInfo : IWorldTileInfo
     public float Temperature { get; set; } = 20f;
     public float Rainfall { get; set; } = 1000f;
     public float Swampiness { get; set; } = 0f;
+    public bool HasCaves { get; set; } = true;
 
     public RiverDef MainRiver { get; set; }
     public RoadDef MainRoad { get; set; }

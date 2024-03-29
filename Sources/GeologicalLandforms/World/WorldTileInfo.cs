@@ -48,6 +48,7 @@ public class WorldTileInfo : IWorldTileInfo
     public float Temperature => Tile.temperature;
     public float Rainfall => Tile.rainfall;
     public float Swampiness => Tile.swampiness;
+    public bool HasCaves => World.HasCaves(TileId);
 
     public RiverDef MainRiver => Tile.LargestRiverLink().river;
     public RoadDef MainRoad => Tile.LargestRoadLink().road;

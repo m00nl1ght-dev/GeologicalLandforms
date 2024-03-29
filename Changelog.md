@@ -1,4 +1,18 @@
 
+v1.6.8
+
+- Fix animal and plant spawning on multi-biome maps
+- Fix compatibility with the recently updated BetterLoading mod
+- Fix compatibility with the Map Reroll mod
+
+v1.6.7
+
+- Support for RimWorld 1.5 (unstable)
+- Fixed mech cluster quests appearing in cave landforms
+- Fixed excessive lightning strike amount in cave landforms
+- Fixed terrain from biome variants not applying in caves
+- Fixed some exceptions in the landform editor
+
 v1.6.6
 
 - Fixed overlapping slider from "Realistic Planets" on the world settings screen

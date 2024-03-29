@@ -6,13 +6,6 @@
   <MinGameVersion>1.4.3613</MinGameVersion>
   <Components>
     <Component>
-      <AssemblyName>HugsLogPublisher</AssemblyName>
-      <AllowNonLunarSource>true</AllowNonLunarSource>
-      <Aliases>
-        <string>HugsLib</string>
-      </Aliases>
-    </Component>
-    <Component>
       <AssemblyName>MapPreview</AssemblyName>
     </Component>
     <Component>

@@ -83,6 +83,8 @@ public class Landform : TerrainCanvas
     {
         CleanUp();
 
+        if (map.Tile < 0) return;
+
         // Support for special-purpose maps from mods that patch the map.Biome getter (e.g. DeepRim, SOS2)
         if (map.Biome != map.TileInfo.biome)
         {

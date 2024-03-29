@@ -121,7 +121,7 @@ public static class XmlDynamicValueSetup
         if (Patch_RimWorld_WorldGenStep_Terrain.LastWorld == ctx.World)
         {
             var caveSystems = Patch_RimWorld_WorldGenStep_Terrain.CaveSystems;
-            if (caveSystems != null && ctx.TileId > 0 && ctx.TileId < caveSystems.Length)
+            if (caveSystems != null && ctx.TileId >= 0 && ctx.TileId < caveSystems.Length)
             {
                 return caveSystems[ctx.TileId];
             }
