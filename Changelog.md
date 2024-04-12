@@ -1,4 +1,9 @@
 
+v1.6.9
+
+- Fix compatibility issues with pocket maps (Anomaly content)
+- Fix an issue with BetterLoading that occured when other mods throw startup errors
+
 v1.6.8
 
 - Fix animal and plant spawning on multi-biome maps
