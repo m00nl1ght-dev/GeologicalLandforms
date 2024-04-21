@@ -213,8 +213,7 @@ public class LandformGraphEditor : Window
             // On exceptions in drawing flush the canvas to avoid locking the UI
             _canvasCache.NewNodeCanvas(typeof(Landform));
             NodeEditor.ReInit(true);
-            Debug.LogError("Unloaded Canvas due to exception in Draw!");
-            Debug.LogException(e);
+            Debug.LogError("Unloaded Canvas due to exception in Draw!\n" + e);
         }
 
         // Draw Interface
