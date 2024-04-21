@@ -18,7 +18,7 @@ internal static class Patch_RimWorld_GenStep_RocksFromGrid
     [HarmonyTranspiler]
     [HarmonyPatch("Generate")]
     [HarmonyPriority(Priority.VeryLow)]
-    [HarmonyAfter("rimworld.biomes.core")]
+    [HarmonyAfter("rimworld.biomes.core", "BiomesTeam.BiomesCaverns")]
     private static IEnumerable<CodeInstruction> Generate_Transpiler(IEnumerable<CodeInstruction> instructions)
     {
         var setRoofs = TranspilerPattern.Build("SetRoofsFromLandform")
