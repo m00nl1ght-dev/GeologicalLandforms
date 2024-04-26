@@ -74,7 +74,7 @@ internal static class TerrainTabUI
                         .Select(e => new FloatMenuOption(e.TranslatedNameForSelection.CapitalizeFirst(), () =>
                         {
                             var layers = tileInfo.Landforms?.Where(lf => lf.IsLayer) ?? new List<Landform>();
-                            
+
                             if (ignoreReq)
                             {
                                 var dirOptions = new List<FloatMenuOption>(new[] { Rot4.North, Rot4.East, Rot4.South, Rot4.West }
@@ -99,7 +99,7 @@ internal static class TerrainTabUI
                                 });
                             }
                         })));
-                    
+
                     Find.WindowStack.Add(new FloatMenu(options));
                 }
             }
@@ -130,7 +130,7 @@ internal static class TerrainTabUI
             {
                 tile.Tile.hilliness = (Hilliness) landform.WorldTileReq.HillinessRequirement.max;
             }
-            
+
             if (landform.WorldTileReq.DepthInCaveSystemRequirement.min >= 1)
             {
                 data.SetCaveSystemDepthAt(tile.TileId, (byte) (int) landform.WorldTileReq.DepthInCaveSystemRequirement.min);
@@ -175,7 +175,7 @@ internal static class TerrainTabUI
                     Find.WorldSelector.selectedTile = p;
                     float dist = grid.ApproxDistanceInTiles(tileId, p);
                     var messageSuccess = "GeologicalLandforms.WorldMap.FindLandformSuccess"
-                        .Translate(landform.TranslatedNameForSelection, dist.ToString("F2"));
+                        .Translate(landform?.TranslatedNameForSelection ?? "matching", dist.ToString("F2"));
                     Messages.Message(messageSuccess, MessageTypeDefOf.SilentInput, false);
                     return;
                 }
