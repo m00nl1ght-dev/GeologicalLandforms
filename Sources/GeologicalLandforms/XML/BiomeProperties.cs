@@ -187,7 +187,7 @@ public class BiomeProperties : DefModExtension
     {
         if (biome.modContentPack is { IsOfficialMod: true }) return false;
         if (!biome.implemented || biome.workerClass == null) return true;
-        if (biome.workerClass.Namespace == "BiomesKit") return false;
+        if (biome.workerClass.Name == "UniversalBiomeWorker") return false;
 
         try
         {
