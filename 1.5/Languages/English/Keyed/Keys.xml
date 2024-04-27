@@ -55,6 +55,7 @@
   <GeologicalLandforms.Settings.Debug.BiomeGridEntryAddVariantShort>V+</GeologicalLandforms.Settings.Debug.BiomeGridEntryAddVariantShort>
   <GeologicalLandforms.Settings.Debug.BiomeGridEntryRemoveVariantShort>V-</GeologicalLandforms.Settings.Debug.BiomeGridEntryRemoveVariantShort>
   <GeologicalLandforms.Settings.Debug.BiomeGridEntrySetFromAreaShort>S</GeologicalLandforms.Settings.Debug.BiomeGridEntrySetFromAreaShort>
+  <GeologicalLandforms.Settings.Debug.BiomeGridEntryRegenerateAllShort>R</GeologicalLandforms.Settings.Debug.BiomeGridEntryRegenerateAllShort>
 
   <GeologicalLandforms.Settings.Debug.BiomeGridEntryAdd>Add entry</GeologicalLandforms.Settings.Debug.BiomeGridEntryAdd>
   <GeologicalLandforms.Settings.Debug.BiomeGridEntryRemove>Remove entry</GeologicalLandforms.Settings.Debug.BiomeGridEntryRemove>
@@ -64,6 +65,7 @@
   <GeologicalLandforms.Settings.Debug.BiomeGridEntryAddVariant>Add variant</GeologicalLandforms.Settings.Debug.BiomeGridEntryAddVariant>
   <GeologicalLandforms.Settings.Debug.BiomeGridEntryRemoveVariant>Remove variant</GeologicalLandforms.Settings.Debug.BiomeGridEntryRemoveVariant>
   <GeologicalLandforms.Settings.Debug.BiomeGridEntrySetFromArea>Set cells from Map Area</GeologicalLandforms.Settings.Debug.BiomeGridEntrySetFromArea>
+  <GeologicalLandforms.Settings.Debug.BiomeGridEntryRegenerateAll>Regenerate from world tile</GeologicalLandforms.Settings.Debug.BiomeGridEntryRegenerateAll>
 
   <GeologicalLandforms.Settings.Debug.BiomeGridDetails.PotentialPlants>Plant commonalities</GeologicalLandforms.Settings.Debug.BiomeGridDetails.PotentialPlants>
   <GeologicalLandforms.Settings.Debug.BiomeGridDetails.PotentialAnimals>Animal commonalities</GeologicalLandforms.Settings.Debug.BiomeGridDetails.PotentialAnimals>

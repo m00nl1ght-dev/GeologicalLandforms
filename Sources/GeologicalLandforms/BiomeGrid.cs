@@ -281,6 +281,15 @@ public class BiomeGrid : MapComponent
         foreach (var entry in Entries) entry.Refresh(tileInfo);
     }
 
+    public void Clear()
+    {
+        LoadId = new();
+        _entries.Clear();
+        for (int i = 0; i < _grid.Length; i++) _grid[i] = null;
+        var primary = MakeEntry(map?.Biome ?? BiomeDefOf.TemperateForest);
+        primary.CellCount = _mapSize.x * _mapSize.z;
+    }
+
     public List<ThingDef> AllPotentialPlants => Entries.SelectMany(e => e.Biome.AllWildPlants).Distinct().ToList();
     public List<PawnKindDef> AllPotentialAnimals => Entries.SelectMany(e => e.Biome.AllWildAnimals).Distinct().ToList();
 
