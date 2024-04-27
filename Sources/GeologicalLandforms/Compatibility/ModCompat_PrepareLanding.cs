@@ -1,6 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
+using System.Xml.Linq;
 using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using LunarFramework.Patching;
@@ -12,8 +15,12 @@ namespace GeologicalLandforms.Compatibility;
 [HarmonyPatch]
 internal class ModCompat_PrepareLanding : ModCompat
 {
+    private static readonly Type Self = typeof(ModCompat_PrepareLanding);
+
     public override string TargetAssemblyName => "PrepareLanding";
     public override string DisplayName => "Prepare Landing";
+
+    private const string XElementName = "GL_Landform";
 
     private static MethodInfo _methodUtilEntryHeader;
     private static PropertyInfo _propertyUtilListing;
@@ -110,5 +117,58 @@ internal class ModCompat_PrepareLanding : ModCompat
     private static void UserData_ResetAllFields()
     {
         _landformFilter = null;
+    }
+
+    [HarmonyTranspiler]
+    [HarmonyPatch("PrepareLanding.Presets.Preset", "LoadPreset")]
+    private static IEnumerable<CodeInstruction> LoadPreset_Transpiler(IEnumerable<CodeInstruction> instructions)
+    {
+        var ldlocElement = new CodeInstruction(OpCodes.Ldloc);
+
+        var userDataType = AccessTools.TypeByName("PrepareLanding.GameData.UserData");
+
+        var pattern = TranspilerPattern.Build("LoadPreset")
+            .MatchLdloc().StoreOperandIn(ldlocElement).Keep()
+            .Match(OpCodes.Ldstr).Keep()
+            .Match(OpCodes.Call).Keep()
+            .MatchCall(userDataType, "set_HasCaveState").Keep()
+            .Insert(ldlocElement)
+            .Insert(CodeInstruction.Call(Self, nameof(LoadPresetExt)));
+
+        return TranspilerPattern.Apply(instructions, pattern);
+    }
+
+    [HarmonyTranspiler]
+    [HarmonyPatch("PrepareLanding.Presets.Preset", "SavePreset")]
+    private static IEnumerable<CodeInstruction> SavePreset_Transpiler(IEnumerable<CodeInstruction> instructions)
+    {
+        var ldlocElement = new CodeInstruction(OpCodes.Ldloc);
+
+        var userDataType = AccessTools.TypeByName("PrepareLanding.GameData.UserData");
+
+        var pattern = TranspilerPattern.Build("LoadPreset")
+            .MatchLdloc().StoreOperandIn(ldlocElement).Keep()
+            .Match(OpCodes.Ldstr).Keep()
+            .MatchAny().Keep().MatchAny().Keep().MatchAny().Keep()
+            .MatchCall(userDataType, "get_HasCaveState").Keep()
+            .Match(OpCodes.Call).Keep()
+            .Insert(ldlocElement)
+            .Insert(CodeInstruction.Call(Self, nameof(SavePresetExt)));
+
+        return TranspilerPattern.Apply(instructions, pattern);
+    }
+
+    private static void LoadPresetExt(XElement parent)
+    {
+        var landformId = parent.Element(XElementName)?.Value;
+        _landformFilter = landformId == null ? null : LandformManager.FindById(landformId);
+    }
+
+    private static void SavePresetExt(XElement parent)
+    {
+        if (_landformFilter != null)
+        {
+            parent.Add(new XElement(XElementName, _landformFilter.Id));
+        }
     }
 }
