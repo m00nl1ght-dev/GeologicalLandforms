@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using LunarFramework.Utility;
 using RimWorld;
 using Verse;
 using static GeologicalLandforms.BiomeProperties;
@@ -11,8 +12,10 @@ public class WorldGenStep_Landforms : WorldGenStep
 
     public override void GenerateFresh(string seed)
     {
+        if (!GeologicalLandformsAPI.LunarAPI.IsInitialized()) return;
+
         WorldTileInfo.CreateNewCache();
-        
+
         var world = Find.World;
         var grid = world.grid;
 
@@ -45,6 +48,8 @@ public class WorldGenStep_Landforms : WorldGenStep
 
     public override void GenerateFromScribe(string seed)
     {
+        if (!GeologicalLandformsAPI.LunarAPI.IsInitialized()) return;
+
         WorldTileInfo.CreateNewCache();
     }
 

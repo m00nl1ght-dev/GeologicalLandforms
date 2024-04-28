@@ -8,7 +8,6 @@ using HarmonyLib;
 using LunarFramework.XML;
 using RimWorld;
 using RimWorld.Planet;
-using UnityEngine;
 using Verse;
 
 namespace GeologicalLandforms;
@@ -80,7 +79,7 @@ public class BiomeProperties : DefModExtension
         catch (ThreadAbortException) { throw; }
         catch (Exception e)
         {
-            Debug.LogException(e);
+            GeologicalLandformsAPI.Logger.Error($"Error getting biome properties for {biomeDef?.defName}\n{e}");
             return new BiomeProperties();
         }
     }
@@ -195,7 +194,7 @@ public class BiomeProperties : DefModExtension
     {
         if (biome.modContentPack is { IsOfficialMod: true }) return false;
         if (!biome.implemented || biome.workerClass == null) return true;
-        if (biome.workerClass.Namespace == "BiomesKit") return false;
+        if (biome.workerClass.Name == "UniversalBiomeWorker") return false;
 
         try
         {

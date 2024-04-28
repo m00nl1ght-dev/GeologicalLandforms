@@ -55,8 +55,12 @@ public class BiomeGrid : MapComponent
     {
         _mapSize = mapSize;
         _grid = new Entry[_mapSize.x * _mapSize.z];
-        var primary = MakeEntry(worldBiome);
-        primary.CellCount = _mapSize.x * _mapSize.z;
+
+        if (GeologicalLandformsAPI.LunarAPI.IsInitialized())
+        {
+            var primary = MakeEntry(worldBiome);
+            primary.CellCount = _mapSize.x * _mapSize.z;
+        }
     }
 
     /// <summary>
@@ -189,6 +193,12 @@ public class BiomeGrid : MapComponent
     {
         if (map == null) throw new Exception("Preview maps can not be saved");
 
+        if (!GeologicalLandformsAPI.LunarAPI.IsInitialized())
+        {
+            _enabled = false;
+            return;
+        }
+
         if (Scribe.mode == LoadSaveMode.LoadingVars) LoadId = new();
 
         if (_entries is { Count: > 0 })
@@ -258,14 +268,26 @@ public class BiomeGrid : MapComponent
 
     public override void FinalizeInit()
     {
-        UpdateOpenGroundFraction();
-        RefreshAllEntries();
+        if (GeologicalLandformsAPI.LunarAPI.IsInitialized())
+        {
+            UpdateOpenGroundFraction();
+            RefreshAllEntries();
+        }
     }
 
     public void RefreshAllEntries()
     {
         var tileInfo = TileInfo;
         foreach (var entry in Entries) entry.Refresh(tileInfo);
+    }
+
+    public void Clear()
+    {
+        LoadId = new();
+        _entries.Clear();
+        for (int i = 0; i < _grid.Length; i++) _grid[i] = null;
+        var primary = MakeEntry(map?.Biome ?? BiomeDefOf.TemperateForest);
+        primary.CellCount = _mapSize.x * _mapSize.z;
     }
 
     public List<ThingDef> AllPotentialPlants => Entries.SelectMany(e => e.Biome.AllWildPlants).Distinct().ToList();

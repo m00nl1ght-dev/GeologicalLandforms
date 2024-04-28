@@ -54,6 +54,11 @@ public static class DebugActions
                     }
                 }
 
+                if (LunarGUI.Button(layout.Abs(30), Label("BiomeGridEntryRegenerateAllShort"), Label("BiomeGridEntryRegenerateAll")))
+                {
+                    GenStep_BiomeVariants.RegenerateBiomeGrid(map);
+                }
+
                 if (LunarGUI.Button(layout.Abs(30), Label("BiomeGridEntryRemoveShort"), Label("BiomeGridEntryRemove")))
                 {
                     var options = biomeGrid.Entries

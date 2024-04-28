@@ -54,7 +54,7 @@ internal static class Patch_RimWorld_World
     private static bool HasCaves(World __instance, int tile, ref bool __result)
     {
         if (!__instance.HasFinishedGenerating()) return true;
-        
+
         var worldTileInfo = WorldTileInfo.Get(tile);
         var landform = worldTileInfo.Landforms?.LastOrDefault(l => !l.IsLayer);
 
@@ -85,6 +85,12 @@ internal static class Patch_RimWorld_World
     [PatchExcludedFromConflictCheck]
     private static bool NaturalRockTypesIn_Prefix(World __instance, int tile, out bool __state)
     {
+        if (tile < 0)
+        {
+            __state = false;
+            return true;
+        }
+
         // NaturalRockTypesIn is called many times during map generation, and also while a deep drill is running.
         // It's not like the rock types for a tile ever change, so it's much more efficient to cache this and only calculate once.
         // The patch priority of the prefix is the lowest possible, so that other mods can override the cache
@@ -92,12 +98,14 @@ internal static class Patch_RimWorld_World
         __state = _rockCacheTile == __instance.grid[tile];
         return !__state;
     }
-    
+
     [HarmonyPostfix]
     [HarmonyPatch(nameof(World.NaturalRockTypesIn))]
     [HarmonyPriority(Priority.First)]
     private static void NaturalRockTypesIn_Postfix(World __instance, int tile, ref bool __state, ref IEnumerable<ThingDef> __result)
     {
+        if (tile < 0) return;
+
         if (__state)
         {
             // Cache match, return the already computed list.

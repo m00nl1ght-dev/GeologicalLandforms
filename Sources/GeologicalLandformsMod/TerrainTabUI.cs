@@ -174,7 +174,7 @@ internal static class TerrainTabUI
                     Find.WorldSelector.selectedTile = p;
                     float dist = grid.ApproxDistanceInTiles(tileId, p);
                     var messageSuccess = "GeologicalLandforms.WorldMap.FindLandformSuccess"
-                        .Translate(landform.TranslatedNameForSelection, dist.ToString("F2"));
+                        .Translate(landform?.TranslatedNameForSelection ?? "matching", dist.ToString("F2"));
                     Messages.Message(messageSuccess, MessageTypeDefOf.SilentInput, false);
                     return;
                 }
