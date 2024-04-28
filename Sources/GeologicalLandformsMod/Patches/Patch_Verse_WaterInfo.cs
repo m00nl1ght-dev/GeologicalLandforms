@@ -1,5 +1,6 @@
 #if DEBUG
 
+using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using LunarFramework.Patching;
 using RimWorld;
@@ -17,7 +18,7 @@ internal static class Patch_Verse_WaterInfo
     [HarmonyPatch("DebugDrawRiver")]
     private static void DebugDrawRiver()
     {
-        if (PathTracer.DebugLines != null)
+        if (PathTracer.DebugLines != null && !LandformGraphEditor.IsEditorOpen)
         {
             var group = Input.GetKey(KeyCode.Y) ? 1 : Input.GetKey(KeyCode.X) ? 2 : 0;
 
@@ -25,8 +26,8 @@ internal static class Patch_Verse_WaterInfo
             {
                 if (line.Group != 0 && line.Group != group) continue;
 
-                var p1 = new Vector3((float) line.Pos1.x, 0, (float) line.Pos1.z);
-                var p2 = new Vector3((float) line.Pos2.x, 0, (float) line.Pos2.z);
+                var p1 = new Vector3((float) line.MapPos1.x, 0, (float) line.MapPos1.z);
+                var p2 = new Vector3((float) line.MapPos2.x, 0, (float) line.MapPos2.z);
 
                 if (p1 != p2)
                 {
@@ -44,7 +45,7 @@ internal static class Patch_Verse_WaterInfo
     [HarmonyPatch(typeof(MapInterface), "MapInterfaceOnGUI_BeforeMainTabs")]
     private static void MapInterfaceOnGUI_BeforeMainTabs()
     {
-        if (DebugViewSettings.drawRiverDebug && PathTracer.DebugLines != null)
+        if (DebugViewSettings.drawRiverDebug && PathTracer.DebugLines != null && !LandformGraphEditor.IsEditorOpen)
         {
             var group = Input.GetKey(KeyCode.Y) ? 1 : Input.GetKey(KeyCode.X) ? 2 : 0;
 
@@ -52,13 +53,17 @@ internal static class Patch_Verse_WaterInfo
             {
                 if (line.Group != 0 && line.Group != group) continue;
 
-                var p1 = new Vector3((float) line.Pos1.x, 0, (float) line.Pos1.z);
-                var p2 = new Vector3((float) line.Pos2.x, 0, (float) line.Pos2.z);
+                var p1 = new Vector3((float) line.MapPos1.x, 0, (float) line.MapPos1.z);
+                var p2 = new Vector3((float) line.MapPos2.x, 0, (float) line.MapPos2.z);
 
                 if (line.Label is { Length: > 0 })
                 {
                     var p3 = Vector3.Lerp(p1, p2, 0.5f);
-                    GenMapUI.DrawThingLabel((Vector3) GenMapUI.LabelDrawPosFor(p3.ToIntVec3()), line.Label, Color.white);
+
+                    Vector2 vec = Find.Camera.WorldToScreenPoint(p3) / Prefs.UIScale;
+                    vec.y = UI.screenHeight - vec.y - 1;
+
+                    GenMapUI.DrawThingLabel(vec, line.Label, Color.white);
                 }
             }
         }

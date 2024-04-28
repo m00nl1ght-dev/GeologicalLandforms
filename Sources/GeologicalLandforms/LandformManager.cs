@@ -47,7 +47,7 @@ public static class LandformManager
             }
         }
 
-        Logger.Log("Found landform data in the following mods: " + _landformDirs.Values.Distinct().Join());
+        Logger.Log("Found landform data in the following mods: " + _landformDirs.Values.Distinct().Select(m => m.Name).Join());
 
         _landformsById = LoadAll();
 
