@@ -1,4 +1,14 @@
 
+v1.6.10
+
+- Fixed an error that occured when clicking "Any" or "Any POI" in the landform search
+- Adjusted Surface Cave landform to ensure there is enough unroofed area for quest spawns
+- Fixed landform filter in "Prepare Landing" not being saved in presets
+- Fixed compatibility with "BiomesKit" which has been annexed into "Regrowth Core"
+- Fixed false positive in patch conflict detection for "Biomes! Caverns"
+- Adjusted logging for compatibility with the new Harmony enhanced stacktraces
+- Added debug action that regenerates the BiomeGrid of the current map
+
 v1.6.9
 
 - Fix compatibility issues with pocket maps (Anomaly content)
