@@ -87,6 +87,9 @@ public static class ExtensionUtils
     public static bool HasFinishedGenerating(this World world)
         => world != null && Patch_RimWorld_World.LastFinalizedWorldRef?.Target == world;
 
+    public static bool HasLandforms(this IWorldTileInfo tile)
+        => tile.Landforms?.Count > 0;
+
     public static bool HasLandform(this IWorldTileInfo tile, string landformId)
         => tile.Landforms != null && tile.Landforms.Any(l => l.Id == landformId);
 
@@ -105,8 +108,14 @@ public static class ExtensionUtils
     public static bool HasWorldObject(this IWorldTileInfo tile, string defName)
         => tile.WorldObject != null && tile.WorldObject.def.defName == defName;
 
+    public static bool HasBorderingBiomes(this IWorldTileInfo tile)
+        => tile.BorderingBiomes?.Count > 0;
+
     public static int BorderingBiomesCount(this IWorldTileInfo tile)
         => tile.BorderingBiomes?.Count ?? 0;
+
+    public static bool HasBiomeVariants(this IWorldTileInfo tile)
+        => tile.BiomeVariants?.Count > 0;
 
     public static Tile.RiverLink LargestRiverLink(this Tile tile)
         => tile.Rivers?.OrderByDescending(r => r.river.WidthOnWorld()).FirstOrDefault() ?? default;

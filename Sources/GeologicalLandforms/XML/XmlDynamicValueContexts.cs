@@ -24,20 +24,16 @@ public readonly struct CtxEarlyTile : ICtxEarlyTile
     }
 }
 
-public interface ICtxTile : ICtxEarlyTile
+public interface ICtxTile
 {
-    public WorldTileInfo TileInfo { get; }
+    public IWorldTileInfo TileInfo { get; }
 }
 
 public readonly struct CtxTile : ICtxTile
 {
-    public int TileId => TileInfo.TileId;
-    public Tile Tile => TileInfo.Tile;
-    public World World => TileInfo.World;
+    public IWorldTileInfo TileInfo { get; }
 
-    public WorldTileInfo TileInfo { get; }
-
-    public CtxTile(WorldTileInfo tileInfo)
+    public CtxTile(IWorldTileInfo tileInfo)
     {
         TileInfo = tileInfo;
     }
@@ -51,16 +47,12 @@ public interface ICtxMapCell : ICtxTile
 
 public readonly struct CtxMapCell : ICtxMapCell
 {
-    public int TileId => TileInfo.TileId;
-    public Tile Tile => TileInfo.Tile;
-    public World World => TileInfo.World;
-
-    public WorldTileInfo TileInfo { get; }
+    public IWorldTileInfo TileInfo { get; }
 
     public Map Map { get; }
     public IntVec3 MapCell { get; }
 
-    public CtxMapCell(WorldTileInfo tileInfo, Map map, IntVec3 mapCell)
+    public CtxMapCell(IWorldTileInfo tileInfo, Map map, IntVec3 mapCell)
     {
         TileInfo = tileInfo;
         Map = map;

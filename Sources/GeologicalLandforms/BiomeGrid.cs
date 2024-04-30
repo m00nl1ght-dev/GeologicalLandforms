@@ -67,7 +67,7 @@ public class BiomeGrid : MapComponent
     /// The world tile info if available, otherwise null.
     /// It may not be available for map previews and during savegame loading.
     /// </summary>
-    public WorldTileInfo TileInfo => map?.Parent == null || map.Tile < 0 ? null : WorldTileInfo.Get(map.Tile);
+    public IWorldTileInfo TileInfo => map?.Parent == null ? null : WorldTileInfo.Get(map);
 
     public Entry EntryAt(int cell)
     {
@@ -115,9 +115,13 @@ public class BiomeGrid : MapComponent
 
     public void ApplyVariantLayers(IEnumerable<BiomeVariantLayer> layers)
     {
-        if (map == null) throw new Exception("Preview maps can not have biome variants");
-
         var tile = TileInfo;
+
+        if (tile == null)
+        {
+            GeologicalLandformsAPI.Logger.Error("Map without world tile data can not have biome variants");
+            return;
+        }
 
         foreach (var layer in layers)
         {
@@ -326,7 +330,7 @@ public class BiomeGrid : MapComponent
             _variantLayers.AddDistinct(layer);
         }
 
-        public void Refresh(WorldTileInfo tile)
+        public void Refresh(IWorldTileInfo tile)
         {
             // We can't apply the variants when called from ExposeData() because the map is not fully loaded yet (and we need the tileId)
             // So in that case tile is null, and we set the plain base biome for now, later Refresh() is called again in FinalizeInit() with the tile

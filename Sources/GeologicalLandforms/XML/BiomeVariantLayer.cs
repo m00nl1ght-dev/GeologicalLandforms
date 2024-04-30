@@ -59,7 +59,7 @@ public class BiomeVariantLayer
         return layer;
     }
 
-    public static BiomeDef Apply(WorldTileInfo tile, BiomeDef biomeBase, List<BiomeVariantLayer> layers)
+    public static BiomeDef Apply(IWorldTileInfo tile, BiomeDef biomeBase, List<BiomeVariantLayer> layers)
     {
         var def = biomeBase.MakeShallowCopy();
 

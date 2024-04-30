@@ -45,7 +45,7 @@ public class WorldTileGraphicAtlas
 
     private static readonly bool[] _tmpAdjacency = new bool[6];
 
-    public void Draw(LayerSubMesh mesh, WorldGrid grid, int tile, Predicate<WorldTileInfo> adjTest = null, float defaultAlt = 0.002f)
+    public void Draw(LayerSubMesh mesh, WorldGrid grid, int tile, Predicate<IWorldTileInfo> adjTest = null, float defaultAlt = 0.002f)
     {
         var alt = altitude >= 0 ? altitude : defaultAlt;
 
@@ -77,7 +77,7 @@ public class WorldTileGraphicAtlas
         WorldRendererUtility.PrintTextureAtlasUVs(atlasCoords.x, atlasCoords.z, atlasSize.x, atlasSize.z, mesh);
     }
 
-    private void DrawHex(LayerSubMesh mesh, WorldGrid grid, int tile, float alt, Predicate<WorldTileInfo> adjTest)
+    private void DrawHex(LayerSubMesh mesh, WorldGrid grid, int tile, float alt, Predicate<IWorldTileInfo> adjTest)
     {
         var vertData = grid.verts;
         var vertOffsets = grid.tileIDToVerts_offsets;
@@ -142,7 +142,7 @@ public class WorldTileGraphicAtlas
         return 0;
     }
 
-    private int CalculateAdjacency(WorldGrid grid, int tile, Predicate<WorldTileInfo> adjTest, out int rotationIdx)
+    private int CalculateAdjacency(WorldGrid grid, int tile, Predicate<IWorldTileInfo> adjTest, out int rotationIdx)
     {
         var adjFirst = -1;
         var adjLast = -1;

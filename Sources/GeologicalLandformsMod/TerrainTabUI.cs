@@ -51,7 +51,7 @@ internal static class TerrainTabUI
                     var biomeProps = tileInfo.Biome.Properties();
 
                     var eligible = LandformManager.LandformsById.Values
-                        .Where(e => ignoreReq || tileInfo.CanHaveLandform(e, biomeProps, true))
+                        .Where(e => ignoreReq || (e.CheckWorldTile(tileInfo, true) && biomeProps.AllowsLandform(e)))
                         .Where(e => !e.IsLayer && (ignoreReq || !e.IsInternal) && GeologicalLandformsMod.IsLandformEnabled(e))
                         .ToList();
 
@@ -81,7 +81,7 @@ internal static class TerrainTabUI
                                 var dirOptions = new List<FloatMenuOption>(new[] { Rot4.North, Rot4.East, Rot4.South, Rot4.West }
                                     .Select(dir => new FloatMenuOption(e.TranslatedDirection(dir).CapitalizeFirst(), () =>
                                     {
-                                        CoerceTileToRequirements(tileInfo, landformData, e);
+                                        CoerceTileToRequirements(tileId, landformData, e);
                                         landformData.Commit(tileId, new LandformData.TileData(tileInfo)
                                         {
                                             Landforms = layers.Append(e).Select(lf => lf.Id).ToList(),
@@ -117,26 +117,28 @@ internal static class TerrainTabUI
         }
     }
 
-    private static void CoerceTileToRequirements(WorldTileInfo tile, LandformData data, Landform landform)
+    private static void CoerceTileToRequirements(int tileId, LandformData data, Landform landform)
     {
         if (landform.WorldTileReq != null)
         {
+            var tile = Find.WorldGrid[tileId];
+
             if (landform.WorldTileReq.HillinessRequirement.min > 5f)
             {
-                tile.Tile.hilliness = Hilliness.Impassable;
+                tile.hilliness = Hilliness.Impassable;
             }
-            else if (tile.Tile.hilliness == Hilliness.Impassable && landform.WorldTileReq.HillinessRequirement.max <= 5f)
+            else if (tile.hilliness == Hilliness.Impassable && landform.WorldTileReq.HillinessRequirement.max <= 5f)
             {
-                tile.Tile.hilliness = (Hilliness) landform.WorldTileReq.HillinessRequirement.max;
+                tile.hilliness = (Hilliness) landform.WorldTileReq.HillinessRequirement.max;
             }
 
             if (landform.WorldTileReq.DepthInCaveSystemRequirement.min >= 1)
             {
-                data.SetCaveSystemDepthAt(tile.TileId, (byte) (int) landform.WorldTileReq.DepthInCaveSystemRequirement.min);
+                data.SetCaveSystemDepthAt(tileId, (byte) (int) landform.WorldTileReq.DepthInCaveSystemRequirement.min);
             }
             else if (landform.WorldTileReq.Topology is Topology.CaveEntrance or Topology.CaveTunnel)
             {
-                data.SetCaveSystemDepthAt(tile.TileId, 1);
+                data.SetCaveSystemDepthAt(tileId, 1);
             }
         }
     }

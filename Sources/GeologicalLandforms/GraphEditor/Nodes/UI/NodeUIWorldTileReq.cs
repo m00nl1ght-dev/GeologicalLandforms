@@ -265,7 +265,7 @@ public class NodeUIWorldTileReq : NodeUIBase
         public void Reset(NodeUIWorldTileReq node, bool clear) => node.AllowedRiverTypes = null;
 
         public bool Check(NodeUIWorldTileReq node, IWorldTileInfo tile, bool lenient) =>
-            node.AllowedRiverTypes.Contains(tile.River);
+            node.AllowedRiverTypes.Contains(tile.RiverType);
 
         public void EditorGUI(NodeUIWorldTileReq node, LayoutRect layout)
         {

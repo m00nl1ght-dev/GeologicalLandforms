@@ -186,6 +186,7 @@
         <Compile Include="Patches\Patch_Verse_Command_SetPlantToGrow.cs" />
         <Compile Include="Patches\Patch_Verse_MemoryUtility.cs" />
         <Compile Include="Patches\Patch_Verse_RoofCollapseUtility.cs" />
+        <Compile Include="Patches\Patch_Verse_MapPlantGrowthRateCalculator.cs" />
         <Compile Include="Utility\ExtensionUtils.cs" />
         <Compile Include="GeologicalLandformsAPI.cs" />
         <Compile Include="Patches\Patch_RimWorld_GenStep_ElevationFertility.cs" />
@@ -197,6 +198,7 @@
         <Compile Include="Utility\WorldTileUtils.cs" />
         <Compile Include="World\IWorldTileInfo.cs" />
         <Compile Include="World\LandformData.cs" />
+        <Compile Include="World\PocketMapInfo.cs" />
         <Compile Include="World\Topology.cs" />
         <Compile Include="World\WorldGenStep_Landforms.cs" />
         <Compile Include="World\WorldLayer_BiomeTransitions.cs" />
@@ -208,6 +210,7 @@
         <Compile Include="XML\BiomeVariantDef.cs" />
         <Compile Include="XML\BiomeVariantLayer.cs" />
         <Compile Include="XML\BiomeWorkerConfig.cs" />
+        <Compile Include="XML\PocketMapProperties.cs" />
         <Compile Include="XML\XmlDynamicValueSetup.cs" />
         <Compile Include="XML\XmlDynamicValueContexts.cs" />
     </ItemGroup>

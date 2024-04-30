@@ -16,8 +16,6 @@ internal static class Patch_RimWorld_World
 
     public static WeakReference LastFinalizedWorldRef { get; private set; }
 
-    public static int StableSeedForTile(int tileId) => Gen.HashCombineInt(LastKnownInitialWorldSeed, tileId);
-
     [HarmonyPostfix]
     [HarmonyPatch(nameof(World.ConstructComponents))]
     private static void ConstructComponents(WorldInfo ___info, World __instance)
@@ -55,14 +53,20 @@ internal static class Patch_RimWorld_World
     {
         if (!__instance.HasFinishedGenerating()) return true;
 
-        var worldTileInfo = WorldTileInfo.Get(tile);
-        var landform = worldTileInfo.Landforms?.LastOrDefault(l => !l.IsLayer);
+        var map = MapGenerator.mapBeingGenerated;
 
-        if (landform == null) return true;
+        __result = false;
+
+        if (tile < 0 && map == null) return false;
+
+        var tileInfo = tile >= 0 ? WorldTileInfo.Get(tile) : WorldTileInfo.Get(map);
+        var landform = tileInfo.Landforms?.LastOrDefault(l => !l.IsLayer);
+
+        if (landform == null) return tile >= 0;
 
         if (landform.WorldTileReq != null)
         {
-            int seed = worldTileInfo.MakeSeed(8266);
+            int seed = tileInfo.StableSeed(8266);
             __result = Rand.ChanceSeeded(landform.WorldTileReq.CaveChance, seed);
         }
         else
@@ -85,17 +89,11 @@ internal static class Patch_RimWorld_World
     [PatchExcludedFromConflictCheck]
     private static bool NaturalRockTypesIn_Prefix(World __instance, int tile, out bool __state)
     {
-        if (tile < 0)
-        {
-            __state = false;
-            return true;
-        }
-
         // NaturalRockTypesIn is called many times during map generation, and also while a deep drill is running.
         // It's not like the rock types for a tile ever change, so it's much more efficient to cache this and only calculate once.
         // The patch priority of the prefix is the lowest possible, so that other mods can override the cache
         // in case they want to change the result in their own prefix.
-        __state = _rockCacheTile == __instance.grid[tile];
+        __state = tile >= 0 && _rockCacheTile == __instance.grid[tile];
         return !__state;
     }
 
@@ -104,8 +102,6 @@ internal static class Patch_RimWorld_World
     [HarmonyPriority(Priority.First)]
     private static void NaturalRockTypesIn_Postfix(World __instance, int tile, ref bool __state, ref IEnumerable<ThingDef> __result)
     {
-        if (tile < 0) return;
-
         if (__state)
         {
             // Cache match, return the already computed list.
@@ -117,30 +113,35 @@ internal static class Patch_RimWorld_World
         {
             if (__instance.HasFinishedGenerating() && __result is List<ThingDef> list)
             {
-                var worldTileInfo = WorldTileInfo.Get(tile);
-                var xmlTileContext = new CtxTile(worldTileInfo);
-                var biomeProperties = worldTileInfo.Biome.Properties();
+                var map = MapGenerator.mapBeingGenerated;
 
-                var fromBiome = biomeProperties.worldTileOverrides?.stoneTypes;
-                if (fromBiome != null)
+                if (tile >= 0 || map != null)
                 {
-                    list = fromBiome.Get(xmlTileContext, list);
-                }
+                    var tileInfo = tile >= 0 ? WorldTileInfo.Get(tile) : WorldTileInfo.Get(map);
+                    var biomeProps = tileInfo.Biome.Properties();
+                    var ctxTile = new CtxTile(tileInfo);
 
-                if (worldTileInfo.HasBiomeVariants)
-                {
-                    foreach (var biomeVariant in worldTileInfo.BiomeVariants)
+                    var fromBiome = biomeProps.worldTileOverrides?.stoneTypes;
+                    if (fromBiome != null)
                     {
-                        var fromBiomeVariant = biomeVariant.worldTileOverrides?.stoneTypes;
-                        if (fromBiomeVariant != null)
+                        list = fromBiome.Get(ctxTile, list);
+                    }
+
+                    if (tileInfo.HasBiomeVariants())
+                    {
+                        foreach (var biomeVariant in tileInfo.BiomeVariants)
                         {
-                            list = fromBiomeVariant.Get(xmlTileContext, list);
+                            var fromBiomeVariant = biomeVariant.worldTileOverrides?.stoneTypes;
+                            if (fromBiomeVariant != null)
+                            {
+                                list = fromBiomeVariant.Get(ctxTile, list);
+                            }
                         }
                     }
-                }
 
-                list.RemoveAll(r => r == null);
-                if (list.Count > 0) __result = list;
+                    list.RemoveAll(r => r == null);
+                    if (list.Count > 0) __result = list;
+                }
             }
         }
         catch (Exception e)
@@ -148,8 +149,11 @@ internal static class Patch_RimWorld_World
             GeologicalLandformsAPI.Logger.Error("Error in NaturalRockTypesIn for tile " + tile, e);
         }
 
-        // Store the result in the cache.
-        _rockCacheTile = __instance.grid[tile];
-        _rockCacheValue = __result;
+        if (tile >= 0)
+        {
+            // Store the result in the cache.
+            _rockCacheTile = __instance.grid[tile];
+            _rockCacheValue = __result;
+        }
     }
 }

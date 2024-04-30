@@ -1,6 +1,5 @@
 using System;
 using NodeEditorFramework;
-using RimWorld.Planet;
 using TerrainGraph;
 using UnityEngine;
 
@@ -82,82 +81,15 @@ public class NodeValueRiverLinks : NodeBase
 
     public override bool Calculate()
     {
-        float inflowAngle = 0f;
-        float inflowOffset = 0f;
-        float inflowWidth = 0f;
-        float tributaryAngle = 0f;
-        float tributaryOffset = 0f;
-        float tributaryWidth = 0f;
-        float outflowAngle = 0f;
+        var riverData = Landform.GeneratingTile.Rivers;
 
-        if (Landform.GeneratingTile is WorldTileInfo tile)
-        {
-            var riverLinks = tile.Tile.Rivers;
-
-            if (riverLinks != null)
-            {
-                Tile.RiverLink inflow = default;
-                Tile.RiverLink tributary = default;
-                Tile.RiverLink outflow = default;
-
-                foreach (var link in riverLinks)
-                {
-                    if (WorldTileUtils.IsRiverInflow(tile.World.grid, tile.TileId, link))
-                    {
-                        if (link.river.WidthOnWorld() > inflow.river.WidthOnWorld())
-                        {
-                            tributary = inflow;
-                            inflow = link;
-                        }
-                        else if (link.river.WidthOnWorld() > tributary.river.WidthOnWorld())
-                        {
-                            tributary = link;
-                        }
-                    }
-                    else
-                    {
-                        if (link.river.WidthOnWorld() > outflow.river.WidthOnWorld()) outflow = link;
-                    }
-                }
-
-                if (inflow.river != null)
-                {
-                    inflowAngle = tile.World.grid.GetHeadingFromTo(inflow.neighbor, tile.TileId);
-                    inflowOffset = WorldTileUtils.RiverPositionToOffset(tile.RiverPosition(0), inflowAngle);
-                    inflowWidth = inflow.river.widthOnMap;
-                }
-
-                if (tributary.river != null)
-                {
-                    tributaryAngle = tile.World.grid.GetHeadingFromTo(tributary.neighbor, tile.TileId);
-                    tributaryOffset = WorldTileUtils.RiverPositionToOffset(tile.RiverPosition(1), tributaryAngle);
-                    tributaryWidth = tributary.river.widthOnMap;
-                }
-
-                if (outflow.river != null)
-                {
-                    outflowAngle = tile.RiverAngle(tile.World.grid.GetHeadingFromTo(tile.TileId, outflow.neighbor));
-                }
-            }
-        }
-        else if (Landform.GeneratingTile is EditorMockTileInfo mock)
-        {
-            inflowAngle = mock.RiverInflowAngle;
-            inflowOffset = mock.RiverInflowOffset;
-            inflowWidth = mock.RiverInflowWidth;
-            tributaryAngle = mock.RiverTributaryAngle;
-            tributaryOffset = mock.RiverTributaryOffset;
-            tributaryWidth = mock.RiverTributaryWidth;
-            outflowAngle = mock.RiverOutflowAngle;
-        }
-
-        InflowAngleOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) inflowAngle));
-        InflowOffsetOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) inflowOffset));
-        InflowWidthOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) inflowWidth));
-        TributaryAngleOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) tributaryAngle));
-        TributaryOffsetOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) tributaryOffset));
-        TributaryWidthOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) tributaryWidth));
-        OutflowAngleOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) outflowAngle));
+        InflowAngleOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) riverData.RiverInflowAngle));
+        InflowOffsetOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) riverData.RiverInflowOffset));
+        InflowWidthOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) riverData.RiverInflowWidth));
+        TributaryAngleOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) riverData.RiverTributaryAngle));
+        TributaryOffsetOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) riverData.RiverTributaryOffset));
+        TributaryWidthOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) riverData.RiverTributaryWidth));
+        OutflowAngleOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) riverData.RiverOutflowAngle));
 
         return true;
     }

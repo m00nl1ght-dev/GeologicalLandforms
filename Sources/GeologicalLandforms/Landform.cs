@@ -81,40 +81,22 @@ public class Landform : TerrainCanvas
 
     public static void PrepareMapGen(Map map)
     {
-        CleanUp();
-
-        if (map.Tile < 0) return;
-
-        // Support for special-purpose maps from mods that patch the map.Biome getter (e.g. DeepRim, SOS2)
-        if (map.Biome != map.TileInfo.biome)
-        {
-            var mapBiomeProps = map.Biome.Properties();
-            if (mapBiomeProps.overrideLandforms != null)
-            {
-                var tileInfo = WorldTileInfo.Get(map.Tile, false);
-                var landformSeed = SeedRerollData.GetMapSeed(Find.World, map.Tile);
-                var landformIds = mapBiomeProps.overrideLandforms.Get(new CtxTile(tileInfo), []);
-                var landforms = landformIds.Select(LandformManager.FindById).Where(lf => lf != null).OrderBy(lf => lf.Priority);
-                PrepareMapGen(tileInfo, new IntVec2(map.Size.x, map.Size.z), landformSeed, landforms.Distinct());
-            }
-        }
-        else
-        {
-            var tileInfo = WorldTileInfo.Get(map.Tile, false);
-            var landformSeed = SeedRerollData.GetMapSeed(Find.World, map.Tile);
-            PrepareMapGen(tileInfo, new IntVec2(map.Size.x, map.Size.z), landformSeed);
-        }
+        var tileInfo = WorldTileInfo.Get(map, false);
+        var landformSeed = map.Tile >= 0 ? SeedRerollData.GetMapSeed(Find.World, map.Tile) : Rand.Int;
+        PrepareMapGen(tileInfo, new IntVec2(map.Size.x, map.Size.z), landformSeed);
     }
 
-    public static void PrepareMapGen(WorldTileInfo tileInfo, IntVec2 mapSize, int seed, IEnumerable<Landform> landforms = null)
+    public static void PrepareMapGen(IWorldTileInfo tileInfo, IntVec2 mapSize, int seed)
     {
         CleanUp();
+
+        LandformGraphEditor.ActiveEditor?.Close();
 
         GeneratingTile = tileInfo;
         GeneratingMapSize = mapSize;
         GeneratingGridFullSize = GeologicalLandformsAPI.LandformGridSize.Invoke();
 
-        landforms ??= GeneratingTile.Landforms;
+        var landforms = GeneratingTile.Landforms;
         if (landforms == null) return;
 
         var landformStack = new List<Landform>();
@@ -173,6 +155,11 @@ public class Landform : TerrainCanvas
     public static IGridFunction<T> TransformIntoNodeSpace<T>(IGridFunction<T> gridInMapSpace)
     {
         return new GridFunction.Transform<T>(gridInMapSpace, MapSpaceToNodeSpaceFactor);
+    }
+
+    public bool CheckWorldTile(IWorldTileInfo tile, bool lenient = false)
+    {
+        return WorldTileReq != null && WorldTileReq.CheckRequirements(tile, lenient);
     }
 
     protected override void ValidateSelf()

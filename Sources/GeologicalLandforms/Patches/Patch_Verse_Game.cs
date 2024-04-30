@@ -14,10 +14,24 @@ internal static class Patch_Verse_Game
     private static void AddMap(Map map)
     {
         var world = Find.World;
-        if (world == null || map == null || map.Tile < 0) return;
+        if (world == null || map == null) return;
+
+        if (!world.HasFinishedGenerating())
+        {
+            GeologicalLandformsAPI.Logger.Warn("Map is being added before world was finalized!");
+            return;
+        }
 
         try
         {
+            var tileInfo = WorldTileInfo.Get(map, false);
+
+            if (map.Tile < 0)
+            {
+                GeologicalLandformsAPI.Logger.Log($"Map added - {tileInfo}");
+                return;
+            }
+
             var landformData = world.LandformData();
 
             if (landformData == null)
@@ -26,17 +40,10 @@ internal static class Patch_Verse_Game
                 return;
             }
 
-            if (!world.HasFinishedGenerating())
-            {
-                GeologicalLandformsAPI.Logger.Warn("Map is being added before world was finalized!");
-                return;
-            }
-
-            var worldTileInfo = WorldTileInfo.Get(map.Tile, false);
             var storedData = landformData.HasData(map.Tile);
 
-            GeologicalLandformsAPI.Logger.Log($"Map added on tile - {worldTileInfo} ({(storedData ? "L" : "F")})");
-            landformData.Commit(map.Tile, new LandformData.TileData(worldTileInfo));
+            GeologicalLandformsAPI.Logger.Log($"Map added on tile - {tileInfo} ({(storedData ? "L" : "F")})");
+            landformData.Commit(map.Tile, new LandformData.TileData(tileInfo));
         }
         catch (Exception e)
         {

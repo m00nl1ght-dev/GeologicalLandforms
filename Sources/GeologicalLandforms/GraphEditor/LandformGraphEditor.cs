@@ -94,7 +94,7 @@ public class LandformGraphEditor : Window
         {
             var map = Find.CurrentMap;
 
-            if (map != null && WorldTileInfo.Get(map.Tile).HasLandform(landform))
+            if (map != null && WorldTileInfo.Get(map).HasLandform(landform))
             {
                 Landform.PrepareMapGen(map); // TODO properly test and fix (e.g. reseed button)
             }

@@ -16,7 +16,7 @@ internal static class Patch_RimWorld_RaidStrategyWorker
         if (__result && parms.target is { Tile: >= 0 })
         {
             var tileInfo = WorldTileInfo.Get(parms.target.Tile);
-            if (tileInfo.HasLandforms)
+            if (tileInfo.HasLandforms())
             {
                 foreach (var landform in tileInfo.Landforms)
                 {

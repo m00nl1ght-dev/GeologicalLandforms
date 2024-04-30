@@ -24,6 +24,7 @@ public class BiomeProperties : DefModExtension
     public List<BiomeDef> disallowedBiomeTransitions;
 
     public XmlDynamicValue<List<string>, ICtxTile> overrideLandforms;
+    public XmlDynamicValue<List<string>, ICtxTile> overrideBiomeVariants;
 
     public bool isWaterCovered;
     public bool applyToCaves;

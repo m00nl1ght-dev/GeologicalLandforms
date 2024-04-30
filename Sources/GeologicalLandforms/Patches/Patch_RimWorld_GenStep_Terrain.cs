@@ -107,7 +107,7 @@ internal static class Patch_RimWorld_GenStep_Terrain
         _biomeGrid = biomeGrid ?? new BiomeGrid(null, new IntVec3(mapSize.x, 1, mapSize.z), tile.Biome);
 
         bool hasBiomeTransition = false;
-        if (tile.HasBorderingBiomes)
+        if (tile.HasBorderingBiomes())
         {
             var transition = Landform.GetFeature(l => l.OutputBiomeGrid?.ApplyBiomeTransitions(tile, mapSize, BiomeFunction));
             if (transition != null)
@@ -124,7 +124,7 @@ internal static class Patch_RimWorld_GenStep_Terrain
 
             if (hasBiomeTransition)
             {
-                BiomeTransition.PostProcessBiomeGrid(_biomeGrid, tile, mapSize);
+                BiomeTransition.PostProcessBiomeGrid(_biomeGrid, mapSize);
             }
         }
 
@@ -197,10 +197,10 @@ internal static class Patch_RimWorld_GenStep_Terrain
 
     private static float OptimizeVanillaRiverAngleIfNeeded(float fromMethod)
     {
-        if (Landform.AnyGeneratingNonLayer && Landform.GeneratingTile is WorldTileInfo tile)
+        if (Landform.AnyGeneratingNonLayer && Landform.GeneratingTile != null)
         {
-            var baseAngle = WorldTileUtils.CalculateMainRiverAngle(tile.World.grid, tile.TileId);
-            return tile.RiverAngle(baseAngle);
+            var riverData = Landform.GeneratingTile.Rivers;
+            return riverData.RiverOutflowWidth > 0 ? riverData.RiverOutflowAngle : riverData.RiverInflowAngle;
         }
 
         return fromMethod;
@@ -208,9 +208,9 @@ internal static class Patch_RimWorld_GenStep_Terrain
 
     private static Vector3 OptimizeVanillaRiverCenterIfNeeded(Vector3 fromMethod, Map map)
     {
-        if (Landform.AnyGeneratingNonLayer && Landform.GeneratingTile is WorldTileInfo tile)
+        if (Landform.AnyGeneratingNonLayer && Landform.GeneratingTile != null)
         {
-            var position = tile.RiverPosition(0);
+            var position = WorldTileUtils.RiverPositionForTile(Landform.GeneratingTile, 0);
             return new Vector3(position.x * map.Size.x, 0f, position.z * map.Size.z);
         }
 

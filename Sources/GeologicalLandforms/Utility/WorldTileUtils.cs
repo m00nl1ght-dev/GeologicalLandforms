@@ -1,26 +1,25 @@
 using System;
-using System.Linq;
+using GeologicalLandforms.Patches;
 using LunarFramework.Utility;
 using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
+using Verse;
 
 namespace GeologicalLandforms;
 
 [HotSwappable]
 public static class WorldTileUtils
 {
-    public static float CalculateMainRiverAngle(WorldGrid grid, int tile)
+    public static int StableWorldSeed => Patch_RimWorld_World.LastKnownInitialWorldSeed;
+
+    public static float Longitude(Vector3 pos) => Mathf.Atan2(pos.x, -pos.z) * 57.29578f;
+    public static float Latitude(Vector3 pos) => Mathf.Asin(pos.y / 100f) * 57.29578f;
+
+    public static int StableSeedForTile(int tileId, int salt = 0)
     {
-        var riverLinks = grid[tile].potentialRivers;
-        if (riverLinks == null) return 0f;
-
-        var link = riverLinks.Where(r => !IsRiverInflow(grid, tile, r))
-            .OrderByDescending(r => r.river.WidthOnWorld())
-            .FirstOrDefault();
-
-        if (link.river == null) link = grid[tile].LargestRiverLink();
-        return grid.GetHeadingFromTo(tile, link.neighbor);
+        var tileSeed = Gen.HashCombineInt(StableWorldSeed, tileId);
+        return salt != 0 ? Gen.HashCombineInt(tileSeed, salt) : tileSeed;
     }
 
     public static bool IsRiverInflow(WorldGrid grid, int tile, Tile.RiverLink link, int searchLimit = 200)
@@ -46,6 +45,36 @@ public static class WorldTileUtils
         }
 
         return true;
+    }
+
+    public static float RiverAngleForTile(IWorldTileInfo tile, float baseAngle)
+    {
+        var topoAngle = tile.TopologyDirection.AsAngle;
+
+        if (tile.Topology is Topology.CoastOneSide or Topology.CliffAndCoast)
+        {
+            if (Mathf.DeltaAngle(baseAngle, topoAngle - 30f) > 0f) return topoAngle - 30f;
+            if (Mathf.DeltaAngle(baseAngle, topoAngle + 30f) < 0f) return topoAngle + 30f;
+        }
+        else if (tile.Topology == Topology.CoastTwoSides)
+        {
+            if (Mathf.DeltaAngle(baseAngle, topoAngle) > 0f) return topoAngle;
+            if (Mathf.DeltaAngle(baseAngle, topoAngle + 90f) < 0f) return topoAngle + 90f;
+        }
+        else if (tile.Topology == Topology.CoastThreeSides)
+        {
+            if (Mathf.DeltaAngle(baseAngle, topoAngle - 15f) > 0f) return topoAngle - 15f;
+            if (Mathf.DeltaAngle(baseAngle, topoAngle + 15f) < 0f) return topoAngle + 15f;
+        }
+
+        return baseAngle;
+    }
+
+    public static Vector3 RiverPositionForTile(IWorldTileInfo tile, int salt)
+    {
+        var x = Rand.RangeSeeded(0.3f, 0.7f, tile.StableSeed(9332 + salt));
+        var z = Rand.RangeSeeded(0.3f, 0.7f, tile.StableSeed(2750 + salt));
+        return new Vector3(x, 0f, z);
     }
 
     public static float RiverPositionToOffset(Vector3 position, float angle)

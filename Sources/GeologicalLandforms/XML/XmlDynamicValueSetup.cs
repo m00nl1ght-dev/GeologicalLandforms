@@ -24,16 +24,27 @@ public static class XmlDynamicValueSetup
         earlyNumSup.Register("rainfall", ctx => ctx.Tile.rainfall);
         earlyNumSup.Register("swampiness", ctx => ctx.Tile.swampiness);
         earlyNumSup.Register("pollution", ctx => ctx.Tile.pollution);
-        earlyNumSup.Register("longitude", ctx => ctx.World.grid.LongLatOf(ctx.TileId).x);
-        earlyNumSup.Register("latitude", ctx => ctx.World.grid.LongLatOf(ctx.TileId).y);
 
-        earlyNumSup.Register("perlinWorld", PerlinNoiseInWorld);
-        earlyNumSup.Register("randomValueWorld", RandomValueInWorld);
+        earlyNumSup.Register("longitude", ctx => WorldTileUtils.Longitude(ctx.World.grid.GetTileCenter(ctx.TileId)));
+        earlyNumSup.Register("latitude", ctx => WorldTileUtils.Latitude(ctx.World.grid.GetTileCenter(ctx.TileId)));
+
+        earlyNumSup.Register("perlinWorld", PerlinNoiseInWorldEarly);
+        earlyNumSup.Register("randomValueWorld", RandomValueInWorldEarly);
         earlyNumSup.Register("depthInCaveSystem", GetCaveSystemDepthAt);
 
         // ### Numeric suppliers for full world tile context ###
 
         var tileNumSup = XmlDynamicValue<float, ICtxTile>.SupplierSpecs;
+
+        tileNumSup.Register("hilliness", ctx => (float) ctx.TileInfo.Hilliness);
+        tileNumSup.Register("elevation", ctx => ctx.TileInfo.Elevation);
+        tileNumSup.Register("temperature", ctx => ctx.TileInfo.Temperature);
+        tileNumSup.Register("rainfall", ctx => ctx.TileInfo.Rainfall);
+        tileNumSup.Register("swampiness", ctx => ctx.TileInfo.Swampiness);
+        tileNumSup.Register("pollution", ctx => ctx.TileInfo.Pollution);
+
+        tileNumSup.Register("longitude", ctx => WorldTileUtils.Longitude(ctx.TileInfo.PosInWorld));
+        tileNumSup.Register("latitude", ctx => WorldTileUtils.Latitude(ctx.TileInfo.PosInWorld));
 
         tileNumSup.Register("borderingBiomes", ctx => ctx.TileInfo.BorderingBiomesCount());
         tileNumSup.Register("river", ctx => ctx.TileInfo.MainRiver.WidthOnWorld());
@@ -41,7 +52,8 @@ public static class XmlDynamicValueSetup
         tileNumSup.Register("topologyValue", ctx => ctx.TileInfo.TopologyValue);
         tileNumSup.Register("depthInCaveSystem", ctx => ctx.TileInfo.DepthInCaveSystem);
 
-        tileNumSup.InheritFrom(earlyNumSup);
+        tileNumSup.Register("perlinWorld", PerlinNoiseInWorld);
+        tileNumSup.Register("randomValueWorld", RandomValueInWorld);
 
         // ### Boolean suppliers for full world tile context ###
 
@@ -51,7 +63,7 @@ public static class XmlDynamicValueSetup
         tileBoolSup.Register("topology", SupplierWithParam<bool, ICtxTile, Topology>((p, ctx) => ctx.TileInfo.IsTopologyCompatible(p)));
         tileBoolSup.Register("coast", SupplierWithParam<bool, ICtxTile, CoastType>((p, ctx) => ctx.TileInfo.HasCoast(p)));
         tileBoolSup.Register("biome", SupplierWithParam<bool, ICtxTile>((str, ctx) => ctx.TileInfo.HasBiome(str)));
-        tileBoolSup.Register("riverType", SupplierWithParam<bool, ICtxTile>((str, ctx) => ctx.TileInfo.River.ToString() == str));
+        tileBoolSup.Register("riverType", SupplierWithParam<bool, ICtxTile>((str, ctx) => ctx.TileInfo.RiverType.ToString() == str));
         tileBoolSup.Register("worldObject", SupplierWithParam<bool, ICtxTile>((str, ctx) => ctx.TileInfo.HasWorldObject(str)));
 
         // ### Numeric suppliers for map cell context ###
@@ -74,11 +86,14 @@ public static class XmlDynamicValueSetup
         mapBoolSup.InheritFrom(tileBoolSup);
     }
 
-    private static Supplier<float, ICtxEarlyTile> PerlinNoiseInWorld(XmlNode node)
+    private static Supplier<float, ICtxEarlyTile> PerlinNoiseInWorldEarly(XmlNode node)
         => PerlinNoise<ICtxEarlyTile>(node, ctx => ctx.World.info.Seed, ctx => ctx.World.grid.GetTileCenter(ctx.TileId));
 
+    private static Supplier<float, ICtxTile> PerlinNoiseInWorld(XmlNode node)
+        => PerlinNoise<ICtxTile>(node, _ => WorldTileUtils.StableWorldSeed, ctx => ctx.TileInfo.PosInWorld);
+
     private static Supplier<float, ICtxMapCell> PerlinNoiseInMap(XmlNode node)
-        => PerlinNoise<ICtxMapCell>(node, ctx => Gen.HashCombineInt(ctx.World.info.Seed, ctx.TileId), ctx => ctx.MapCell.ToVec3());
+        => PerlinNoise<ICtxMapCell>(node, ctx => ctx.TileInfo.StableSeed(0), ctx => ctx.MapCell.ToVec3());
 
     private static Supplier<float, TC> PerlinNoise<TC>(XmlNode node, Func<TC, int> seedFunc, Func<TC, Vector3> posFunc)
     {
@@ -97,8 +112,11 @@ public static class XmlDynamicValueSetup
         };
     }
 
-    private static Supplier<float, ICtxEarlyTile> RandomValueInWorld(XmlNode node)
+    private static Supplier<float, ICtxEarlyTile> RandomValueInWorldEarly(XmlNode node)
         => RandomValue<ICtxEarlyTile>(node, ctx => Gen.HashCombineInt(ctx.World.info.Seed, ctx.TileId));
+
+    private static Supplier<float, ICtxTile> RandomValueInWorld(XmlNode node)
+        => RandomValue<ICtxTile>(node, ctx => ctx.TileInfo.StableSeed(0));
 
     private static Supplier<float, TC> RandomValue<TC>(XmlNode node, Func<TC, int> seedFunc)
     {

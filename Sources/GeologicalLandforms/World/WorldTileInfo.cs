@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using GeologicalLandforms.Defs;
 using GeologicalLandforms.GraphEditor;
-using GeologicalLandforms.Patches;
 using HarmonyLib;
 using LunarFramework.Utility;
 using RimWorld;
@@ -21,41 +20,45 @@ namespace GeologicalLandforms;
 
 public class WorldTileInfo : IWorldTileInfo
 {
-    public readonly int TileId;
-    public readonly Tile Tile;
-    public readonly World World;
-
     public IReadOnlyList<Landform> Landforms { get; protected set; }
-    public bool HasLandforms => Landforms?.Count > 0;
-
     public IReadOnlyList<BorderingBiome> BorderingBiomes { get; protected set; }
-    public bool HasBorderingBiomes => BorderingBiomes?.Count > 0;
-
     public IReadOnlyList<BiomeVariantDef> BiomeVariants { get; protected set; }
-    public bool HasBiomeVariants => BiomeVariants?.Count > 0;
 
     public Topology Topology { get; protected set; }
     public float TopologyValue { get; protected set; }
     public Rot4 TopologyDirection { get; protected set; }
     public StructRot4<CoastType> Coast { get; protected set; }
-    public RiverType River { get; protected set; }
+    public RiverType RiverType { get; protected set; }
 
     public MapParent WorldObject => World.worldObjects?.MapParentAt(TileId);
-    public BiomeDef Biome => Tile.biome;
 
+    public BiomeDef Biome => Tile.biome;
     public Hilliness Hilliness => Tile.hilliness;
     public float Elevation => Tile.elevation;
     public float Temperature => Tile.temperature;
     public float Rainfall => Tile.rainfall;
     public float Swampiness => Tile.swampiness;
+    public float Pollution => Tile.pollution;
     public bool HasCaves => World.HasCaves(TileId);
 
     public RiverDef MainRiver => Tile.LargestRiverLink().river;
     public RoadDef MainRoad => Tile.LargestRoadLink().road;
 
+    public IRiverData Rivers => GetOrCreateTileLinkData();
+    public IRoadData Roads => GetOrCreateTileLinkData();
+
+    public Vector3 PosInWorld => World.grid.GetTileCenter(TileId);
+
     public byte DepthInCaveSystem => World.LandformData()?.GetCaveSystemDepthAt(TileId) ?? 0;
 
-    public int MakeSeed(int salt) => Gen.HashCombineInt(Patch_RimWorld_World.StableSeedForTile(TileId), salt);
+    public int StableSeed(int salt) => WorldTileUtils.StableSeedForTile(TileId, salt);
+
+    internal readonly int TileId;
+    internal readonly Tile Tile;
+    internal readonly World World;
+
+    private TileLinkData _tileLinkData;
+    private int _cacheVersion;
 
     protected WorldTileInfo(int tileId, Tile tile, World world)
     {
@@ -67,9 +70,18 @@ public class WorldTileInfo : IWorldTileInfo
     private static WorldTileInfoPrimer[] _cache;
     private static int _validCacheVersion = 1;
 
-    private int _cacheVersion;
+    public static IWorldTileInfo Get(Map map, bool allowFromCache = true)
+    {
+        // Support for special-purpose maps from mods that patch the map.Biome getter (e.g. DeepRim, SOS2)
+        if (map.Biome != map.TileInfo.biome)
+        {
+            return PocketMapInfo.Get(new Tile { biome = map.Biome });
+        }
 
-    public static WorldTileInfo Get(int tileId, bool allowFromCache = true)
+        return Get(map.Tile, allowFromCache);
+    }
+
+    public static IWorldTileInfo Get(int tileId, bool allowFromCache = true)
     {
         try
         {
@@ -109,7 +121,7 @@ public class WorldTileInfo : IWorldTileInfo
             else
             {
                 DetermineLandforms(info, props);
-                DetermineBiomeVariants(info);
+                DetermineBiomeVariants(info, props);
             }
 
             GeologicalLandformsAPI.ApplyWorldTileInfoHook(info);
@@ -167,14 +179,14 @@ public class WorldTileInfo : IWorldTileInfo
 
             foreach (var landform in layer.Landforms)
             {
-                if (info.CanHaveLandform(landform, biomeProps)) eligible.Add(landform);
+                if (landform.CheckWorldTile(info) && biomeProps.AllowsLandform(landform)) eligible.Add(landform);
             }
 
             if (layer.LayerId == "")
             {
                 foreach (var landform in eligible)
                 {
-                    if (Rand.ChanceSeeded(landform.WorldTileReq.Commonness, info.MakeSeed(landform.IdHash)))
+                    if (Rand.ChanceSeeded(landform.WorldTileReq.Commonness, info.StableSeed(landform.IdHash)))
                     {
                         landforms ??= new(2);
                         landforms.Add(landform);
@@ -183,7 +195,7 @@ public class WorldTileInfo : IWorldTileInfo
             }
             else
             {
-                var seed = info.MakeSeed(layer.SelectionSeed);
+                var seed = info.StableSeed(layer.SelectionSeed);
                 var sum = eligible.Sum(lf => lf.WorldTileReq.Commonness);
                 var rand = new FloatRange(0f, Math.Max(1f, sum)).RandomInRangeSeeded(seed);
 
@@ -222,26 +234,38 @@ public class WorldTileInfo : IWorldTileInfo
         info.Landforms = landforms;
     }
 
-    public bool CanHaveLandform(Landform landform, BiomeProperties props, bool lenient = false)
-    {
-        var requirements = landform.WorldTileReq;
-        if (requirements == null || !requirements.CheckRequirements(this, lenient)) return false;
-        return props.AllowsLandform(landform);
-    }
-
-    private static void DetermineBiomeVariants(WorldTileInfoPrimer info)
+    private static void DetermineBiomeVariants(WorldTileInfoPrimer info, BiomeProperties biomeProps)
     {
         List<BiomeVariantDef> variants = null;
 
-        if (info.Biome.Properties().AllowBiomeTransitions)
+        var ctxTile = new CtxTile(info);
+
+        if (biomeProps.AllowBiomeTransitions)
         {
             foreach (var variant in DefDatabase<BiomeVariantDef>.AllDefsListForReading)
             {
-                if (variant.worldTileConditions?.Get(new CtxTile(info)) ?? true)
+                if (variant.worldTileConditions?.Get(ctxTile) ?? true)
                 {
                     variants ??= new(1);
                     variants.Add(variant);
                 }
+            }
+        }
+
+        if (biomeProps.overrideBiomeVariants != null)
+        {
+            var ids = _tsc_ids;
+            ids.Clear();
+
+            if (variants != null) ids.AddRange(variants.Select(bv => bv.defName));
+
+            variants ??= new(3);
+            variants.Clear();
+
+            foreach (var id in biomeProps.overrideBiomeVariants.Get(ctxTile, ids))
+            {
+                var variant = DefDatabase<BiomeVariantDef>.GetNamed(id, false);
+                if (variant != null) variants.AddDistinct(variant);
             }
         }
 
@@ -348,11 +372,11 @@ public class WorldTileInfo : IWorldTileInfo
 
             if (linkCount > 1 && info.Tile.potentialRivers.Any(r => grid[r.neighbor].WaterCovered))
             {
-                info.River = RiverType.Estuary;
+                info.RiverType = RiverType.Estuary;
             }
             else
             {
-                info.River = linkCount switch
+                info.RiverType = linkCount switch
                 {
                     0 => RiverType.None,
                     1 => RiverType.Source,
@@ -399,7 +423,7 @@ public class WorldTileInfo : IWorldTileInfo
         }
 
         info.Topology = Topology.Inland;
-        info.TopologyDirection = new Rot4(Rand.RangeInclusiveSeeded(0, 3, info.MakeSeed(0087)));
+        info.TopologyDirection = new Rot4(Rand.RangeInclusiveSeeded(0, 3, info.StableSeed(0087)));
     }
 
     private static void DetermineCaveTopology(WorldTileInfo info)
@@ -426,7 +450,7 @@ public class WorldTileInfo : IWorldTileInfo
         }
 
         info.Topology = Topology.CaveTunnel;
-        info.TopologyDirection = new Rot4(Rand.RangeInclusiveSeeded(0, 3, info.MakeSeed(0087)));
+        info.TopologyDirection = new Rot4(Rand.RangeInclusiveSeeded(0, 3, info.StableSeed(0087)));
     }
 
     private static void DetermineCoastTopology(WorldTileInfo info)
@@ -539,7 +563,7 @@ public class WorldTileInfo : IWorldTileInfo
         if (waterTiles.Count == 6)
         {
             info.Topology = Topology.CoastAllSides;
-            info.TopologyDirection = new Rot4(Rand.RangeInclusiveSeeded(0, 3, info.MakeSeed(0087)));
+            info.TopologyDirection = new Rot4(Rand.RangeInclusiveSeeded(0, 3, info.StableSeed(0087)));
         }
     }
 
@@ -650,44 +674,124 @@ public class WorldTileInfo : IWorldTileInfo
         if (cliffTiles.Count == 6)
         {
             info.Topology = Topology.CliffAllSides;
-            info.TopologyDirection = new Rot4(Rand.RangeInclusiveSeeded(0, 3, info.MakeSeed(0087)));
+            info.TopologyDirection = new Rot4(Rand.RangeInclusiveSeeded(0, 3, info.StableSeed(0087)));
         }
     }
 
-    internal float RiverAngle(float baseAngle)
+    private class TileLinkData : IRiverData, IRoadData
     {
-        var topoAngle = TopologyDirection.AsAngle;
+        public float RiverInflowAngle { get; internal set; }
+        public float RiverInflowOffset { get; internal set; }
+        public float RiverInflowWidth { get; internal set; }
+        public float RiverTributaryAngle { get; internal set; }
+        public float RiverTributaryOffset { get; internal set; }
+        public float RiverTributaryWidth { get; internal set; }
+        public float RiverOutflowAngle { get; internal set; }
+        public float RiverOutflowWidth { get; internal set; }
 
-        if (Topology is Topology.CoastOneSide or Topology.CliffAndCoast)
-        {
-            if (Mathf.DeltaAngle(baseAngle, topoAngle - 30f) > 0f) return topoAngle - 30f;
-            if (Mathf.DeltaAngle(baseAngle, topoAngle + 30f) < 0f) return topoAngle + 30f;
-        }
-        else if (Topology == Topology.CoastTwoSides)
-        {
-            if (Mathf.DeltaAngle(baseAngle, topoAngle) > 0f) return topoAngle;
-            if (Mathf.DeltaAngle(baseAngle, topoAngle + 90f) < 0f) return topoAngle + 90f;
-        }
-        else if (Topology == Topology.CoastThreeSides)
-        {
-            if (Mathf.DeltaAngle(baseAngle, topoAngle - 15f) > 0f) return topoAngle - 15f;
-            if (Mathf.DeltaAngle(baseAngle, topoAngle + 15f) < 0f) return topoAngle + 15f;
-        }
-
-        return baseAngle;
+        public float RoadPrimaryAngle { get; internal set; }
+        public float RoadSecondaryAngle { get; internal set; }
     }
 
-    internal Vector3 RiverPosition(int salt)
+    private TileLinkData GetOrCreateTileLinkData()
     {
-        var x = Rand.RangeSeeded(0.3f, 0.7f, MakeSeed(9332 + salt));
-        var z = Rand.RangeSeeded(0.3f, 0.7f, MakeSeed(2750 + salt));
-        return new Vector3(x, 0f, z);
+        if (_tileLinkData == null)
+        {
+            var data = new TileLinkData();
+
+            var riverLinks = Tile.Rivers;
+
+            if (riverLinks != null)
+            {
+                Tile.RiverLink inflow = default;
+                Tile.RiverLink tributary = default;
+                Tile.RiverLink outflow = default;
+
+                foreach (var link in riverLinks)
+                {
+                    if (WorldTileUtils.IsRiverInflow(World.grid, TileId, link))
+                    {
+                        if (link.river.WidthOnWorld() > inflow.river.WidthOnWorld())
+                        {
+                            tributary = inflow;
+                            inflow = link;
+                        }
+                        else if (link.river.WidthOnWorld() > tributary.river.WidthOnWorld())
+                        {
+                            tributary = link;
+                        }
+                    }
+                    else
+                    {
+                        if (link.river.WidthOnWorld() > outflow.river.WidthOnWorld()) outflow = link;
+                    }
+                }
+
+                if (inflow.river != null)
+                {
+                    var position = WorldTileUtils.RiverPositionForTile(this, 0);
+                    data.RiverInflowAngle = World.grid.GetHeadingFromTo(inflow.neighbor, TileId);
+                    data.RiverInflowOffset = WorldTileUtils.RiverPositionToOffset(position, data.RiverInflowAngle);
+                    data.RiverInflowWidth = inflow.river.widthOnMap;
+                }
+
+                if (tributary.river != null)
+                {
+                    var position = WorldTileUtils.RiverPositionForTile(this, 1);
+                    data.RiverTributaryAngle = World.grid.GetHeadingFromTo(tributary.neighbor, TileId);
+                    data.RiverTributaryOffset = WorldTileUtils.RiverPositionToOffset(position, data.RiverTributaryAngle);
+                    data.RiverTributaryWidth = tributary.river.widthOnMap;
+                }
+
+                if (outflow.river != null)
+                {
+                    var baseAngle = World.grid.GetHeadingFromTo(TileId, outflow.neighbor);
+                    data.RiverOutflowAngle = WorldTileUtils.RiverAngleForTile(this, baseAngle);
+                    data.RiverOutflowWidth = outflow.river.widthOnMap;
+                }
+            }
+
+            var roadLinks = Tile.Roads;
+
+            if (roadLinks != null)
+            {
+                Tile.RoadLink primary = default;
+                Tile.RoadLink secondary = default;
+
+                foreach (var link in roadLinks)
+                {
+                    if (link.road.WidthOnWorld() > primary.road.WidthOnWorld())
+                    {
+                        secondary = primary;
+                        primary = link;
+                    }
+                    else if (link.road.WidthOnWorld() > secondary.road.WidthOnWorld())
+                    {
+                        secondary = link;
+                    }
+                }
+
+                if (primary.road != null)
+                {
+                    data.RoadPrimaryAngle = World.grid.GetHeadingFromTo(primary.neighbor, TileId);
+                }
+
+                if (secondary.road != null)
+                {
+                    data.RoadSecondaryAngle = World.grid.GetHeadingFromTo(secondary.neighbor, TileId);
+                }
+            }
+
+            _tileLinkData = data;
+        }
+
+        return _tileLinkData;
     }
 
     public override string ToString() =>
         $"{nameof(TileId)}: {TileId}, " +
-        $"{nameof(Landforms)}: {Landforms?.Join(null, " ")}, " +
-        $"{nameof(BiomeVariants)}: {BiomeVariants?.Join(null, " ")}, " +
+        $"{nameof(Landforms)}: {Landforms?.Join(null, " ") ?? "None"}, " +
+        $"{nameof(BiomeVariants)}: {BiomeVariants?.Join(null, " ") ?? "None"}, " +
         $"{nameof(Topology)}: {Topology}, " +
         $"{nameof(TopologyValue)}: {TopologyValue}, " +
         $"{nameof(TopologyDirection)}: {TopologyDirection.ToStringWord()}";

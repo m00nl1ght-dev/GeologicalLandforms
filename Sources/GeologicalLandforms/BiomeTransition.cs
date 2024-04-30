@@ -54,13 +54,13 @@ public static class BiomeTransition
         return flag;
     }
 
-    public static void PostProcessBiomeGrid(BiomeGrid biomeGrid, WorldTileInfo tile, IntVec2 mapSize)
+    public static void PostProcessBiomeGrid(BiomeGrid biomeGrid, IntVec2 mapSize)
     {
         var enabled = GeologicalLandformsAPI.PostProcessBiomeTransitions();
 
         if (!enabled && !DebugBiomeTransitions) return;
 
-        var tempMap = CreateMinimalMap(tile.TileId, mapSize);
+        var tempMap = CreateMinimalMap(mapSize);
         var floodFiller = new FloodFiller(tempMap);
 
         _tpmProcessed = DebugBiomeTransitions ? [] : null;
@@ -140,9 +140,9 @@ public static class BiomeTransition
         if (c.z < mapSize.z - 1) action(new IntVec3(c.x, c.y, c.z + 1));
     }
 
-    private static Map CreateMinimalMap(int tile, IntVec2 mapSize)
+    private static Map CreateMinimalMap(IntVec2 mapSize)
     {
-        var map = new Map { info = { parent = new MapParent { Tile = tile }, Size = new IntVec3(mapSize.x, 1, mapSize.z) } };
+        var map = new Map { info = { parent = new MapParent(), Size = new IntVec3(mapSize.x, 1, mapSize.z) } };
         map.cellIndices = new CellIndices(map);
         map.floodFiller = new FloodFiller(map);
         return map;

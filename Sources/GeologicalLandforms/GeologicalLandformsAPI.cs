@@ -45,7 +45,7 @@ public static class GeologicalLandformsAPI
         MainPatchGroup.CheckForConflicts(Logger);
 
         MapPreviewAPI.OnWorldChanged += WorldTileInfo.InvalidateCache;
-        MapPreviewAPI.AddStableSeedCondition(map => WorldTileInfo.Get(map.Tile).HasLandforms);
+        MapPreviewAPI.AddStableSeedCondition(map => WorldTileInfo.Get(map.Tile).HasLandforms());
 
         ReflectionUtility.AddSearchableAssembly(typeof(GeologicalLandformsAPI).Assembly);
         ReflectionUtility.AddSearchableAssembly(typeof(TerrainCanvas).Assembly);

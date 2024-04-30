@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using LunarFramework.Utility;
 using RimWorld;
+using RimWorld.Planet;
 using Verse;
 using static GeologicalLandforms.BiomeProperties;
 
@@ -29,15 +30,17 @@ public class WorldGenStep_Landforms : WorldGenStep
             var info = WorldTileInfo.Get(tileIdx);
             if (info.Biome == null) return;
 
-            var fromBiome = info.Biome.Properties().worldTileOverrides;
-            if (fromBiome != null) ApplyOverrides(info, fromBiome);
+            var tile = grid[tileIdx];
 
-            if (info.HasBiomeVariants)
+            var fromBiome = info.Biome.Properties().worldTileOverrides;
+            if (fromBiome != null) ApplyOverrides(tile, info, fromBiome);
+
+            if (info.HasBiomeVariants())
             {
                 foreach (var biomeVariant in info.BiomeVariants)
                 {
                     var fromBiomeVariant = biomeVariant.worldTileOverrides;
-                    if (fromBiomeVariant != null) ApplyOverrides(info, fromBiomeVariant);
+                    if (fromBiomeVariant != null) ApplyOverrides(tile, info, fromBiomeVariant);
                 }
             }
         }
@@ -53,17 +56,17 @@ public class WorldGenStep_Landforms : WorldGenStep
         WorldTileInfo.CreateNewCache();
     }
 
-    private void ApplyOverrides(WorldTileInfo info, WorldTileOverrides overrides)
+    private void ApplyOverrides(Tile tile, IWorldTileInfo info, WorldTileOverrides overrides)
     {
         var ctx = new CtxTile(info);
 
-        overrides.elevation?.Apply(ctx, ref info.Tile.elevation);
-        overrides.temperature?.Apply(ctx, ref info.Tile.temperature);
-        overrides.rainfall?.Apply(ctx, ref info.Tile.rainfall);
+        overrides.elevation?.Apply(ctx, ref tile.elevation);
+        overrides.temperature?.Apply(ctx, ref tile.temperature);
+        overrides.rainfall?.Apply(ctx, ref tile.rainfall);
 
         if (ModLister.BiotechInstalled)
         {
-            overrides.pollution?.Apply(ctx, ref info.Tile.pollution);
+            overrides.pollution?.Apply(ctx, ref tile.pollution);
         }
     }
 

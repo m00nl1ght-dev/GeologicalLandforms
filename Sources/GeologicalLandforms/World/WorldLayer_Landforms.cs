@@ -61,7 +61,7 @@ public class WorldLayer_Landforms : WorldLayer
                     }
                 }
 
-                if (anyGraphicInBiomeVariants && tile.HasBiomeVariants)
+                if (anyGraphicInBiomeVariants && tile.HasBiomeVariants())
                 {
                     foreach (var biomeVariant in tile.BiomeVariants)
                     {
@@ -79,14 +79,14 @@ public class WorldLayer_Landforms : WorldLayer
                             if (atlasMat != null)
                             {
                                 var subMesh = GetSubMesh(atlasMat, out _);
-                                atlas.Draw(subMesh, grid, tileIdx, t => t.HasBiomeVariants && t.BiomeVariants.Contains(biomeVariant), 0.008f);
+                                atlas.Draw(subMesh, grid, tileIdx, t => t.HasBiomeVariants() && t.BiomeVariants.Contains(biomeVariant), 0.008f);
                                 anyVariantGraphic = true;
                             }
                         }
                     }
                 }
 
-                if (anyGraphicInLandforms && !anyVariantGraphic && tile.HasLandforms)
+                if (anyGraphicInLandforms && !anyVariantGraphic && tile.HasLandforms())
                 {
                     foreach (var landform in tile.Landforms)
                     {
@@ -97,7 +97,7 @@ public class WorldLayer_Landforms : WorldLayer
                             if (atlasMat != null)
                             {
                                 var subMesh = GetSubMesh(atlasMat, out _);
-                                atlas.Draw(subMesh, grid, tileIdx, t => t.HasLandforms && t.Landforms.Contains(landform), 0.007f);
+                                atlas.Draw(subMesh, grid, tileIdx, t => t.HasLandforms() && t.Landforms.Contains(landform), 0.007f);
                             }
                         }
                     }

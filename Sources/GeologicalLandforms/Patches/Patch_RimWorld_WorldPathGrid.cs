@@ -50,7 +50,7 @@ internal static class Patch_RimWorld_WorldPathGrid
         {
             var tileInfo = WorldTileInfo.Get(tile);
             if (tileInfo.Biome.Properties().allowSettlementsOnImpassableTerrain) return true;
-            if (tileInfo.HasLandforms && tileInfo.Landforms.Any(lf => !lf.IsLayer)) return true;
+            if (tileInfo.HasLandforms() && tileInfo.Landforms.Any(lf => !lf.IsLayer)) return true;
             if (tileInfo.WorldObject != null) return true;
         }
 

@@ -1,6 +1,7 @@
 using System;
 using NodeEditorFramework;
 using TerrainGraph;
+using TerrainGraph.Util;
 using UnityEngine;
 
 namespace GeologicalLandforms.GraphEditor;
@@ -57,30 +58,37 @@ public class NodeValueRiversAndRoads : NodeBase
 
     public override bool Calculate()
     {
-        var mainRiver = Landform.GeneratingTile.MainRiver;
-        var mainRoad = Landform.GeneratingTile.MainRoad;
+        var riverData = Landform.GeneratingTile.Rivers;
+        var roadData = Landform.GeneratingTile.Roads;
 
-        float angle = 0f;
-        float offset = 0f;
+        double angle = 0;
+        double offset = 0;
 
-        if (Landform.GeneratingTile is WorldTileInfo tile)
+        if (riverData.RiverOutflowWidth > 0)
         {
-            if (mainRiver != null)
+            angle = riverData.RiverOutflowAngle;
+            offset = riverData.RiverInflowOffset;
+
+            if (riverData.RiverInflowWidth > 0)
             {
-                // TODO if there is a river landform, use mean of inflow and outflow angle instead
-                angle = tile.RiverAngle(WorldTileUtils.CalculateMainRiverAngle(tile.World.grid, tile.TileId));
-                offset = WorldTileUtils.RiverPositionToOffset(tile.RiverPosition(0), angle);
-            }
-            else if (mainRoad != null)
-            {
-                angle = tile.World.grid.GetHeadingFromTo(tile.TileId, tile.Tile.LargestRoadLink().neighbor);
+                double diff = 180 + riverData.RiverInflowAngle - angle;
+                angle += diff.NormalizeDeg() * 0.5;
             }
         }
+        else if (riverData.RiverInflowWidth > 0)
+        {
+            angle = riverData.RiverInflowAngle;
+        }
+        else
+        {
+            angle = roadData.RoadPrimaryAngle;
+        }
 
-        AngleOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) angle));
-        OffsetOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) offset));
-        RiverWidthOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) mainRiver.WidthOnWorld()));
-        RoadWidthOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) mainRoad.WidthOnWorld()));
+        AngleOutputKnob.SetValue<ISupplier<double>>(Supplier.Of(angle));
+        OffsetOutputKnob.SetValue<ISupplier<double>>(Supplier.Of(offset));
+
+        RiverWidthOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) Landform.GeneratingTile.MainRiver.WidthOnWorld()));
+        RoadWidthOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) Landform.GeneratingTile.MainRoad.WidthOnWorld()));
 
         return true;
     }

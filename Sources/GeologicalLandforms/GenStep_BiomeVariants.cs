@@ -8,7 +8,7 @@ namespace GeologicalLandforms;
 
 public class GenStep_BiomeVariants : GenStep
 {
-    public static readonly GenStepDef Def = new() { genStep = new GenStep_BiomeVariants(), order = 225 };
+    public static readonly GenStepDef Def = new() { genStep = new GenStep_BiomeVariants(), order = 225 }; // TODO PostLoad is not called
 
     public override int SeedPart => 27405;
 
@@ -22,11 +22,13 @@ public class GenStep_BiomeVariants : GenStep
         if (props.applyToCaves) biomeGrid.Enabled = true;
         if (!props.AllowBiomeTransitions) return;
 
-        if (Landform.GeneratingTile is WorldTileInfo { HasBiomeVariants: true } tile)
+        var tileInfo = Landform.GeneratingTile;
+
+        if (tileInfo != null && tileInfo.HasBiomeVariants())
         {
             try
             {
-                var layers = Landform.GeneratingTile.BiomeVariants.SelectMany(v => v.layers).OrderByDescending(l => l.priority).ToList();
+                var layers = tileInfo.BiomeVariants.SelectMany(v => v.layers).OrderByDescending(l => l.priority).ToList();
 
                 if (!MapPreviewAPI.IsGeneratingPreview)
                 {
@@ -41,7 +43,7 @@ public class GenStep_BiomeVariants : GenStep
 
                     foreach (var pos in map.AllCells)
                     {
-                        var ctx = new CtxMapCell(tile, map, pos);
+                        var ctx = new CtxMapCell(tileInfo, map, pos);
 
                         if (conditions == null || conditions.Get(ctx))
                         {
@@ -65,11 +67,11 @@ public class GenStep_BiomeVariants : GenStep
 
         biomeGrid.Clear();
 
-        var tile = WorldTileInfo.Get(map.Tile, false);
+        var tile = WorldTileInfo.Get(map, false);
 
         if (biomeProps.applyToCaves) biomeGrid.Enabled = true;
 
-        if (tile.HasLandforms && tile.Landforms.Any(lf => lf.OutputBiomeGrid != null))
+        if (tile.HasLandforms() && tile.Landforms.Any(lf => lf.OutputBiomeGrid != null))
         {
             Landform.PrepareMapGen(map);
 
@@ -78,7 +80,7 @@ public class GenStep_BiomeVariants : GenStep
 
             bool hasBiomeTransition = false;
 
-            if (tile.HasBorderingBiomes)
+            if (tile.HasBorderingBiomes())
             {
                 var baseFunc = biomeFunc;
                 var transition = Landform.GetFeature(l => l.OutputBiomeGrid?.ApplyBiomeTransitions(tile, mapSize, baseFunc));
@@ -98,14 +100,14 @@ public class GenStep_BiomeVariants : GenStep
 
                 if (hasBiomeTransition)
                 {
-                    BiomeTransition.PostProcessBiomeGrid(biomeGrid, tile, mapSize);
+                    BiomeTransition.PostProcessBiomeGrid(biomeGrid, mapSize);
                 }
             }
 
             Landform.CleanUp();
         }
 
-        if (tile.HasBiomeVariants && biomeProps.AllowBiomeTransitions)
+        if (tile.HasBiomeVariants() && biomeProps.AllowBiomeTransitions)
         {
             var layers = tile.BiomeVariants.SelectMany(v => v.layers).OrderByDescending(l => l.priority).ToList();
 
