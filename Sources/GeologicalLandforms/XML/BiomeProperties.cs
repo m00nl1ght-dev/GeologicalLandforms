@@ -189,6 +189,10 @@ public class BiomeProperties : DefModExtension
         if (!biome.implemented || biome.workerClass == null) return true;
         if (biome.workerClass.Name == "UniversalBiomeWorker") return false;
 
+        #if RW_1_5_OR_GREATER
+            if (!biome.generatesNaturally) return true;
+        #endif
+
         try
         {
             var method = AccessTools.Method(biome.workerClass, nameof(BiomeWorker.GetScore), new [] { typeof(Tile), typeof(int) });
