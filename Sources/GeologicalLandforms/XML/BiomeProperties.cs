@@ -185,13 +185,13 @@ public class BiomeProperties : DefModExtension
 
     private static bool IsSpecialPurposeBiome(BiomeDef biome)
     {
-        if (biome.modContentPack is { IsOfficialMod: true }) return false;
-        if (!biome.implemented || biome.workerClass == null) return true;
-        if (biome.workerClass.Name == "UniversalBiomeWorker") return false;
-
         #if RW_1_5_OR_GREATER
             if (!biome.generatesNaturally) return true;
         #endif
+
+        if (biome.modContentPack is { IsOfficialMod: true }) return false;
+        if (!biome.implemented || biome.workerClass == null) return true;
+        if (biome.workerClass.Name == "UniversalBiomeWorker") return false;
 
         try
         {
