@@ -29,7 +29,7 @@ jobs:
         with:
           type: 'zip'
           filename: ${{ steps.read_version.outputs.gl_zip }}
-          exclusions: '/.git/* /Sources/* /AddOn/* /.github/* .git*'
+          exclusions: '/.git/* /Sources/* /AddOn/* /.github/* .git* *.pdb'
 
       - name: Create BT release zip
         uses: thedoctor0/zip-release@0.7.1
@@ -38,7 +38,7 @@ jobs:
           directory: 'AddOn/BiomeTransitions'
           filename: ${{ steps.read_version.outputs.bt_zip }}
           exclusions: '/.git/* /Sources/* .git*'
-      
+
       - name: Read changelog
         id: read_changelog
         run: |

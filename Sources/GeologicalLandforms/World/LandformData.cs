@@ -97,7 +97,12 @@ public class LandformData : WorldComponent
         {
             var elements = world.grid.TilesCount * 6;
             if (_biomeTransitions.Length != elements) _biomeTransitions = new bool[elements];
+
+            #if RW_1_5_OR_GREATER
+            DataExposeUtility.LookBoolArray(ref _biomeTransitions, elements, "biomeTransitions");
+            #else
             DataExposeUtility.BoolArray(ref _biomeTransitions, elements, "biomeTransitions");
+            #endif
         }
 
         var hasCaveSystems = HasCaveSystems();
@@ -108,7 +113,12 @@ public class LandformData : WorldComponent
         {
             var elements = world.grid.TilesCount;
             if (_caveSystems.Length != elements) _caveSystems = new byte[elements];
+
+            #if RW_1_5_OR_GREATER
+            DataExposeUtility.LookByteArray(ref _caveSystems, "caveSystems");
+            #else
             DataExposeUtility.ByteArray(ref _caveSystems, "caveSystems");
+            #endif
         }
 
         _tileData ??= new();

@@ -92,7 +92,11 @@ public class NodeUIMapIncidents : NodeUIBase
             LunarGUI.Slider(layout.Abs(80f), ref entry.Value, 0f, 1f);
             LunarGUI.Label(layout.Abs(215f).Moved(0f, -4f), ShortName(entry.WorkerName));
 
+            #if RW_1_5_OR_GREATER
+            var removed = Widgets.ButtonImage(layout.Abs(14f).TopPart(0.5f).Moved(0f, -1f), TexButton.Delete);
+            #else
             var removed = Widgets.ButtonImage(layout.Abs(14f).TopPart(0.5f).Moved(0f, -1f), TexButton.DeleteX);
+            #endif
 
             layout.End();
 

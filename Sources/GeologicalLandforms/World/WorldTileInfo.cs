@@ -72,6 +72,17 @@ public class WorldTileInfo : IWorldTileInfo
 
     public static IWorldTileInfo Get(Map map, bool allowFromCache = true)
     {
+        #if RW_1_5_OR_GREATER
+
+        // Support for vanilla pocket maps introduced in 1.5
+        if (map.IsPocketMap)
+        {
+            var properties = map.generatorDef?.GetModExtension<PocketMapProperties>();
+            return PocketMapInfo.Get(map.pocketTileInfo ?? new Tile { biome = map.Biome }, properties);
+        }
+
+        #endif
+
         // Support for special-purpose maps from mods that patch the map.Biome getter (e.g. DeepRim, SOS2)
         if (map.Biome != map.TileInfo.biome)
         {

@@ -5,6 +5,7 @@ using HarmonyLib;
 using LunarFramework.Patching;
 using RimWorld;
 using RimWorld.Planet;
+using TerrainGraph;
 using Verse;
 
 namespace GeologicalLandforms.Patches;
@@ -29,6 +30,10 @@ internal static class Patch_RimWorld_GenStep_ElevationFertility
 
         var elevationSeed = Rand.Range(0, int.MaxValue);
         var fertilitySeed = Rand.Range(0, int.MaxValue);
+
+        #if RW_1_5_OR_GREATER
+        if (map.generatorDef.isUnderground) elevationModule ??= GridFunction.Of(1d);
+        #endif
 
         elevationModule ??= NodeInputBase.BuildVanillaElevationGrid(Landform.GeneratingTile, elevationSeed);
         fertilityModule ??= NodeInputBase.BuildVanillaFertilityGrid(Landform.GeneratingTile, fertilitySeed);

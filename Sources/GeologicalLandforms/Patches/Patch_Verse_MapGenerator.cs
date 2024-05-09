@@ -21,7 +21,10 @@ internal static class Patch_Verse_MapGenerator
 
         Landform.PrepareMapGen(map);
 
-        genStepDefs = genStepDefs.Concat(new GenStepWithParams(GenStep_BiomeVariants.Def, new GenStepParams()));
+        var bvGenStepDef = new GenStepDef { order = 225, generated = true };
+        bvGenStepDef.genStep = new GenStep_BiomeVariants { def = bvGenStepDef };
+
+        genStepDefs = genStepDefs.Concat(new GenStepWithParams(bvGenStepDef, new GenStepParams()));
 
         if (Landform.AnyGenerating)
         {

@@ -8,8 +8,6 @@ namespace GeologicalLandforms;
 
 public class GenStep_BiomeVariants : GenStep
 {
-    public static readonly GenStepDef Def = new() { genStep = new GenStep_BiomeVariants(), order = 225 }; // TODO PostLoad is not called
-
     public override int SeedPart => 27405;
 
     public override void Generate(Map map, GenStepParams parms)

@@ -59,12 +59,22 @@ internal static class Patch_RimWorld_Page_CreateWorldParams
         pos += 40f;
 
         Widgets.Label(new Rect(0.0f, pos, 200f, 30f), "GeologicalLandforms.WorldParams.Mountains".Translate());
+
+        #if RW_1_4
         _mountains = Widgets.HorizontalSlider_NewTemp(new Rect(200f, pos, width, 30f), _mountains, 0f, 2f, true, _mountains.ToStringPercent(), roundTo: 0.05f);
+        #else
+        _mountains = Widgets.HorizontalSlider(new Rect(200f, pos, width, 30f), _mountains, 0f, 2f, true, _mountains.ToStringPercent(), roundTo: 0.05f);
+        #endif
 
         pos += 40f;
 
         Widgets.Label(new Rect(0.0f, pos, 200f, 30f), "GeologicalLandforms.WorldParams.CaveSystems".Translate());
+
+        #if RW_1_4
         _caveSystems = Widgets.HorizontalSlider_NewTemp(new Rect(200f, pos, width, 30f), _caveSystems, 0f, 2f, true, _caveSystems.ToStringPercent(), roundTo: 0.05f);
+        #else
+        _caveSystems = Widgets.HorizontalSlider(new Rect(200f, pos, width, 30f), _caveSystems, 0f, 2f, true, _caveSystems.ToStringPercent(), roundTo: 0.05f);
+        #endif
 
         Patch_RimWorld_WorldGenStep_Terrain.HillinessNoiseOffset = _mountains <= 0f ? 1f : -0.2f * (_mountains - 1f);
         Patch_RimWorld_WorldGenStep_Terrain.CaveSystemNoiseThreshold = _caveSystems <= 0f ? 1f : 0.4f - _caveSystems * 0.7f;
