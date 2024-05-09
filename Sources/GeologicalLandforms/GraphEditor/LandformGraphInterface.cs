@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using GeologicalLandforms.Compatibility;
+using LunarFramework.GUI;
 using NodeEditorFramework;
 using NodeEditorFramework.Utilities;
 using RimWorld;
+using RimWorld.Planet;
 using TerrainGraph;
 using UnityEngine;
 using Verse;
@@ -28,7 +31,7 @@ public class LandformGraphInterface
 
         GUILayout.BeginHorizontal(GUI.skin.GetStyle("toolbar"));
 
-        if (GUILayout.Button(new GUIContent(Landform.Id != null
+        if (GUILayout.Button(new GUIContent(Landform?.Id != null
                         ? Landform.TranslatedNameForSelection.CapitalizeFirst()
                         : "GeologicalLandforms.Editor.Open".Translate(),
                     "GeologicalLandforms.Editor.Open.Tooltip".Translate()), GUI.skin.GetStyle("toolbarDropdown"),
@@ -59,7 +62,7 @@ public class LandformGraphInterface
                     .Select(e => new FloatMenuOption(e + "x" + e, () =>
                     {
                         Landform.GeneratingMapSize = new IntVec2(e, e);
-                        Landform.TraverseAll();
+                        Editor.Refresh();
                     }))
                     .ToList();
                 Find.WindowStack.Add(new FloatMenu(options));
@@ -67,31 +70,63 @@ public class LandformGraphInterface
 
             GUILayout.Space(50f);
 
-            var currentBiome = Landform.GeneratingTile?.Biome ?? BiomeDefOf.TemperateForest;
+            var currentTileLabel = "None";
 
-            var preEnabled = GUI.enabled;
-            GUI.enabled = preEnabled && Editor.EditorTileInfo != null;
-
-            if (GUILayout.Button(currentBiome.label.CapitalizeFirst(), GUI.skin.GetStyle("toolbarButton"), GUILayout.MinWidth(150f)))
+            if (Landform.GeneratingTile is WorldTileInfo worldTile)
             {
-                var options = DefDatabase<BiomeDef>.AllDefsListForReading
-                    .Select(e => new FloatMenuOption(e.label.CapitalizeFirst(), () =>
-                    {
-                        Editor.EditorTileInfo.Biome = e;
-                        Landform.TraverseAll();
-                    }))
-                    .ToList();
-                Find.WindowStack.Add(new FloatMenu(options));
+                currentTileLabel = $"World tile {worldTile.TileId} ({worldTile.Biome.LabelCap})";
+            }
+            else if (Landform.GeneratingTile is EditorMockTileInfo mockTile)
+            {
+                currentTileLabel = $"Simulated tile ({mockTile.Biome.LabelCap})";
             }
 
-            GUI.enabled = preEnabled;
+            if (GUILayout.Button(currentTileLabel, GUI.skin.GetStyle("toolbarButton"), GUILayout.MinWidth(250f)))
+            {
+                var options = new List<FloatMenuOption>();
+
+                if (WorldRendererUtility.WorldRenderedNow && WorldTileUtils.SelectedWorldTile is WorldTileInfo selTile)
+                {
+                    options.Add(new FloatMenuOption($"Selected world tile ({selTile.TileId})", () =>
+                    {
+                        Editor.ApplyRealTileContext(selTile);
+                    }));
+                }
+
+                if (Find.Maps != null)
+                {
+                    foreach (var map in Find.Maps)
+                    {
+                        if (WorldTileInfo.Get(map) is WorldTileInfo mapTile)
+                        {
+                            options.Add(new FloatMenuOption($"World tile of map {map.Index + 1} ({mapTile.TileId})", () =>
+                            {
+                                Editor.ApplyRealTileContext(mapTile);
+                            }));
+                        }
+                    }
+                }
+
+                options.Add(new FloatMenuOption("Simulated tile (custom)", () =>
+                {
+                    Editor.ApplyMockTileContext();
+                    var window = LunarGUI.OpenGenericWindow(GeologicalLandformsAPI.LunarAPI, new Vector2(400, 400), DoMockTileUI);
+                    window.absorbInputAroundWindow = false;
+                    window.closeOnClickedOutside = false;
+                    window.layer = WindowLayer.Super;
+                    window.draggable = true;
+                }));
+
+                Find.WindowStack.Add(new FloatMenu(options));
+            }
 
             GUILayout.Space(50f);
 
             if (GUILayout.Button("Reseed", GUI.skin.GetStyle("toolbarButton"), GUILayout.MinWidth(60f)))
             {
-                Landform.RandSeed = NodeBase.SeedSource.Next();
-                Landform.TraverseAll();
+                var newSeed = NodeBase.SeedSource.Next();
+                foreach (var landform in Landform.GeneratingTile.Landforms) landform.RandSeed = newSeed;
+                Editor.Refresh();
             }
 
             GUILayout.Space(200f);
@@ -116,6 +151,18 @@ public class LandformGraphInterface
 
         if (Event.current.type == EventType.Repaint)
             ToolbarHeight = GUILayoutUtility.GetLastRect().yMax;
+    }
+
+    private void DoMockTileUI(Window window, LayoutRect layout)
+    {
+        if (Landform.GeneratingTile is EditorMockTileInfo mockTile)
+        {
+            mockTile.DoEditorGUI(layout, _ => Editor.Refresh());
+        }
+        else
+        {
+            window.Close();
+        }
     }
 
     private void OpenToolsMenu()

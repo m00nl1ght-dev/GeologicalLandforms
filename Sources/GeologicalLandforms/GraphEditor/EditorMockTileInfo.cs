@@ -1,5 +1,8 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using GeologicalLandforms.Defs;
+using LunarFramework.GUI;
 using LunarFramework.Utility;
 using RimWorld;
 using RimWorld.Planet;
@@ -46,6 +49,31 @@ public class EditorMockTileInfo : IWorldTileInfo
     public Vector3 PosInWorld { get; set; }
 
     public int StableSeed(int salt) => Gen.HashCombineInt(this.GetHashCode(), salt);
+
+    public void DoEditorGUI(LayoutRect layout, Action<object> onChange)
+    {
+        LunarGUI.Label(layout, "Simulated tile properties");
+        LunarGUI.SeparatorLine(layout, 3f);
+
+        layout.Abs(5f);
+
+        layout.BeginAbs(28f);
+        LunarGUI.Label(layout.Rel(0.5f), "Biome");
+        LunarGUI.Dropdown(layout.Rel(-1), Biome, DefDatabase<BiomeDef>.AllDefs, v => onChange(Biome = v), v => v.LabelCap);
+        layout.End();
+
+        var hillinessFiltered = typeof(Hilliness).GetEnumValues().Cast<Hilliness>().Where(v => v != Hilliness.Undefined);
+
+        layout.BeginAbs(28f);
+        LunarGUI.Label(layout.Rel(0.5f), "Hilliness");
+        LunarGUI.Dropdown(layout.Rel(-1), Hilliness, hillinessFiltered, v => onChange(Hilliness = v), v => v.GetLabelCap());
+        layout.End();
+
+        layout.BeginAbs(28f);
+        LunarGUI.Label(layout.Rel(0.5f), "Direction");
+        LunarGUI.Dropdown(layout.Rel(-1), TopologyDirection, Rot4.AllRotations, v => onChange(TopologyDirection = v), v => v.ToStringHuman());
+        layout.End();
+    }
 
     public struct RiverData : IRiverData
     {

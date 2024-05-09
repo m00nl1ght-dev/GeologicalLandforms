@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using MapPreview;
 using NodeEditorFramework;
@@ -12,8 +13,6 @@ public class LandformGraphEditor : Window
 {
     private NodeEditorUserCache _canvasCache;
     private LandformGraphInterface _editorInterface;
-
-    public EditorMockTileInfo EditorTileInfo { get; private set; }
 
     public Landform Landform => (Landform) _canvasCache?.nodeCanvas;
     public bool HasLoadedLandform => Landform != null && Landform.Id != null;
@@ -49,25 +48,7 @@ public class LandformGraphEditor : Window
     {
         NodeEditor.checkInit(true);
         LandformPreviewScheduler.Instance.Init();
-        AssureSetup();
-        if (_canvasCache.nodeCanvas)
-            _canvasCache.nodeCanvas.Validate();
-    }
 
-    public override void Close(bool doCloseSound = true)
-    {
-        ResetView();
-        base.Close(doCloseSound);
-        Landform.CleanUp();
-        Landform.CleanUpGUI();
-        LandformManager.SaveAllEdited();
-        LandformManager.RefreshLayers();
-        MapPreviewAPI.NotifyWorldChanged();
-        LandformPreviewScheduler.Instance.Shutdown();
-    }
-
-    private void AssureSetup()
-    {
         if (_canvasCache == null)
         {
             _canvasCache = new NodeEditorUserCache();
@@ -79,6 +60,36 @@ public class LandformGraphEditor : Window
             Editor = this,
             CanvasCache = _canvasCache
         };
+
+        if (_canvasCache.nodeCanvas)
+            _canvasCache.nodeCanvas.Validate();
+
+        if (Find.CurrentMap != null)
+        {
+            Landform.GeneratingMapSize = Find.CurrentMap.Size.ToIntVec2;
+        }
+        else if (Find.World != null && Current.ProgramState != ProgramState.Entry)
+        {
+            Landform.GeneratingMapSize = Find.World.info.initialMapSize.ToIntVec2;
+        }
+        else if (Find.GameInitData != null)
+        {
+            Landform.GeneratingMapSize = new(Find.GameInitData.mapSize, Find.GameInitData.mapSize);
+        }
+    }
+
+    private void CleanUp()
+    {
+        ResetView();
+
+        Landform.CleanUp();
+        Landform.CleanUpGUI();
+
+        LandformManager.SaveAllEdited();
+        LandformManager.RefreshLayers();
+
+        MapPreviewAPI.NotifyWorldChanged();
+        LandformPreviewScheduler.Instance.Shutdown();
     }
 
     public void OpenLandform(Landform landform, NodeEditorState editorState = null)
@@ -87,23 +98,10 @@ public class LandformGraphEditor : Window
         {
             Landform.CleanUp();
             Landform.CleanUpGUI();
-            EditorTileInfo = null;
         }
 
         if (landform != null)
         {
-            var map = Find.CurrentMap;
-
-            if (map != null && WorldTileInfo.Get(map).HasLandform(landform))
-            {
-                Landform.PrepareMapGen(map); // TODO properly test and fix (e.g. reseed button)
-            }
-            else
-            {
-                EditorTileInfo = new EditorMockTileInfo { LandformsList = [landform] };
-                Landform.PrepareEditor(EditorTileInfo);
-            }
-
             _canvasCache.nodeCanvas = landform;
 
             if (editorState != null)
@@ -116,14 +114,59 @@ public class LandformGraphEditor : Window
             }
 
             landform.PrepareGUI();
-            landform.TraverseAll();
-            Landform.RefreshPreviews();
             ResetView();
+
+            if (WorldTileUtils.CurrentWorldTile is WorldTileInfo tileInfo && tileInfo.HasLandform(Landform))
+            {
+                ApplyRealTileContext(tileInfo);
+            }
+            else
+            {
+                ApplyMockTileContext();
+            }
         }
         else
         {
             _canvasCache.NewNodeCanvas(typeof(Landform));
             _canvasCache.NewEditorState();
+        }
+    }
+
+    public void ApplyRealTileContext(WorldTileInfo tileInfo)
+    {
+        var tileCopy = new WorldTileInfoPrimer(tileInfo);
+        var tileSeed = SeedRerollData.GetMapSeed(Find.World, tileCopy.TileId);
+
+        if (tileCopy.Landforms == null)
+        {
+            tileCopy.Landforms = [Landform];
+        }
+        else if (!tileCopy.Landforms.Contains(Landform))
+        {
+            List<Landform> landforms = [..tileCopy.Landforms, Landform];
+            landforms.Sort((a, b) => a.Priority - b.Priority);
+            tileCopy.Landforms = landforms;
+        }
+
+        Landform.Prepare(tileCopy, Landform.GeneratingMapSize, tileSeed);
+    }
+
+    public void ApplyMockTileContext()
+    {
+        var mockTile = Landform.GeneratingTile as EditorMockTileInfo ?? new EditorMockTileInfo();
+        mockTile.LandformsList = [Landform];
+
+        Landform.Prepare(mockTile, Landform.GeneratingMapSize, Landform.RandSeed);
+    }
+
+    public void Refresh()
+    {
+        if (Landform.GeneratingTile?.Landforms != null)
+        {
+            foreach (var landform in Landform.GeneratingTile.Landforms)
+            {
+                landform.TraverseAll();
+            }
         }
     }
 
@@ -178,8 +221,8 @@ public class LandformGraphEditor : Window
 
     public override void PreOpen()
     {
-        IsEditorOpen = true;
         base.PreOpen();
+        IsEditorOpen = true;
         Init();
     }
 
@@ -187,6 +230,7 @@ public class LandformGraphEditor : Window
     {
         base.PreClose();
         IsEditorOpen = false;
+        CleanUp();
     }
 
     public override void WindowUpdate()
@@ -202,8 +246,6 @@ public class LandformGraphEditor : Window
             GUILayout.Label("Node Editor Initiation failed! Check console for more information!");
             return;
         }
-
-        AssureSetup();
 
         // Start Overlay GUI for popups (before any other GUI)
         OverlayGUI.StartOverlayGUI("TerrainGraphEditor");

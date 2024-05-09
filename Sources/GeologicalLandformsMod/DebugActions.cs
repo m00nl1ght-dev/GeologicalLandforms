@@ -10,7 +10,6 @@ using Verse;
 
 #if DEBUG
 using GeologicalLandforms.GraphEditor;
-using RimWorld.Planet;
 #endif
 
 namespace GeologicalLandforms;
@@ -342,38 +341,19 @@ public static class DebugActions
 
     public static void SetupDebugActions()
     {
-        if (Prefs.DevMode && GeologicalLandformsMod.Settings.ShowWorldTileDebugInfo)
+        GeologicalLandformsMod.LunarAPI.LifecycleHooks.DoOnGUI(() =>
         {
-            GeologicalLandformsMod.LunarAPI.LifecycleHooks.DoOnGUI(() =>
+            if (Prefs.DevMode && Input.GetKey(KeyCode.LeftControl) && Input.GetKeyUp(KeyCode.L) && !LandformGraphEditor.IsEditorOpen)
             {
-                if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyUp(KeyCode.L) && !LandformGraphEditor.IsEditorOpen)
+                Find.WindowStack.Add(new LandformGraphEditor());
+
+                if (WorldTileUtils.CurrentWorldTile is WorldTileInfo tileInfo)
                 {
-                    Find.WindowStack.Add(new LandformGraphEditor());
-
-                    var tileId = -1;
-
-                    if (WorldRendererUtility.WorldRenderedNow)
-                    {
-                        var worldSelector = Find.World?.UI?.selector;
-                        if (worldSelector is { selectedTile: >= 0 })
-                        {
-                            tileId = worldSelector.selectedTile;
-                        }
-                    }
-                    else if (Find.CurrentMap != null)
-                    {
-                        tileId = Find.CurrentMap.Tile;
-                    }
-
-                    if (tileId >= 0)
-                    {
-                        var tileInfo = WorldTileInfo.Get(tileId);
-                        var landform = tileInfo.Landforms?.FirstOrDefault(lf => lf.IsLayer) ?? tileInfo.Landforms?.FirstOrDefault();
-                        if (landform != null) LandformGraphEditor.ActiveEditor?.OpenLandform(landform);
-                    }
+                    var landform = tileInfo.Landforms?.FirstOrDefault(lf => lf.IsLayer) ?? tileInfo.Landforms?.FirstOrDefault();
+                    if (landform != null) LandformGraphEditor.ActiveEditor?.OpenLandform(landform);
                 }
-            });
-        }
+            }
+        });
     }
 
     #endif

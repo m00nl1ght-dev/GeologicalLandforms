@@ -16,6 +16,12 @@ public static class WorldTileUtils
     public static float Longitude(Vector3 pos) => Mathf.Atan2(pos.x, -pos.z) * 57.29578f;
     public static float Latitude(Vector3 pos) => Mathf.Asin(pos.y / 100f) * 57.29578f;
 
+    public static IWorldTileInfo SelectedWorldTile => Find.World?.UI?.selector is { selectedTile: >= 0 } selector
+        ? WorldTileInfo.Get(selector.selectedTile) : null;
+
+    public static IWorldTileInfo CurrentWorldTile => Find.CurrentMap != null
+        ? WorldTileInfo.Get(Find.CurrentMap) : SelectedWorldTile;
+
     public static int StableSeedForTile(int tileId, int salt = 0)
     {
         var tileSeed = Gen.HashCombineInt(StableWorldSeed, tileId);

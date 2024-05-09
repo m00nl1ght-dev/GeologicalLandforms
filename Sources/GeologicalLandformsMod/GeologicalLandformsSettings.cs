@@ -55,14 +55,6 @@ public class GeologicalLandformsSettings : LunarModSettings
         if (LunarGUI.Button(layout, Label("OpenEditor")))
         {
             Find.WindowStack.Add(new LandformGraphEditor());
-
-            var worldSelector = Find.World?.UI?.selector;
-            if (worldSelector is { selectedTile: > 0 })
-            {
-                var tileInfo = WorldTileInfo.Get(worldSelector.selectedTile);
-                var landform = tileInfo.Landforms?.FirstOrDefault(lf => !lf.IsLayer);
-                if (landform != null) LandformGraphEditor.ActiveEditor?.OpenLandform(landform);
-            }
         }
 
         if (LunarGUI.Button(layout, Label("OpenDataDir")))

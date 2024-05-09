@@ -65,13 +65,15 @@ public class GenStep_BiomeVariants : GenStep
 
         biomeGrid.Clear();
 
+        LandformGraphEditor.ActiveEditor?.Close();
+
         var tile = WorldTileInfo.Get(map, false);
 
         if (biomeProps.applyToCaves) biomeGrid.Enabled = true;
 
         if (tile.HasLandforms() && tile.Landforms.Any(lf => lf.OutputBiomeGrid != null))
         {
-            Landform.PrepareMapGen(map);
+            Landform.Prepare(map);
 
             var mapSize = Landform.GeneratingMapSize;
             var biomeFunc = Landform.GetFeatureScaled(l => l.OutputBiomeGrid?.GetBiomeGrid());

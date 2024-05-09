@@ -52,4 +52,18 @@ public class WorldTileInfoPrimer : WorldTileInfo
     }
 
     public WorldTileInfoPrimer(int tileId, Tile tile, World world) : base(tileId, tile, world) { }
+
+    public WorldTileInfoPrimer(WorldTileInfo other) : base(other.TileId, other.Tile, other.World)
+    {
+        Landforms = other.Landforms == null ? null : [..other.Landforms];
+        BorderingBiomes = other.BorderingBiomes == null ? null : [..other.BorderingBiomes];
+        BiomeVariants = other.BiomeVariants == null ? null : [..other.BiomeVariants];
+
+        Topology = other.Topology;
+        TopologyValue = other.TopologyValue;
+        TopologyDirection = other.TopologyDirection;
+
+        Coast = other.Coast;
+        RiverType = other.RiverType;
+    }
 }

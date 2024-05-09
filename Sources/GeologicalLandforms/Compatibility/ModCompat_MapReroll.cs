@@ -27,7 +27,7 @@ internal class ModCompat_MapReroll : ModCompat
     {
         var tileInfo = WorldTileInfo.Get(mapTile);
         int seedInt = Gen.HashCombineInt(GenText.StableStringHash(seed), mapTile);
-        Landform.PrepareMapGen(tileInfo, new IntVec2(mapSize, mapSize), seedInt);
+        Landform.Prepare(tileInfo, new IntVec2(mapSize, mapSize), seedInt);
         Patch_RimWorld_GenStep_Terrain.Init();
     }
 

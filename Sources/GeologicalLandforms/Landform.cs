@@ -79,18 +79,16 @@ public class Landform : TerrainCanvas
 
     public bool IsCornerVariant => WorldTileReq?.Topology is Topology.CoastTwoSides or Topology.CliffTwoSides;
 
-    public static void PrepareMapGen(Map map)
+    public static void Prepare(Map map)
     {
         var tileInfo = WorldTileInfo.Get(map, false);
         var landformSeed = map.Tile >= 0 ? SeedRerollData.GetMapSeed(Find.World, map.Tile) : Rand.Int;
-        PrepareMapGen(tileInfo, new IntVec2(map.Size.x, map.Size.z), landformSeed);
+        Prepare(tileInfo, new IntVec2(map.Size.x, map.Size.z), landformSeed);
     }
 
-    public static void PrepareMapGen(IWorldTileInfo tileInfo, IntVec2 mapSize, int seed)
+    public static void Prepare(IWorldTileInfo tileInfo, IntVec2 mapSize, int seed)
     {
         CleanUp();
-
-        LandformGraphEditor.ActiveEditor?.Close();
 
         GeneratingTile = tileInfo;
         GeneratingMapSize = mapSize;
@@ -111,22 +109,6 @@ public class Landform : TerrainCanvas
                 landformStack.Add(landform);
             }
         }
-    }
-
-    public static void PrepareEditor(EditorMockTileInfo tileInfo)
-    {
-        CleanUp();
-
-        var seed = NodeBase.SeedSource.Next();
-
-        GeneratingTile = tileInfo;
-        GeneratingGridFullSize = GeologicalLandformsAPI.LandformGridSize.Invoke();
-        GeneratingMapSize = new IntVec2(250, 250);
-
-        if (GeneratingTile.Landforms == null) return;
-
-        GeneratingLandforms = GeneratingTile.Landforms;
-        foreach (var landform in GeneratingLandforms) landform.RandSeed = seed;
     }
 
     public static void CleanUp()

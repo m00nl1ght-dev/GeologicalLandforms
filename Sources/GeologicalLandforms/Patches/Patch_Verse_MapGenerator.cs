@@ -19,7 +19,7 @@ internal static class Patch_Verse_MapGenerator
     {
         LandformGraphEditor.ActiveEditor?.Close();
 
-        Landform.PrepareMapGen(map);
+        Landform.Prepare(map);
 
         var bvGenStepDef = new GenStepDef { order = 225, generated = true };
         bvGenStepDef.genStep = new GenStep_BiomeVariants { def = bvGenStepDef };
