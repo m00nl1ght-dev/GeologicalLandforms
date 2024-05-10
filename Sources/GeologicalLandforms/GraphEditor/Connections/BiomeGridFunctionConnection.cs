@@ -1,5 +1,6 @@
 using System;
 using NodeEditorFramework;
+using RimWorld;
 using TerrainGraph;
 using UnityEngine;
 
@@ -11,5 +12,5 @@ public class BiomeGridFunctionConnection : ValueConnectionType
 
     public override string Identifier => Id;
     public override Color Color => new(2f, 1f, 0f);
-    public override Type Type => typeof(ISupplier<IGridFunction<BiomeData>>);
+    public override Type Type => typeof(ISupplier<IGridFunction<BiomeDef>>);
 }

@@ -53,28 +53,28 @@ public class NodeOutputBiomeGrid : NodeOutputBase
         if (Landform.OutputBiomeGrid == this) Landform.OutputBiomeGrid = null;
     }
 
-    public IGridFunction<BiomeData> GetBiomeGrid()
+    public IGridFunction<BiomeDef> GetBiomeGrid()
     {
-        return BiomeGridKnob.GetValue<ISupplier<IGridFunction<BiomeData>>>()?.ResetAndGet();
+        return BiomeGridKnob.GetValue<ISupplier<IGridFunction<BiomeDef>>>()?.ResetAndGet();
     }
 
-    public IGridFunction<BiomeData> ApplyBiomeTransitions(IWorldTileInfo tile, IntVec2 mapSize, IGridFunction<BiomeData> landformBiomes)
+    public IGridFunction<BiomeDef> ApplyBiomeTransitions(IWorldTileInfo tile, IntVec2 mapSize, IGridFunction<BiomeDef> landformBiomes)
     {
         var transition = BiomeTransitionKnob.GetValue<ISupplier<IGridFunction<double>>>();
         if (transition == null) return null;
         return new BiomeBorderFunc(landformBiomes, transition, tile, mapSize);
     }
 
-    private class BiomeBorderFunc : IGridFunction<BiomeData>
+    private class BiomeBorderFunc : IGridFunction<BiomeDef>
     {
-        private readonly IGridFunction<BiomeData> _preFunc;
+        private readonly IGridFunction<BiomeDef> _preFunc;
         private readonly BiomeDef _primary;
 
         private readonly IGridFunction<double>[] _selFuncs;
         private readonly BiomeDef[] _biomes;
 
         public BiomeBorderFunc(
-            IGridFunction<BiomeData> preFunc,
+            IGridFunction<BiomeDef> preFunc,
             ISupplier<IGridFunction<double>> selSupplier,
             IWorldTileInfo tile, IntVec2 mapSize)
         {
@@ -95,13 +95,13 @@ public class NodeOutputBiomeGrid : NodeOutputBase
             }
         }
 
-        public BiomeData ValueAt(double x, double z)
+        public BiomeDef ValueAt(double x, double z)
         {
-            BiomeDef pre = _preFunc?.ValueAt(x, z).Biome;
-            if (pre != null) return new BiomeData(pre);
+            var pre = _preFunc?.ValueAt(x, z);
+            if (pre != null) return pre;
 
             double v = 0;
-            BiomeDef b = _primary;
+            var b = _primary;
             for (var i = 0; i < _biomes.Length; i++)
             {
                 var sel = _selFuncs[i].ValueAt(x, z);
@@ -112,7 +112,7 @@ public class NodeOutputBiomeGrid : NodeOutputBase
                 }
             }
 
-            return new BiomeData(b);
+            return b;
         }
 
         public override string ToString() => "BIOME BORDER {}";

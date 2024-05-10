@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using GeologicalLandforms.Defs;
-using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using LunarFramework.Utility;
 using RimWorld;
@@ -95,7 +94,7 @@ public class BiomeGrid : MapComponent
 
     public void SetBiome(IntVec3 c, BiomeDef biome) => SetEntry(c, MakeEntry(biome));
 
-    public void SetBiomes(IGridFunction<BiomeData> biomeFunction)
+    public void SetBiomes(IGridFunction<BiomeDef> biomeFunction)
     {
         var primary = Primary;
         var last = primary;
@@ -106,7 +105,7 @@ public class BiomeGrid : MapComponent
         for (int z = 0; z < _mapSize.z; z++)
         {
             var c = new IntVec3(x, 0, z);
-            var biomeDef = biomeFunction.ValueAt(c.x, c.z).Biome;
+            var biomeDef = biomeFunction.ValueAt(c.x, c.z);
             int i = CellIndicesUtility.CellToIndex(c, _mapSize.x);
             _grid[i] = last = last.Biome == biomeDef ? last : MakeEntry(biomeDef);
             last.CellCount++;

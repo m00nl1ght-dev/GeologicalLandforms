@@ -110,9 +110,9 @@ public class NodeRunGenStep : NodeBase
         if (type == typeof(float)) return (float) SupplierOrFallback(knob, 0d).ResetAndGet();
         if (type == typeof(int)) return (int) SupplierOrFallback(knob, 0d).ResetAndGet();
         if (type == typeof(bool)) return SupplierOrFallback(knob, 0d).ResetAndGet() > 0f;
-        if (type == typeof(TerrainDef)) return SupplierOrFallback(knob, TerrainData.Empty).ResetAndGet().Terrain;
-        if (type == typeof(BiomeDef)) return SupplierOrFallback(knob, BiomeData.Empty).ResetAndGet().Biome;
-        if (type == typeof(RoofDef)) return SupplierOrFallback(knob, RoofData.Empty).ResetAndGet().Roof;
+        if (type == typeof(TerrainDef)) return SupplierOrFallback<TerrainDef>(knob, null).ResetAndGet();
+        if (type == typeof(BiomeDef)) return SupplierOrFallback<BiomeDef>(knob, null).ResetAndGet();
+        if (type == typeof(RoofDef)) return SupplierOrFallback<RoofDef>(knob, null).ResetAndGet();
         if (type == typeof(ModuleBase)) return SupplierOrFallback(knob, GridFunction.Zero).ResetAndGet().AsModule();
         return null;
     }

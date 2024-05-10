@@ -44,7 +44,7 @@ internal static class Patch_RimWorld_GenStep_RocksFromGrid
 
         foreach (var cell in map.AllCells)
         {
-            map.roofGrid.SetRoof(cell, roofGridModule.ValueAt(cell.x, cell.z).Roof);
+            map.roofGrid.SetRoof(cell, roofGridModule.ValueAt(cell.x, cell.z));
         }
     }
 

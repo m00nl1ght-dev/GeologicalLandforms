@@ -2,6 +2,7 @@ using System;
 using NodeEditorFramework;
 using TerrainGraph;
 using UnityEngine;
+using Verse;
 
 namespace GeologicalLandforms.GraphEditor;
 
@@ -59,18 +60,18 @@ public class NodeOutputTerrain : NodeOutputBase
         if (Landform.OutputTerrain == this) Landform.OutputTerrain = null;
     }
 
-    public IGridFunction<TerrainData> GetBase()
+    public IGridFunction<TerrainDef> GetBase()
     {
-        return BaseKnob.GetValue<ISupplier<IGridFunction<TerrainData>>>()?.ResetAndGet();
+        return BaseKnob.GetValue<ISupplier<IGridFunction<TerrainDef>>>()?.ResetAndGet();
     }
 
-    public IGridFunction<TerrainData> GetStone()
+    public IGridFunction<TerrainDef> GetStone()
     {
-        return StoneKnob.GetValue<ISupplier<IGridFunction<TerrainData>>>()?.ResetAndGet();
+        return StoneKnob.GetValue<ISupplier<IGridFunction<TerrainDef>>>()?.ResetAndGet();
     }
 
-    public IGridFunction<TerrainData> GetCave()
+    public IGridFunction<TerrainDef> GetCave()
     {
-        return CaveKnob.GetValue<ISupplier<IGridFunction<TerrainData>>>()?.ResetAndGet();
+        return CaveKnob.GetValue<ISupplier<IGridFunction<TerrainDef>>>()?.ResetAndGet();
     }
 }

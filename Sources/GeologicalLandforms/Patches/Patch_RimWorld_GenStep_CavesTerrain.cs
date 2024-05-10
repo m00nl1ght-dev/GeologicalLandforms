@@ -28,8 +28,8 @@ internal static class Patch_RimWorld_GenStep_CavesTerrain
         {
             if (caves[cell] > 0.0 && !cell.GetTerrain(map).IsRiver)
             {
-                var terrainData = cavesTerrainModule.ValueAt(cell.x, cell.z);
-                if (terrainData.HasTerrain) map.terrainGrid.SetTerrain(cell, terrainData.Terrain);
+                var terrainDef = cavesTerrainModule.ValueAt(cell.x, cell.z);
+                if (terrainDef != null) map.terrainGrid.SetTerrain(cell, terrainDef);
             }
         }
 

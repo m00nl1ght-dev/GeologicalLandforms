@@ -3,6 +3,7 @@ using NodeEditorFramework;
 using RimWorld;
 using TerrainGraph;
 using UnityEngine;
+using Verse;
 
 namespace GeologicalLandforms.GraphEditor;
 
@@ -36,11 +37,13 @@ public class NodeTerrainFromBiome : NodeBase
         GUILayout.BeginHorizontal(BoxStyle);
         GUILayout.Label(BiomeKnob.name, BoxLayout);
         GUILayout.FlexibleSpace();
-        BiomeData.BiomeSelector(this, Biome, !BiomeKnob.connected(), selected =>
+
+        BiomeFunctionConnection.Instance.SelectorUI(this, Biome, !BiomeKnob.connected(), selected =>
         {
-            Biome = BiomeData.ToString(selected);
+            Biome = BiomeFunctionConnection.Instance.ToString(selected);
             canvas.OnNodeChange(this);
         });
+
         GUILayout.EndHorizontal();
         BiomeKnob.SetPosition();
 
@@ -54,37 +57,40 @@ public class NodeTerrainFromBiome : NodeBase
 
     public override void RefreshPreview()
     {
-        ISupplier<BiomeData> biome = GetIfConnected<BiomeData>(BiomeKnob);
-        ISupplier<double> fert = GetIfConnected<double>(FertilityKnob);
+        var biome = GetIfConnected<BiomeDef>(BiomeKnob);
+        var fert = GetIfConnected<double>(FertilityKnob);
         if (biome != null) Biome = biome.ResetAndGet().ToString();
         if (fert != null) Fertility = fert.ResetAndGet();
     }
 
     public override bool Calculate()
     {
-        OutputKnob.SetValue<ISupplier<TerrainData>>(new Output(
+        var biome = BiomeFunctionConnection.Instance.FromString(Biome) ?? Landform.GeneratingTile.Biome;
+
+        OutputKnob.SetValue<ISupplier<TerrainDef>>(new Output(
             SupplierOrFallback(FertilityKnob, Fertility),
-            SupplierOrFallback(BiomeKnob, BiomeData.FromString(Biome, Landform.GeneratingTile.Biome))
+            SupplierOrFallback(BiomeKnob, biome)
         ));
+
         return true;
     }
 
-    private class Output : ISupplier<TerrainData>
+    private class Output : ISupplier<TerrainDef>
     {
         private readonly ISupplier<double> _fertility;
-        private readonly ISupplier<BiomeData> _biome;
+        private readonly ISupplier<BiomeDef> _biome;
 
-        public Output(ISupplier<double> fertility, ISupplier<BiomeData> biome)
+        public Output(ISupplier<double> fertility, ISupplier<BiomeDef> biome)
         {
             _fertility = fertility;
             _biome = biome;
         }
 
-        public TerrainData Get()
+        public TerrainDef Get()
         {
-            var biomeData = _biome.Get();
-            if (biomeData.IsEmpty) return TerrainData.Empty;
-            return new TerrainData(TerrainThreshold.TerrainAtValue(biomeData.Biome.terrainsByFertility, (float) _fertility.Get()));
+            var biomeDef = _biome.Get();
+            if (biomeDef == null) return null;
+            return TerrainThreshold.TerrainAtValue(biomeDef.terrainsByFertility, (float) _fertility.Get());
         }
 
         public void ResetState()

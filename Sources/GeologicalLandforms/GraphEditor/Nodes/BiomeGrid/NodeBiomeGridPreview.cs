@@ -9,7 +9,7 @@ namespace GeologicalLandforms.GraphEditor;
 
 [Serializable]
 [Node(false, "Biome/Grid/Preview", 346)]
-public class NodeBiomeGridPreview : NodeDiscreteGridPreview<BiomeData>
+public class NodeBiomeGridPreview : NodeDiscreteGridPreview<BiomeDef>
 {
     public const string ID = "biomeGridPreview";
     public override string GetID => ID;
@@ -19,7 +19,7 @@ public class NodeBiomeGridPreview : NodeDiscreteGridPreview<BiomeData>
     public override ValueConnectionKnob InputKnobRef => InputKnob;
     public override ValueConnectionKnob OutputKnobRef => OutputKnob;
 
-    protected override IGridFunction<BiomeData> Default => GridFunction.Of(BiomeData.Empty);
+    protected override IGridFunction<BiomeDef> Default => GridFunction.Of<BiomeDef>(null);
 
     [ValueConnectionKnob("Input", Direction.In, BiomeGridFunctionConnection.Id)]
     public ValueConnectionKnob InputKnob;
@@ -27,34 +27,34 @@ public class NodeBiomeGridPreview : NodeDiscreteGridPreview<BiomeData>
     [ValueConnectionKnob("Output", Direction.Out, BiomeGridFunctionConnection.Id)]
     public ValueConnectionKnob OutputKnob;
 
+    private readonly List<BiomeDef> _colorIdxCache = [];
+
     public override bool Calculate()
     {
-        OutputKnob.SetValue(InputKnob.GetValue<ISupplier<IGridFunction<BiomeData>>>());
+        _colorIdxCache.Clear();
+
+        OutputKnob.SetValue(InputKnob.GetValue<ISupplier<IGridFunction<BiomeDef>>>());
         return true;
     }
 
-    protected override string MakeTooltip(BiomeData value, double x, double y)
+    protected override string MakeTooltip(BiomeDef value, double x, double y)
     {
-        return BiomeData.DislayString(value.Biome) + " ( " + Math.Round(x, 0) + " | " + Math.Round(y, 0) + " )";
+        var displayName = BiomeFunctionConnection.Instance.DisplayName(value);
+        return $"{displayName} ( {Math.Round(x, 0)} | {Math.Round(y, 0)} )";
     }
 
-    private static List<Color> _biomeColors =
-    [
-        new Color(0.2f, 0.2f, 0.2f),
-        new Color(0.4f, 0.4f, 0.4f),
-        new Color(0.6f, 0.6f, 0.6f),
-        new Color(0.8f, 0.8f, 0.8f),
-        new Color(1f, 1f, 1f)
-    ];
-
-    protected override Color GetColor(BiomeData value)
+    protected override Color GetColor(BiomeDef value)
     {
-        if (value.IsEmpty) return Color.black;
-        return GetBiomeColor(value.Biome, value.SelectionIndex);
-    }
+        if (value == null) return Color.black;
 
-    public Color GetBiomeColor(BiomeDef def, int selIdx)
-    {
-        return _biomeColors[selIdx % _biomeColors.Count];
+        var idx = _colorIdxCache.IndexOf(value);
+
+        if (idx < 0)
+        {
+            idx = _colorIdxCache.Count;
+            _colorIdxCache.Add(value);
+        }
+
+        return NodeGridPreview.FixedColors[idx % NodeGridPreview.FixedColors.Count];
     }
 }

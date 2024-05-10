@@ -9,7 +9,7 @@ namespace GeologicalLandforms.GraphEditor;
 
 [Serializable]
 [Node(false, "Terrain/Grid/Preview", 320)]
-public class NodeTerrainGridPreview : NodeDiscreteGridPreview<TerrainData>
+public class NodeTerrainGridPreview : NodeDiscreteGridPreview<TerrainDef>
 {
     public static readonly Color RockColor = GenColor.FromHex("36271C");
 
@@ -21,7 +21,7 @@ public class NodeTerrainGridPreview : NodeDiscreteGridPreview<TerrainData>
     public override ValueConnectionKnob InputKnobRef => InputKnob;
     public override ValueConnectionKnob OutputKnobRef => OutputKnob;
 
-    protected override IGridFunction<TerrainData> Default => GridFunction.Of(TerrainData.Empty);
+    protected override IGridFunction<TerrainDef> Default => GridFunction.Of<TerrainDef>(null);
 
     [ValueConnectionKnob("Input", Direction.In, TerrainGridFunctionConnection.Id)]
     public ValueConnectionKnob InputKnob;
@@ -89,20 +89,21 @@ public class NodeTerrainGridPreview : NodeDiscreteGridPreview<TerrainData>
 
     public override bool Calculate()
     {
-        OutputKnob.SetValue(InputKnob.GetValue<ISupplier<IGridFunction<TerrainData>>>());
+        OutputKnob.SetValue(InputKnob.GetValue<ISupplier<IGridFunction<TerrainDef>>>());
         ElevationOutputKnob.SetValue(ElevationInputKnob.GetValue<ISupplier<IGridFunction<double>>>());
         return true;
     }
 
-    protected override string MakeTooltip(TerrainData value, double x, double y)
+    protected override string MakeTooltip(TerrainDef value, double x, double y)
     {
         bool isRock = ElevationFunction?.ValueAt(x, y) > 0.7;
-        return (isRock ? "Natural rock" : TerrainData.DislayString(value.Terrain)) + " ( " + Math.Round(x, 0) + " | " + Math.Round(y, 0) + " )";
+        var displayName = isRock ? "Natural rock" : TerrainFunctionConnection.Instance.DisplayName(value);
+        return $"{displayName} ( {Math.Round(x, 0)} | {Math.Round(y, 0)} )";
     }
 
-    protected override Color GetColor(TerrainData value)
+    protected override Color GetColor(TerrainDef value)
     {
-        if (value.IsEmpty) return Color.black;
-        return TrueTerrainColors.TrueColors.TryGetValue(value.Terrain.defName, out var color) ? color : Color.white;
+        if (value == null) return Color.black;
+        return TrueTerrainColors.TrueColors.TryGetValue(value.defName, out var color) ? color : Color.white;
     }
 }

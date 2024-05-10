@@ -2,6 +2,7 @@ using System;
 using NodeEditorFramework;
 using TerrainGraph;
 using UnityEngine;
+using Verse;
 
 namespace GeologicalLandforms.GraphEditor;
 
@@ -59,9 +60,9 @@ public class NodeOutputWaterFlow : NodeOutputBase
         if (Landform.OutputWaterFlow == this) Landform.OutputWaterFlow = null;
     }
 
-    public IGridFunction<TerrainData> GetRiverTerrain()
+    public IGridFunction<TerrainDef> GetRiverTerrain()
     {
-        return RiverTerrainKnob.GetValue<ISupplier<IGridFunction<TerrainData>>>()?.ResetAndGet();
+        return RiverTerrainKnob.GetValue<ISupplier<IGridFunction<TerrainDef>>>()?.ResetAndGet();
     }
 
     public IGridFunction<double> GetFlowAlpha()

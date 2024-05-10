@@ -1,5 +1,6 @@
 using System;
 using NodeEditorFramework;
+using RimWorld;
 using TerrainGraph;
 
 namespace GeologicalLandforms.GraphEditor;
@@ -32,8 +33,8 @@ public class NodeInputBiomeGrid : NodeInputBase
 
     public override bool Calculate()
     {
-        var supplier = Landform.GetFeature(l => l.OutputBiomeGrid?.BiomeGridKnob.GetValue<ISupplier<IGridFunction<BiomeData>>>());
-        supplier ??= Supplier.Of(GridFunction.Of(new BiomeData(Landform.GeneratingTile.Biome)));
+        var supplier = Landform.GetFeature(l => l.OutputBiomeGrid?.BiomeGridKnob.GetValue<ISupplier<IGridFunction<BiomeDef>>>());
+        supplier ??= Supplier.Of(GridFunction.Of(Landform.GeneratingTile.Biome));
         Knob.SetValue(supplier);
         return true;
     }

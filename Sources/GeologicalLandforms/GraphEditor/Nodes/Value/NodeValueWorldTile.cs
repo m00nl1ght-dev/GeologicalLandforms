@@ -87,7 +87,7 @@ public class NodeValueWorldTile : NodeBase
         HillinessOutputKnob.SetValue<ISupplier<double>>(Supplier.Of(GetHillinessFactor(Landform.GeneratingTile.Hilliness)));
         TemperatureOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) Landform.GeneratingTile.Temperature));
         RainfallOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) Landform.GeneratingTile.Rainfall));
-        BiomeOutputKnob.SetValue<ISupplier<BiomeData>>(Supplier.Of(new BiomeData(Landform.GeneratingTile.Biome)));
+        BiomeOutputKnob.SetValue<ISupplier<BiomeDef>>(Supplier.Of(Landform.GeneratingTile.Biome));
         TopologyValueOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) Landform.GeneratingTile.TopologyValue));
         CaveSystemDepthValueOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) Landform.GeneratingTile.DepthInCaveSystem));
         return true;

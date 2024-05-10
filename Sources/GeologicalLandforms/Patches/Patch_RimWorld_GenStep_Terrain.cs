@@ -20,10 +20,10 @@ internal static class Patch_RimWorld_GenStep_Terrain
 {
     private static readonly Type Self = typeof(Patch_RimWorld_GenStep_Terrain);
 
-    public static IGridFunction<TerrainData> BaseFunction { get; private set; }
-    public static IGridFunction<TerrainData> StoneFunction { get; private set; }
-    public static IGridFunction<TerrainData> RiverFunction { get; private set; }
-    public static IGridFunction<BiomeData> BiomeFunction { get; private set; }
+    public static IGridFunction<TerrainDef> BaseFunction { get; private set; }
+    public static IGridFunction<TerrainDef> StoneFunction { get; private set; }
+    public static IGridFunction<TerrainDef> RiverFunction { get; private set; }
+    public static IGridFunction<BiomeDef> BiomeFunction { get; private set; }
 
     public static bool UseVanillaTerrain { get; private set; } = true;
     public static bool DebugWarnedMissingTerrain { get; private set; }
@@ -151,14 +151,14 @@ internal static class Patch_RimWorld_GenStep_Terrain
 
     public static TerrainDef TerrainAt(IntVec3 c, Map map, float elevation, float fertility, TerrainDef tRiver, bool preferSolid)
     {
-        if (RiverFunction != null) tRiver = RiverFunction.ValueAt(c.x, c.z).Terrain;
+        if (RiverFunction != null) tRiver = RiverFunction.ValueAt(c.x, c.z);
 
         if (tRiver == null && preferSolid)
         {
             return GenStep_RocksFromGrid.RockDefAt(c).building.naturalTerrain;
         }
 
-        var tBase = BaseFunction?.ValueAt(c.x, c.z).Terrain;
+        var tBase = BaseFunction?.ValueAt(c.x, c.z);
 
         if (tBase.IsDeepWater()) return tBase;
         if (tRiver is { IsRiver: true }) return tRiver;
@@ -173,7 +173,7 @@ internal static class Patch_RimWorld_GenStep_Terrain
             if (tPatch != null) return tPatch;
         }
 
-        var tStone = StoneFunction == null ? DefaultElevationTerrain(c, biome, elevation) : StoneFunction.ValueAt(c.x, c.z).Terrain;
+        var tStone = StoneFunction == null ? DefaultElevationTerrain(c, biome, elevation) : StoneFunction.ValueAt(c.x, c.z);
         if (tStone != null) return tStone;
 
         var tBiome = TerrainThreshold.TerrainAtValue(biome.terrainsByFertility, fertility);

@@ -1,6 +1,7 @@
 using System;
 using NodeEditorFramework;
 using TerrainGraph;
+using Verse;
 
 namespace GeologicalLandforms.GraphEditor;
 
@@ -30,8 +31,8 @@ public class NodeOutputRoofGrid : NodeOutputBase
         if (Landform.OutputRoofGrid == this) Landform.OutputRoofGrid = null;
     }
 
-    public IGridFunction<RoofData> Get()
+    public IGridFunction<RoofDef> Get()
     {
-        return InputKnob.GetValue<ISupplier<IGridFunction<RoofData>>>()?.ResetAndGet();
+        return InputKnob.GetValue<ISupplier<IGridFunction<RoofDef>>>()?.ResetAndGet();
     }
 }

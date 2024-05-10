@@ -35,16 +35,16 @@ public class NodeTerrainGridNaturalRock : NodeBase
 
     public override bool Calculate()
     {
-        OutputKnob.SetValue<ISupplier<IGridFunction<TerrainData>>>(Supplier.Of<IGridFunction<TerrainData>>(new RockGridFunction()));
+        OutputKnob.SetValue<ISupplier<IGridFunction<TerrainDef>>>(Supplier.Of<IGridFunction<TerrainDef>>(new RockGridFunction()));
         return true;
     }
 
-    private class RockGridFunction : IGridFunction<TerrainData>
+    private class RockGridFunction : IGridFunction<TerrainDef>
     {
-        public TerrainData ValueAt(double x, double z)
+        public TerrainDef ValueAt(double x, double z)
         {
-            if (RockNoises.rockNoises == null) return new TerrainData(ThingDefOf.Sandstone.building.naturalTerrain);
-            return new TerrainData(GenStep_RocksFromGrid.RockDefAt(new IntVec3((int) Math.Round(x, 0), 0, (int) Math.Round(z, 0))).building.naturalTerrain);
+            if (RockNoises.rockNoises == null) return ThingDefOf.Sandstone.building.naturalTerrain;
+            return GenStep_RocksFromGrid.RockDefAt(new IntVec3((int) Math.Round(x, 0), 0, (int) Math.Round(z, 0))).building.naturalTerrain;
         }
 
         public override string ToString() => "ROCK GRID {}";
