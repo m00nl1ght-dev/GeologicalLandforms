@@ -129,7 +129,7 @@ public class GenStep_BiomeVariants : GenStep
         if (biomeProps.biomeLayers != null)
             layers.AddRange(biomeProps.biomeLayers);
 
-        if (tileInfo.HasBiomeVariants() && biomeProps.AllowBiomeTransitions)
+        if (tileInfo.HasBiomeVariants())
             layers.AddRange(tileInfo.BiomeVariants.SelectMany(v => v.layers));
 
         layers.SortByDescending(l => l.priority);
