@@ -138,6 +138,21 @@ public static class ExtensionUtils
     public static bool HasRoof(this ICtxMapCell ctx, string defName)
         => (ctx.Map.roofGrid.RoofAt(ctx.MapCell)?.defName ?? "Unroofed") == defName;
 
+    public static float SmoothDist(this FloatRange range, FloatRange bounds, float value, float smooth = 0.1f)
+    {
+        if (!range.Includes(value)) return 0f;
+
+        var s = Mathf.Clamp01(smooth);
+        var t = Mathf.InverseLerp(range.min, range.max, value);
+
+        if (s > 0.5f && range.min > bounds.min && range.max < bounds.max) s = 0.5f;
+
+        if (range.min > bounds.min && t < s) return t / s;
+        if (range.max < bounds.max && t > 1f - s) return (1f - t) / s;
+
+        return 1f;
+    }
+
     public static ModuleBase AsModule(this IGridFunction<double> gridFunction)
         => new ModuleAdapter(gridFunction);
 

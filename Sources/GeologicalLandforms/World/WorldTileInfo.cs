@@ -119,7 +119,8 @@ public class WorldTileInfo : IWorldTileInfo
                 _tsc_cliffTiles = new(6);
                 _tsc_nonCliffTiles = new(6);
                 _tsc_caveSystemTiles = new(6);
-                _tsc_eligible = new(50);
+                _tsc_eligible = new(20);
+                _tsc_commonness = new(20);
                 _tsc_ids = new(5);
             }
 
@@ -178,48 +179,57 @@ public class WorldTileInfo : IWorldTileInfo
     [ThreadStatic]
     private static List<Landform> _tsc_eligible;
 
+    [ThreadStatic]
+    private static List<float> _tsc_commonness;
+
     private static void DetermineLandforms(WorldTileInfo info, BiomeProperties biomeProps)
     {
         var eligible = _tsc_eligible;
+        var commonness = _tsc_commonness;
 
         List<Landform> landforms = null;
 
         foreach (var layer in LandformManager.LandformLayers)
         {
             eligible.Clear();
+            commonness.Clear();
 
             foreach (var landform in layer.Landforms)
             {
-                if (landform.CheckWorldTile(info) && biomeProps.AllowsLandform(landform)) eligible.Add(landform);
+                var value = landform.GetCommonnessForTile(info);
+                if (value > 0f && biomeProps.AllowsLandform(landform))
+                {
+                    eligible.Add(landform);
+                    commonness.Add(value);
+                }
             }
 
             if (layer.LayerId == "")
             {
-                foreach (var landform in eligible)
+                for (var i = 0; i < eligible.Count; i++)
                 {
-                    if (Rand.ChanceSeeded(landform.WorldTileReq.Commonness, info.StableSeed(landform.IdHash)))
+                    if (Rand.ChanceSeeded(commonness[i], info.StableSeed(eligible[i].IdHash)))
                     {
                         landforms ??= new(2);
-                        landforms.Add(landform);
+                        landforms.Add(eligible[i]);
                     }
                 }
             }
             else
             {
                 var seed = info.StableSeed(layer.SelectionSeed);
-                var sum = eligible.Sum(lf => lf.WorldTileReq.Commonness);
-                var rand = new FloatRange(0f, Math.Max(1f, sum)).RandomInRangeSeeded(seed);
+                var rand = new FloatRange(0f, Math.Max(1f, commonness.Sum())).RandomInRangeSeeded(seed);
 
-                foreach (var landform in eligible)
+                for (var i = 0; i < eligible.Count; i++)
                 {
-                    if (rand < landform.WorldTileReq.Commonness)
+                    if (rand < commonness[i])
                     {
                         landforms ??= new(2);
-                        landforms.Add(landform);
+                        landforms.Add(eligible[i]);
                         break;
                     }
 
-                    rand -= landform.WorldTileReq.Commonness;
+                    rand -= commonness[i];
                 }
             }
         }

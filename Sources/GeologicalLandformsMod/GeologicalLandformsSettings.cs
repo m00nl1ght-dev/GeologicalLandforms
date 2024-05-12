@@ -13,7 +13,7 @@ namespace GeologicalLandforms;
 
 public class GeologicalLandformsSettings : LunarModSettings
 {
-    public readonly Entry<int> MaxLandformSearchRadius = MakeEntry(100);
+    public readonly Entry<int> MaxLandformSearchRadius = MakeEntry(200);
     public readonly Entry<float> AnimalDensityFactorForSecludedAreas = MakeEntry(0.5f);
 
     public readonly Entry<bool> EnableCellFinderOptimization = MakeEntry(true);

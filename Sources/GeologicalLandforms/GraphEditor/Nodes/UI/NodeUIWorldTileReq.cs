@@ -26,7 +26,7 @@ public class NodeUIWorldTileReq : NodeUIBase
     public float Commonness = 1f;
     public float CaveChance;
 
-    public List<string> AllowedBiomes;
+    public List<AllowedBiome> AllowedBiomes;
     public List<RiverType> AllowedRiverTypes;
 
     public List<WorldObjectNearby> WorldObjectsNearby;
@@ -53,9 +53,20 @@ public class NodeUIWorldTileReq : NodeUIBase
         foreach (var condition in Conditions) condition.Reset(this, false);
     }
 
-    public bool CheckRequirements(IWorldTileInfo worldTile, bool lenient)
+    public float GetCommonnessForTile(IWorldTileInfo worldTile, bool lenient)
     {
-        return _activeConditions.All(c => !c.IsActive(this) || c.Check(this, worldTile, lenient));
+        var value = Commonness;
+
+        foreach (var condition in _activeConditions)
+        {
+            if (condition.IsActive(this))
+            {
+                value *= condition.GetScore(this, worldTile, lenient);
+                if (value <= 0f) return 0f;
+            }
+        }
+
+        return value;
     }
 
     public bool CheckWorldObject(IWorldTileInfo worldTile)
@@ -169,6 +180,19 @@ public class NodeUIWorldTileReq : NodeUIBase
         }
     }
 
+    [Serializable]
+    public struct AllowedBiome
+    {
+        public string BiomeDef;
+        public float Commonness;
+
+        public AllowedBiome(BiomeDef def)
+        {
+            BiomeDef = def.defName;
+            Commonness = 1f;
+        }
+    }
+
     private static readonly IReadOnlyList<ICondition> Conditions = typeof(NodeUIWorldTileReq).Assembly.GetTypes()
         .Where(t => typeof(ICondition).IsAssignableFrom(t) && !t.IsAbstract)
         .Select(Activator.CreateInstance)
@@ -183,7 +207,7 @@ public class NodeUIWorldTileReq : NodeUIBase
 
         public void Reset(NodeUIWorldTileReq node, bool clear);
 
-        public bool Check(NodeUIWorldTileReq node, IWorldTileInfo tile, bool lenient);
+        public float GetScore(NodeUIWorldTileReq node, IWorldTileInfo tile, bool lenient);
 
         public void EditorGUI(NodeUIWorldTileReq node, LayoutRect layout);
     }
@@ -197,11 +221,11 @@ public class NodeUIWorldTileReq : NodeUIBase
 
         protected abstract FloatRange Get(NodeUIWorldTileReq node);
         protected abstract void Set(NodeUIWorldTileReq node, FloatRange range);
-        protected abstract bool Check(IWorldTileInfo tile, FloatRange range);
+        protected abstract float GetScore(IWorldTileInfo tile, FloatRange range);
 
         public bool IsActive(NodeUIWorldTileReq node) => Get(node) != AllowedRange;
         public void Reset(NodeUIWorldTileReq node, bool clear) => Set(node, clear ? AllowedRange : DefaultRange);
-        public bool Check(NodeUIWorldTileReq node, IWorldTileInfo tile, bool lenient) => Check(tile, Get(node));
+        public float GetScore(NodeUIWorldTileReq node, IWorldTileInfo tile, bool lenient) => GetScore(tile, Get(node));
 
         public virtual void EditorGUI(NodeUIWorldTileReq node, LayoutRect layout)
         {
@@ -220,8 +244,8 @@ public class NodeUIWorldTileReq : NodeUIBase
 
         public void Reset(NodeUIWorldTileReq node, bool clear) => node.Topology = clear ? Any : Inland;
 
-        public bool Check(NodeUIWorldTileReq node, IWorldTileInfo tile, bool lenient) =>
-            node.Topology.IsCompatible(tile.Topology, lenient);
+        public float GetScore(NodeUIWorldTileReq node, IWorldTileInfo tile, bool lenient) =>
+            node.Topology.IsCompatible(tile.Topology, lenient) ? 1f : 0f;
 
         public void EditorGUI(NodeUIWorldTileReq node, LayoutRect layout)
         {
@@ -241,8 +265,12 @@ public class NodeUIWorldTileReq : NodeUIBase
 
         public void Reset(NodeUIWorldTileReq node, bool clear) => node.AllowedBiomes = null;
 
-        public bool Check(NodeUIWorldTileReq node, IWorldTileInfo tile, bool lenient) =>
-            node.AllowedBiomes.Contains(tile.Biome.defName);
+        public float GetScore(NodeUIWorldTileReq node, IWorldTileInfo tile, bool lenient)
+        {
+            var entry = node.AllowedBiomes.FirstOrDefault(e => e.BiomeDef == tile.Biome.defName);
+            if (entry.BiomeDef != null) return entry.Commonness;
+            return node.AllowedBiomes.FirstOrDefault(e => e.BiomeDef == null).Commonness;
+        }
 
         public void EditorGUI(NodeUIWorldTileReq node, LayoutRect layout)
         {
@@ -256,15 +284,49 @@ public class NodeUIWorldTileReq : NodeUIBase
             {
                 LunarGUI.OpenGenericWindow(GeologicalLandformsAPI.LunarAPI, new(500, 500), (_, layoutW) =>
                 {
-                    foreach (var def in DefDatabase<BiomeDef>.AllDefsListForReading)
+                    for (var i = 0; i < node.AllowedBiomes.Count; i++)
                     {
-                        var props = def.Properties();
-                        var label = UserInterfaceUtils.LabelForBiome(def, false);
-                        var allowed = props.AllowsLandform(node.Landform);
+                        var entry = node.AllowedBiomes[i];
 
-                        if (!allowed && def.modContentPack is { IsOfficialMod: true }) continue;
+                        layoutW.PushChanged();
 
-                        LunarGUI.ToggleTableRow(layoutW, def.defName, false, label, allowed ? node.AllowedBiomes : null);
+                        layoutW.BeginAbs(28f, new LayoutParams { Horizontal = true, Spacing = 10f });
+
+                        var def = entry.BiomeDef == null ? null : DefDatabase<BiomeDef>.GetNamedSilentFail(entry.BiomeDef);
+                        var label = def == null ? entry.BiomeDef ?? "Any unspecified biome" : def.LabelCap.ToString();
+
+                        LunarGUI.Label(layoutW.Abs(210f), label);
+                        LunarGUI.Label(layoutW.Abs(30f), $"{entry.Commonness:F2}");
+                        LunarGUI.Slider(layoutW.Abs(160f).Moved(0f, 4f), ref entry.Commonness, 0f, 1f);
+
+                        var removed = Widgets.ButtonImage(layoutW.Abs(21f).TopPart(0.75f).Moved(0f, -1f), UserInterfaceUtils.IconDelete);
+
+                        layoutW.End();
+
+                        if (removed)
+                        {
+                            node.AllowedBiomes.RemoveAt(i);
+                            i--;
+                        }
+                        else if (layoutW.PopChanged())
+                        {
+                            node.AllowedBiomes[i] = entry;
+                        }
+                    }
+
+                    if (LunarGUI.Button(layoutW, "Add entry"))
+                    {
+                        var options = DefDatabase<BiomeDef>.AllDefsListForReading
+                            .Where(d => d.Properties().AllowsLandform(node.Landform))
+                            .Where(d => !node.AllowedBiomes.Any(e => e.BiomeDef == d.defName))
+                            .Select(e => new FloatMenuOption(e.LabelCap,
+                                () => node.AllowedBiomes.Add(new AllowedBiome(e))))
+                            .ToList();
+
+                        options.Add(new FloatMenuOption("Any unspecified biome",
+                            () => node.AllowedBiomes.Add(new AllowedBiome())));
+
+                        if (options.Count > 0) Find.WindowStack.Add(new FloatMenu(options));
                     }
                 });
             }
@@ -279,8 +341,10 @@ public class NodeUIWorldTileReq : NodeUIBase
 
         public void Reset(NodeUIWorldTileReq node, bool clear) => node.WorldObjectsNearby = null;
 
-        public bool Check(NodeUIWorldTileReq node, IWorldTileInfo tile, bool lenient)
+        public float GetScore(NodeUIWorldTileReq node, IWorldTileInfo tile, bool lenient)
         {
+            var bestScore = 0f;
+
             var posInWorld = tile.PosInWorld;
 
             foreach (var entry in node.WorldObjectsNearby)
@@ -290,11 +354,12 @@ public class NodeUIWorldTileReq : NodeUIBase
                 if (def != null)
                 {
                     var distance = WorldTileUtils.DistanceToNearestWorldObject(Find.World, posInWorld, def);
-                    if (entry.DistanceRange.Includes(distance)) return true;
+                    var score = entry.DistanceRange.SmoothDist(new(0f, 100f), distance, 1f);
+                    if (score > bestScore) bestScore = score;
                 }
             }
 
-            return false;
+            return bestScore;
         }
 
         private string LabelFor(WorldObjectDef def)
@@ -324,14 +389,10 @@ public class NodeUIWorldTileReq : NodeUIBase
 
                         var def = DefDatabase<WorldObjectDef>.GetNamedSilentFail(entry.WorldObjectDef);
 
-                        LunarGUI.Label(layoutW.Rel(0.5f).Moved(0f, 8f), def == null ? entry.WorldObjectDef : LabelFor(def));
-                        LunarGUI.RangeSlider(layoutW.Rel(-1), ref entry.DistanceRange, 0f, 100f);
+                        LunarGUI.Label(layoutW.Abs(210f).Moved(0f, 8f), def == null ? entry.WorldObjectDef : LabelFor(def));
+                        LunarGUI.RangeSlider(layoutW.Abs(190f), ref entry.DistanceRange, 0f, 100f);
 
-                        #if RW_1_5_OR_GREATER
-                        var removed = Widgets.ButtonImage(layoutW.Abs(14f).TopPart(0.5f).Moved(0f, -1f), TexButton.Delete);
-                        #else
-                        var removed = Widgets.ButtonImage(layoutW.Abs(14f).TopPart(0.5f).Moved(0f, -1f), TexButton.DeleteX);
-                        #endif
+                        var removed = Widgets.ButtonImage(layoutW.Abs(21f).TopPart(0.75f).Moved(0f, 9f), UserInterfaceUtils.IconDelete);
 
                         layoutW.End();
 
@@ -371,8 +432,8 @@ public class NodeUIWorldTileReq : NodeUIBase
 
         public void Reset(NodeUIWorldTileReq node, bool clear) => node.AllowedRiverTypes = null;
 
-        public bool Check(NodeUIWorldTileReq node, IWorldTileInfo tile, bool lenient) =>
-            node.AllowedRiverTypes.Contains(tile.RiverType);
+        public float GetScore(NodeUIWorldTileReq node, IWorldTileInfo tile, bool lenient) =>
+            node.AllowedRiverTypes.Contains(tile.RiverType) ? 1f : 0f;
 
         public void EditorGUI(NodeUIWorldTileReq node, LayoutRect layout)
         {
@@ -405,8 +466,11 @@ public class NodeUIWorldTileReq : NodeUIBase
         protected override FloatRange Get(NodeUIWorldTileReq node) => node.HillinessRequirement;
         protected override void Set(NodeUIWorldTileReq node, FloatRange range) => node.HillinessRequirement = range;
 
-        protected override bool Check(IWorldTileInfo tile, FloatRange range) =>
-            tile.Hilliness == Hilliness.Impassable ? range.max > 5f : range.Includes((float) tile.Hilliness);
+        protected override float GetScore(IWorldTileInfo tile, FloatRange range)
+        {
+            if (tile.Hilliness == Hilliness.Impassable) return range.max > 5f ? 1f : 0f;
+            return range.Includes((float) tile.Hilliness) ? 1f : 0f;
+        }
 
         private string LabelFor(float val)
         {
@@ -431,7 +495,7 @@ public class NodeUIWorldTileReq : NodeUIBase
 
         protected override FloatRange Get(NodeUIWorldTileReq node) => node.ElevationRequirement;
         protected override void Set(NodeUIWorldTileReq node, FloatRange range) => node.ElevationRequirement = range;
-        protected override bool Check(IWorldTileInfo tile, FloatRange range) => range.Includes(tile.Elevation);
+        protected override float GetScore(IWorldTileInfo tile, FloatRange range) => range.SmoothDist(DefaultRange, tile.Elevation);
     }
 
     private class TopologyValueCondition : FloatRangeCondition
@@ -442,7 +506,7 @@ public class NodeUIWorldTileReq : NodeUIBase
 
         protected override FloatRange Get(NodeUIWorldTileReq node) => node.TopologyValueRequirement;
         protected override void Set(NodeUIWorldTileReq node, FloatRange range) => node.TopologyValueRequirement = range;
-        protected override bool Check(IWorldTileInfo tile, FloatRange range) => range.Includes(tile.TopologyValue);
+        protected override float GetScore(IWorldTileInfo tile, FloatRange range) => range.Includes(tile.TopologyValue) ? 1f : 0f;
     }
 
     private class RiverOrRoadCondition : ICondition
@@ -462,17 +526,17 @@ public class NodeUIWorldTileReq : NodeUIBase
             node.RoadRequirement = AllowedRange;
         }
 
-        public bool Check(NodeUIWorldTileReq node, IWorldTileInfo tile, bool lenient)
+        public float GetScore(NodeUIWorldTileReq node, IWorldTileInfo tile, bool lenient)
         {
             var river = tile.MainRiver.WidthOnWorld();
             var road = tile.MainRoad.WidthOnWorld();
 
-            if (river > node.RiverRequirement.max && node.RiverRequirement.max < 1f) return false;
-            if (road > node.RoadRequirement.max && node.RoadRequirement.max < 1f) return false;
-            if (node.RiverRequirement.min > 0f) return river >= node.RiverRequirement.min;
-            if (node.RoadRequirement.min > 0f) return road >= node.RoadRequirement.min;
+            if (river > node.RiverRequirement.max && node.RiverRequirement.max < 1f) return 0f;
+            if (road > node.RoadRequirement.max && node.RoadRequirement.max < 1f) return 0f;
+            if (node.RiverRequirement.min > 0f) return river >= node.RiverRequirement.min ? 1f : 0f;
+            if (node.RoadRequirement.min > 0f) return road >= node.RoadRequirement.min ? 1f : 0f;
 
-            return true;
+            return 1f;
         }
 
         public void EditorGUI(NodeUIWorldTileReq node, LayoutRect layout)
@@ -495,7 +559,7 @@ public class NodeUIWorldTileReq : NodeUIBase
 
         protected override FloatRange Get(NodeUIWorldTileReq node) => node.AvgTemperatureRequirement;
         protected override void Set(NodeUIWorldTileReq node, FloatRange range) => node.AvgTemperatureRequirement = range;
-        protected override bool Check(IWorldTileInfo tile, FloatRange range) => range.Includes(tile.Temperature);
+        protected override float GetScore(IWorldTileInfo tile, FloatRange range) => range.SmoothDist(DefaultRange, tile.Temperature);
     }
 
     private class RainfallCondition : FloatRangeCondition
@@ -507,9 +571,10 @@ public class NodeUIWorldTileReq : NodeUIBase
         protected override FloatRange Get(NodeUIWorldTileReq node) => node.RainfallRequirement;
         protected override void Set(NodeUIWorldTileReq node, FloatRange range) => node.RainfallRequirement = range;
 
-        protected override bool Check(IWorldTileInfo tile, FloatRange range)
+        protected override float GetScore(IWorldTileInfo tile, FloatRange range)
         {
-            return range.Includes(tile.Rainfall) || (tile.Rainfall > AllowedRange.max && range.max == AllowedRange.max);
+            if (tile.Rainfall > AllowedRange.max && range.max == AllowedRange.max) return 1f;
+            return range.SmoothDist(DefaultRange, tile.Rainfall);
         }
     }
 
@@ -519,7 +584,7 @@ public class NodeUIWorldTileReq : NodeUIBase
 
         protected override FloatRange Get(NodeUIWorldTileReq node) => node.SwampinessRequirement;
         protected override void Set(NodeUIWorldTileReq node, FloatRange range) => node.SwampinessRequirement = range;
-        protected override bool Check(IWorldTileInfo tile, FloatRange range) => range.Includes(tile.Swampiness);
+        protected override float GetScore(IWorldTileInfo tile, FloatRange range) => range.SmoothDist(DefaultRange, tile.Swampiness);
     }
 
     private class BiomeTransitionsCondition : FloatRangeCondition
@@ -530,7 +595,7 @@ public class NodeUIWorldTileReq : NodeUIBase
 
         protected override FloatRange Get(NodeUIWorldTileReq node) => node.BiomeTransitionsRequirement;
         protected override void Set(NodeUIWorldTileReq node, FloatRange range) => node.BiomeTransitionsRequirement = range;
-        protected override bool Check(IWorldTileInfo tile, FloatRange range) => range.Includes(tile.BorderingBiomesCount());
+        protected override float GetScore(IWorldTileInfo tile, FloatRange range) => range.Includes(tile.BorderingBiomesCount()) ? 1f : 0f;
     }
 
     private class DepthInCaveSystemCondition : FloatRangeCondition
@@ -541,6 +606,6 @@ public class NodeUIWorldTileReq : NodeUIBase
 
         protected override FloatRange Get(NodeUIWorldTileReq node) => node.DepthInCaveSystemRequirement;
         protected override void Set(NodeUIWorldTileReq node, FloatRange range) => node.DepthInCaveSystemRequirement = range;
-        protected override bool Check(IWorldTileInfo tile, FloatRange range) => range.Includes(tile.DepthInCaveSystem);
+        protected override float GetScore(IWorldTileInfo tile, FloatRange range) => range.SmoothDist(new(1f, 10f), tile.DepthInCaveSystem);
     }
 }

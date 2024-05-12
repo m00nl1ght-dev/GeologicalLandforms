@@ -51,7 +51,7 @@ internal static class TerrainTabUI
                     var biomeProps = tileInfo.Biome.Properties();
 
                     var eligible = LandformManager.LandformsById.Values
-                        .Where(e => ignoreReq || (e.CheckWorldTile(tileInfo, true) && biomeProps.AllowsLandform(e)))
+                        .Where(e => ignoreReq || (e.GetCommonnessForTile(tileInfo, true) > 0f && biomeProps.AllowsLandform(e)))
                         .Where(e => !e.IsLayer && (ignoreReq || !e.IsInternal) && GeologicalLandformsMod.IsLandformEnabled(e))
                         .ToList();
 

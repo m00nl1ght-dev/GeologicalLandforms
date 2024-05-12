@@ -13,6 +13,12 @@ public static class UserInterfaceUtils
 {
     public static readonly Texture2D IconDismiss = ContentFinder<Texture2D>.Get("UI/Buttons/Dismiss");
 
+    #if RW_1_5_OR_GREATER
+    public static Texture2D IconDelete => TexButton.Delete;
+    #else
+    public static Texture2D IconDelete => TexButton.DeleteX;
+    #endif
+
     private const string OwnPackageId = "m00nl1ght.geologicallandforms";
 
     private static readonly List<string> LabelBuffer = [];

@@ -139,9 +139,9 @@ public class Landform : TerrainCanvas
         return new GridFunction.Transform<T>(gridInMapSpace, MapSpaceToNodeSpaceFactor);
     }
 
-    public bool CheckWorldTile(IWorldTileInfo tile, bool lenient = false)
+    public float GetCommonnessForTile(IWorldTileInfo tile, bool lenient = false)
     {
-        return WorldTileReq != null && WorldTileReq.CheckRequirements(tile, lenient);
+        return WorldTileReq == null ? 0f : WorldTileReq.GetCommonnessForTile(tile, lenient);
     }
 
     protected override void ValidateSelf()
