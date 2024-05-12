@@ -114,8 +114,9 @@ public static class DebugActions
 
                     if (LunarGUI.Button(layout.Abs(30), Label("BiomeGridEntryAddVariantShort"), Label("BiomeGridEntryAddVariant")))
                     {
-                        var options = DefDatabase<BiomeVariantDef>.AllDefs
-                            .SelectMany(e => e.layers).Where(e => !entry.VariantLayers.Contains(e))
+                        var options = (entry.BiomeBase.Properties().biomeLayers ?? [])
+                            .Concat(DefDatabase<BiomeVariantDef>.AllDefs.SelectMany(e => e.layers))
+                            .Where(e => !entry.VariantLayers.Contains(e))
                             .Select(e => new FloatMenuOption(e.ToString(), () =>
                             {
                                 entry.Set(entry.BiomeBase, entry.VariantLayers.Append(e));

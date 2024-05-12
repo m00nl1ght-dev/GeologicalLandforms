@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Emit;
 using System.Threading;
+using GeologicalLandforms.Defs;
 using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using LunarFramework.XML;
@@ -37,6 +38,8 @@ public class BiomeProperties : DefModExtension
     public TerrainDef beachTerrain;
     public TerrainDef gravelTerrain;
 
+    public List<BiomeVariantLayer> biomeLayers;
+
     [Unsaved] public bool allowLandformsByUser = true;
     [Unsaved] public bool allowBiomeTransitionsByUser = true;
 
@@ -55,6 +58,19 @@ public class BiomeProperties : DefModExtension
         if (allowedBiomeTransitions != null) return allowedBiomeTransitions.Contains(biome);
         if (!AllowBiomeTransitions) return false;
         return !(disallowedBiomeTransitions?.Contains(biome) ?? false);
+    }
+
+    public override IEnumerable<string> ConfigErrors()
+    {
+        if (biomeLayers != null)
+        {
+            foreach (var layer in biomeLayers)
+            {
+                if (string.IsNullOrEmpty(layer.id) || layer.id == "main") yield return "layer id must be set";
+                else if (!BiomeVariantLayer.AllowedIdRegex.IsMatch(layer.id)) yield return $"layer id {layer.id} in invalid";
+                else if (biomeLayers.Any(l => l.id == layer.id && l != layer)) yield return $"layer id duplicate: {layer}";
+            }
+        }
     }
 
     public class WorldTileOverrides

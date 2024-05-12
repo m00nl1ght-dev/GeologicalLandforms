@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using GeologicalLandforms.Defs;
 using GeologicalLandforms.GraphEditor;
 using MapPreview;
 using Verse;
@@ -18,35 +20,37 @@ public class GenStep_BiomeVariants : GenStep
         if (biomeGrid == null) return;
 
         if (props.applyToCaves) biomeGrid.Enabled = true;
-        if (!props.AllowBiomeTransitions) return;
 
         var tileInfo = Landform.GeneratingTile;
 
-        if (tileInfo != null && tileInfo.HasBiomeVariants())
+        if (tileInfo != null)
         {
             try
             {
-                var layers = tileInfo.BiomeVariants.SelectMany(v => v.layers).OrderByDescending(l => l.priority).ToList();
+                var layers = LayersFor(tileInfo, props);
 
-                if (!MapPreviewAPI.IsGeneratingPreview)
+                if (layers.Count > 0)
                 {
-                    biomeGrid.ApplyVariantLayers(layers);
-                    biomeGrid.Enabled = true;
-                }
-
-                foreach (var layer in layers.Where(layer => layer.terrainOverrides != null))
-                {
-                    var conditions = layer.mapGridConditions;
-                    var overrides = layer.terrainOverrides;
-
-                    foreach (var pos in map.AllCells)
+                    if (!MapPreviewAPI.IsGeneratingPreview)
                     {
-                        var ctx = new CtxMapCell(tileInfo, map, pos);
+                        biomeGrid.ApplyVariantLayers(layers);
+                        biomeGrid.Enabled = true;
+                    }
 
-                        if (conditions == null || conditions.Get(ctx))
+                    foreach (var layer in layers.Where(layer => layer.terrainOverrides != null))
+                    {
+                        var conditions = layer.mapGridConditions;
+                        var overrides = layer.terrainOverrides;
+
+                        foreach (var pos in map.AllCells)
                         {
-                            var terrainDef = overrides.Get(ctx);
-                            if (terrainDef != null) map.terrainGrid.SetTerrain(pos, terrainDef);
+                            var ctx = new CtxMapCell(tileInfo, map, pos);
+
+                            if (conditions == null || conditions.Get(ctx))
+                            {
+                                var terrainDef = overrides.Get(ctx);
+                                if (terrainDef != null) map.terrainGrid.SetTerrain(pos, terrainDef);
+                            }
                         }
                     }
                 }
@@ -107,14 +111,29 @@ public class GenStep_BiomeVariants : GenStep
             Landform.CleanUp();
         }
 
-        if (tile.HasBiomeVariants() && biomeProps.AllowBiomeTransitions)
-        {
-            var layers = tile.BiomeVariants.SelectMany(v => v.layers).OrderByDescending(l => l.priority).ToList();
+        var layers = LayersFor(tile, biomeProps);
 
-            GeologicalLandformsAPI.Logger.Log($"Restoring biome variants for map on tile {map.Tile}");
+        if (layers.Count > 0)
+        {
+            GeologicalLandformsAPI.Logger.Log($"Restoring biome layers for map on tile {map.Tile}");
 
             biomeGrid.ApplyVariantLayers(layers);
             biomeGrid.Enabled = true;
         }
+    }
+
+    private static List<BiomeVariantLayer> LayersFor(IWorldTileInfo tileInfo, BiomeProperties biomeProps)
+    {
+        var layers = new List<BiomeVariantLayer>();
+
+        if (biomeProps.biomeLayers != null)
+            layers.AddRange(biomeProps.biomeLayers);
+
+        if (tileInfo.HasBiomeVariants() && biomeProps.AllowBiomeTransitions)
+            layers.AddRange(tileInfo.BiomeVariants.SelectMany(v => v.layers));
+
+        layers.SortByDescending(l => l.priority);
+
+        return layers;
     }
 }

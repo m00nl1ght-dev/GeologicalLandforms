@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Xml;
 using LunarFramework.Utility;
 using LunarFramework.XML;
@@ -11,6 +12,8 @@ namespace GeologicalLandforms.Defs;
 
 public class BiomeVariantLayer
 {
+    internal static readonly Regex AllowedIdRegex = new("^[a-zA-Z0-9\\-_]*$");
+
     [NoTranslate]
     public string id = "main";
 
@@ -30,29 +33,26 @@ public class BiomeVariantLayer
 
     public bool applyToCaves;
 
-    public BiomeVariantDef Def { get; internal set; }
+    public string IdPrefix { get; internal set; }
 
     public override string ToString()
     {
-        return Def.defName + "/" + id;
+        return string.IsNullOrEmpty(IdPrefix) ? id : $"{IdPrefix}/{id}";
     }
 
-    public static BiomeVariantLayer FindFromString(string defSlashLayerId)
+    public static BiomeVariantLayer FindFromString(BiomeDef baseBiome, string defSlashLayerId)
     {
         var parts = defSlashLayerId.Split('/');
 
-        if (parts.Length != 2)
-        {
-            GeologicalLandformsAPI.Logger.Error("Ignoring invalid biome variant id: " + defSlashLayerId);
-            return null;
-        }
+        var layers = parts.Length < 2 ?
+            baseBiome.Properties().biomeLayers :
+            DefDatabase<BiomeVariantDef>.GetNamed(parts[0], false)?.layers;
 
-        var variant = DefDatabase<BiomeVariantDef>.GetNamed(parts[0], false);
-        var layer = variant?.layers?.FirstOrDefault(l => l.id == parts[1]);
+        var layer = layers?.FirstOrDefault(l => l.id == parts.Last());
 
         if (layer == null)
         {
-            GeologicalLandformsAPI.Logger.Error("Ignoring missing biome variant: " + defSlashLayerId);
+            GeologicalLandformsAPI.Logger.Error("Ignoring missing biome layer: " + defSlashLayerId);
             return null;
         }
 

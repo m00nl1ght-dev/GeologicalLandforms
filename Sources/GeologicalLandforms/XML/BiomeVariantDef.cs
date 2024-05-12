@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using LunarFramework.XML;
 using RimWorld.Planet;
 using UnityEngine;
@@ -49,16 +47,18 @@ public class BiomeVariantDef : Def
     public string ApplyToBiomeDescription(IWorldTileInfo tile, string str)
         => biomeDescription == null ? str : biomeDescription.Get(new CtxTile(tile), str);
 
-    private static readonly Regex AllowedIdRegex = new("^[a-zA-Z0-9\\-_]*$");
-
     public override void PostLoad()
+    {
+        foreach (var layer in layers) layer.IdPrefix = defName;
+    }
+
+    public override IEnumerable<string> ConfigErrors()
     {
         foreach (var layer in layers)
         {
-            layer.Def = this;
-            if (string.IsNullOrEmpty(layer.id)) throw new Exception("layer id can not be empty");
-            if (!AllowedIdRegex.IsMatch(layer.id)) throw new Exception("layer id " + layer.id + " in invalid");
-            if (layers.Any(l => l.id == layer.id && l != layer)) throw new Exception("layer id duplicate: " + layer);
+            if (string.IsNullOrEmpty(layer.id)) yield return "layer id can not be empty";
+            else if (!BiomeVariantLayer.AllowedIdRegex.IsMatch(layer.id)) yield return $"layer id {layer.id} in invalid";
+            else if (layers.Any(l => l.id == layer.id && l != layer)) yield return $"layer id duplicate: {layer}";
         }
     }
 
