@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using GeologicalLandforms.Patches;
 using LunarFramework.Utility;
 using RimWorld;
@@ -26,6 +27,16 @@ public static class WorldTileUtils
     {
         var tileSeed = Gen.HashCombineInt(StableWorldSeed, tileId);
         return salt != 0 ? Gen.HashCombineInt(tileSeed, salt) : tileSeed;
+    }
+
+    public static float DistanceToNearestWorldObject(World world, Vector3 pos, WorldObjectDef def)
+    {
+        return (
+            from worldObject in world.worldObjects.AllWorldObjects
+            where worldObject.def == def && worldObject.Tile >= 0
+            select world.grid.GetTileCenter(worldObject.Tile) into tileCenter
+            select world.grid.ApproxDistanceInTiles(GenMath.SphericalDistance(pos.normalized, tileCenter.normalized))
+        ).Prepend(99999f).Min();
     }
 
     public static bool IsRiverInflow(WorldGrid grid, int tile, Tile.RiverLink link, int searchLimit = 200)

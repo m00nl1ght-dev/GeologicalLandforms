@@ -28,6 +28,8 @@
   <GeologicalLandforms.Settings.Landform.Topology>Topology</GeologicalLandforms.Settings.Landform.Topology>
   <GeologicalLandforms.Settings.Landform.AllowedBiomes>Biome</GeologicalLandforms.Settings.Landform.AllowedBiomes>
   <GeologicalLandforms.Settings.Landform.AllowedBiomes.Some>({0} biomes selected)</GeologicalLandforms.Settings.Landform.AllowedBiomes.Some>
+  <GeologicalLandforms.Settings.Landform.WorldObjectNearby>World object nearby</GeologicalLandforms.Settings.Landform.WorldObjectNearby>
+  <GeologicalLandforms.Settings.Landform.WorldObjectNearby.Some>({0} world objects)</GeologicalLandforms.Settings.Landform.WorldObjectNearby.Some>
   <GeologicalLandforms.Settings.Landform.AllowedRiverTypes>River shape</GeologicalLandforms.Settings.Landform.AllowedRiverTypes>
   <GeologicalLandforms.Settings.Landform.AllowedRiverTypes.Some>({0} shapes selected)</GeologicalLandforms.Settings.Landform.AllowedRiverTypes.Some>
   <GeologicalLandforms.Settings.Landform.Commonness>Commonness</GeologicalLandforms.Settings.Landform.Commonness>

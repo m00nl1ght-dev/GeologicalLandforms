@@ -29,6 +29,8 @@ public class NodeUIWorldTileReq : NodeUIBase
     public List<string> AllowedBiomes;
     public List<RiverType> AllowedRiverTypes;
 
+    public List<WorldObjectNearby> WorldObjectsNearby;
+
     public FloatRange HillinessRequirement;
     public FloatRange RoadRequirement;
     public FloatRange RiverRequirement;
@@ -154,6 +156,19 @@ public class NodeUIWorldTileReq : NodeUIBase
         if (Landform.WorldTileReq == this) Landform.WorldTileReq = null;
     }
 
+    [Serializable]
+    public struct WorldObjectNearby
+    {
+        public string WorldObjectDef;
+        public FloatRange DistanceRange;
+
+        public WorldObjectNearby(WorldObjectDef def)
+        {
+            WorldObjectDef = def.defName;
+            DistanceRange = new FloatRange(0f, 100f);
+        }
+    }
+
     private static readonly IReadOnlyList<ICondition> Conditions = typeof(NodeUIWorldTileReq).Assembly.GetTypes()
         .Where(t => typeof(ICondition).IsAssignableFrom(t) && !t.IsAbstract)
         .Select(Activator.CreateInstance)
@@ -241,15 +256,107 @@ public class NodeUIWorldTileReq : NodeUIBase
             {
                 LunarGUI.OpenGenericWindow(GeologicalLandformsAPI.LunarAPI, new(500, 500), (_, layoutW) =>
                 {
-                    foreach (var biome in DefDatabase<BiomeDef>.AllDefsListForReading)
+                    foreach (var def in DefDatabase<BiomeDef>.AllDefsListForReading)
                     {
-                        var props = biome.Properties();
-                        var label = UserInterfaceUtils.LabelForBiome(biome, false);
+                        var props = def.Properties();
+                        var label = UserInterfaceUtils.LabelForBiome(def, false);
                         var allowed = props.AllowsLandform(node.Landform);
 
-                        if (!allowed && biome.modContentPack is { IsOfficialMod: true }) continue;
+                        if (!allowed && def.modContentPack is { IsOfficialMod: true }) continue;
 
-                        LunarGUI.ToggleTableRow(layoutW, biome.defName, false, label, allowed ? node.AllowedBiomes : null);
+                        LunarGUI.ToggleTableRow(layoutW, def.defName, false, label, allowed ? node.AllowedBiomes : null);
+                    }
+                });
+            }
+        }
+    }
+
+    private class WorldObjectNearbyCondition : ICondition
+    {
+        public string LabelKey => "WorldObjectNearby";
+
+        public bool IsActive(NodeUIWorldTileReq node) => node.WorldObjectsNearby != null;
+
+        public void Reset(NodeUIWorldTileReq node, bool clear) => node.WorldObjectsNearby = null;
+
+        public bool Check(NodeUIWorldTileReq node, IWorldTileInfo tile, bool lenient)
+        {
+            var posInWorld = tile.PosInWorld;
+
+            foreach (var entry in node.WorldObjectsNearby)
+            {
+                var def = DefDatabase<WorldObjectDef>.GetNamedSilentFail(entry.WorldObjectDef);
+
+                if (def != null)
+                {
+                    var distance = WorldTileUtils.DistanceToNearestWorldObject(Find.World, posInWorld, def);
+                    if (entry.DistanceRange.Includes(distance)) return true;
+                }
+            }
+
+            return false;
+        }
+
+        private string LabelFor(WorldObjectDef def)
+        {
+            return string.IsNullOrEmpty(def.label) ? def.defName : def.label.CapitalizeFirst();
+        }
+
+        public void EditorGUI(NodeUIWorldTileReq node, LayoutRect layout)
+        {
+            node.WorldObjectsNearby ??= [];
+
+            LunarGUI.LabelCentered(layout, $"{LabelKeyPrefix}.{LabelKey}".Translate());
+
+            layout.Abs(3f);
+
+            if (LunarGUI.Button(layout, $"{LabelKeyPrefix}.{LabelKey}.Some".Translate(node.WorldObjectsNearby.Count)))
+            {
+                LunarGUI.OpenGenericWindow(GeologicalLandformsAPI.LunarAPI, new(500, 500), (_, layoutW) =>
+                {
+                    for (var i = 0; i < node.WorldObjectsNearby.Count; i++)
+                    {
+                        var entry = node.WorldObjectsNearby[i];
+
+                        layoutW.PushChanged();
+
+                        layoutW.BeginAbs(28f, new LayoutParams { Horizontal = true, Spacing = 10f });
+
+                        var def = DefDatabase<WorldObjectDef>.GetNamedSilentFail(entry.WorldObjectDef);
+
+                        LunarGUI.Label(layoutW.Rel(0.5f).Moved(0f, 8f), def == null ? entry.WorldObjectDef : LabelFor(def));
+                        LunarGUI.RangeSlider(layoutW.Rel(-1), ref entry.DistanceRange, 0f, 100f);
+
+                        #if RW_1_5_OR_GREATER
+                        var removed = Widgets.ButtonImage(layoutW.Abs(14f).TopPart(0.5f).Moved(0f, -1f), TexButton.Delete);
+                        #else
+                        var removed = Widgets.ButtonImage(layoutW.Abs(14f).TopPart(0.5f).Moved(0f, -1f), TexButton.DeleteX);
+                        #endif
+
+                        layoutW.End();
+
+                        if (removed)
+                        {
+                            node.WorldObjectsNearby.RemoveAt(i);
+                            i--;
+                        }
+                        else if (layoutW.PopChanged())
+                        {
+                            node.WorldObjectsNearby[i] = entry;
+                        }
+                    }
+
+                    layoutW.Abs(5f);
+
+                    if (LunarGUI.Button(layoutW, "Add entry"))
+                    {
+                        var options = DefDatabase<WorldObjectDef>.AllDefsListForReading
+                            .Where(d => !d.isTempIncidentMapOwner && !d.allowCaravanIncidentsWhichGenerateMap)
+                            .Where(d => !node.WorldObjectsNearby.Any(e => e.WorldObjectDef == d.defName))
+                            .Select(e => new FloatMenuOption(LabelFor(e), () => node.WorldObjectsNearby.Add(new WorldObjectNearby(e))))
+                            .ToList();
+
+                        if (options.Count > 0) Find.WindowStack.Add(new FloatMenu(options));
                     }
                 });
             }

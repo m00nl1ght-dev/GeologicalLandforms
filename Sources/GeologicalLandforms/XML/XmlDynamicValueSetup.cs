@@ -3,6 +3,7 @@ using System.Xml;
 using GeologicalLandforms.Patches;
 using LunarFramework.Utility;
 using LunarFramework.XML;
+using RimWorld;
 using UnityEngine;
 using Verse;
 using Verse.Noise;
@@ -54,6 +55,8 @@ public static class XmlDynamicValueSetup
 
         tileNumSup.Register("perlinWorld", PerlinNoiseInWorld);
         tileNumSup.Register("randomValueWorld", RandomValueInWorld);
+
+        tileNumSup.Register("distanceToWorldObject", SupplierWithParam<float, ICtxTile>(DistanceToWorldObject));
 
         // ### Boolean suppliers for full world tile context ###
 
@@ -129,6 +132,14 @@ public static class XmlDynamicValueSetup
             var seed = Gen.HashCombineInt(seedFunc(ctx), seedMask);
             return new FloatRange(min, max).RandomInRangeSeeded(seed);
         };
+    }
+
+    private static float DistanceToWorldObject(string defName, ICtxTile ctx)
+    {
+        var def = DefDatabase<WorldObjectDef>.GetNamedSilentFail(defName);
+        if (def == null) return 99999f;
+
+        return WorldTileUtils.DistanceToNearestWorldObject(Find.World, ctx.TileInfo.PosInWorld, def);
     }
 
     private static float GetCaveSystemDepthAt(ICtxEarlyTile ctx)
