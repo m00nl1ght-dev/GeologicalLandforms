@@ -132,7 +132,7 @@ public class BiomeGrid : MapComponent
 
                 foreach (var pos in map.AllCells)
                 {
-                    if (conditions.Get(new CtxMapCell(tile, map, pos)))
+                    if (conditions.Get(new CtxMapGenCell(pos)))
                     {
                         var oldEntry = EntryAt(pos);
                         var newEntry = entryCache[oldEntry.Index];

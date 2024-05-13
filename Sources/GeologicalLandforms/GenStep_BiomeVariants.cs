@@ -4,6 +4,7 @@ using System.Linq;
 using GeologicalLandforms.Defs;
 using GeologicalLandforms.GraphEditor;
 using MapPreview;
+using RimWorld;
 using Verse;
 
 namespace GeologicalLandforms;
@@ -44,7 +45,7 @@ public class GenStep_BiomeVariants : GenStep
 
                         foreach (var pos in map.AllCells)
                         {
-                            var ctx = new CtxMapCell(tileInfo, map, pos);
+                            var ctx = new CtxMapGenCell(pos);
 
                             if (conditions == null || conditions.Get(ctx))
                             {
@@ -75,50 +76,66 @@ public class GenStep_BiomeVariants : GenStep
 
         if (biomeProps.applyToCaves) biomeGrid.Enabled = true;
 
-        if (tile.HasLandforms() && tile.Landforms.Any(lf => lf.OutputBiomeGrid != null))
-        {
-            Landform.Prepare(map);
-
-            var mapSize = Landform.GeneratingMapSize;
-            var biomeFunc = Landform.GetFeatureScaled(l => l.OutputBiomeGrid?.GetBiomeGrid());
-
-            bool hasBiomeTransition = false;
-
-            if (tile.HasBorderingBiomes())
-            {
-                var baseFunc = biomeFunc;
-                var transition = Landform.GetFeature(l => l.OutputBiomeGrid?.ApplyBiomeTransitions(tile, mapSize, baseFunc));
-                if (transition != null)
-                {
-                    biomeFunc = transition;
-                    hasBiomeTransition = true;
-                }
-            }
-
-            if (biomeFunc != null)
-            {
-                biomeGrid.Enabled = true;
-                biomeGrid.SetBiomes(biomeFunc);
-
-                GeologicalLandformsAPI.Logger.Log($"Restoring biome grid for map on tile {map.Tile}");
-
-                if (hasBiomeTransition)
-                {
-                    BiomeTransition.PostProcessBiomeGrid(biomeGrid, mapSize);
-                }
-            }
-
-            Landform.CleanUp();
-        }
-
         var layers = LayersFor(tile, biomeProps);
 
-        if (layers.Count > 0)
+        if (tile.HasLandforms() || layers.Count > 0)
         {
-            GeologicalLandformsAPI.Logger.Log($"Restoring biome layers for map on tile {map.Tile}");
+            try
+            {
+                Landform.Prepare(map);
+                MapGenerator.data.Clear();
+                MapGenerator.mapBeingGenerated = map;
+                Rand.PushState();
 
-            biomeGrid.ApplyVariantLayers(layers);
-            biomeGrid.Enabled = true;
+                var seed = SeedRerollData.GetMapSeed(Find.World, map.Tile);
+                var genStep = new GenStep_ElevationFertility();
+                Rand.Seed = Gen.HashCombineInt(seed, genStep.SeedPart);
+                genStep.Generate(map, new GenStepParams());
+
+                var mapSize = Landform.GeneratingMapSize;
+                var biomeFunc = Landform.GetFeatureScaled(l => l.OutputBiomeGrid?.GetBiomeGrid());
+
+                bool hasBiomeTransition = false;
+
+                if (tile.HasBorderingBiomes())
+                {
+                    var baseFunc = biomeFunc;
+                    var transition = Landform.GetFeature(l => l.OutputBiomeGrid?.ApplyBiomeTransitions(tile, mapSize, baseFunc));
+                    if (transition != null)
+                    {
+                        biomeFunc = transition;
+                        hasBiomeTransition = true;
+                    }
+                }
+
+                if (biomeFunc != null)
+                {
+                    biomeGrid.Enabled = true;
+                    biomeGrid.SetBiomes(biomeFunc);
+
+                    GeologicalLandformsAPI.Logger.Log($"Restoring biome grid for map on tile {map.Tile}");
+
+                    if (hasBiomeTransition)
+                    {
+                        BiomeTransition.PostProcessBiomeGrid(biomeGrid, mapSize);
+                    }
+                }
+
+                if (layers.Count > 0)
+                {
+                    GeologicalLandformsAPI.Logger.Log($"Restoring biome layers for map on tile {map.Tile}");
+
+                    biomeGrid.ApplyVariantLayers(layers);
+                    biomeGrid.Enabled = true;
+                }
+            }
+            finally
+            {
+                Rand.PopState();
+                MapGenerator.mapBeingGenerated = null;
+                MapGenerator.data.Clear();
+                Landform.CleanUp();
+            }
         }
     }
 

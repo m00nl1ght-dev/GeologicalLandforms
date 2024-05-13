@@ -68,6 +68,7 @@ public class Landform : TerrainCanvas
     public NodeOutputWaterFlow OutputWaterFlow { get; internal set; }
 
     public List<NodeRunGenStep> CustomGenSteps { get; } = [];
+    public List<NodeOutputNamedGrid> NamedGridOutputs { get; } = [];
 
     public override int GridFullSize => GeneratingGridFullSize;
     public override int GridPreviewSize => GeneratingGridPreviewSize;
@@ -127,6 +128,11 @@ public class Landform : TerrainCanvas
     {
         var gridFunction = GetFeature(func);
         return gridFunction == null ? null : TransformIntoMapSpace(gridFunction);
+    }
+
+    public static IGridFunction<double> GetNamedGrid(string name)
+    {
+        return GetFeature(lf => lf.NamedGridOutputs.FirstOrDefault(o => o.Name == name))?.Get() ?? GridFunction.Zero;
     }
 
     public static IGridFunction<T> TransformIntoMapSpace<T>(IGridFunction<T> gridInNodeSpace)

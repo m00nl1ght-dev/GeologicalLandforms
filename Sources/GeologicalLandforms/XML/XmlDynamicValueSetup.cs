@@ -1,5 +1,6 @@
 using System;
 using System.Xml;
+using GeologicalLandforms.GraphEditor;
 using GeologicalLandforms.Patches;
 using LunarFramework.Utility;
 using LunarFramework.XML;
@@ -73,7 +74,7 @@ public static class XmlDynamicValueSetup
 
         var mapNumSup = XmlDynamicValue<float, ICtxMapCell>.SupplierSpecs;
 
-        mapNumSup.Register("fertility", ctx => ctx.Map.fertilityGrid.FertilityAt(ctx.MapCell));
+        mapNumSup.Register("cellFertility", ctx => ctx.Map.fertilityGrid.FertilityAt(ctx.MapCell));
         mapNumSup.Register("perlinMap", PerlinNoiseInMap);
 
         mapNumSup.InheritFrom(tileNumSup);
@@ -85,9 +86,28 @@ public static class XmlDynamicValueSetup
         mapBoolSup.Register("terrain", SupplierWithParam<bool, ICtxMapCell>((str, ctx) => ctx.HasTerrain(str)));
         mapBoolSup.Register("terrainTag", SupplierWithParam<bool, ICtxMapCell>((str, ctx) => ctx.HasTerrainTag(str)));
         mapBoolSup.Register("roof", SupplierWithParam<bool, ICtxMapCell>((str, ctx) => ctx.HasRoof(str)));
+        mapBoolSup.Register("polluted", ctx => ctx.Map.pollutionGrid.IsPolluted(ctx.MapCell));
 
         mapBoolSup.InheritFrom(tileBoolSup);
+
+        // ### Numeric suppliers for map gen cell context ###
+
+        var mapGenNumSup = XmlDynamicValue<float, ICtxMapGenCell>.SupplierSpecs;
+
+        mapGenNumSup.Register("elevation", ctx => MapGenerator.Elevation[ctx.MapCell]);
+        mapGenNumSup.Register("fertility", ctx => MapGenerator.Fertility[ctx.MapCell]);
+
+        mapGenNumSup.RegisterFallback(NamedGridSpec);
+
+        mapGenNumSup.InheritFrom(mapNumSup);
+
+        // ### Boolean suppliers for map gen cell context ###
+
+        XmlDynamicValue<bool, ICtxMapGenCell>.SupplierSpecs.InheritFrom(mapBoolSup);
     }
+
+    private static Spec<Supplier<float, ICtxMapGenCell>> NamedGridSpec(string str)
+        => str.StartsWith("grid.") ? _ => ctx => (float) Landform.GetNamedGrid(str.Substring(5)).ValueAt(ctx.MapCell) : null;
 
     private static Supplier<float, ICtxEarlyTile> PerlinNoiseInWorldEarly(XmlNode node)
         => PerlinNoise<ICtxEarlyTile>(node, ctx => ctx.World.info.Seed, ctx => ctx.World.grid.GetTileCenter(ctx.TileId));

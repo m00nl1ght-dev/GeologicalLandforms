@@ -19,9 +19,9 @@ public class BiomeVariantLayer
 
     public int priority;
 
-    public XmlDynamicValue<bool, ICtxMapCell> mapGridConditions;
+    public XmlDynamicValue<bool, ICtxMapGenCell> mapGridConditions;
 
-    public XmlDynamicValue<TerrainDef, ICtxMapCell> terrainOverrides;
+    public XmlDynamicValue<TerrainDef, ICtxMapGenCell> terrainOverrides;
 
     public XmlDynamicValue<float, ICtxTile> animalDensity;
     public XmlDynamicValue<float, ICtxTile> plantDensity;

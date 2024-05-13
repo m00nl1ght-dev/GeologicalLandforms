@@ -72,6 +72,9 @@ public static class ExtensionUtils
     public static void Set<T>(this T[,] grid, IntVec3 c, T value) => grid[c.x, c.z] = value;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static T ValueAt<T>(this IGridFunction<T> func, IntVec3 pos) => func.ValueAt(pos.x, pos.z);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static BiomeProperties Properties(this BiomeDef biomeDef) => BiomeProperties.Get(biomeDef);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

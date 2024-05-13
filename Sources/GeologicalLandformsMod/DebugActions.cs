@@ -53,9 +53,12 @@ public static class DebugActions
                     }
                 }
 
-                if (LunarGUI.Button(layout.Abs(30), Label("BiomeGridEntryRegenerateAllShort"), Label("BiomeGridEntryRegenerateAll")))
+                if (map.Tile >= 0)
                 {
-                    GenStep_BiomeVariants.RegenerateBiomeGrid(map);
+                    if (LunarGUI.Button(layout.Abs(30), Label("BiomeGridEntryRegenerateAllShort"), Label("BiomeGridEntryRegenerateAll")))
+                    {
+                        GenStep_BiomeVariants.RegenerateBiomeGrid(map);
+                    }
                 }
 
                 if (LunarGUI.Button(layout.Abs(30), Label("BiomeGridEntryRemoveShort"), Label("BiomeGridEntryRemove")))

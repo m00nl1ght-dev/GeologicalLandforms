@@ -1,3 +1,4 @@
+using GeologicalLandforms.GraphEditor;
 using RimWorld.Planet;
 using Verse;
 
@@ -56,6 +57,21 @@ public readonly struct CtxMapCell : ICtxMapCell
     {
         TileInfo = tileInfo;
         Map = map;
+        MapCell = mapCell;
+    }
+}
+
+public interface ICtxMapGenCell : ICtxMapCell;
+
+public readonly struct CtxMapGenCell : ICtxMapGenCell
+{
+    public IWorldTileInfo TileInfo => Landform.GeneratingTile;
+    public Map Map => MapGenerator.mapBeingGenerated;
+
+    public IntVec3 MapCell { get; }
+
+    public CtxMapGenCell(IntVec3 mapCell)
+    {
         MapCell = mapCell;
     }
 }

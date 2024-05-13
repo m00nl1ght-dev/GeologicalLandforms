@@ -69,5 +69,6 @@
         <Publicize Include="Assembly-CSharp:RimWorld.GameConditionManager.AggregatePlantDensityFactor" />
         <Publicize Include="Assembly-CSharp:RimWorld.GameConditionManager.AggregateAnimalDensityFactor" />
         <Publicize Include="Assembly-CSharp:Verse.CellInspectorDrawer.DrawRow" />
+        <Publicize Include="Assembly-CSharp:Verse.MapGenerator.data" />
     </ItemGroup>
 </Project>

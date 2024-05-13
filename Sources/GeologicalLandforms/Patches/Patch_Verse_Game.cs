@@ -50,27 +50,4 @@ internal static class Patch_Verse_Game
             GeologicalLandformsAPI.Logger.Error("Error while getting landform data for new map", e);
         }
     }
-
-    [HarmonyPostfix]
-    [HarmonyPatch("LoadGame")]
-    private static void LoadGame()
-    {
-        var landformData = Current.Game.World.LandformData();
-        if (landformData == null) return;
-
-        foreach (var map in Current.Game.Maps)
-        {
-            try
-            {
-                if (map.BiomeGrid() is { Enabled: false } && map.Tile >= 0 && landformData.HasData(map.Tile))
-                {
-                    GenStep_BiomeVariants.RegenerateBiomeGrid(map);
-                }
-            }
-            catch (Exception e)
-            {
-                GeologicalLandformsAPI.Logger.Warn($"Failed to restore biome grid for map on tile {map.Tile}", e);
-            }
-        }
-    }
 }
