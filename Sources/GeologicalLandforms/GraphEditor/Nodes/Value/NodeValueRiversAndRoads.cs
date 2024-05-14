@@ -71,7 +71,7 @@ public class NodeValueRiversAndRoads : NodeBase
 
             if (riverData.RiverInflowWidth > 0)
             {
-                double diff = 180 + riverData.RiverInflowAngle - angle;
+                double diff = riverData.RiverInflowAngle - angle;
                 angle += diff.NormalizeDeg() * 0.5;
             }
         }

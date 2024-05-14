@@ -79,14 +79,14 @@ public class EditorMockTileInfo : IWorldTileInfo
     {
         public RiverData() {}
 
-        public float RiverInflowAngle { get; set; } = 30f;
-        public float RiverInflowOffset { get; set; } = 0.1f;
+        public float RiverInflowAngle { get; set; } = 0f;
+        public float RiverInflowOffset { get; set; } = 0f;
         public float RiverInflowWidth { get; set; } = 20f;
-        public float RiverTributaryAngle { get; set; } = -80f;
-        public float RiverTributaryOffset { get; set; } = -0.1f;
+        public float RiverTributaryAngle { get; set; } = -45f;
+        public float RiverTributaryOffset { get; set; } = 0.1f;
         public float RiverTributaryWidth { get; set; } = 10f;
-        public float RiverOutflowAngle { get; set; } = -45f;
-        public float RiverOutflowWidth { get; set; } = 1f;
+        public float RiverOutflowAngle { get; set; } = 0f;
+        public float RiverOutflowWidth { get; set; } = 20f;
     }
 
     public struct RoadData : IRoadData

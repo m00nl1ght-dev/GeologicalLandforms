@@ -161,13 +161,7 @@ public class LandformGraphEditor : Window
 
     public void Refresh()
     {
-        if (Landform.GeneratingTile?.Landforms != null)
-        {
-            foreach (var landform in Landform.GeneratingTile.Landforms)
-            {
-                landform.TraverseAll();
-            }
-        }
+        Landform.Prepare(Landform.GeneratingTile, Landform.GeneratingMapSize, Landform.RandSeed);
     }
 
     public void ResetView()
