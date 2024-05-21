@@ -80,8 +80,6 @@ public class LandformGraphEditor : Window
 
     private void CleanUp()
     {
-        ResetView();
-
         Landform.CleanUp();
         Landform.CleanUpGUI();
 
@@ -104,17 +102,19 @@ public class LandformGraphEditor : Window
         {
             _canvasCache.nodeCanvas = landform;
 
+            editorState ??= landform.editorStates.FirstOrDefault();
+
             if (editorState != null)
             {
                 _canvasCache.editorState = editorState;
             }
             else
             {
-                _canvasCache.NewEditorState();
+                NewEditorState();
+                Landform.ResetView();
             }
 
             landform.PrepareGUI();
-            ResetView();
 
             if (WorldTileUtils.CurrentWorldTile is WorldTileInfo tileInfo && tileInfo.HasLandform(Landform))
             {
@@ -164,11 +164,10 @@ public class LandformGraphEditor : Window
         Landform.Prepare(Landform.GeneratingTile, Landform.GeneratingMapSize, Landform.RandSeed);
     }
 
-    public void ResetView()
+    public void NewEditorState()
     {
         _canvasCache.NewEditorState();
         _canvasCache.editorState.zoom = 1920f / UI.screenWidth;
-        Landform.ResetView();
     }
 
     public void CloseLandform()

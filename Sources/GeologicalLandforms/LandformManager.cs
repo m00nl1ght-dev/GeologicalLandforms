@@ -175,6 +175,7 @@ public static class LandformManager
         landform.Manifest.IsCustom = false;
         landform.Manifest.RevisionVersion++;
 
+        landform.editorStates = [];
         landform.ResetView();
 
         try
@@ -236,6 +237,8 @@ public static class LandformManager
 
                 if (landform != null && landform.Id != null)
                 {
+                    landform.editorStates = [];
+
                     if (KnownInternalLandforms.Contains(landform.Id))
                     {
                         landform.Manifest.IsInternal = true;
@@ -298,7 +301,11 @@ public static class LandformManager
                 var landform = pair.Value;
                 existing.Remove(file);
 
+                landform.ResetView();
+
+                (var editorStates, landform.editorStates) = (landform.editorStates, []);
                 ImportExportManager.ExportCanvas(landform, IOFormat, file);
+                landform.editorStates = editorStates;
             }
 
             foreach (string file in existing)
