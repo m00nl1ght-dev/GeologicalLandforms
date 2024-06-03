@@ -31,7 +31,7 @@ public class LandformGraphEditor : Window
         NodeBase.ActiveDropdownHandler = (values, action) =>
         {
             var options = values.Select((e, i) => new FloatMenuOption(e, () => { action(i); })).ToList();
-            Find.WindowStack.Add(new FloatMenu(options));
+            if (options.Count > 0) Find.WindowStack.Add(new FloatMenu(options));
         };
 
         NodeBase.ActiveTooltipHandler = (rect, textFunc, tdelay) =>

@@ -7,7 +7,7 @@ using Verse;
 namespace GeologicalLandforms.GraphEditor;
 
 [Serializable]
-[Node(false, "Layer Config", 9000)]
+[Node(false, "Other/Layer Config", 9000)]
 public class NodeUILayerConfig : NodeUIBase
 {
     public const string ID = "layerConfig";

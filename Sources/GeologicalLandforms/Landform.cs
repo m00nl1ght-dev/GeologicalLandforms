@@ -69,6 +69,7 @@ public class Landform : TerrainCanvas
     public NodeOutputTerrainPatches OutputTerrainPatches { get; internal set; }
     public NodeOutputWaterFlow OutputWaterFlow { get; internal set; }
 
+    public List<NodeApplyLayer> ApplyLayers { get; } = [];
     public List<NodeRunGenStep> CustomGenSteps { get; } = [];
 
     public override int GridFullSize => GeneratingGridFullSize;

@@ -190,7 +190,8 @@ public class GeologicalLandformsSettings : LunarModSettings
                     new("None".Translate(), () => DevQuickTestOverrideLandform.Value = "None")
                 };
 
-                options.AddRange(LandformManager.LandformsById.Values.Where(e => !e.IsInternal).OrderBy(e => e.Id)
+                options.AddRange(LandformManager.LandformsById.Values
+                    .Where(e => !e.IsInternal && e.WorldTileReq != null).OrderBy(e => e.Id)
                     .Select(e => new FloatMenuOption(e.Id, () => DevQuickTestOverrideLandform.Value = e.Id)));
 
                 Find.WindowStack.Add(new FloatMenu(options));

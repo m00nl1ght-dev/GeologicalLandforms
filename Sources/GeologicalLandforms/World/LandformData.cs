@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using GeologicalLandforms.Defs;
-using GeologicalLandforms.GraphEditor;
 using MapPreview;
 using RimWorld.Planet;
 using Verse;
@@ -144,7 +142,7 @@ public class LandformData : WorldComponent
             Topology = tileInfo.Topology;
             TopologyValue = tileInfo.TopologyValue;
             TopologyDirection = tileInfo.TopologyDirection;
-            Landforms = tileInfo.Landforms?.Select(lf => lf.Id).ToList();
+            Landforms = tileInfo.Landforms?.Where(lf => lf.WorldTileReq != null).Select(lf => lf.Id).ToList();
             BiomeVariants = tileInfo.BiomeVariants?.Select(bv => bv.defName).ToList();
         }
 
@@ -157,13 +155,11 @@ public class LandformData : WorldComponent
             BiomeVariants = other.BiomeVariants?.ToList();
         }
 
-        public void Apply(WorldTileInfoPrimer primer)
+        public void ApplyTopology(WorldTileInfoPrimer primer)
         {
             primer.Topology = Topology;
             primer.TopologyValue = TopologyValue;
             primer.TopologyDirection = TopologyDirection;
-            primer.Landforms = Landforms?.Select(ResolveLandform).Where(lf => lf != null).OrderBy(e => e.Priority).ToArray();
-            primer.BiomeVariants = BiomeVariants?.Select(ResolveBiomeVariant).Where(bv => bv != null).ToArray();
         }
 
         public void ExposeData()
@@ -174,23 +170,5 @@ public class LandformData : WorldComponent
             Scribe_Collections.Look(ref Landforms, "landforms", LookMode.Value);
             Scribe_Collections.Look(ref BiomeVariants, "biomeVariants", LookMode.Value);
         }
-    }
-
-    internal static Landform ResolveLandform(string id)
-    {
-        var landform = LandformManager.FindById(id);
-        if (landform != null) return landform;
-
-        GeologicalLandformsAPI.Logger.Warn("Could not resolve landform: " + id);
-        return null;
-    }
-
-    internal static BiomeVariantDef ResolveBiomeVariant(string defName)
-    {
-        var def = DefDatabase<BiomeVariantDef>.GetNamed(defName);
-        if (def != null) return def;
-
-        GeologicalLandformsAPI.Logger.Warn("Could not resolve biome variant: " + defName);
-        return null;
     }
 }

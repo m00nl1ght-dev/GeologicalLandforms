@@ -122,6 +122,7 @@ public static class LandformManager
 
     public static Landform FindById(string id)
     {
+        if (string.IsNullOrEmpty(id)) return null;
         return LandformsById.TryGetValue(id, out var landform) ? landform : null;
     }
 

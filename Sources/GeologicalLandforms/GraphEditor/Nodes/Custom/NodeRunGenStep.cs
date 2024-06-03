@@ -12,7 +12,7 @@ using Verse.Noise;
 namespace GeologicalLandforms.GraphEditor;
 
 [Serializable]
-[Node(false, "Custom/Run GenStep", 2000)]
+[Node(false, "Other/Run GenStep", 10000)]
 public class NodeRunGenStep : NodeBase
 {
     public const string ID = "runGenStep";

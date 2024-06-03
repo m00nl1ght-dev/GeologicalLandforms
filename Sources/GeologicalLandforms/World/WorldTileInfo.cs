@@ -10,6 +10,7 @@ using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
 using Verse;
+using static GeologicalLandforms.LandformData;
 using static Verse.RotationDirection;
 
 // ReSharper disable ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
@@ -110,7 +111,9 @@ public class WorldTileInfo : IWorldTileInfo
 
             var info = new WorldTileInfoPrimer(tileId, world.grid[tileId], world);
             var props = info.Biome.Properties();
-            var data = world.LandformData();
+
+            var worldData = world.LandformData();
+            var tileData = worldData != null && worldData.TryGet(tileId, out var found) ? found : null;
 
             if (_tsc_waterTiles == null)
             {
@@ -124,17 +127,12 @@ public class WorldTileInfo : IWorldTileInfo
                 _tsc_ids = new(5);
             }
 
-            DetermineTopology(info, data, props);
+            DetermineTopology(info, worldData, props);
 
-            if (data != null && data.TryGet(tileId, out var tileData))
-            {
-                tileData.Apply(info);
-            }
-            else
-            {
-                DetermineLandforms(info, props);
-                DetermineBiomeVariants(info, props);
-            }
+            tileData?.ApplyTopology(info);
+
+            DetermineLandforms(info, tileData, props);
+            DetermineBiomeVariants(info, tileData, props);
 
             GeologicalLandformsAPI.ApplyWorldTileInfoHook(info);
 
@@ -182,54 +180,77 @@ public class WorldTileInfo : IWorldTileInfo
     [ThreadStatic]
     private static List<float> _tsc_commonness;
 
-    private static void DetermineLandforms(WorldTileInfo info, BiomeProperties biomeProps)
+    private static void DetermineLandforms(WorldTileInfo info, TileData tileData, BiomeProperties biomeProps)
     {
         var eligible = _tsc_eligible;
         var commonness = _tsc_commonness;
 
         List<Landform> landforms = null;
 
-        foreach (var layer in LandformManager.LandformLayers)
+        if (tileData != null)
         {
-            eligible.Clear();
-            commonness.Clear();
-
-            foreach (var landform in layer.Landforms)
+            if (tileData.Landforms != null)
             {
-                var value = landform.GetCommonnessForTile(info);
-                if (value > 0f && biomeProps.AllowsLandform(landform))
+                foreach (var landformId in tileData.Landforms)
                 {
-                    eligible.Add(landform);
-                    commonness.Add(value);
-                }
-            }
+                    var landform = LandformManager.FindById(landformId);
 
-            if (layer.LayerId == "")
-            {
-                for (var i = 0; i < eligible.Count; i++)
-                {
-                    if (Rand.ChanceSeeded(commonness[i], info.StableSeed(eligible[i].IdHash)))
+                    if (landform != null)
                     {
                         landforms ??= new(2);
-                        landforms.Add(eligible[i]);
+                        landforms.Add(landform);
+                    }
+                    else
+                    {
+                        GeologicalLandformsAPI.Logger.Warn($"No landform found with id {landformId}");
                     }
                 }
             }
-            else
+        }
+        else
+        {
+            foreach (var layer in LandformManager.LandformLayers)
             {
-                var seed = info.StableSeed(layer.SelectionSeed);
-                var rand = new FloatRange(0f, Math.Max(1f, commonness.Sum())).RandomInRangeSeeded(seed);
+                eligible.Clear();
+                commonness.Clear();
 
-                for (var i = 0; i < eligible.Count; i++)
+                foreach (var landform in layer.Landforms)
                 {
-                    if (rand < commonness[i])
+                    var value = landform.GetCommonnessForTile(info);
+                    if (value > 0f && biomeProps.AllowsLandform(landform))
                     {
-                        landforms ??= new(2);
-                        landforms.Add(eligible[i]);
-                        break;
+                        eligible.Add(landform);
+                        commonness.Add(value);
                     }
+                }
 
-                    rand -= commonness[i];
+                if (layer.LayerId == "")
+                {
+                    for (var i = 0; i < eligible.Count; i++)
+                    {
+                        if (Rand.ChanceSeeded(commonness[i], info.StableSeed(eligible[i].IdHash)))
+                        {
+                            landforms ??= new(2);
+                            landforms.Add(eligible[i]);
+                        }
+                    }
+                }
+                else
+                {
+                    var seed = info.StableSeed(layer.SelectionSeed);
+                    var rand = new FloatRange(0f, Math.Max(1f, commonness.Sum())).RandomInRangeSeeded(seed);
+
+                    for (var i = 0; i < eligible.Count; i++)
+                    {
+                        if (rand < commonness[i])
+                        {
+                            landforms ??= new(2);
+                            landforms.Add(eligible[i]);
+                            break;
+                        }
+
+                        rand -= commonness[i];
+                    }
                 }
             }
         }
@@ -251,17 +272,46 @@ public class WorldTileInfo : IWorldTileInfo
             }
         }
 
+        if (landforms != null)
+        {
+            foreach (var nodeApplyLayer in landforms.SelectMany(lf => lf.ApplyLayers).ToList())
+            {
+                var landform = LandformManager.FindById(nodeApplyLayer.LayerId);
+                if (landform != null) landforms.AddDistinct(landform);
+            }
+        }
+
         landforms?.Sort((a, b) => a.Priority - b.Priority);
         info.Landforms = landforms;
     }
 
-    private static void DetermineBiomeVariants(WorldTileInfoPrimer info, BiomeProperties biomeProps)
+    private static void DetermineBiomeVariants(WorldTileInfoPrimer info, TileData tileData, BiomeProperties biomeProps)
     {
         List<BiomeVariantDef> variants = null;
 
         var ctxTile = new CtxTile(info);
 
-        if (biomeProps.AllowBiomeTransitions)
+        if (tileData != null)
+        {
+            if (tileData.BiomeVariants != null)
+            {
+                foreach (var defName in tileData.BiomeVariants)
+                {
+                    var def = DefDatabase<BiomeVariantDef>.GetNamed(defName);
+
+                    if (def != null)
+                    {
+                        variants ??= new(2);
+                        variants.Add(def);
+                    }
+                    else
+                    {
+                        GeologicalLandformsAPI.Logger.Warn($"No biome variant found with def name {defName}");
+                    }
+                }
+            }
+        }
+        else if (biomeProps.AllowBiomeTransitions)
         {
             foreach (var variant in DefDatabase<BiomeVariantDef>.AllDefsListForReading)
             {
