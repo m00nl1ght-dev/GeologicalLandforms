@@ -5,6 +5,7 @@ using GeologicalLandforms.Patches;
 using LunarFramework.Utility;
 using LunarFramework.XML;
 using RimWorld;
+using TerrainGraph;
 using UnityEngine;
 using Verse;
 using Verse.Noise;
@@ -106,8 +107,11 @@ public static class XmlDynamicValueSetup
         XmlDynamicValue<bool, ICtxMapGenCell>.SupplierSpecs.InheritFrom(mapBoolSup);
     }
 
-    private static Spec<Supplier<float, ICtxMapGenCell>> NamedGridSpec(string str)
-        => str.StartsWith("grid.") ? _ => ctx => (float) Landform.GetNamedGrid(str.Substring(5)).ValueAt(ctx.MapCell) : null;
+    private static Spec<Supplier<float, ICtxMapGenCell>> NamedGridSpec(string str) =>
+        str.StartsWith("landform.") ? _ => ctx => (float) NamedGridValue(ctx, str.Substring(9)) : null;
+
+    private static double NamedGridValue(ICtxMapGenCell ctx, string name) =>
+        Landform.GetNamedFeature<IGridFunction<double>>(name)?.ValueAt(ctx.MapCell) ?? 0;
 
     private static Supplier<float, ICtxEarlyTile> PerlinNoiseInWorldEarly(XmlNode node)
         => PerlinNoise<ICtxEarlyTile>(node, ctx => ctx.World.info.Seed, ctx => ctx.World.grid.GetTileCenter(ctx.TileId));

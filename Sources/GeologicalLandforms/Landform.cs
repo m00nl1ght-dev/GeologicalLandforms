@@ -32,6 +32,8 @@ public class Landform : TerrainCanvas
     public static double MapSpaceToNodeSpaceFactor => GeneratingMapSizeMin / (double) GeneratingGridFullSize;
     public static double NodeSpaceToMapSpaceFactor => GeneratingGridFullSize / (double) GeneratingMapSizeMin;
 
+    private static readonly Dictionary<(Type, string), object> NamedFeatureCache = [];
+
     public string Id => Manifest?.Id;
     public int IdHash => GenText.StableStringHash(Id ?? "");
     public bool IsCustom => Manifest?.IsCustom ?? false;
@@ -68,7 +70,6 @@ public class Landform : TerrainCanvas
     public NodeOutputWaterFlow OutputWaterFlow { get; internal set; }
 
     public List<NodeRunGenStep> CustomGenSteps { get; } = [];
-    public List<NodeOutputNamedGrid> NamedGridOutputs { get; } = [];
 
     public override int GridFullSize => GeneratingGridFullSize;
     public override int GridPreviewSize => GeneratingGridPreviewSize;
@@ -106,6 +107,8 @@ public class Landform : TerrainCanvas
             if (landform.WorldTileReq == null || landform.WorldTileReq.CheckWorldObject(tileInfo))
             {
                 landform.RandSeed = seed;
+                landform.ClearNamedInputs();
+                landform.SetNamedInputs(landformStack);
                 landform.TraverseAll();
                 landformStack.Add(landform);
             }
@@ -116,6 +119,7 @@ public class Landform : TerrainCanvas
     {
         GeneratingTile = null;
         GeneratingLandforms = null;
+        NamedFeatureCache.Clear();
     }
 
     public static T GetFeature<T>(Func<Landform, T> func)
@@ -130,9 +134,13 @@ public class Landform : TerrainCanvas
         return gridFunction == null ? null : TransformIntoMapSpace(gridFunction);
     }
 
-    public static IGridFunction<double> GetNamedGrid(string name)
+    public static T GetNamedFeature<T>(string name)
     {
-        return GetFeature(lf => lf.NamedGridOutputs.FirstOrDefault(o => o.Name == name))?.Get() ?? GridFunction.Zero;
+        if (NamedFeatureCache.TryGetValue((typeof(T), name), out var cached)) return (T) cached;
+        var supplier = GetFeature(lf => lf.GetNamedOutput<T>(name));
+        var value = supplier != null ? supplier.ResetAndGet() : default;
+        NamedFeatureCache[(typeof(T), name)] = value;
+        return value;
     }
 
     public static IGridFunction<T> TransformIntoMapSpace<T>(IGridFunction<T> gridInNodeSpace)
