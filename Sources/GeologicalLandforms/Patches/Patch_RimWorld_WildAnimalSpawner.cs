@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection.Emit;
 using HarmonyLib;
 using LunarFramework.Patching;
@@ -84,59 +83,52 @@ internal static class Patch_RimWorld_WildAnimalSpawner
         return density * GeologicalLandformsAPI.AnimalDensityFactor(biomeGrid);
     }
 
+    private static BiomeDef _localBiome;
+
+    private static BiomeDef LocalBiome(Map map) => _localBiome ?? map.Biome;
+
+    [HarmonyPrefix]
+    [HarmonyPatch("SpawnRandomWildAnimalAt")]
+    private static void SpawnRandomWildAnimalAt_Prefix(Map ___map, IntVec3 loc)
+    {
+        var biomeGrid = ___map.BiomeGrid();
+        _localBiome = biomeGrid is { Enabled: true } ? biomeGrid.BiomeAt(loc) : ___map.Biome;
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch("SpawnRandomWildAnimalAt")]
+    private static void SpawnRandomWildAnimalAt_Postfix()
+    {
+        _localBiome = null;
+    }
+
     [HarmonyTranspiler]
     [HarmonyPatch("SpawnRandomWildAnimalAt")]
     [HarmonyPriority(Priority.Low)]
     private static IEnumerable<CodeInstruction> SpawnRandomWildAnimalAt_Transpiler(IEnumerable<CodeInstruction> instructions)
     {
-        var pattern = TranspilerPattern.Build("AdjustPotentialAnimalSpawns")
-            .Insert(OpCodes.Ldarg_0)
+        var pattern = TranspilerPattern.Build("MakeAwareOfLocalBiome")
             .Match(OpCodes.Ldarg_0).Keep()
             .MatchLoad(typeof(WildAnimalSpawner), "map").Keep()
             .MatchCall(typeof(Map), "get_Biome").Remove()
-            .MatchCall(typeof(BiomeDef), "get_AllWildAnimals").Remove()
-            .Match(OpCodes.Ldarg_0).Replace(OpCodes.Ldarg_1)
-            .Match(OpCodes.Ldftn).Remove()
-            .Match(OpCodes.Newobj).Remove()
-            .Match(OpCodes.Call).Remove()
-            .Match(OpCodes.Ldarg_0).Remove()
-            .Match(OpCodes.Ldftn).Remove()
-            .Match(OpCodes.Newobj).Remove()
-            .Match(OpCodes.Ldloca_S).Keep()
-            .Match(OpCodes.Call).Remove()
-            .Insert(CodeInstruction.Call(Self, nameof(AdjustPotentialAnimalSpawns)))
-            .Match(OpCodes.Brtrue_S).Keep();
+            .Insert(CodeInstruction.Call(Self, nameof(LocalBiome)))
+            .MatchCall(typeof(BiomeDef), "get_AllWildAnimals").Keep();
 
         return TranspilerPattern.Apply(instructions, pattern);
     }
 
+    [HarmonyTranspiler]
     [HarmonyPatch("CommonalityOfAnimalNow")]
-    [HarmonyReversePatch(HarmonyReversePatchType.Snapshot)]
-    [HarmonyPriority(Priority.Last)]
-    private static float CommonalityOfAnimalNow_LocalBiomeAware(WildAnimalSpawner instance, PawnKindDef def, BiomeDef biome)
+    [HarmonyPriority(Priority.Low)]
+    private static IEnumerable<CodeInstruction> CommonalityOfAnimalNow_Transpiler(IEnumerable<CodeInstruction> instructions)
     {
-        IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
-        {
-            var pattern = TranspilerPattern.Build("MakeAwareOfLocalBiome")
-                .Match(OpCodes.Ldarg_0).Replace(OpCodes.Ldarg_2)
-                .MatchLoad(typeof(WildAnimalSpawner), "map").Remove()
-                .MatchCall(typeof(Map), "get_Biome").Remove()
-                .Greedy();
+        var pattern = TranspilerPattern.Build("MakeAwareOfLocalBiome")
+            .Match(OpCodes.Ldarg_0).Keep()
+            .MatchLoad(typeof(WildAnimalSpawner), "map").Keep()
+            .MatchCall(typeof(Map), "get_Biome").Remove()
+            .Insert(CodeInstruction.Call(Self, nameof(LocalBiome)))
+            .Greedy();
 
-            return TranspilerPattern.Apply(instructions, pattern);
-        }
-
-        _ = Transpiler(null);
-        return 0f;
-    }
-
-    private static bool AdjustPotentialAnimalSpawns(WildAnimalSpawner instance, Map map, IntVec3 loc, out PawnKindDef result)
-    {
-        var biomeGrid = map.BiomeGrid();
-        var biome = biomeGrid is { Enabled: true } ? biomeGrid.BiomeAt(loc) : map.Biome;
-
-        return biome.AllWildAnimals
-            .Where(a => map.mapTemperature.SeasonAcceptableFor(a.race))
-            .TryRandomElementByWeight(def => CommonalityOfAnimalNow_LocalBiomeAware(instance, def, biome), out result);
+        return TranspilerPattern.Apply(instructions, pattern);
     }
 }
