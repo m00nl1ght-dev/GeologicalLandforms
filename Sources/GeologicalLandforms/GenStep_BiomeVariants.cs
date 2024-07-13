@@ -68,7 +68,7 @@ public class GenStep_BiomeVariants : GenStep
         var biomeGrid = map.BiomeGrid();
         var biomeProps = map.Biome.Properties();
 
-        biomeGrid.Clear();
+        biomeGrid.Fill(map.Biome);
 
         LandformGraphEditor.ActiveEditor?.Close();
 

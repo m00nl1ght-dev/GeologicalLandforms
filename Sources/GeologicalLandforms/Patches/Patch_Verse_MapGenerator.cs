@@ -21,6 +21,13 @@ internal static class Patch_Verse_MapGenerator
 
         Landform.Prepare(map);
 
+        var biomeGrid = map.BiomeGrid();
+        if (biomeGrid != null)
+        {
+            biomeGrid.Primary.Set(map.Biome);
+            biomeGrid.RefreshAllEntries(Landform.GeneratingTile);
+        }
+
         var bvGenStepDef = new GenStepDef { order = 225, generated = true };
         bvGenStepDef.genStep = new GenStep_BiomeVariants { def = bvGenStepDef };
 

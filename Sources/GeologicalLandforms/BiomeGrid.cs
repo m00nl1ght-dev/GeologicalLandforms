@@ -40,26 +40,20 @@ public class BiomeGrid : MapComponent
     private readonly IntVec3 _mapSize;
 
     /// <summary>
-    /// Create a new biome grid for a normal full map.
+    /// Create a new biome grid for a full map.
     /// </summary>
-    public BiomeGrid(Map map) : this(map, map.Size, map.Parent == null ? BiomeDefOf.TemperateForest : map.Biome) { }
+    public BiomeGrid(Map map) : this(map, map.Size) { }
 
     /// <summary>
-    /// Create a new biome grid for a map preview.
+    /// Create a new biome grid for a full map or preview.
     /// </summary>
     /// <param name="map">can be null for previews</param>
-    /// <param name="mapSize">the size of the preview</param>
-    /// <param name="worldBiome">the biome of the world tile to be previewed</param>
-    public BiomeGrid(Map map, IntVec3 mapSize, BiomeDef worldBiome) : base(map)
+    /// <param name="mapSize">the size of the map or preview</param>
+    public BiomeGrid(Map map, IntVec3 mapSize) : base(map)
     {
         _mapSize = mapSize;
         _grid = new Entry[_mapSize.x * _mapSize.z];
-
-        if (GeologicalLandformsAPI.LunarAPI.IsInitialized())
-        {
-            var primary = MakeEntry(worldBiome);
-            primary.CellCount = _mapSize.x * _mapSize.z;
-        }
+        _entries.Add(new Entry { LoadId = LoadId, CellCount = _mapSize.x * _mapSize.z });
     }
 
     /// <summary>
@@ -114,14 +108,6 @@ public class BiomeGrid : MapComponent
 
     public void ApplyVariantLayers(IEnumerable<BiomeVariantLayer> layers)
     {
-        var tile = TileInfo;
-
-        if (tile == null)
-        {
-            GeologicalLandformsAPI.Logger.Error("Map without world tile data can not have biome variants");
-            return;
-        }
-
         foreach (var layer in layers)
         {
             var conditions = layer.mapGridConditions;
@@ -130,13 +116,14 @@ public class BiomeGrid : MapComponent
             {
                 var entryCache = new Entry[_entries.Count];
 
-                foreach (var pos in map.AllCells)
+                for (int cellIdx = 0; cellIdx < _grid.Length; cellIdx++)
                 {
+                    var pos = CellIndicesUtility.IndexToCell(cellIdx, _mapSize.x);
+
                     if (conditions.Get(new CtxMapGenCell(pos)))
                     {
-                        var oldEntry = EntryAt(pos);
+                        var oldEntry = EntryAt(cellIdx);
                         var newEntry = entryCache[oldEntry.Index];
-                        int cellIdx = CellIndicesUtility.CellToIndex(pos, _mapSize.x);
                         newEntry ??= entryCache[oldEntry.Index] = MakeEntry(oldEntry.BiomeBase, oldEntry.VariantLayers.Append(layer).ToList());
                         _grid[cellIdx] = newEntry;
                         oldEntry.CellCount--;
@@ -153,7 +140,7 @@ public class BiomeGrid : MapComponent
             }
         }
 
-        RefreshAllEntries();
+        RefreshAllEntries(TileInfo);
     }
 
     public void UpdateOpenGroundFraction()
@@ -274,22 +261,21 @@ public class BiomeGrid : MapComponent
         if (GeologicalLandformsAPI.LunarAPI.IsInitialized())
         {
             UpdateOpenGroundFraction();
-            RefreshAllEntries();
+            RefreshAllEntries(TileInfo);
         }
     }
 
-    public void RefreshAllEntries()
+    public void RefreshAllEntries(IWorldTileInfo tileInfo)
     {
-        var tileInfo = TileInfo;
         foreach (var entry in Entries) entry.Refresh(tileInfo);
     }
 
-    public void Clear()
+    public void Fill(BiomeDef biome)
     {
         LoadId = new();
         _entries.Clear();
         for (int i = 0; i < _grid.Length; i++) _grid[i] = null;
-        var primary = MakeEntry(map?.Biome ?? BiomeDefOf.TemperateForest);
+        var primary = MakeEntry(biome);
         primary.CellCount = _mapSize.x * _mapSize.z;
     }
 
@@ -313,7 +299,7 @@ public class BiomeGrid : MapComponent
         public bool HasVariants => VariantLayers.Count > 0;
         private List<BiomeVariantLayer> _variantLayers = [];
 
-        public BiomeDef Biome { get; private set; }
+        public BiomeDef Biome { get; private set; } = BiomeDefOf.TemperateForest;
         public bool ApplyToCaves { get; private set; }
 
         internal object LoadId;

@@ -90,7 +90,7 @@ internal static class Patch_RimWorld_GenStep_Terrain
         return TranspilerPattern.Apply(instructions, findLoc, injectOpt);
     }
 
-    public static void Init(BiomeGrid biomeGrid = null)
+    public static void Init(BiomeGrid biomeGrid)
     {
         CleanUp();
 
@@ -104,7 +104,7 @@ internal static class Patch_RimWorld_GenStep_Terrain
         RiverFunction = Landform.GetFeatureScaled(l => l.OutputWaterFlow?.GetRiverTerrain());
         BiomeFunction = Landform.GetFeatureScaled(l => l.OutputBiomeGrid?.GetBiomeGrid());
 
-        _biomeGrid = biomeGrid ?? new BiomeGrid(null, new IntVec3(mapSize.x, 1, mapSize.z), tile.Biome);
+        _biomeGrid = biomeGrid;
 
         bool hasBiomeTransition = false;
         if (tile.HasBorderingBiomes())
@@ -117,7 +117,7 @@ internal static class Patch_RimWorld_GenStep_Terrain
             }
         }
 
-        if (BiomeFunction != null)
+        if (_biomeGrid != null && BiomeFunction != null)
         {
             _biomeGrid.Enabled = true;
             _biomeGrid.SetBiomes(BiomeFunction);

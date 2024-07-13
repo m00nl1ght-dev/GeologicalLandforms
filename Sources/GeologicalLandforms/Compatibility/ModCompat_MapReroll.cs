@@ -27,8 +27,14 @@ internal class ModCompat_MapReroll : ModCompat
     {
         var tileInfo = WorldTileInfo.Get(mapTile);
         int seedInt = Gen.HashCombineInt(GenText.StableStringHash(seed), mapTile);
+
         Landform.Prepare(tileInfo, new IntVec2(mapSize, mapSize), seedInt);
-        Patch_RimWorld_GenStep_Terrain.Init();
+
+        var biomeGrid = new BiomeGrid(null, new IntVec3(mapSize, 1, mapSize));
+        biomeGrid.Primary.Set(tileInfo.Biome);
+        biomeGrid.Primary.Refresh(null);
+
+        Patch_RimWorld_GenStep_Terrain.Init(biomeGrid);
     }
 
     [HarmonyPostfix]
