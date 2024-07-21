@@ -32,7 +32,7 @@ public class NodeInputFertility : NodeInputBase
 
     public override bool Calculate()
     {
-        var supplier = Landform.GetFeature(l => l.OutputFertility?.InputKnob.GetValue<ISupplier<IGridFunction<double>>>());
+        var supplier = GetFromBelowStack(Landform, l => l.OutputFertility?.InputKnob.GetValue<ISupplier<IGridFunction<double>>>());
         supplier ??= BuildVanillaFertilityGridSupplier();
         Knob.SetValue(supplier);
         return true;

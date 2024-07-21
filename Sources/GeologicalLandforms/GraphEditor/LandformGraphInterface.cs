@@ -188,7 +188,13 @@ public class LandformGraphInterface
         if (Landform.ModContentPack != null && Landform.OriginalFileLocation != null)
         {
             var mcp = Landform.ModContentPack;
-            if (mcp.ModMetaData.Source == ContentSource.ModsFolder && !mcp.PackageId.StartsWith("m00nl1ght"))
+            var dest = mcp.ModMetaData.Source == ContentSource.ModsFolder;
+
+            #if !DEBUG
+            dest = dest && !mcp.PackageId.StartsWith("m00nl1ght");
+            #endif
+
+            if (dest)
             {
                 menu.AddSeparator("");
                 menu.AddItem(new GUIContent(forModDevs + "/" + "GeologicalLandforms.Editor.SaveInMod".Translate(mcp.Name)), true, () =>

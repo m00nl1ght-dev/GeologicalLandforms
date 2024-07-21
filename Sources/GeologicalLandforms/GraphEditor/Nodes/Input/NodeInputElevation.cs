@@ -32,7 +32,7 @@ public class NodeInputElevation : NodeInputBase
 
     public override bool Calculate()
     {
-        var supplier = Landform.GetFeature(l => l.OutputElevation?.InputKnob.GetValue<ISupplier<IGridFunction<double>>>());
+        var supplier = GetFromBelowStack(Landform, l => l.OutputElevation?.InputKnob.GetValue<ISupplier<IGridFunction<double>>>());
         supplier ??= BuildVanillaElevationGridSupplier();
         Knob.SetValue(supplier);
         return true;

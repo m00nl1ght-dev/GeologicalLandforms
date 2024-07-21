@@ -33,7 +33,7 @@ public class NodeInputBiomeGrid : NodeInputBase
 
     public override bool Calculate()
     {
-        var supplier = Landform.GetFeature(l => l.OutputBiomeGrid?.BiomeGridKnob.GetValue<ISupplier<IGridFunction<BiomeDef>>>());
+        var supplier = GetFromBelowStack(Landform, l => l.OutputBiomeGrid?.BiomeGridKnob.GetValue<ISupplier<IGridFunction<BiomeDef>>>());
         supplier ??= Supplier.Of(GridFunction.Of(Landform.GeneratingTile.Biome));
         Knob.SetValue(supplier);
         return true;

@@ -179,4 +179,20 @@ public abstract class NodeInputBase : NodeBase
             _fallbackElevation.ResetState();
         }
     }
+
+    public static T GetFromBelowStack<T>(Landform self, Func<Landform, T> func)
+    {
+        var stack = Landform.GeneratingLandforms;
+        if (stack == null) return default;
+
+        var i = 0; while (i < stack.Count && stack[i] != self) i++;
+
+        for (int j = i - 1; j >= 0; j--)
+        {
+            var value = func(stack[j]);
+            if (value != null) return value;
+        }
+
+        return default;
+    }
 }

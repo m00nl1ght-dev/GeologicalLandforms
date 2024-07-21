@@ -32,7 +32,7 @@ public class NodeInputCaves : NodeInputBase
 
     public override bool Calculate()
     {
-        var supplier = Landform.GetFeature(l => l.OutputCaves?.InputKnob.GetValue<ISupplier<IGridFunction<double>>>());
+        var supplier = GetFromBelowStack(Landform, l => l.OutputCaves?.InputKnob.GetValue<ISupplier<IGridFunction<double>>>());
         if (supplier != null)
         {
             Knob.SetValue(supplier);
