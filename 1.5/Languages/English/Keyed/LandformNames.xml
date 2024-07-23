@@ -37,5 +37,8 @@
   <GeologicalLandforms.Landform.CaveEntrance>cave entrance</GeologicalLandforms.Landform.CaveEntrance>
   <GeologicalLandforms.Landform.Sinkhole>sinkhole</GeologicalLandforms.Landform.Sinkhole>
   <GeologicalLandforms.Landform.SecludedValley>secluded valley</GeologicalLandforms.Landform.SecludedValley>
+  <GeologicalLandforms.Landform.River>river</GeologicalLandforms.Landform.River>
+  <GeologicalLandforms.Landform.RiverTerrain>river terrain</GeologicalLandforms.Landform.RiverTerrain>
+  <GeologicalLandforms.Landform.RiverConfluence>river confluence</GeologicalLandforms.Landform.RiverConfluence>
 
 </LanguageData>
