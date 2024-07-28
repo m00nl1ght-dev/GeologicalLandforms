@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using GeologicalLandforms.Defs;
 using GeologicalLandforms.GraphEditor;
 using LunarFramework;
@@ -34,7 +33,8 @@ public class GeologicalLandformsMod : Mod
 
         ModCompat.ApplyAll(LunarAPI, CompatPatchGroup);
 
-        GeologicalLandformsAPI.WorldTileInfoHook.AddObserver(0, WorldTileInfoHook);
+        GeologicalLandformsAPI.LandformEnabled.AddModifier(0, IsLandformEnabled);
+        GeologicalLandformsAPI.BiomeVariantEnabled.AddModifier(0, IsBiomeVariantEnabled);
         GeologicalLandformsAPI.TerrainTabUI.AddObserver(0, TerrainTabUI.DoTerrainTabUI);
         GeologicalLandformsAPI.LandformGridSize.AddModifier(0, GridSizeProvider);
         GeologicalLandformsAPI.AnimalDensityFactor.AddModifier(0, AnimalDensityFactorForMap);
@@ -62,12 +62,6 @@ public class GeologicalLandformsMod : Mod
         CompatPatchGroup?.UnsubscribeAll();
     }
 
-    private static void WorldTileInfoHook(WorldTileInfoPrimer info)
-    {
-        info.Landforms = info.Landforms?.Where(IsLandformEnabled).ToArray();
-        info.BiomeVariants = info.BiomeVariants?.Where(IsBiomeVariantEnabled).ToArray();
-    }
-
     private static int GridSizeProvider(int baseValue)
     {
         return Settings.EnableLandformScaling ? baseValue : Landform.GeneratingMapSizeMin;
@@ -82,17 +76,17 @@ public class GeologicalLandformsMod : Mod
         return 1f + (openGroundFraction - 1f) * scaleFactor;
     }
 
-    public static bool IsLandformEnabled(Landform landform)
+    public static bool IsLandformEnabled(Landform landform, bool baseValue = true)
     {
         if (!Settings.EnableExperimentalLandforms && landform.Manifest.IsExperimental) return false;
         if (Settings.DisabledLandforms.Value.Contains(landform.Id)) return false;
-        return true;
+        return baseValue;
     }
 
-    public static bool IsBiomeVariantEnabled(BiomeVariantDef biomeVariant)
+    public static bool IsBiomeVariantEnabled(BiomeVariantDef biomeVariant, bool baseValue = true)
     {
         if (Settings.DisabledBiomeVariants.Value.Contains(biomeVariant.defName)) return false;
-        return true;
+        return baseValue;
     }
 
     public GeologicalLandformsMod(ModContentPack content) : base(content)

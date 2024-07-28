@@ -274,14 +274,17 @@ public class WorldTileInfo : IWorldTileInfo
 
         if (landforms != null)
         {
+            landforms.RemoveAll(lf => !GeologicalLandformsAPI.LandformEnabled.Apply(lf));
+
             foreach (var nodeApplyLayer in landforms.SelectMany(lf => lf.ApplyLayers).ToList())
             {
                 var landform = LandformManager.FindById(nodeApplyLayer.LayerId);
                 if (landform != null) landforms.AddDistinct(landform);
             }
+
+            landforms.Sort((a, b) => a.Priority - b.Priority);
         }
 
-        landforms?.Sort((a, b) => a.Priority - b.Priority);
         info.Landforms = landforms;
     }
 
@@ -339,6 +342,8 @@ public class WorldTileInfo : IWorldTileInfo
                 if (variant != null) variants.AddDistinct(variant);
             }
         }
+
+        variants?.RemoveAll(bv => !GeologicalLandformsAPI.BiomeVariantEnabled.Apply(bv));
 
         info.BiomeVariants = variants;
     }

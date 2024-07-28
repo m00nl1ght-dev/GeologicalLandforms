@@ -81,6 +81,10 @@ public static class GeologicalLandformsAPI
 
     public static readonly ExtensionPoint<BiomeGrid, float> AnimalDensityFactor = new(1f);
 
+    public static readonly ExtensionPoint<Landform, bool> LandformEnabled = new(true);
+
+    public static readonly ExtensionPoint<BiomeVariantDef, bool> BiomeVariantEnabled = new(true);
+
     public static readonly ExtensionPoint<World, WorldTileInfoPrimer> WorldTileInfoHook = new();
 
     public static readonly ExtensionPoint<Listing_Standard, object> TerrainTabUI = new();
