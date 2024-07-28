@@ -160,7 +160,7 @@ public static class DebugActions
 
             LunarGUI.LabelDouble(layout, Label("WholeMapDesiredPlants"), map.wildPlantSpawner.CurrentWholeMapNumDesiredPlants.ToString("F2"), false);
             LunarGUI.LabelDouble(layout, Label("OpenGroundFactor"), biomeGrid.OpenGroundFraction.ToString("F2"), false);
-            LunarGUI.LabelDouble(layout, Label("AnimalDensityFactor"), GeologicalLandformsAPI.AnimalDensityFactor(biomeGrid).ToString("F2"), false);
+            LunarGUI.LabelDouble(layout, Label("AnimalDensityFactor"), GeologicalLandformsAPI.AnimalDensityFactor.Apply(biomeGrid).ToString("F2"), false);
 
             layout.Abs(10f);
 

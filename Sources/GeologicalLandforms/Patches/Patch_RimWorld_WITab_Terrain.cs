@@ -126,6 +126,6 @@ internal static class Patch_RimWorld_WITab_Terrain
 
         listingStandard.Gap();
 
-        GeologicalLandformsAPI.RunOnTerrainTab(listingStandard);
+        GeologicalLandformsAPI.TerrainTabUI.Apply(listingStandard);
     }
 }

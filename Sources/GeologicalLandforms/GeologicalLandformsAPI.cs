@@ -1,4 +1,3 @@
-using System;
 using GeologicalLandforms.Defs;
 using GeologicalLandforms.GraphEditor;
 using LunarFramework;
@@ -8,6 +7,7 @@ using LunarFramework.Utility;
 using MapPreview;
 using NodeEditorFramework;
 using NodeEditorFramework.Utilities;
+using RimWorld.Planet;
 using TerrainGraph;
 using Verse;
 
@@ -73,29 +73,15 @@ public static class GeologicalLandformsAPI
 
     // ### Public API ###
 
-    public static Func<bool> DisableVanillaMountainGeneration { get; set; } = () => false;
+    public static readonly ExtensionPoint<Tile, bool> VanillaMountainGenerationEnabled = new(true);
 
-    public static Func<bool> UseCellFinderOptimization { get; set; } = () => true;
+    public static readonly ExtensionPoint<Map, bool> CellFinderOptimizationEnabled = new(true);
 
-    public static Func<int> LandformGridSize { get; set; } = () => Landform.DefaultGridFullSize;
+    public static readonly ExtensionPoint<IntVec2, int> LandformGridSize = new(Landform.DefaultGridFullSize);
 
-    public static Func<BiomeGrid, float> AnimalDensityFactor { get; set; } = _ => 1f;
+    public static readonly ExtensionPoint<BiomeGrid, float> AnimalDensityFactor = new(1f);
 
-    public static Func<bool> UnidirectionalBiomeTransitions = () => false;
+    public static readonly ExtensionPoint<World, WorldTileInfoPrimer> WorldTileInfoHook = new();
 
-    public static Func<bool> PostProcessBiomeTransitions = () => true;
-
-    public static event Action<WorldTileInfoPrimer> WorldTileInfoHook;
-
-    public static void ApplyWorldTileInfoHook(WorldTileInfoPrimer worldTileInfo)
-    {
-        WorldTileInfoHook?.Invoke(worldTileInfo);
-    }
-
-    public static event Action<Listing_Standard> OnTerrainTab;
-
-    public static void RunOnTerrainTab(Listing_Standard listing)
-    {
-        OnTerrainTab?.Invoke(listing);
-    }
+    public static readonly ExtensionPoint<Listing_Standard, object> TerrainTabUI = new();
 }

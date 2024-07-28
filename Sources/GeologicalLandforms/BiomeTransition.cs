@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using GeologicalLandforms.Patches;
+using LunarFramework.Utility;
 using RimWorld;
 using RimWorld.Planet;
 using Verse;
@@ -21,6 +22,9 @@ public static class BiomeTransition
     // [TweakValue("Geological Landforms", 0f, 1f)]
     public static float PlantLowDensityPassChance = 0.01f;
 
+    public static readonly ExtensionPoint<World, bool> UnidirectionalBiomeTransitions = new(false);
+    public static readonly ExtensionPoint<BiomeGrid, bool> PostProcessBiomeTransitions = new(true);
+
     private static HashSet<IntVec3> _tpmProcessed;
 
     public static bool IsTransition(int tile, int nTile, BiomeDef biome, BiomeDef nBiome, int nbId = -1)
@@ -30,9 +34,10 @@ public static class BiomeTransition
         if (!biome.Properties().AllowsBiomeTransition(nBiome)) return false;
         if (!nBiome.Properties().AllowsBiomeTransition(biome)) return false;
 
-        if (!GeologicalLandformsAPI.UnidirectionalBiomeTransitions()) return true;
-
         var world = Find.World;
+
+        if (!UnidirectionalBiomeTransitions.Apply(world)) return true;
+
         var landformData = world.LandformData();
 
         if (landformData != null && landformData.HasBiomeTransitions())
@@ -56,7 +61,7 @@ public static class BiomeTransition
 
     public static void PostProcessBiomeGrid(BiomeGrid biomeGrid, IntVec2 mapSize)
     {
-        var enabled = GeologicalLandformsAPI.PostProcessBiomeTransitions();
+        var enabled = PostProcessBiomeTransitions.Apply(biomeGrid);
 
         if (!enabled && !DebugBiomeTransitions) return;
 

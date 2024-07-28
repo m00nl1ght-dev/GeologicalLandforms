@@ -79,7 +79,7 @@ internal static class Patch_RimWorld_GenStep_ElevationFertility
     private static bool ShouldUseVanillaMountainGeneration(Tile tile)
     {
         if (tile.hilliness < Hilliness.Mountainous) return false;
-        if (GeologicalLandformsAPI.DisableVanillaMountainGeneration()) return false;
+        if (GeologicalLandformsAPI.VanillaMountainGenerationEnabled.Apply(tile)) return false;
         return true;
     }
 }

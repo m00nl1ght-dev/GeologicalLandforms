@@ -14,10 +14,12 @@ public class WorldLayer_BiomeTransitions : WorldLayer
     {
         foreach (object obj in base.Regenerate()) yield return obj;
 
-        if (!GeologicalLandformsAPI.UnidirectionalBiomeTransitions()) yield break;
+        var world = Find.World;
+
+        if (!BiomeTransition.UnidirectionalBiomeTransitions.Apply(world)) yield break;
         if (!GeologicalLandformsAPI.LunarAPI.IsInitialized()) yield break;
 
-        var grid = Find.World.grid;
+        var grid = world.grid;
         int tilesCount = grid.TilesCount;
 
         var vertData = grid.verts;

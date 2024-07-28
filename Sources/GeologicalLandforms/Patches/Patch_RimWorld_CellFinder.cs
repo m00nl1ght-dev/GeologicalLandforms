@@ -25,6 +25,8 @@ internal static class Patch_RimWorld_CellFinder
 
     private static readonly Type Self = typeof(Patch_RimWorld_CellFinder);
 
+    private static bool OptimizationsEnabled(Map map) => GeologicalLandformsAPI.CellFinderOptimizationEnabled.Apply(map);
+
     [HarmonyPrefix]
     [HarmonyPatch(typeof(RCellFinder), "TryFindRandomExitSpot")]
     [HarmonyPriority(Priority.High)]
@@ -38,7 +40,7 @@ internal static class Patch_RimWorld_CellFinder
             return false;
         }
 
-        if (!GeologicalLandformsAPI.UseCellFinderOptimization()) return true;
+        if (!OptimizationsEnabled(pawn.Map)) return true;
 
         var cache = GetOrBuildEdgeCacheForMap(map);
         if (cache.Length == 0) return true;
@@ -72,7 +74,7 @@ internal static class Patch_RimWorld_CellFinder
     [HarmonyPriority(Priority.Low)]
     private static void TryFindBestExitSpot(ref bool __result, Pawn pawn, ref IntVec3 spot, TraverseMode mode)
     {
-        if (__result || !GeologicalLandformsAPI.UseCellFinderOptimization()) return;
+        if (__result || !OptimizationsEnabled(pawn.Map)) return;
         __result = RCellFinder.TryFindRandomExitSpot(pawn, out spot, mode);
     }
 
@@ -81,7 +83,7 @@ internal static class Patch_RimWorld_CellFinder
     [HarmonyPriority(Priority.Low)]
     private static void TryFindRandomPawnExitCell(ref bool __result, Pawn searcher, ref IntVec3 result)
     {
-        if (__result || !GeologicalLandformsAPI.UseCellFinderOptimization()) return;
+        if (__result || !OptimizationsEnabled(searcher.Map)) return;
         __result = RCellFinder.TryFindRandomExitSpot(searcher, out result);
     }
 
@@ -90,7 +92,7 @@ internal static class Patch_RimWorld_CellFinder
     [HarmonyPriority(Priority.Low)]
     private static void TryGetRandomCellWith(ref bool __result, Predicate<IntVec3> validator, Map map, ref IntVec3 result)
     {
-        if (__result || !GeologicalLandformsAPI.UseCellFinderOptimization()) return;
+        if (__result || !OptimizationsEnabled(map)) return;
         __result = TryGetRandomUnroofedCellFromCache(validator, map, out result);
     }
 
@@ -99,7 +101,7 @@ internal static class Patch_RimWorld_CellFinder
     [HarmonyPriority(Priority.Low)]
     private static void TryFindRandomNotEdgeCellWith(ref bool __result, Predicate<IntVec3> validator, Map map, ref IntVec3 result)
     {
-        if (__result || !GeologicalLandformsAPI.UseCellFinderOptimization()) return;
+        if (__result || !OptimizationsEnabled(map)) return;
         __result = TryGetRandomUnroofedCellFromCache(validator, map, out result);
     }
 
@@ -108,7 +110,7 @@ internal static class Patch_RimWorld_CellFinder
     [HarmonyPriority(Priority.Low)]
     private static void TryFindRaidWalkInPosition(ref bool __result, Map map, ref IntVec3 spawnSpot)
     {
-        if (__result || !GeologicalLandformsAPI.UseCellFinderOptimization()) return;
+        if (__result || !OptimizationsEnabled(map)) return;
         __result = RCellFinder.TryFindRandomPawnEntryCell(out spawnSpot, map, CellFinder.EdgeRoadChance_Hostile);
     }
 
@@ -117,7 +119,7 @@ internal static class Patch_RimWorld_CellFinder
     [HarmonyPriority(Priority.Low)]
     private static void FindSiegePositionFrom(ref IntVec3 __result, Map map)
     {
-        if (__result.IsValid || !GeologicalLandformsAPI.UseCellFinderOptimization()) return;
+        if (__result.IsValid || !OptimizationsEnabled(map)) return;
         __result = DropCellFinder.RandomDropSpot(map);
     }
 
@@ -126,7 +128,7 @@ internal static class Patch_RimWorld_CellFinder
     [HarmonyPriority(Priority.Low)]
     private static void FindSafeLandingSpot(ref bool __result, ref IntVec3 spot, Map map, IntVec2? size)
     {
-        if (__result || !GeologicalLandformsAPI.UseCellFinderOptimization()) return;
+        if (__result || !OptimizationsEnabled(map)) return;
 
         var center = DropCellFinder.RandomDropSpot(map);
         if (!center.IsValid) center = DropCellFinder.RandomDropSpot(map, false);

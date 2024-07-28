@@ -25,7 +25,7 @@ internal class ModCompat_MapDesigner : ModCompat
         _field_coastDir = Require(AccessTools.Field(_settings.GetType(), "coastDir"));
         _field_beachTerr = Require(AccessTools.Field(_settings.GetType(), "beachTerr"));
 
-        GeologicalLandformsAPI.WorldTileInfoHook += info =>
+        GeologicalLandformsAPI.WorldTileInfoHook.AddObserver(1, info =>
         {
             if (info.Topology.IsCoast())
             {
@@ -35,7 +35,7 @@ internal class ModCompat_MapDesigner : ModCompat
                     info.TopologyDirection = new Rot4(coastDir - 1);
                 }
             }
-        };
+        });
 
         NodeTerrainNaturalWater.OnCalculate += data =>
         {

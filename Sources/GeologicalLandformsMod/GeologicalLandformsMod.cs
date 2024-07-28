@@ -34,14 +34,14 @@ public class GeologicalLandformsMod : Mod
 
         ModCompat.ApplyAll(LunarAPI, CompatPatchGroup);
 
-        GeologicalLandformsAPI.WorldTileInfoHook += WorldTileInfoHook;
-        GeologicalLandformsAPI.OnTerrainTab += TerrainTabUI.DoTerrainTabUI;
-        GeologicalLandformsAPI.LandformGridSize = GridSizeProvider;
-        GeologicalLandformsAPI.AnimalDensityFactor = AnimalDensityFactorForMap;
-        GeologicalLandformsAPI.UseCellFinderOptimization = () => Settings.EnableCellFinderOptimization.Value;
-        GeologicalLandformsAPI.DisableVanillaMountainGeneration = () => !Settings.DisabledLandforms.Value.Contains("Cliff");
-        GeologicalLandformsAPI.UnidirectionalBiomeTransitions = () => Settings.UnidirectionalBiomeTransitions.Value;
-        GeologicalLandformsAPI.PostProcessBiomeTransitions = () => !Settings.DisableBiomeTransitionPostProcessing.Value;
+        GeologicalLandformsAPI.WorldTileInfoHook.AddObserver(0, WorldTileInfoHook);
+        GeologicalLandformsAPI.TerrainTabUI.AddObserver(0, TerrainTabUI.DoTerrainTabUI);
+        GeologicalLandformsAPI.LandformGridSize.AddModifier(0, GridSizeProvider);
+        GeologicalLandformsAPI.AnimalDensityFactor.AddModifier(0, AnimalDensityFactorForMap);
+        GeologicalLandformsAPI.CellFinderOptimizationEnabled.AddSupplier(0, () => Settings.EnableCellFinderOptimization.Value);
+        GeologicalLandformsAPI.VanillaMountainGenerationEnabled.AddSupplier(0, () => Settings.DisabledLandforms.Value.Contains("Cliff"));
+        BiomeTransition.UnidirectionalBiomeTransitions.AddSupplier(0, () => Settings.UnidirectionalBiomeTransitions.Value);
+        BiomeTransition.PostProcessBiomeTransitions.AddSupplier(0, () => !Settings.DisableBiomeTransitionPostProcessing.Value);
 
         Settings.ApplyDefEffects();
 
@@ -68,15 +68,15 @@ public class GeologicalLandformsMod : Mod
         info.BiomeVariants = info.BiomeVariants?.Where(IsBiomeVariantEnabled).ToArray();
     }
 
-    private static int GridSizeProvider()
+    private static int GridSizeProvider(int baseValue)
     {
-        return Settings.EnableLandformScaling ? Landform.DefaultGridFullSize : Landform.GeneratingMapSizeMin;
+        return Settings.EnableLandformScaling ? baseValue : Landform.GeneratingMapSizeMin;
     }
 
-    private static float AnimalDensityFactorForMap(BiomeGrid biomeGrid)
+    private static float AnimalDensityFactorForMap(BiomeGrid biomeGrid, float baseValue)
     {
         var primaryBiome = biomeGrid?.Primary.Biome;
-        if (primaryBiome == null || !primaryBiome.Properties().AllowLandforms) return 1f;
+        if (primaryBiome == null || !primaryBiome.Properties().AllowLandforms) return baseValue;
         var openGroundFraction = biomeGrid.OpenGroundFraction;
         var scaleFactor = 2f - Settings.AnimalDensityFactorForSecludedAreas * 2f;
         return 1f + (openGroundFraction - 1f) * scaleFactor;

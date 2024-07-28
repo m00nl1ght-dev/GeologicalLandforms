@@ -80,7 +80,7 @@ internal static class Patch_RimWorld_WildAnimalSpawner
             density = DesiredAnimalDensity_Base_ForBiome(instance, map.Biome);
         }
 
-        return density * GeologicalLandformsAPI.AnimalDensityFactor(biomeGrid);
+        return density * GeologicalLandformsAPI.AnimalDensityFactor.Apply(biomeGrid);
     }
 
     private static BiomeDef _localBiome;

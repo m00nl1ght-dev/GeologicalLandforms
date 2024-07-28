@@ -134,7 +134,7 @@ public class WorldTileInfo : IWorldTileInfo
             DetermineLandforms(info, tileData, props);
             DetermineBiomeVariants(info, tileData, props);
 
-            GeologicalLandformsAPI.ApplyWorldTileInfoHook(info);
+            GeologicalLandformsAPI.WorldTileInfoHook.Apply(world, info);
 
             if (canUseCache)
             {
