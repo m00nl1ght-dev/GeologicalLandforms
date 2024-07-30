@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NodeEditorFramework;
 using RimWorld;
 using TerrainGraph;
@@ -47,7 +48,7 @@ public abstract class NodeGridSelectDefGrid<T> : NodeSelectBase<double, string> 
             options.Add(SupplierOrFallback(OptionKnobs[i], GridFunction.Of(value)));
         }
 
-        OutputKnobRef.SetValue<ISupplier<IGridFunction<T>>>(new GridOutput<T>(input, options, Thresholds, null));
+        OutputKnobRef.SetValue<ISupplier<IGridFunction<T>>>(new GridOutput<T>(input, options, Thresholds.ToList(), null));
         return true;
     }
 }

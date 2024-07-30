@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NodeEditorFramework;
 using RimWorld;
 using TerrainGraph;
@@ -42,7 +43,7 @@ public abstract class NodeValueSelectDef<T> : NodeSelectBase<double, string> whe
             options.Add(SupplierOrFallback(OptionKnobs[i], ConnectionType.FromString(Values[i])));
         }
 
-        OutputKnobRef.SetValue<ISupplier<T>>(new Output<T>(input, options, Thresholds, null));
+        OutputKnobRef.SetValue<ISupplier<T>>(new Output<T>(input, options, Thresholds.ToList(), null));
         return true;
     }
 }
