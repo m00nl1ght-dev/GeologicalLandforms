@@ -4,6 +4,7 @@ using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using LunarFramework.Patching;
 using MapPreview;
+using RimWorld;
 using Verse;
 
 namespace GeologicalLandforms.Patches;
@@ -51,5 +52,9 @@ internal static class Patch_Verse_MapGenerator
     private static void GenerateContentsIntoMap_Postfix(Map map)
     {
         Landform.CleanUp();
+
+        #if DEBUG
+        if (Prefs.DevMode) map.weatherManager.curWeather = WeatherDefOf.Clear;
+        #endif
     }
 }
