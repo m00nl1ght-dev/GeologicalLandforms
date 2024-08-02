@@ -8,7 +8,7 @@
 			<boolean name="IsCustom">false</boolean>
 			<boolean name="IsExperimental">false</boolean>
 			<boolean name="IsInternal">false</boolean>
-			<int name="RevisionVersion">13</int>
+			<int name="RevisionVersion">14</int>
 			<long name="TimeCreated">1717439537567</long>
 			<boolean name="IsEdited">false</boolean>
 			<string name="DisplayName" />
@@ -200,7 +200,7 @@
 			<Port ID="40" name="ScaleKnob" dynamic="False" />
 			<Port ID="41" name="BiasKnob" dynamic="False" />
 			<Port ID="42" name="OutputKnob" dynamic="False" />
-			<double name="Frequency">0.029999999329447746</double>
+			<double name="Frequency">0.05000000074505806</double>
 			<double name="Lacunarity">2</double>
 			<double name="Persistence">0.40000000596046448</double>
 			<double name="Scale">1</double>
@@ -600,7 +600,7 @@
 		<Node name="Grid" ID="41" type="gridFromValue" pos="1381.6,-1542">
 			<Port ID="113" name="InputKnob" dynamic="False" />
 			<Port ID="114" name="OutputKnob" dynamic="False" />
-			<double name="Value">-0.20000000298023224</double>
+			<double name="Value">-0.5</double>
 			<int name="RandSeed">973323138</int>
 		</Node>
 		<Node name="World Tile" ID="42" type="valueWorldTile" pos="645.9996,-1574.801">
@@ -822,7 +822,7 @@
 			<Port ID="167" name="ScaleKnob" dynamic="False" />
 			<Port ID="168" name="BiasKnob" dynamic="False" />
 			<Port ID="169" name="OutputKnob" dynamic="False" />
-			<double name="Frequency">0.029999999329447746</double>
+			<double name="Frequency">0.05000000074505806</double>
 			<double name="Lacunarity">2</double>
 			<double name="Persistence">0.40000000596046448</double>
 			<double name="Scale">1</double>
@@ -938,7 +938,7 @@
 		<Node name="Grid" ID="59" type="gridFromValue" pos="694.4,302">
 			<Port ID="186" name="InputKnob" dynamic="False" />
 			<Port ID="187" name="OutputKnob" dynamic="False" />
-			<double name="Value">257.3116017173304</double>
+			<double name="Value">304.29137935961865</double>
 			<int name="RandSeed">1717375239</int>
 		</Node>
 		<Node name="Dynamic Random Value" ID="60" type="valueRandom" pos="344.8,366.4">
@@ -1012,7 +1012,7 @@
 		<Node name="Grid" ID="64" type="gridFromValue" pos="1014.8,362.8001">
 			<Port ID="200" name="InputKnob" dynamic="False" />
 			<Port ID="201" name="OutputKnob" dynamic="False" />
-			<double name="Value">1.1991498712913948</double>
+			<double name="Value">1.8684204611620914</double>
 			<int name="RandSeed">113598440</int>
 		</Node>
 		<Node name="Map Size" ID="65" type="mapSize" pos="13.79959,525.4001">
@@ -1332,6 +1332,26 @@
 			<double name="Smoothness">0</double>
 			<int name="RandSeed">1251102084</int>
 		</Node>
+		<Node name="Named Input" ID="78" type="inputNamed" pos="-554.4001,-1209.4">
+			<Port ID="258" name="Value" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.5.0, Culture=neutral, PublicKeyToken=null">
+				<string name="styleID">GridFunc</string>
+				<Direction name="direction">Out</Direction>
+				<ConnectionCount name="maxConnectionCount">Multi</ConnectionCount>
+				<NodeSide name="side">Right</NodeSide>
+				<float name="sidePosition">38</float>
+				<float name="sideOffset">0</float>
+			</Port>
+			<string name="TypeId">GridFunc</string>
+			<string name="Name">riverSide</string>
+			<int name="RandSeed">402680810</int>
+		</Node>
+		<Node name="Preview" ID="79" type="gridPreview" pos="-218.2001,-1256.2">
+			<Port ID="259" name="InputKnob" dynamic="False" />
+			<Port ID="260" name="OutputKnob" dynamic="False" />
+			<string name="PreviewModelId">Default</string>
+			<string name="PreviewTransformId">Default</string>
+			<int name="RandSeed">1908384530</int>
+		</Node>
 	</Nodes>
 	<Connections>
 		<Connection port1ID="0" port2ID="61" />
@@ -1345,7 +1365,6 @@
 		<Connection port1ID="3" port2ID="185" />
 		<Connection port1ID="4" port2ID="63" />
 		<Connection port1ID="5" port2ID="27" />
-		<Connection port1ID="5" port2ID="172" />
 		<Connection port1ID="6" port2ID="9" />
 		<Connection port1ID="7" port2ID="23" />
 		<Connection port1ID="8" port2ID="26" />
@@ -1407,6 +1426,7 @@
 		<Connection port1ID="169" port2ID="239" />
 		<Connection port1ID="170" port2ID="238" />
 		<Connection port1ID="171" port2ID="174" />
+		<Connection port1ID="172" port2ID="260" />
 		<Connection port1ID="176" port2ID="194" />
 		<Connection port1ID="177" port2ID="193" />
 		<Connection port1ID="183" port2ID="195" />
@@ -1423,6 +1443,7 @@
 		<Connection port1ID="237" port2ID="245" />
 		<Connection port1ID="240" port2ID="245" />
 		<Connection port1ID="243" port2ID="252" />
+		<Connection port1ID="258" port2ID="259" />
 	</Connections>
 	<Objects>
 		<Object refID="0" type="System.Collections.Generic.List`1[[System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]">
@@ -1749,8 +1770,8 @@
 		</Object>
 		<Object refID="49" type="System.Collections.Generic.List`1[[System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]">
 			<ArrayOfDouble xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<double>30</double>
-				<double>30</double>
+				<double>20</double>
+				<double>10</double>
 			</ArrayOfDouble>
 		</Object>
 	</Objects>
