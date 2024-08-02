@@ -8,7 +8,7 @@
 			<boolean name="IsCustom">false</boolean>
 			<boolean name="IsExperimental">false</boolean>
 			<boolean name="IsInternal">false</boolean>
-			<int name="RevisionVersion">14</int>
+			<int name="RevisionVersion">15</int>
 			<long name="TimeCreated">1717439537567</long>
 			<boolean name="IsEdited">false</boolean>
 			<string name="DisplayName" />
@@ -200,7 +200,7 @@
 			<Port ID="40" name="ScaleKnob" dynamic="False" />
 			<Port ID="41" name="BiasKnob" dynamic="False" />
 			<Port ID="42" name="OutputKnob" dynamic="False" />
-			<double name="Frequency">0.05000000074505806</double>
+			<double name="Frequency">0</double>
 			<double name="Lacunarity">2</double>
 			<double name="Persistence">0.40000000596046448</double>
 			<double name="Scale">1</double>
@@ -600,7 +600,7 @@
 		<Node name="Grid" ID="41" type="gridFromValue" pos="1381.6,-1542">
 			<Port ID="113" name="InputKnob" dynamic="False" />
 			<Port ID="114" name="OutputKnob" dynamic="False" />
-			<double name="Value">-0.5</double>
+			<double name="Value">0</double>
 			<int name="RandSeed">973323138</int>
 		</Node>
 		<Node name="World Tile" ID="42" type="valueWorldTile" pos="645.9996,-1574.801">
@@ -755,7 +755,7 @@
 			<Port ID="149" name="ThinLimitKnob" dynamic="False" />
 			<Port ID="150" name="OutputKnob" dynamic="False" />
 			<double name="Threshold">1</double>
-			<double name="MinGroupSize">22</double>
+			<double name="MinGroupSize">0</double>
 			<double name="MaxGroupSize">350</double>
 			<double name="ThinLimit">0.75</double>
 			<int name="RandSeed">59715515</int>
@@ -822,7 +822,7 @@
 			<Port ID="167" name="ScaleKnob" dynamic="False" />
 			<Port ID="168" name="BiasKnob" dynamic="False" />
 			<Port ID="169" name="OutputKnob" dynamic="False" />
-			<double name="Frequency">0.05000000074505806</double>
+			<double name="Frequency">0</double>
 			<double name="Lacunarity">2</double>
 			<double name="Persistence">0.40000000596046448</double>
 			<double name="Scale">1</double>
@@ -938,15 +938,15 @@
 		<Node name="Grid" ID="59" type="gridFromValue" pos="694.4,302">
 			<Port ID="186" name="InputKnob" dynamic="False" />
 			<Port ID="187" name="OutputKnob" dynamic="False" />
-			<double name="Value">304.29137935961865</double>
+			<double name="Value">0</double>
 			<int name="RandSeed">1717375239</int>
 		</Node>
 		<Node name="Dynamic Random Value" ID="60" type="valueRandom" pos="344.8,366.4">
 			<Port ID="188" name="AverageKnob" dynamic="False" />
 			<Port ID="189" name="DeviationKnob" dynamic="False" />
 			<Port ID="190" name="OutputKnob" dynamic="False" />
-			<double name="Average">250</double>
-			<double name="Deviation">250</double>
+			<double name="Average">0</double>
+			<double name="Deviation">0</double>
 			<boolean name="DynamicSeed">false</boolean>
 			<int name="RandSeed">451630517</int>
 		</Node>
@@ -1012,7 +1012,7 @@
 		<Node name="Grid" ID="64" type="gridFromValue" pos="1014.8,362.8001">
 			<Port ID="200" name="InputKnob" dynamic="False" />
 			<Port ID="201" name="OutputKnob" dynamic="False" />
-			<double name="Value">1.8684204611620914</double>
+			<double name="Value">0</double>
 			<int name="RandSeed">113598440</int>
 		</Node>
 		<Node name="Map Size" ID="65" type="mapSize" pos="13.79959,525.4001">
@@ -1454,7 +1454,7 @@
 		<Object refID="1" type="System.Collections.Generic.List`1[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]">
 			<ArrayOfString xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 				<string>None</string>
-				<string>None</string>
+				<string xsi:nil="true" />
 			</ArrayOfString>
 		</Object>
 		<Object refID="2" type="System.Collections.Generic.List`1[[System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]">
@@ -1545,7 +1545,7 @@
 		</Object>
 		<Object refID="16" type="System.Collections.Generic.List`1[[System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]">
 			<ArrayOfDouble xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<double>-1.5</double>
+				<double>0</double>
 				<double>0</double>
 			</ArrayOfDouble>
 		</Object>
@@ -1770,8 +1770,8 @@
 		</Object>
 		<Object refID="49" type="System.Collections.Generic.List`1[[System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]">
 			<ArrayOfDouble xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<double>20</double>
-				<double>10</double>
+				<double>0</double>
+				<double>0</double>
 			</ArrayOfDouble>
 		</Object>
 	</Objects>

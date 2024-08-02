@@ -172,6 +172,9 @@ public static class LandformManager
         var dir = Path.GetDirectoryName(file);
         if (dir == null) return;
 
+        var hasActiveGUI = landform.HasActiveGUI;
+        if (hasActiveGUI) landform.CleanUpGUI();
+
         landform.Manifest.IsEdited = false;
         landform.Manifest.IsCustom = false;
         landform.Manifest.RevisionVersion++;
@@ -194,6 +197,12 @@ public static class LandformManager
 
             var msg = "GeologicalLandforms.Editor.SaveInMod.Error".Translate(file);
             Messages.Message(msg, MessageTypeDefOf.RejectInput, false);
+        }
+
+        if (hasActiveGUI)
+        {
+            landform.PrepareGUI();
+            landform.RefreshPreviews();
         }
     }
 
@@ -304,9 +313,18 @@ public static class LandformManager
 
                 landform.ResetView();
 
+                var hasActiveGUI = landform.HasActiveGUI;
+                if (hasActiveGUI) landform.CleanUpGUI();
+
                 (var editorStates, landform.editorStates) = (landform.editorStates, []);
                 ImportExportManager.ExportCanvas(landform, IOFormat, file);
                 landform.editorStates = editorStates;
+
+                if (hasActiveGUI)
+                {
+                    landform.PrepareGUI();
+                    landform.RefreshPreviews();
+                }
             }
 
             foreach (string file in existing)

@@ -59,8 +59,18 @@ public class NodeTerrainFromBiome : NodeBase
     {
         var biome = GetIfConnected<BiomeDef>(BiomeKnob);
         var fert = GetIfConnected<double>(FertilityKnob);
-        if (biome != null) Biome = biome.ResetAndGet().ToString();
-        if (fert != null) Fertility = fert.ResetAndGet();
+
+        biome?.ResetState();
+        fert?.ResetState();
+
+        if (biome != null) Biome = biome.Get().ToString();
+        if (fert != null) Fertility = fert.Get();
+    }
+
+    public override void CleanUpGUI()
+    {
+        if (BiomeKnob.connected()) Biome = null;
+        if (FertilityKnob.connected()) Fertility = 0;
     }
 
     public override bool Calculate()

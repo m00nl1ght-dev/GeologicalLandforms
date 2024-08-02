@@ -45,7 +45,15 @@ public abstract class NodeDefGridFromValue<T> : NodeBase where T : Def
     public override void RefreshPreview()
     {
         var input = GetIfConnected<T>(InputKnobRef);
-        if (input != null) Value = ConnectionType.ToString(input.ResetAndGet());
+
+        input?.ResetState();
+
+        if (input != null) Value = ConnectionType.ToString(input.Get());
+    }
+
+    public override void CleanUpGUI()
+    {
+        if (InputKnobRef.connected()) Value = null;
     }
 
     public override bool Calculate()

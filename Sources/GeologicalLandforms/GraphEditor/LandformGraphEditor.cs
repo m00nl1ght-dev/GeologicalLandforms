@@ -80,8 +80,8 @@ public class LandformGraphEditor : Window
 
     private void CleanUp()
     {
-        Landform.CleanUp();
         Landform.CleanUpGUI();
+        Landform.CleanUp();
 
         LandformManager.SaveAllEdited();
         LandformManager.RefreshLayers();
@@ -94,8 +94,8 @@ public class LandformGraphEditor : Window
     {
         if (HasLoadedLandform)
         {
-            Landform.CleanUp();
             Landform.CleanUpGUI();
+            Landform.CleanUp();
         }
 
         if (landform != null)

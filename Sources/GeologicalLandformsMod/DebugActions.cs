@@ -353,7 +353,11 @@ public static class DebugActions
 
                 if (WorldTileUtils.CurrentWorldTile is WorldTileInfo tileInfo)
                 {
-                    var landform = tileInfo.Landforms?.FirstOrDefault(lf => lf.IsLayer) ?? tileInfo.Landforms?.FirstOrDefault();
+                    var landform = Input.GetKey(KeyCode.LeftShift)
+                        ? tileInfo.Landforms?.LastOrDefault(lf => lf.IsLayer)
+                        : tileInfo.Landforms?.FirstOrDefault(lf => lf.IsLayer);
+
+                    landform ??= tileInfo.Landforms?.FirstOrDefault();
                     if (landform != null) LandformGraphEditor.ActiveEditor?.OpenLandform(landform);
                 }
             }

@@ -119,6 +119,10 @@ public class Landform : TerrainCanvas
 
     public static void CleanUp()
     {
+        if (GeneratingLandforms != null)
+            foreach (var landform in GeneratingLandforms)
+                landform.ClearAll();
+
         GeneratingTile = null;
         GeneratingLandforms = null;
         NamedFeatureCache.Clear();

@@ -105,6 +105,15 @@ public class NodeGridPerlin : NodeBase
         if (bias != null) Bias = bias.Get();
     }
 
+    public override void CleanUpGUI()
+    {
+        if (FrequencyKnob.connected()) Frequency = 0;
+        if (LacunarityKnob.connected()) Lacunarity = 0;
+        if (PersistenceKnob.connected()) Persistence = 0;
+        if (ScaleKnob.connected()) Scale = 0;
+        if (BiasKnob.connected()) Bias = 0;
+    }
+
     public override bool Calculate()
     {
         OutputKnob.SetValue<ISupplier<IGridFunction<double>>>(new Output(
