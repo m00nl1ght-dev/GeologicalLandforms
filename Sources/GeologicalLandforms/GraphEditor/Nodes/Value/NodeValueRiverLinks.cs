@@ -37,6 +37,9 @@ public class NodeValueRiverLinks : NodeBase
     [ValueConnectionKnob("Outflow Angle", Direction.Out, ValueFunctionConnection.Id)]
     public ValueConnectionKnob OutflowAngleOutputKnob;
 
+    [ValueConnectionKnob("Outflow Width", Direction.Out, ValueFunctionConnection.Id)]
+    public ValueConnectionKnob OutflowWidthOutputKnob;
+
     public override void NodeGUI()
     {
         GUILayout.BeginVertical(BoxStyle);
@@ -76,6 +79,11 @@ public class NodeValueRiverLinks : NodeBase
         GUILayout.EndHorizontal();
         OutflowAngleOutputKnob.SetPosition();
 
+        GUILayout.BeginHorizontal(BoxStyle);
+        GUILayout.Label("Outflow Width", DoubleBoxLayout);
+        GUILayout.EndHorizontal();
+        OutflowWidthOutputKnob.SetPosition();
+
         GUILayout.EndVertical();
     }
 
@@ -90,6 +98,7 @@ public class NodeValueRiverLinks : NodeBase
         TributaryOffsetOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) riverData.RiverTributaryOffset));
         TributaryWidthOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) riverData.RiverTributaryWidth));
         OutflowAngleOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) riverData.RiverOutflowAngle));
+        OutflowWidthOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) riverData.RiverOutflowWidth));
 
         return true;
     }
