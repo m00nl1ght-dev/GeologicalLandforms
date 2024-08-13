@@ -52,6 +52,9 @@ public interface IRiverData
     public float RiverTributaryAngle { get; }
     public float RiverTributaryOffset { get; }
     public float RiverTributaryWidth { get; }
+    public float RiverTertiaryWidth { get; }
+    public float RiverTertiaryAngle { get; }
+    public float RiverTertiaryOffset { get; }
     public float RiverOutflowAngle { get; }
     public float RiverOutflowWidth { get; }
 }

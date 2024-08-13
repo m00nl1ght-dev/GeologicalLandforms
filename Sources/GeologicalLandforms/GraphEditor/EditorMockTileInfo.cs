@@ -85,6 +85,9 @@ public class EditorMockTileInfo : IWorldTileInfo
         public float RiverTributaryAngle { get; set; } = -45f;
         public float RiverTributaryOffset { get; set; } = 0.1f;
         public float RiverTributaryWidth { get; set; } = 10f;
+        public float RiverTertiaryWidth { get; set; } = 0f;
+        public float RiverTertiaryAngle { get; set; } = 0f;
+        public float RiverTertiaryOffset { get; set; } = 0f;
         public float RiverOutflowAngle { get; set; } = 0f;
         public float RiverOutflowWidth { get; set; } = 20f;
     }

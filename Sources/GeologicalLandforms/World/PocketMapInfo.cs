@@ -94,6 +94,9 @@ public class PocketMapInfo : IWorldTileInfo
         public float RiverTributaryAngle => 0f;
         public float RiverTributaryOffset => 0f;
         public float RiverTributaryWidth => 0f;
+        public float RiverTertiaryWidth => 0f;
+        public float RiverTertiaryAngle => 0f;
+        public float RiverTertiaryOffset => 0f;
         public float RiverOutflowAngle => 0f;
         public float RiverOutflowWidth => 0f;
     }

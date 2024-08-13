@@ -762,6 +762,9 @@ public class WorldTileInfo : IWorldTileInfo
         public float RiverTributaryAngle { get; internal set; }
         public float RiverTributaryOffset { get; internal set; }
         public float RiverTributaryWidth { get; internal set; }
+        public float RiverTertiaryWidth { get; internal set; }
+        public float RiverTertiaryAngle { get; internal set; }
+        public float RiverTertiaryOffset { get; internal set; }
         public float RiverOutflowAngle { get; internal set; }
         public float RiverOutflowWidth { get; internal set; }
 
@@ -781,6 +784,7 @@ public class WorldTileInfo : IWorldTileInfo
             {
                 Tile.RiverLink inflow = default;
                 Tile.RiverLink tributary = default;
+                Tile.RiverLink tertiary = default;
                 Tile.RiverLink outflow = default;
 
                 foreach (var link in riverLinks)
@@ -789,12 +793,18 @@ public class WorldTileInfo : IWorldTileInfo
                     {
                         if (link.river.WidthOnWorld() > inflow.river.WidthOnWorld())
                         {
+                            tertiary = tributary;
                             tributary = inflow;
                             inflow = link;
                         }
                         else if (link.river.WidthOnWorld() > tributary.river.WidthOnWorld())
                         {
+                            tertiary = tributary;
                             tributary = link;
+                        }
+                        else if (link.river.WidthOnWorld() > tertiary.river.WidthOnWorld())
+                        {
+                            tertiary = link;
                         }
                     }
                     else
@@ -817,6 +827,14 @@ public class WorldTileInfo : IWorldTileInfo
                     data.RiverTributaryAngle = World.grid.GetHeadingFromTo(tributary.neighbor, TileId);
                     data.RiverTributaryOffset = WorldTileUtils.RiverPositionToOffset(position, data.RiverTributaryAngle);
                     data.RiverTributaryWidth = tributary.river.widthOnMap;
+                }
+
+                if (tertiary.river != null)
+                {
+                    var position = WorldTileUtils.RiverPositionForTile(this, 2);
+                    data.RiverTertiaryAngle = World.grid.GetHeadingFromTo(tertiary.neighbor, TileId);
+                    data.RiverTertiaryOffset = WorldTileUtils.RiverPositionToOffset(position, data.RiverTertiaryAngle);
+                    data.RiverTertiaryWidth = tertiary.river.widthOnMap;
                 }
 
                 if (outflow.river != null)

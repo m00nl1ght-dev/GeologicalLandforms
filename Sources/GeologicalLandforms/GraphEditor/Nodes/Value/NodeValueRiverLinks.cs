@@ -34,6 +34,15 @@ public class NodeValueRiverLinks : NodeBase
     [ValueConnectionKnob("Tributary Width", Direction.Out, ValueFunctionConnection.Id)]
     public ValueConnectionKnob TributaryWidthOutputKnob;
 
+    [ValueConnectionKnob("Tertiary Angle", Direction.Out, ValueFunctionConnection.Id)]
+    public ValueConnectionKnob TertiaryAngleOutputKnob;
+
+    [ValueConnectionKnob("Tertiary Offset", Direction.Out, ValueFunctionConnection.Id)]
+    public ValueConnectionKnob TertiaryOffsetOutputKnob;
+
+    [ValueConnectionKnob("Tertiary Width", Direction.Out, ValueFunctionConnection.Id)]
+    public ValueConnectionKnob TertiaryWidthOutputKnob;
+
     [ValueConnectionKnob("Outflow Angle", Direction.Out, ValueFunctionConnection.Id)]
     public ValueConnectionKnob OutflowAngleOutputKnob;
 
@@ -75,6 +84,21 @@ public class NodeValueRiverLinks : NodeBase
         TributaryWidthOutputKnob.SetPosition();
 
         GUILayout.BeginHorizontal(BoxStyle);
+        GUILayout.Label("Tertiary Angle", DoubleBoxLayout);
+        GUILayout.EndHorizontal();
+        TertiaryAngleOutputKnob.SetPosition();
+
+        GUILayout.BeginHorizontal(BoxStyle);
+        GUILayout.Label("Tertiary Offset", DoubleBoxLayout);
+        GUILayout.EndHorizontal();
+        TertiaryOffsetOutputKnob.SetPosition();
+
+        GUILayout.BeginHorizontal(BoxStyle);
+        GUILayout.Label("Tertiary Width", DoubleBoxLayout);
+        GUILayout.EndHorizontal();
+        TertiaryWidthOutputKnob.SetPosition();
+
+        GUILayout.BeginHorizontal(BoxStyle);
         GUILayout.Label("Outflow Angle", DoubleBoxLayout);
         GUILayout.EndHorizontal();
         OutflowAngleOutputKnob.SetPosition();
@@ -97,6 +121,9 @@ public class NodeValueRiverLinks : NodeBase
         TributaryAngleOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) riverData.RiverTributaryAngle));
         TributaryOffsetOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) riverData.RiverTributaryOffset));
         TributaryWidthOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) riverData.RiverTributaryWidth));
+        TertiaryAngleOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) riverData.RiverTertiaryAngle));
+        TertiaryOffsetOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) riverData.RiverTertiaryOffset));
+        TertiaryWidthOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) riverData.RiverTertiaryWidth));
         OutflowAngleOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) riverData.RiverOutflowAngle));
         OutflowWidthOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) riverData.RiverOutflowWidth));
 
