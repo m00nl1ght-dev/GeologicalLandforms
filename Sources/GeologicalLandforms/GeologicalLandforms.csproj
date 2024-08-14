@@ -1,227 +1,59 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <Import Project="packages\Krafs.Publicizer.2.2.1\build\Krafs.Publicizer.props" Condition="Exists('packages\Krafs.Publicizer.2.2.1\build\Krafs.Publicizer.props')" />
-    <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-        <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-        <ProjectGuid>{3D0DE44D-4410-4F16-8E49-85FE38D12051}</ProjectGuid>
         <OutputType>Library</OutputType>
-        <AppDesignerFolder>Properties</AppDesignerFolder>
+        <TargetFramework>net472</TargetFramework>
+        <PlatformTarget>x64</PlatformTarget>
+        <LangVersion>default</LangVersion>
+
         <RootNamespace>GeologicalLandforms</RootNamespace>
         <AssemblyName>GeologicalLandforms</AssemblyName>
-        <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-        <FileAlignment>512</FileAlignment>
-        <LangVersion>default</LangVersion>
+
+        <Version>1.6.10</Version>
+
+        <Copyright>Copyright © 2024 m00nl1ght &lt;https://github.com/m00nl1ght-dev&gt;</Copyright>
     </PropertyGroup>
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-        <PlatformTarget>AnyCPU</PlatformTarget>
-        <DebugSymbols>false</DebugSymbols>
-        <DebugType>none</DebugType>
-        <Optimize>false</Optimize>
-        <OutputPath>..\..\1.4\Lunar\Components\</OutputPath>
-        <DefineConstants>DEBUG;TRACE</DefineConstants>
-        <ErrorReport>prompt</ErrorReport>
-        <WarningLevel>4</WarningLevel>
-    </PropertyGroup>
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-        <PlatformTarget>AnyCPU</PlatformTarget>
-        <DebugType>none</DebugType>
-        <Optimize>false</Optimize>
-        <OutputPath>..\..\1.4\Lunar\Components\</OutputPath>
-        <DefineConstants>TRACE</DefineConstants>
-        <ErrorReport>prompt</ErrorReport>
-        <WarningLevel>4</WarningLevel>
-        <DebugSymbols>false</DebugSymbols>
-    </PropertyGroup>
+
     <ItemGroup>
-        <Reference Include="0Harmony">
-          <HintPath>..\..\1.4\Lunar\Components\HarmonyLib.dll</HintPath>
-          <Private>False</Private>
+        <PackageReference Include="Lib.Harmony" Version="2.3.3" ExcludeAssets="runtime"/>
+        <PackageReference Include="Krafs.Publicizer" Version="2.2.1" PrivateAssets="all">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\TerrainGraph\TerrainGraph.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Reference Include="LunarFramework" Private="false">
+            <HintPath>..\..\$(RimWorldVersion)\Lunar\Components\LunarFramework.dll</HintPath>
         </Reference>
-        <Reference Include="Assembly-CSharp">
-          <HintPath>..\..\..\..\RimWorldWin64_Data\Managed\Assembly-CSharp.dll</HintPath>
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="LunarFramework">
-          <HintPath>..\..\1.4\Lunar\Components\LunarFramework.dll</HintPath>
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="MapPreview">
-          <HintPath>..\..\1.4\Lunar\Components\MapPreview.dll</HintPath>
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="System" />
-        <Reference Include="System.Core" />
-        <Reference Include="System.Data" />
-        <Reference Include="System.Xml" />
-        <Reference Include="System.Xml.Linq" />
-        <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\..\..\..\RimWorldWin64_Data\Managed\UnityEngine.dll</HintPath>
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="UnityEngine.AssetBundleModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\..\..\..\RimWorldWin64_Data\Managed\UnityEngine.AssetBundleModule.dll</HintPath>
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\..\..\..\RimWorldWin64_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="UnityEngine.IMGUIModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\..\..\..\RimWorldWin64_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="UnityEngine.InputLegacyModule">
-          <HintPath>..\..\..\..\RimWorldWin64_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="UnityEngine.TextRenderingModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\..\..\..\RimWorldWin64_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
-          <Private>False</Private>
+        <Reference Include="MapPreview" Private="false">
+            <HintPath>..\..\$(RimWorldVersion)\Lunar\Components\MapPreview.dll</HintPath>
         </Reference>
     </ItemGroup>
+
     <ItemGroup>
-        <Compile Include="BiomeTransition.cs" />
-        <Compile Include="GenStep_BiomeVariants.cs" />
-        <Compile Include="Compatibility\ModCompat_BiomesCore.cs" />
-        <Compile Include="Compatibility\ModCompat_MapDesigner.cs" />
-        <Compile Include="Compatibility\ModCompat_RealisticPlanets.cs" />
-        <Compile Include="Compatibility\ModCompat_RimWar.cs" />
-        <Compile Include="Compatibility\ModCompat_RocketMan.cs" />
-        <Compile Include="GraphEditor\Data\BiomeData.cs" />
-        <Compile Include="GraphEditor\Data\RoofData.cs" />
-        <Compile Include="GraphEditor\Data\TerrainData.cs" />
-        <Compile Include="GraphEditor\EditorMockTileInfo.cs" />
-        <Compile Include="GraphEditor\LandformGraphEditor.cs" />
-        <Compile Include="GraphEditor\LandformGraphInterface.cs" />
-        <Compile Include="GraphEditor\LandformPreviewScheduler.cs" />
-        <Compile Include="GraphEditor\Nodes\BiomeGrid\BiomeGridFunctionConnection.cs" />
-        <Compile Include="GraphEditor\Nodes\BiomeGrid\NodeBiomeGridPreview.cs" />
-        <Compile Include="GraphEditor\Nodes\BiomeGrid\NodeBiomeGridFromValue.cs" />
-        <Compile Include="GraphEditor\Nodes\Biome\BiomeFunctionConnection.cs" />
-        <Compile Include="GraphEditor\Nodes\Biome\NodeBiomeConst.cs" />
-        <Compile Include="GraphEditor\Nodes\Grid\NodeGridPerlin.cs" />
-        <Compile Include="GraphEditor\Nodes\Grid\NodeGridSelectBiomeGrid.cs" />
-        <Compile Include="GraphEditor\Nodes\Grid\NodeGridSelectRoof.cs" />
-        <Compile Include="GraphEditor\Nodes\Grid\NodeGridTransformByMapSize.cs" />
-        <Compile Include="GraphEditor\Nodes\Grid\NodeGridSelectTerrain.cs" />
-        <Compile Include="GraphEditor\Nodes\Grid\NodeGridSelectTerrainGrid.cs" />
-        <Compile Include="GraphEditor\Nodes\Grid\NodeGridRotateToMapSides.cs" />
-        <Compile Include="GraphEditor\Nodes\Grid\NodeGridTunnels.cs" />
-        <Compile Include="GraphEditor\Nodes\Input\NodeInputBase.cs" />
-        <Compile Include="GraphEditor\Nodes\Input\NodeInputBiomeGrid.cs" />
-        <Compile Include="GraphEditor\Nodes\Input\NodeInputCaves.cs" />
-        <Compile Include="GraphEditor\Nodes\Input\NodeInputElevation.cs" />
-        <Compile Include="GraphEditor\Nodes\Input\NodeInputFertility.cs" />
-        <Compile Include="GraphEditor\Nodes\Output\NodeOutputBase.cs" />
-        <Compile Include="GraphEditor\Nodes\Output\NodeOutputBiomeGrid.cs" />
-        <Compile Include="GraphEditor\Nodes\Output\NodeOutputCaves.cs" />
-        <Compile Include="GraphEditor\Nodes\Output\NodeOutputElevation.cs" />
-        <Compile Include="GraphEditor\Nodes\Output\NodeOutputFertility.cs" />
-        <Compile Include="GraphEditor\Nodes\Output\NodeOutputRoofGrid.cs" />
-        <Compile Include="GraphEditor\Nodes\Output\NodeOutputScatterers.cs" />
-        <Compile Include="GraphEditor\Nodes\Output\NodeOutputTerrain.cs" />
-        <Compile Include="GraphEditor\Nodes\Output\NodeOutputTerrainPatches.cs" />
-        <Compile Include="GraphEditor\Nodes\Output\NodeOutputWaterFlow.cs" />
-        <Compile Include="GraphEditor\Nodes\RoofGrid\NodeRoofGridPreview.cs" />
-        <Compile Include="GraphEditor\Nodes\RoofGrid\NodeRoofGridFromValue.cs" />
-        <Compile Include="GraphEditor\Nodes\RoofGrid\RoofGridFunctionConnection.cs" />
-        <Compile Include="GraphEditor\Nodes\Roof\BiomeFunctionConnection.cs" />
-        <Compile Include="GraphEditor\Nodes\Roof\NodeRoofConst.cs" />
-        <Compile Include="GraphEditor\Nodes\Custom\NodeRunGenStep.cs" />
-        <Compile Include="GraphEditor\Nodes\TerrainGrid\NodeTerrainGridFromValue.cs" />
-        <Compile Include="GraphEditor\Nodes\TerrainGrid\NodeTerrainGridNaturalRock.cs" />
-        <Compile Include="GraphEditor\Nodes\TerrainGrid\NodeTerrainGridPreview.cs" />
-        <Compile Include="GraphEditor\Nodes\TerrainGrid\TerrainGridFunctionConnection.cs" />
-        <Compile Include="GraphEditor\Nodes\Terrain\NodeTerrainConst.cs" />
-        <Compile Include="GraphEditor\Nodes\Terrain\NodeTerrainFromBiome.cs" />
-        <Compile Include="GraphEditor\Nodes\Terrain\NodeTerrainNaturalWater.cs" />
-        <Compile Include="GraphEditor\Nodes\Terrain\TerrainFunctionConnection.cs" />
-        <Compile Include="GraphEditor\Nodes\UI\NodeUIBase.cs" />
-        <Compile Include="GraphEditor\Nodes\UI\NodeUILandformManifest.cs" />
-        <Compile Include="GraphEditor\Nodes\UI\NodeUILayerConfig.cs" />
-        <Compile Include="GraphEditor\Nodes\UI\NodeUIMapIncidents.cs" />
-        <Compile Include="GraphEditor\Nodes\UI\NodeUIWorldTileGraphic.cs" />
-        <Compile Include="GraphEditor\Nodes\UI\NodeUIWorldTileReq.cs" />
-        <Compile Include="GraphEditor\Nodes\Value\NodeValueRiversAndRoads.cs" />
-        <Compile Include="GraphEditor\Nodes\Value\NodeValueWorldTile.cs" />
-        <Compile Include="GraphEditor\Nodes\Value\NodeValueSelectTerrain.cs" />
-        <Compile Include="Landform.cs" />
-        <Compile Include="LandformManager.cs" />
-        <Compile Include="BiomeGrid.cs" />
-        <Compile Include="Compatibility\ModCompat_DubsMintMenus.cs" />
-        <Compile Include="Compatibility\ModCompat_MapReroll.cs" />
-        <Compile Include="Compatibility\ModCompat_PrepareLanding.cs" />
-        <Compile Include="Patches\Patch_RimWorld_CompAutoCutWindTurbine.cs" />
-        <Compile Include="Patches\Patch_RimWorld_GenStep_Animals.cs" />
-        <Compile Include="Patches\Patch_RimWorld_GenStep_CaveHives.cs" />
-        <Compile Include="Patches\Patch_RimWorld_GenStep_CavesTerrain.cs" />
-        <Compile Include="Patches\Patch_RimWorld_GenStep_RocksFromGrid.cs" />
-        <Compile Include="Patches\Patch_RimWorld_GenStep_Scatterer.cs" />
-        <Compile Include="Patches\Patch_RimWorld_IncidentWorker.cs" />
-        <Compile Include="Patches\Patch_RimWorld_Page_CreateWorldParams.cs" />
-        <Compile Include="Patches\Patch_RimWorld_PawnsArrivalModeWorker.cs" />
-        <Compile Include="Patches\Patch_RimWorld_QuestNode_SpawnMechCluster.cs" />
-        <Compile Include="Patches\Patch_RimWorld_RaidStrategyWorker.cs" />
-        <Compile Include="Patches\Patch_RimWorld_TerrainPatchMaker.cs" />
-        <Compile Include="Patches\Patch_RimWorld_TileFinder.cs" />
-        <Compile Include="Patches\Patch_RimWorld_WeatherEvent_LightningStrike.cs" />
-        <Compile Include="Patches\Patch_Verse_CellInspectorDrawer.cs" />
-        <Compile Include="Patches\Patch_RimWorld_WorldPathGrid.cs" />
-        <Compile Include="Patches\Patch_Verse_AnimalPenManager.cs" />
-        <Compile Include="Patches\Patch_RimWorld_GenStep_Caves.cs" />
-        <Compile Include="Patches\Patch_RimWorld_GenStep_Plants.cs" />
-        <Compile Include="Patches\Patch_RimWorld_WorldGenStep_Terrain.cs" />
-        <Compile Include="Patches\Patch_Verse_Game.cs" />
-        <Compile Include="Patches\Patch_RimWorld_LearningReadout.cs" />
-        <Compile Include="Patches\Patch_RimWorld_GenStep_Terrain.cs" />
-        <Compile Include="Patches\Patch_Verse_MapGenerator.cs" />
-        <Compile Include="Patches\Patch_RimWorld_CellFinder.cs" />
-        <Compile Include="Patches\Patch_RimWorld_WildAnimalSpawner.cs" />
-        <Compile Include="Patches\Patch_RimWorld_WildPlantSpawner.cs" />
-        <Compile Include="Patches\Patch_RimWorld_World.cs" />
-        <Compile Include="Patches\Patch_Verse_Command_SetPlantToGrow.cs" />
-        <Compile Include="Patches\Patch_Verse_MemoryUtility.cs" />
-        <Compile Include="Patches\Patch_Verse_RoofCollapseUtility.cs" />
-        <Compile Include="Utility\ExtensionUtils.cs" />
-        <Compile Include="GeologicalLandformsAPI.cs" />
-        <Compile Include="Patches\Patch_RimWorld_GenStep_ElevationFertility.cs" />
-        <Compile Include="Patches\Patch_RimWorld_WITab_Terrain.cs" />
-        <Compile Include="Properties\AssemblyInfo.cs" />
-        <Compile Include="Utility\WorldTileTraverser.cs" />
-        <Compile Include="Utility\TunnelGenerator.cs" />
-        <Compile Include="World\IWorldTileInfo.cs" />
-        <Compile Include="World\LandformData.cs" />
-        <Compile Include="World\Topology.cs" />
-        <Compile Include="World\WorldGenStep_Landforms.cs" />
-        <Compile Include="World\WorldLayer_BiomeTransitions.cs" />
-        <Compile Include="World\WorldLayer_Landforms.cs" />
-        <Compile Include="World\WorldTileGraphicAtlas.cs" />
-        <Compile Include="World\WorldTileInfo.cs" />
-        <Compile Include="World\WorldTileInfoPrimer.cs" />
-        <Compile Include="XML\BiomeProperties.cs" />
-        <Compile Include="XML\BiomeVariantDef.cs" />
-        <Compile Include="XML\BiomeVariantLayer.cs" />
-        <Compile Include="XML\BiomeWorkerConfig.cs" />
-        <Compile Include="XML\XmlDynamicValueSetup.cs" />
-        <Compile Include="XML\XmlDynamicValueContexts.cs" />
+        <Reference Include="Assembly-CSharp" Private="false">
+            <HintPath>$(RimWorldPath)\RimWorldWin64_Data\Managed\Assembly-CSharp.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.CoreModule" Private="false">
+            <HintPath>$(RimWorldPath)\RimWorldWin64_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.IMGUIModule" Private="false">
+            <HintPath>$(RimWorldPath)\RimWorldWin64_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.InputLegacyModule" Private="false">
+            <HintPath>$(RimWorldPath)\RimWorldWin64_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
+        </Reference>
     </ItemGroup>
-    <ItemGroup>
-      <ProjectReference Include="..\TerrainGraph\TerrainGraph.csproj">
-        <Project>{b6fbac5c-b4db-411a-885b-fe710846011f}</Project>
-        <Name>TerrainGraph</Name>
-      </ProjectReference>
-    </ItemGroup>
-    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-    <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-      <PropertyGroup>
-        <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105.The missing file is {0}.</ErrorText>
-      </PropertyGroup>
-      <Error Condition="!Exists('packages\Krafs.Publicizer.2.2.1\build\Krafs.Publicizer.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Krafs.Publicizer.2.2.1\build\Krafs.Publicizer.props'))" />
-      <Error Condition="!Exists('packages\Krafs.Publicizer.2.2.1\build\Krafs.Publicizer.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Krafs.Publicizer.2.2.1\build\Krafs.Publicizer.targets'))" />
-    </Target>
-    <Import Project="packages\Krafs.Publicizer.2.2.1\build\Krafs.Publicizer.targets" Condition="Exists('packages\Krafs.Publicizer.2.2.1\build\Krafs.Publicizer.targets')" />
+
+    <PropertyGroup>
+        <PublicizerClearCacheOnClean>true</PublicizerClearCacheOnClean>
+        <PublicizerRuntimeStrategies>Unsafe</PublicizerRuntimeStrategies>
+    </PropertyGroup>
+
     <ItemGroup>
         <Publicize Include="Assembly-CSharp:RimWorld.BiomeDef.wildPlants" />
         <Publicize Include="Assembly-CSharp:RimWorld.BiomeDef.wildAnimals" />
@@ -238,8 +70,4 @@
         <Publicize Include="Assembly-CSharp:RimWorld.GameConditionManager.AggregateAnimalDensityFactor" />
         <Publicize Include="Assembly-CSharp:Verse.CellInspectorDrawer.DrawRow" />
     </ItemGroup>
-    <PropertyGroup>
-        <PublicizerClearCacheOnClean>true</PublicizerClearCacheOnClean>
-        <PublicizerRuntimeStrategies>Unsafe</PublicizerRuntimeStrategies>
-    </PropertyGroup>
 </Project>

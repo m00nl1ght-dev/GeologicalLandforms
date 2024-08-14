@@ -1,0 +1,41 @@
+<Project>
+    <PropertyGroup>
+        <RimWorldVersion>1.5</RimWorldVersion>
+        <RimWorldPath>..\..\..\..</RimWorldPath>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+        <DebugType>full</DebugType>
+        <DebugSymbols>true</DebugSymbols>
+        <Optimize>false</Optimize>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+        <DebugType>none</DebugType>
+        <DebugSymbols>false</DebugSymbols>
+        <Optimize>false</Optimize>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(RimWorldVersion)' == '1.5'">
+        <DefineConstants>$(DefineConstants);RW_1_5</DefineConstants>
+        <DefineConstants>$(DefineConstants);RW_1_5_OR_GREATER</DefineConstants>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(RimWorldVersion)' == '1.4'">
+        <DefineConstants>$(DefineConstants);RW_1_4</DefineConstants>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <OutputPath>..\..\$(RimWorldVersion)\Lunar\Components\</OutputPath>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    </PropertyGroup>
+
+    <Target Name="EmitToDirectory" AfterTargets="PostBuildEvent">
+        <Exec
+            Condition="Exists('%(EmitToDirectory.Identity)') AND Exists('$(TargetDir)$(TargetName).dll')"
+            Command="xcopy &quot;$(TargetDir)$(TargetName).dll&quot; &quot;%(EmitToDirectory.Identity)&quot; /F /Y"/>
+        <Exec
+            Condition="Exists('%(EmitToDirectory.Identity)') AND Exists('$(TargetDir)$(TargetName).pdb')"
+            Command="xcopy &quot;$(TargetDir)$(TargetName).pdb&quot; &quot;%(EmitToDirectory.Identity)&quot; /F /Y"/>
+    </Target>
+</Project>
