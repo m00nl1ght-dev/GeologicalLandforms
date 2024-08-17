@@ -39,7 +39,7 @@ public static class UserInterfaceUtils
             LabelBuffer.Add("GeologicalLandforms.Settings.Landforms.ReplacesVanillaCliff".Translate());
         if (landform.WorldTileReq is { Topology: Topology.CoastOneSide, Commonness: >= 1f } && !landform.IsLayer)
             LabelBuffer.Add("GeologicalLandforms.Settings.Landforms.ReplacesVanillaCoast".Translate());
-        if (landform.WorldTileReq is { Topology: Topology.Any, Commonness: >= 1f } &&
+        if (landform.WorldTileReq is { Commonness: >= 1f } && landform.LayerConfig?.LayerId == "river" &&
             (landform.WorldTileReq.AllowedRiverTypes?.Contains(RiverType.Normal) ?? false))
             LabelBuffer.Add("GeologicalLandforms.Settings.Landforms.ReplacesVanillaRiver".Translate());
 

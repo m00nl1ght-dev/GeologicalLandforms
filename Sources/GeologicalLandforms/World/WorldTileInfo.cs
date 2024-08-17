@@ -399,6 +399,8 @@ public class WorldTileInfo : IWorldTileInfo
         List<BorderingBiome> borderingBiomes = null;
         var coast = new StructRot4<CoastType>();
 
+        var nbRiverCount = 0;
+
         for (var nbIdx = nbOffset; nbIdx < nbBound; nbIdx++)
         {
             var idx = nbIdx - nbOffset;
@@ -438,28 +440,23 @@ public class WorldTileInfo : IWorldTileInfo
                     else nonCliffTiles.Add(rot6);
                 }
 
+                if (nbTile.Rivers is { Count: > 0 }) nbRiverCount++;
+
                 landTiles.Add(rot6);
             }
         }
 
         if (info.Tile.potentialRivers != null && info.Biome.allowRivers)
         {
-            var linkCount = info.Tile.potentialRivers.Count;
-
-            if (linkCount > 1 && info.Tile.potentialRivers.Any(r => grid[r.neighbor].WaterCovered))
+            info.RiverType = info.Tile.potentialRivers.Count switch
             {
-                info.RiverType = RiverType.Estuary;
-            }
-            else
-            {
-                info.RiverType = linkCount switch
-                {
-                    0 => RiverType.None,
-                    1 => RiverType.Source,
-                    2 => RiverType.Normal,
-                    _ => RiverType.Confluence
-                };
-            }
+                0 => RiverType.None,
+                1 => RiverType.Source,
+                2 => RiverType.Normal,
+                _ => info.Tile.potentialRivers.Count(r => !grid[r.neighbor].WaterCovered) > 1
+                    ? RiverType.Confluence
+                    : RiverType.Estuary
+            };
         }
 
         info.BorderingBiomes = borderingBiomes?.ToArray();
@@ -489,6 +486,12 @@ public class WorldTileInfo : IWorldTileInfo
         if (waterTiles.Count > 0)
         {
             DetermineCoastTopology(info);
+            return;
+        }
+
+        if (info.Tile.hilliness == Hilliness.Impassable && (caveSystemTiles.Count > 0 || nbRiverCount > 0))
+        {
+            info.Topology = Topology.Any;
             return;
         }
 
