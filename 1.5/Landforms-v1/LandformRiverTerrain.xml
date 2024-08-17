@@ -8,7 +8,7 @@
 			<boolean name="IsCustom">false</boolean>
 			<boolean name="IsExperimental">false</boolean>
 			<boolean name="IsInternal">false</boolean>
-			<int name="RevisionVersion">23</int>
+			<int name="RevisionVersion">24</int>
 			<long name="TimeCreated">1717439537567</long>
 			<boolean name="IsEdited">false</boolean>
 			<string name="DisplayName" />
@@ -1709,6 +1709,44 @@
 			<boolean name="Interpolated">true</boolean>
 			<int name="RandSeed">1056939841</int>
 		</Node>
+		<Node name="Select" ID="98" type="valueSelectValue" pos="-864,-1417">
+			<Port ID="347" name="InputKnob" dynamic="False" />
+			<Port ID="348" name="OutputKnob" dynamic="False" />
+			<Port ID="349" name="Option 0" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.5.0, Culture=neutral, PublicKeyToken=null">
+				<string name="styleID">ValueFunc</string>
+				<Direction name="direction">In</Direction>
+				<ConnectionCount name="maxConnectionCount">Single</ConnectionCount>
+				<NodeSide name="side">Left</NodeSide>
+				<float name="sidePosition">66</float>
+				<float name="sideOffset">0</float>
+			</Port>
+			<Port ID="350" name="Option 0" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.5.0, Culture=neutral, PublicKeyToken=null">
+				<string name="styleID">ValueFunc</string>
+				<Direction name="direction">In</Direction>
+				<ConnectionCount name="maxConnectionCount">Single</ConnectionCount>
+				<NodeSide name="side">Left</NodeSide>
+				<float name="sidePosition">94</float>
+				<float name="sideOffset">0</float>
+			</Port>
+			<Variable name="Thresholds" refID="70" />
+			<Variable name="Values" refID="71" />
+			<boolean name="Interpolated">false</boolean>
+			<int name="RandSeed">1424672578</int>
+		</Node>
+		<Node name="River Links" ID="99" type="valueRiverLinks" pos="-1128,-1562">
+			<Port ID="351" name="InflowAngleOutputKnob" dynamic="False" />
+			<Port ID="352" name="InflowOffsetOutputKnob" dynamic="False" />
+			<Port ID="353" name="InflowWidthOutputKnob" dynamic="False" />
+			<Port ID="354" name="TributaryAngleOutputKnob" dynamic="False" />
+			<Port ID="355" name="TributaryOffsetOutputKnob" dynamic="False" />
+			<Port ID="356" name="TributaryWidthOutputKnob" dynamic="False" />
+			<Port ID="357" name="TertiaryAngleOutputKnob" dynamic="False" />
+			<Port ID="358" name="TertiaryOffsetOutputKnob" dynamic="False" />
+			<Port ID="359" name="TertiaryWidthOutputKnob" dynamic="False" />
+			<Port ID="360" name="OutflowAngleOutputKnob" dynamic="False" />
+			<Port ID="361" name="OutflowWidthOutputKnob" dynamic="False" />
+			<int name="RandSeed">292570412</int>
+		</Node>
 	</Nodes>
 	<Connections>
 		<Connection port1ID="0" port2ID="61" />
@@ -1823,6 +1861,8 @@
 		<Connection port1ID="335" port2ID="344" />
 		<Connection port1ID="338" port2ID="339" />
 		<Connection port1ID="338" port2ID="343" />
+		<Connection port1ID="346" port2ID="348" />
+		<Connection port1ID="347" port2ID="353" />
 	</Connections>
 	<Objects>
 		<Object refID="0" type="System.Collections.Generic.List`1[[System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]">
@@ -2268,6 +2308,17 @@
 		<Object refID="69" type="System.Collections.Generic.List`1[[System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]">
 			<ArrayOfDouble xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 				<double>0</double>
+				<double>0</double>
+			</ArrayOfDouble>
+		</Object>
+		<Object refID="70" type="System.Collections.Generic.List`1[[System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]">
+			<ArrayOfDouble xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<double>1</double>
+			</ArrayOfDouble>
+		</Object>
+		<Object refID="71" type="System.Collections.Generic.List`1[[System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]">
+			<ArrayOfDouble xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<double>-2</double>
 				<double>-5</double>
 			</ArrayOfDouble>
 		</Object>
