@@ -8,7 +8,7 @@
 			<boolean name="IsCustom">false</boolean>
 			<boolean name="IsExperimental">false</boolean>
 			<boolean name="IsInternal">false</boolean>
-			<int name="RevisionVersion">28</int>
+			<int name="RevisionVersion">29</int>
 			<long name="TimeCreated">1723906599259</long>
 			<boolean name="IsEdited">false</boolean>
 			<string name="DisplayName" />
@@ -2115,7 +2115,7 @@
 			<string name="PreviewTransformId">Default</string>
 			<int name="RandSeed">334517562</int>
 		</Node>
-		<Node name="Biome Input" ID="117" type="inputBiomeGrid" pos="6151.2,1147.599">
+		<Node name="Biome Input" ID="117" type="inputBiomeGrid" pos="5752.2,1232.599">
 			<Port ID="438" name="Knob" dynamic="False" />
 			<int name="RandSeed">1987241307</int>
 		</Node>
@@ -2154,7 +2154,7 @@
 			<string name="PreviewTransformId">Default</string>
 			<int name="RandSeed">1843329198</int>
 		</Node>
-		<Node name="World Tile" ID="121" type="valueWorldTile" pos="5430.2,1349.999">
+		<Node name="World Tile" ID="121" type="valueWorldTile" pos="5040.6,1355.799">
 			<Port ID="447" name="BiomeOutputKnob" dynamic="False" />
 			<Port ID="448" name="HillinessOutputKnob" dynamic="False" />
 			<Port ID="449" name="ElevationOutputKnob" dynamic="False" />
@@ -2164,7 +2164,7 @@
 			<Port ID="453" name="CaveSystemDepthValueOutputKnob" dynamic="False" />
 			<int name="RandSeed">1080559741</int>
 		</Node>
-		<Node name="Select" ID="122" type="gridSelectBiomeGrid" pos="6152,1235.199">
+		<Node name="Select" ID="122" type="gridSelectBiomeGrid" pos="5750.6,1396.799">
 			<Port ID="454" name="OutputKnob" dynamic="False" />
 			<Port ID="455" name="InputKnob" dynamic="False" />
 			<Port ID="456" name="Option 0" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.5.0, Culture=neutral, PublicKeyToken=null">
@@ -2196,7 +2196,7 @@
 			<boolean name="Interpolated">false</boolean>
 			<int name="RandSeed">1954612819</int>
 		</Node>
-		<Node name="Grid" ID="123" type="gridFromValue" pos="5813.2,1315.999">
+		<Node name="Grid" ID="123" type="gridFromValue" pos="5430,1353.999">
 			<Port ID="459" name="InputKnob" dynamic="False" />
 			<Port ID="460" name="OutputKnob" dynamic="False" />
 			<double name="Value">0</double>
@@ -2227,6 +2227,42 @@
 			<Port ID="472" name="ElevationOutputKnob" dynamic="False" />
 			<string name="PreviewTransformId">Default</string>
 			<int name="RandSeed">1339717255</int>
+		</Node>
+		<Node name="Select" ID="128" type="gridSelectBiomeGrid" pos="6152.2,1288.8">
+			<Port ID="473" name="OutputKnob" dynamic="False" />
+			<Port ID="474" name="InputKnob" dynamic="False" />
+			<Port ID="475" name="Option 0" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.5.0, Culture=neutral, PublicKeyToken=null">
+				<string name="styleID">BiomeGridFunc</string>
+				<Direction name="direction">In</Direction>
+				<ConnectionCount name="maxConnectionCount">Single</ConnectionCount>
+				<NodeSide name="side">Left</NodeSide>
+				<float name="sidePosition">66</float>
+				<float name="sideOffset">0</float>
+			</Port>
+			<Port ID="476" name="Option 0" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.5.0, Culture=neutral, PublicKeyToken=null">
+				<string name="styleID">BiomeGridFunc</string>
+				<Direction name="direction">In</Direction>
+				<ConnectionCount name="maxConnectionCount">Single</ConnectionCount>
+				<NodeSide name="side">Left</NodeSide>
+				<float name="sidePosition">94</float>
+				<float name="sideOffset">0</float>
+			</Port>
+			<Variable name="Thresholds" refID="56" />
+			<Variable name="Values" refID="57" />
+			<boolean name="Interpolated">false</boolean>
+			<int name="RandSeed">271722858</int>
+		</Node>
+		<Node name="Biome Terrain" ID="129" type="terrainFromBiome" pos="5386.2,924.3999">
+			<Port ID="477" name="BiomeKnob" dynamic="False" />
+			<Port ID="478" name="FertilityKnob" dynamic="False" />
+			<Port ID="479" name="OutputKnob" dynamic="False" />
+			<double name="Fertility">0</double>
+			<int name="RandSeed">1418560660</int>
+		</Node>
+		<Node name="Grid" ID="130" type="terrainGridFromValue" pos="5810.2,940.3999">
+			<Port ID="480" name="InputKnob" dynamic="False" />
+			<Port ID="481" name="OutputKnob" dynamic="False" />
+			<int name="RandSeed">2088635601</int>
 		</Node>
 	</Nodes>
 	<Connections>
@@ -2365,16 +2401,22 @@
 		<Connection port1ID="404" port2ID="410" />
 		<Connection port1ID="407" port2ID="419" />
 		<Connection port1ID="427" port2ID="437" />
+		<Connection port1ID="428" port2ID="481" />
 		<Connection port1ID="435" port2ID="436" />
+		<Connection port1ID="437" port2ID="474" />
 		<Connection port1ID="438" port2ID="443" />
+		<Connection port1ID="438" port2ID="475" />
 		<Connection port1ID="439" port2ID="446" />
 		<Connection port1ID="441" port2ID="445" />
-		<Connection port1ID="444" port2ID="454" />
+		<Connection port1ID="444" port2ID="473" />
+		<Connection port1ID="447" port2ID="477" />
 		<Connection port1ID="450" port2ID="459" />
+		<Connection port1ID="454" port2ID="476" />
 		<Connection port1ID="455" port2ID="460" />
 		<Connection port1ID="461" port2ID="465" />
 		<Connection port1ID="462" port2ID="466" />
 		<Connection port1ID="464" port2ID="469" />
+		<Connection port1ID="479" port2ID="480" />
 	</Connections>
 	<Objects>
 		<Object refID="1" type="System.Collections.Generic.List`1[[GeologicalLandforms.RiverType, GeologicalLandforms, Version=1.6.10.0, Culture=neutral, PublicKeyToken=null]]">
@@ -2700,7 +2742,7 @@
 		</Object>
 		<Object refID="52" type="System.Collections.Generic.List`1[[System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]">
 			<ArrayOfDouble xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<double>0.34999999403953552</double>
+				<double>0.44999998807907104</double>
 			</ArrayOfDouble>
 		</Object>
 		<Object refID="53" type="System.Collections.Generic.List`1[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]">
@@ -2720,6 +2762,17 @@
 				<string>ColdBog</string>
 				<string>TemperateSwamp</string>
 				<string>TropicalSwamp</string>
+			</ArrayOfString>
+		</Object>
+		<Object refID="56" type="System.Collections.Generic.List`1[[System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]">
+			<ArrayOfDouble xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<double>-0.30000001192092896</double>
+			</ArrayOfDouble>
+		</Object>
+		<Object refID="57" type="System.Collections.Generic.List`1[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]">
+			<ArrayOfString xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<string xsi:nil="true" />
+				<string xsi:nil="true" />
 			</ArrayOfString>
 		</Object>
 	</Objects>
