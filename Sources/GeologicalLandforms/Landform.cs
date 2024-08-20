@@ -57,6 +57,7 @@ public class Landform : TerrainCanvas
     public NodeInputElevation InputElevation { get; internal set; }
     public NodeInputFertility InputFertility { get; internal set; }
     public NodeInputBiomeGrid InputBiomeGrid { get; internal set; }
+    public NodeInputTerrain InputTerrain { get; internal set; }
     public NodeInputCaves InputCaves { get; internal set; }
 
     public NodeOutputElevation OutputElevation { get; internal set; }
