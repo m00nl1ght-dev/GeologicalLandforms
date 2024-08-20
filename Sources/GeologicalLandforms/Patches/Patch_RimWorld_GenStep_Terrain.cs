@@ -161,6 +161,13 @@ internal static class Patch_RimWorld_GenStep_Terrain
         var tBase = BaseFunction?.ValueAt(c.x, c.z);
 
         if (tBase.IsDeepWater()) return tBase;
+
+        if (RiverFunction != null)
+        {
+            if (tRiver == TerrainDefOf.WaterMovingChestDeep) return tRiver;
+            if (tBase == TerrainDefOf.WaterShallow || tBase == TerrainDefOf.WaterOceanShallow) return tBase;
+        }
+
         if (tRiver is { IsRiver: true }) return tRiver;
 
         if (tBase != null) return tBase;
