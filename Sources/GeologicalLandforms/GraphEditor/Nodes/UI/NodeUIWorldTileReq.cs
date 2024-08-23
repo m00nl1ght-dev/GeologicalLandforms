@@ -533,10 +533,10 @@ public class NodeUIWorldTileReq : NodeUIBase
 
             if (river > node.RiverRequirement.max && node.RiverRequirement.max < 1f) return 0f;
             if (road > node.RoadRequirement.max && node.RoadRequirement.max < 1f) return 0f;
-            if (node.RiverRequirement.min > 0f) return river >= node.RiverRequirement.min ? 1f : 0f;
-            if (node.RoadRequirement.min > 0f) return road >= node.RoadRequirement.min ? 1f : 0f;
+            if (node.RiverRequirement.min > 0f && river >= node.RiverRequirement.min) return 1f;
+            if (node.RoadRequirement.min > 0f && road >= node.RoadRequirement.min) return 1f;
 
-            return 1f;
+            return 0f;
         }
 
         public void EditorGUI(NodeUIWorldTileReq node, LayoutRect layout)
