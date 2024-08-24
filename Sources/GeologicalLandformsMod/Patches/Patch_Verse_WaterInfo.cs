@@ -24,7 +24,7 @@ internal static class Patch_Verse_WaterInfo
 
             foreach (var line in PathTracer.DebugLines)
             {
-                if (line.Group != 0 && line.Group != group) continue;
+                if ((line.Group != 0 || line.MapPos1 != line.MapPos2) && line.Group != group) continue;
 
                 var p1 = new Vector3((float) line.MapPos1.x, 0, (float) line.MapPos1.z);
                 var p2 = new Vector3((float) line.MapPos2.x, 0, (float) line.MapPos2.z);
