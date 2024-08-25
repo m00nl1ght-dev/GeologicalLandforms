@@ -3,6 +3,7 @@ using NodeEditorFramework;
 using RimWorld;
 using RimWorld.Planet;
 using TerrainGraph;
+using TerrainGraph.Util;
 using UnityEngine;
 
 namespace GeologicalLandforms.GraphEditor;
@@ -35,6 +36,9 @@ public class NodeValueWorldTile : NodeBase
 
     [ValueConnectionKnob("Topology Value", Direction.Out, ValueFunctionConnection.Id)]
     public ValueConnectionKnob TopologyValueOutputKnob;
+
+    [ValueConnectionKnob("Topology Angle", Direction.Out, ValueFunctionConnection.Id)]
+    public ValueConnectionKnob TopologyAngleOutputKnob;
 
     [ValueConnectionKnob("Cave Depth", Direction.Out, ValueFunctionConnection.Id)]
     public ValueConnectionKnob CaveSystemDepthValueOutputKnob;
@@ -69,9 +73,14 @@ public class NodeValueWorldTile : NodeBase
         RainfallOutputKnob.SetPosition();
 
         GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Topology Value", DoubleBoxLayout);
+        GUILayout.Label("Topo Value", DoubleBoxLayout);
         GUILayout.EndHorizontal();
         TopologyValueOutputKnob.SetPosition();
+
+        GUILayout.BeginHorizontal(BoxStyle);
+        GUILayout.Label("Topo Angle", DoubleBoxLayout);
+        GUILayout.EndHorizontal();
+        TopologyAngleOutputKnob.SetPosition();
 
         GUILayout.BeginHorizontal(BoxStyle);
         GUILayout.Label("Cave Depth", DoubleBoxLayout);
@@ -89,8 +98,21 @@ public class NodeValueWorldTile : NodeBase
         RainfallOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) Landform.GeneratingTile.Rainfall));
         BiomeOutputKnob.SetValue<ISupplier<BiomeDef>>(Supplier.Of(Landform.GeneratingTile.Biome));
         TopologyValueOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) Landform.GeneratingTile.TopologyValue));
+        TopologyAngleOutputKnob.SetValue<ISupplier<double>>(Supplier.Of(GetTopologyAngle(Landform.GeneratingTile)));
         CaveSystemDepthValueOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) Landform.GeneratingTile.DepthInCaveSystem));
         return true;
+    }
+
+    public static double GetTopologyAngle(IWorldTileInfo tile)
+    {
+        var angle = (double) tile.TopologyDirection.AsAngle;
+
+        if (tile.Topology is Topology.CoastTwoSides or Topology.CliffTwoSides)
+        {
+            angle += 45;
+        }
+
+        return angle.NormalizeDeg();
     }
 
     public static double GetHillinessFactor(Hilliness hilliness)
