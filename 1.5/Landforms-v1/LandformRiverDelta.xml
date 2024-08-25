@@ -8,7 +8,7 @@
 			<boolean name="IsCustom">false</boolean>
 			<boolean name="IsExperimental">false</boolean>
 			<boolean name="IsInternal">false</boolean>
-			<int name="RevisionVersion">27</int>
+			<int name="RevisionVersion">28</int>
 			<long name="TimeCreated">1724520131680</long>
 			<boolean name="IsEdited">false</boolean>
 			<string name="DisplayName" />
@@ -1005,7 +1005,7 @@
 			<Port ID="190" name="OutputKnob" dynamic="False" />
 			<double name="ArcRange">15</double>
 			<double name="ArcIntensity">0.5</double>
-			<double name="StableRange">15</double>
+			<double name="StableRange">30</double>
 			<double name="MergeResultTrim">0</double>
 			<double name="SplitTurnLock">0.5</double>
 			<int name="RandSeed">7876285</int>
@@ -1709,6 +1709,36 @@
 			<boolean name="DynamicSeed">true</boolean>
 			<int name="RandSeed">1889605830</int>
 		</Node>
+		<Node name="Path: Collision" ID="92" type="pathCollision" pos="5188.6,1018.4">
+			<Port ID="345" name="InputKnob" dynamic="False" />
+			<Port ID="346" name="ArcRangeKnob" dynamic="False" />
+			<Port ID="347" name="ArcIntensityKnob" dynamic="False" />
+			<Port ID="348" name="StableRangeKnob" dynamic="False" />
+			<Port ID="349" name="MergeResultTrimKnob" dynamic="False" />
+			<Port ID="350" name="SplitTurnLockKnob" dynamic="False" />
+			<Port ID="351" name="OutputKnob" dynamic="False" />
+			<double name="ArcRange">15</double>
+			<double name="ArcIntensity">0.5</double>
+			<double name="StableRange">15</double>
+			<double name="MergeResultTrim">0</double>
+			<double name="SplitTurnLock">0.5</double>
+			<int name="RandSeed">952422063</int>
+		</Node>
+		<Node name="Path: Collision" ID="93" type="pathCollision" pos="5211,1647.4">
+			<Port ID="352" name="InputKnob" dynamic="False" />
+			<Port ID="353" name="ArcRangeKnob" dynamic="False" />
+			<Port ID="354" name="ArcIntensityKnob" dynamic="False" />
+			<Port ID="355" name="StableRangeKnob" dynamic="False" />
+			<Port ID="356" name="MergeResultTrimKnob" dynamic="False" />
+			<Port ID="357" name="SplitTurnLockKnob" dynamic="False" />
+			<Port ID="358" name="OutputKnob" dynamic="False" />
+			<double name="ArcRange">15</double>
+			<double name="ArcIntensity">0.5</double>
+			<double name="StableRange">10</double>
+			<double name="MergeResultTrim">0</double>
+			<double name="SplitTurnLock">0.5</double>
+			<int name="RandSeed">1652261564</int>
+		</Node>
 	</Nodes>
 	<Connections>
 		<Connection port1ID="0" port2ID="282" />
@@ -1780,7 +1810,7 @@
 		<Connection port1ID="211" port2ID="230" />
 		<Connection port1ID="214" port2ID="217" />
 		<Connection port1ID="218" port2ID="288" />
-		<Connection port1ID="220" port2ID="231" />
+		<Connection port1ID="220" port2ID="345" />
 		<Connection port1ID="221" port2ID="338" />
 		<Connection port1ID="222" port2ID="303" />
 		<Connection port1ID="223" port2ID="227" />
@@ -1791,6 +1821,7 @@
 		<Connection port1ID="228" port2ID="268" />
 		<Connection port1ID="230" port2ID="247" />
 		<Connection port1ID="230" port2ID="273" />
+		<Connection port1ID="231" port2ID="351" />
 		<Connection port1ID="232" port2ID="297" />
 		<Connection port1ID="234" port2ID="240" />
 		<Connection port1ID="237" port2ID="245" />
@@ -1800,7 +1831,8 @@
 		<Connection port1ID="246" port2ID="252" />
 		<Connection port1ID="250" port2ID="253" />
 		<Connection port1ID="254" port2ID="285" />
-		<Connection port1ID="256" port2ID="257" />
+		<Connection port1ID="256" port2ID="352" />
+		<Connection port1ID="257" port2ID="358" />
 		<Connection port1ID="258" port2ID="300" />
 		<Connection port1ID="260" port2ID="266" />
 		<Connection port1ID="263" port2ID="271" />

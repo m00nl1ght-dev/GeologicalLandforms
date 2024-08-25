@@ -68,10 +68,16 @@ internal static class Patch_Verse_CellInspectorDrawer
             var offset = new IntVec3(NodePathTrace.GridMarginDefault, 0, NodePathTrace.GridMarginDefault);
             CellInspectorDrawer.DrawRow("Flow grid pos", (cell + offset).ToString());
 
+            if (NodePathTrace.TaskGrid != null)
+            {
+                var task = NodePathTrace.TaskGrid.ValueAt(cell.x, cell.z);
+                CellInspectorDrawer.DrawRow("Path segment", task?.segment.Id.ToString(CultureInfo.InvariantCulture));
+            }
+
             if (NodePathTrace.DebugGrid != null)
             {
                 var debugValue = NodePathTrace.DebugGrid.ValueAt(cell.x, cell.z);
-                CellInspectorDrawer.DrawRow("Path tracer debug", debugValue.ToString(CultureInfo.InvariantCulture));
+                CellInspectorDrawer.DrawRow("Path debug", debugValue.ToString(CultureInfo.InvariantCulture));
             }
         }
 
