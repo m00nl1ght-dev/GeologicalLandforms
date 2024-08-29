@@ -33,6 +33,11 @@ public class LandformData : WorldComponent
         MapPreviewAPI.NotifyWorldChanged();
     }
 
+    public void CommitDirectly(int tileId, TileData data)
+    {
+        _tileData[tileId] = data;
+    }
+
     public void Reset(int tileId)
     {
         _tileData.Remove(tileId);

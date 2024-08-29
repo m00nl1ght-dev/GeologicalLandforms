@@ -887,9 +887,8 @@ public class WorldTileInfo : IWorldTileInfo
 
     public override string ToString() =>
         $"{nameof(TileId)}: {TileId}, " +
-        $"{nameof(Landforms)}: {Landforms?.Join(null, " ") ?? "None"}, " +
-        $"{nameof(BiomeVariants)}: {BiomeVariants?.Join(null, " ") ?? "None"}, " +
+        $"{nameof(Landforms)}: {Landforms?.Join(null, " & ") ?? "None"}, " +
+        $"{nameof(BiomeVariants)}: {BiomeVariants?.Join(null, " & ") ?? "None"}, " +
         $"{nameof(Topology)}: {Topology}, " +
-        $"{nameof(TopologyValue)}: {TopologyValue}, " +
         $"{nameof(TopologyDirection)}: {TopologyDirection.ToStringWord()}";
 }

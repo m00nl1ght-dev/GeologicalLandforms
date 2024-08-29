@@ -22,6 +22,13 @@ internal static class Patch_Verse_MapGenerator
 
         Landform.Prepare(map);
 
+        var data = Find.World?.LandformData();
+        var stored = data != null && map.Tile >= 0 && data.HasData(map.Tile);
+        var indicator = data == null ? "X" : stored ? "L" : "F";
+
+        GeologicalLandformsAPI.Logger.Log($"Map generator context: {Landform.GeneratingTile} ({indicator})");
+        data?.CommitDirectly(map.Tile, new LandformData.TileData(Landform.GeneratingTile));
+
         var biomeGrid = map.BiomeGrid();
         if (biomeGrid != null)
         {
