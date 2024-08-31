@@ -8,7 +8,7 @@
 			<boolean name="IsCustom">false</boolean>
 			<boolean name="IsExperimental">false</boolean>
 			<boolean name="IsInternal">false</boolean>
-			<int name="RevisionVersion">33</int>
+			<int name="RevisionVersion">34</int>
 			<long name="TimeCreated">1724520131680</long>
 			<boolean name="IsEdited">false</boolean>
 			<string name="DisplayName" />
@@ -1519,7 +1519,7 @@
 			<Port ID="281" name="DeviationKnob" dynamic="False" />
 			<Port ID="282" name="OutputKnob" dynamic="False" />
 			<double name="Average">50</double>
-			<double name="Deviation">25</double>
+			<double name="Deviation">35</double>
 			<boolean name="DynamicSeed">true</boolean>
 			<int name="RandSeed">553212645</int>
 		</Node>
@@ -1528,7 +1528,7 @@
 			<Port ID="284" name="DeviationKnob" dynamic="False" />
 			<Port ID="285" name="OutputKnob" dynamic="False" />
 			<double name="Average">50</double>
-			<double name="Deviation">25</double>
+			<double name="Deviation">35</double>
 			<boolean name="DynamicSeed">true</boolean>
 			<int name="RandSeed">140543262</int>
 		</Node>
@@ -1782,8 +1782,8 @@
 			<Port ID="372" name="AverageKnob" dynamic="False" />
 			<Port ID="373" name="DeviationKnob" dynamic="False" />
 			<Port ID="374" name="OutputKnob" dynamic="False" />
-			<double name="Average">30</double>
-			<double name="Deviation">15</double>
+			<double name="Average">20</double>
+			<double name="Deviation">10</double>
 			<boolean name="DynamicSeed">true</boolean>
 			<int name="RandSeed">1844645052</int>
 		</Node>
@@ -1791,8 +1791,8 @@
 			<Port ID="375" name="AverageKnob" dynamic="False" />
 			<Port ID="376" name="DeviationKnob" dynamic="False" />
 			<Port ID="377" name="OutputKnob" dynamic="False" />
-			<double name="Average">-30</double>
-			<double name="Deviation">15</double>
+			<double name="Average">-20</double>
+			<double name="Deviation">10</double>
 			<boolean name="DynamicSeed">true</boolean>
 			<int name="RandSeed">267859484</int>
 		</Node>
