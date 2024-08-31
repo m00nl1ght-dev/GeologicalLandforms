@@ -8,7 +8,7 @@
 			<boolean name="IsCustom">false</boolean>
 			<boolean name="IsExperimental">false</boolean>
 			<boolean name="IsInternal">false</boolean>
-			<int name="RevisionVersion">28</int>
+			<int name="RevisionVersion">31</int>
 			<long name="TimeCreated">1724520131680</long>
 			<boolean name="IsEdited">false</boolean>
 			<string name="DisplayName" />
@@ -266,7 +266,7 @@
 			<double name="Frequency">0.0099999997764825821</double>
 			<double name="Lacunarity">2</double>
 			<double name="Persistence">0.5</double>
-			<double name="Scale">2</double>
+			<double name="Scale">1</double>
 			<double name="Bias">0</double>
 			<int name="Octaves">6</int>
 			<boolean name="DynamicSeed">false</boolean>
@@ -991,7 +991,7 @@
 		<Node name="Preview" ID="54" type="gridPreview" pos="2967.4,716.3999">
 			<Port ID="182" name="InputKnob" dynamic="False" />
 			<Port ID="183" name="OutputKnob" dynamic="False" />
-			<string name="PreviewModelId">Default</string>
+			<string name="PreviewModelId">Default x10</string>
 			<string name="PreviewTransformId">Default</string>
 			<int name="RandSeed">18871959</int>
 		</Node>
@@ -1194,14 +1194,14 @@
 		<Node name="Preview" ID="64" type="gridPreview" pos="3072.199,1278.8">
 			<Port ID="227" name="InputKnob" dynamic="False" />
 			<Port ID="228" name="OutputKnob" dynamic="False" />
-			<string name="PreviewModelId">Default</string>
+			<string name="PreviewModelId">Default x10</string>
 			<string name="PreviewTransformId">Default</string>
 			<int name="RandSeed">803727802</int>
 		</Node>
 		<Node name="Preview" ID="65" type="gridPreview" pos="3067.199,1467.4">
 			<Port ID="229" name="InputKnob" dynamic="False" />
 			<Port ID="230" name="OutputKnob" dynamic="False" />
-			<string name="PreviewModelId">Default</string>
+			<string name="PreviewModelId">Default x10</string>
 			<string name="PreviewTransformId">Default</string>
 			<int name="RandSeed">1492667870</int>
 		</Node>
@@ -1739,6 +1739,52 @@
 			<double name="SplitTurnLock">0.5</double>
 			<int name="RandSeed">1652261564</int>
 		</Node>
+		<Node name="Dynamic Random Value" ID="94" type="valueRandom" pos="2343,1622.8">
+			<Port ID="359" name="AverageKnob" dynamic="False" />
+			<Port ID="360" name="DeviationKnob" dynamic="False" />
+			<Port ID="361" name="OutputKnob" dynamic="False" />
+			<double name="Average">-10</double>
+			<double name="Deviation">5</double>
+			<boolean name="DynamicSeed">true</boolean>
+			<int name="RandSeed">990076175</int>
+		</Node>
+		<Node name="Dynamic Random Value" ID="95" type="valueRandom" pos="2340.4,1508">
+			<Port ID="362" name="AverageKnob" dynamic="False" />
+			<Port ID="363" name="DeviationKnob" dynamic="False" />
+			<Port ID="364" name="OutputKnob" dynamic="False" />
+			<double name="Average">10</double>
+			<double name="Deviation">5</double>
+			<boolean name="DynamicSeed">true</boolean>
+			<int name="RandSeed">1939187869</int>
+		</Node>
+		<Node name="Rotate" ID="96" type="gridRotate" pos="2693.2,1575.2">
+			<Port ID="365" name="InputKnob" dynamic="False" />
+			<Port ID="366" name="AngleKnob" dynamic="False" />
+			<Port ID="367" name="OutputKnob" dynamic="False" />
+			<double name="Angle">0</double>
+			<int name="RandSeed">827910642</int>
+		</Node>
+		<Node name="Rotate" ID="97" type="gridRotate" pos="2693.2,1707.2">
+			<Port ID="368" name="InputKnob" dynamic="False" />
+			<Port ID="369" name="AngleKnob" dynamic="False" />
+			<Port ID="370" name="OutputKnob" dynamic="False" />
+			<double name="Angle">0</double>
+			<int name="RandSeed">54893720</int>
+		</Node>
+		<Node name="Preview" ID="98" type="gridPreview" pos="3065.2,1770.8">
+			<Port ID="371" name="InputKnob" dynamic="False" />
+			<Port ID="372" name="OutputKnob" dynamic="False" />
+			<string name="PreviewModelId">Default x10</string>
+			<string name="PreviewTransformId">Default</string>
+			<int name="RandSeed">262339544</int>
+		</Node>
+		<Node name="Preview" ID="99" type="gridPreview" pos="3064,1923.2">
+			<Port ID="373" name="InputKnob" dynamic="False" />
+			<Port ID="374" name="OutputKnob" dynamic="False" />
+			<string name="PreviewModelId">Default x10</string>
+			<string name="PreviewTransformId">Default</string>
+			<int name="RandSeed">546099671</int>
+		</Node>
 	</Nodes>
 	<Connections>
 		<Connection port1ID="0" port2ID="282" />
@@ -1818,9 +1864,7 @@
 		<Connection port1ID="225" port2ID="306" />
 		<Connection port1ID="226" port2ID="229" />
 		<Connection port1ID="228" port2ID="242" />
-		<Connection port1ID="228" port2ID="268" />
 		<Connection port1ID="230" port2ID="247" />
-		<Connection port1ID="230" port2ID="273" />
 		<Connection port1ID="231" port2ID="351" />
 		<Connection port1ID="232" port2ID="297" />
 		<Connection port1ID="234" port2ID="240" />
@@ -1839,7 +1883,9 @@
 		<Connection port1ID="264" port2ID="341" />
 		<Connection port1ID="265" port2ID="344" />
 		<Connection port1ID="267" port2ID="277" />
+		<Connection port1ID="268" port2ID="372" />
 		<Connection port1ID="272" port2ID="278" />
+		<Connection port1ID="273" port2ID="374" />
 		<Connection port1ID="276" port2ID="279" />
 		<Connection port1ID="313" port2ID="326" />
 		<Connection port1ID="313" port2ID="333" />
@@ -1847,6 +1893,12 @@
 		<Connection port1ID="328" port2ID="330" />
 		<Connection port1ID="329" port2ID="334" />
 		<Connection port1ID="332" port2ID="337" />
+		<Connection port1ID="338" port2ID="365" />
+		<Connection port1ID="338" port2ID="368" />
+		<Connection port1ID="361" port2ID="369" />
+		<Connection port1ID="364" port2ID="366" />
+		<Connection port1ID="367" port2ID="371" />
+		<Connection port1ID="370" port2ID="373" />
 	</Connections>
 	<Objects>
 		<Object refID="1" type="System.Collections.Generic.List`1[[GeologicalLandforms.RiverType, GeologicalLandforms, Version=1.6.10.0, Culture=neutral, PublicKeyToken=null]]">
