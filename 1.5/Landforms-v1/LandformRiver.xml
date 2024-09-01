@@ -8,7 +8,7 @@
 			<boolean name="IsCustom">false</boolean>
 			<boolean name="IsExperimental">false</boolean>
 			<boolean name="IsInternal">false</boolean>
-			<int name="RevisionVersion">21</int>
+			<int name="RevisionVersion">22</int>
 			<long name="TimeCreated">1708293328632</long>
 			<boolean name="IsEdited">false</boolean>
 			<string name="DisplayName" />
@@ -1411,12 +1411,13 @@
 			<Port ID="301" name="TemperatureOutputKnob" dynamic="False" />
 			<Port ID="302" name="RainfallOutputKnob" dynamic="False" />
 			<Port ID="303" name="TopologyValueOutputKnob" dynamic="False" />
-			<Port ID="304" name="CaveSystemDepthValueOutputKnob" dynamic="False" />
+			<Port ID="304" name="TopologyAngleOutputKnob" dynamic="False" />
+			<Port ID="305" name="CaveSystemDepthValueOutputKnob" dynamic="False" />
 			<int name="RandSeed">1542449850</int>
 		</Node>
 		<Node name="Add" ID="80" type="gridOperator" pos="1059.4,711.0001">
-			<Port ID="305" name="OutputKnob" dynamic="False" />
-			<Port ID="306" name="Input 0" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.5.0, Culture=neutral, PublicKeyToken=null">
+			<Port ID="306" name="OutputKnob" dynamic="False" />
+			<Port ID="307" name="Input 0" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.5.0, Culture=neutral, PublicKeyToken=null">
 				<string name="styleID">GridFunc</string>
 				<Direction name="direction">In</Direction>
 				<ConnectionCount name="maxConnectionCount">Single</ConnectionCount>
@@ -1424,7 +1425,7 @@
 				<float name="sidePosition">38</float>
 				<float name="sideOffset">0</float>
 			</Port>
-			<Port ID="307" name="Input 1" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.5.0, Culture=neutral, PublicKeyToken=null">
+			<Port ID="308" name="Input 1" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.5.0, Culture=neutral, PublicKeyToken=null">
 				<string name="styleID">GridFunc</string>
 				<Direction name="direction">In</Direction>
 				<ConnectionCount name="maxConnectionCount">Single</ConnectionCount>
@@ -1439,6 +1440,295 @@
 			<double name="Smoothness">0</double>
 			<int name="RandSeed">531804006</int>
 		</Node>
+		<Node name="Map Size" ID="81" type="mapSize" pos="4054,563.5998">
+			<Port ID="309" name="OutputKnob" dynamic="False" />
+			<int name="RandSeed">552856519</int>
+		</Node>
+		<Node name="Add" ID="82" type="valueOperator" pos="4380.8,504.7994">
+			<Port ID="310" name="OutputKnob" dynamic="False" />
+			<Port ID="311" name="Input 0" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.5.0, Culture=neutral, PublicKeyToken=null">
+				<string name="styleID">ValueFunc</string>
+				<Direction name="direction">In</Direction>
+				<ConnectionCount name="maxConnectionCount">Single</ConnectionCount>
+				<NodeSide name="side">Left</NodeSide>
+				<float name="sidePosition">38</float>
+				<float name="sideOffset">0</float>
+			</Port>
+			<Port ID="312" name="Input 1" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.5.0, Culture=neutral, PublicKeyToken=null">
+				<string name="styleID">ValueFunc</string>
+				<Direction name="direction">In</Direction>
+				<ConnectionCount name="maxConnectionCount">Single</ConnectionCount>
+				<NodeSide name="side">Left</NodeSide>
+				<float name="sidePosition">66</float>
+				<float name="sideOffset">0</float>
+			</Port>
+			<Variable name="Values" refID="33" />
+			<Operation name="OperationType">Divide</Operation>
+			<double name="ApplyChance">1</double>
+			<double name="StackCount">1</double>
+			<double name="Smoothness">0</double>
+			<int name="RandSeed">1459134878</int>
+		</Node>
+		<Node name="Add" ID="83" type="valueOperator" pos="4379.8,612.9994">
+			<Port ID="313" name="OutputKnob" dynamic="False" />
+			<Port ID="314" name="Input 0" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.5.0, Culture=neutral, PublicKeyToken=null">
+				<string name="styleID">ValueFunc</string>
+				<Direction name="direction">In</Direction>
+				<ConnectionCount name="maxConnectionCount">Single</ConnectionCount>
+				<NodeSide name="side">Left</NodeSide>
+				<float name="sidePosition">38</float>
+				<float name="sideOffset">0</float>
+			</Port>
+			<Port ID="315" name="Input 1" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.5.0, Culture=neutral, PublicKeyToken=null">
+				<string name="styleID">ValueFunc</string>
+				<Direction name="direction">In</Direction>
+				<ConnectionCount name="maxConnectionCount">Single</ConnectionCount>
+				<NodeSide name="side">Left</NodeSide>
+				<float name="sidePosition">66</float>
+				<float name="sideOffset">0</float>
+			</Port>
+			<Variable name="Values" refID="34" />
+			<Operation name="OperationType">Divide</Operation>
+			<double name="ApplyChance">1</double>
+			<double name="StackCount">1</double>
+			<double name="Smoothness">0</double>
+			<int name="RandSeed">2108384779</int>
+		</Node>
+		<Node name="Dynamic Random Value" ID="84" type="valueRandom" pos="4713.8,555.7993">
+			<Port ID="316" name="AverageKnob" dynamic="False" />
+			<Port ID="317" name="DeviationKnob" dynamic="False" />
+			<Port ID="318" name="OutputKnob" dynamic="False" />
+			<double name="Average">0</double>
+			<double name="Deviation">0</double>
+			<boolean name="DynamicSeed">false</boolean>
+			<int name="RandSeed">1592574085</int>
+		</Node>
+		<Node name="Grid" ID="85" type="gridFromValue" pos="5182.801,736.7991">
+			<Port ID="319" name="InputKnob" dynamic="False" />
+			<Port ID="320" name="OutputKnob" dynamic="False" />
+			<double name="Value">0</double>
+			<int name="RandSeed">1167216593</int>
+		</Node>
+		<Node name="Add" ID="86" type="gridOperator" pos="5436.001,701.9991">
+			<Port ID="321" name="OutputKnob" dynamic="False" />
+			<Port ID="322" name="Input 0" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.5.0, Culture=neutral, PublicKeyToken=null">
+				<string name="styleID">GridFunc</string>
+				<Direction name="direction">In</Direction>
+				<ConnectionCount name="maxConnectionCount">Single</ConnectionCount>
+				<NodeSide name="side">Left</NodeSide>
+				<float name="sidePosition">38</float>
+				<float name="sideOffset">0</float>
+			</Port>
+			<Port ID="323" name="Input 1" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.5.0, Culture=neutral, PublicKeyToken=null">
+				<string name="styleID">GridFunc</string>
+				<Direction name="direction">In</Direction>
+				<ConnectionCount name="maxConnectionCount">Single</ConnectionCount>
+				<NodeSide name="side">Left</NodeSide>
+				<float name="sidePosition">66</float>
+				<float name="sideOffset">0</float>
+			</Port>
+			<Variable name="Values" refID="35" />
+			<Operation name="OperationType">Subtract</Operation>
+			<double name="ApplyChance">1</double>
+			<double name="StackCount">1</double>
+			<double name="Smoothness">0</double>
+			<int name="RandSeed">1228792538</int>
+		</Node>
+		<Node name="Add" ID="87" type="gridOperator" pos="5831.4,790.5999">
+			<Port ID="324" name="OutputKnob" dynamic="False" />
+			<Port ID="325" name="Input 0" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.5.0, Culture=neutral, PublicKeyToken=null">
+				<string name="styleID">GridFunc</string>
+				<Direction name="direction">In</Direction>
+				<ConnectionCount name="maxConnectionCount">Single</ConnectionCount>
+				<NodeSide name="side">Left</NodeSide>
+				<float name="sidePosition">38</float>
+				<float name="sideOffset">0</float>
+			</Port>
+			<Port ID="326" name="Input 1" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.5.0, Culture=neutral, PublicKeyToken=null">
+				<string name="styleID">GridFunc</string>
+				<Direction name="direction">In</Direction>
+				<ConnectionCount name="maxConnectionCount">Single</ConnectionCount>
+				<NodeSide name="side">Left</NodeSide>
+				<float name="sidePosition">66</float>
+				<float name="sideOffset">0</float>
+			</Port>
+			<Variable name="Values" refID="36" />
+			<Operation name="OperationType">Multiply</Operation>
+			<double name="ApplyChance">1</double>
+			<double name="StackCount">1</double>
+			<double name="Smoothness">0</double>
+			<int name="RandSeed">1297967868</int>
+		</Node>
+		<Node name="Grid" ID="88" type="gridFromValue" pos="5181.999,871.2">
+			<Port ID="327" name="InputKnob" dynamic="False" />
+			<Port ID="328" name="OutputKnob" dynamic="False" />
+			<double name="Value">0</double>
+			<int name="RandSeed">481455060</int>
+		</Node>
+		<Node name="Dynamic Random Value" ID="89" type="valueRandom" pos="4713.599,681">
+			<Port ID="329" name="AverageKnob" dynamic="False" />
+			<Port ID="330" name="DeviationKnob" dynamic="False" />
+			<Port ID="331" name="OutputKnob" dynamic="False" />
+			<double name="Average">1.5</double>
+			<double name="Deviation">0.5</double>
+			<boolean name="DynamicSeed">false</boolean>
+			<int name="RandSeed">1190480270</int>
+		</Node>
+		<Node name="Select" ID="90" type="gridSelectValue" pos="6215.199,836.3999">
+			<Port ID="332" name="InputKnob" dynamic="False" />
+			<Port ID="333" name="OutputKnob" dynamic="False" />
+			<Port ID="334" name="Option 0" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.5.0, Culture=neutral, PublicKeyToken=null">
+				<string name="styleID">GridFunc</string>
+				<Direction name="direction">In</Direction>
+				<ConnectionCount name="maxConnectionCount">Single</ConnectionCount>
+				<NodeSide name="side">Left</NodeSide>
+				<float name="sidePosition">66</float>
+				<float name="sideOffset">0</float>
+			</Port>
+			<Port ID="335" name="Option 0" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.5.0, Culture=neutral, PublicKeyToken=null">
+				<string name="styleID">GridFunc</string>
+				<Direction name="direction">In</Direction>
+				<ConnectionCount name="maxConnectionCount">Single</ConnectionCount>
+				<NodeSide name="side">Left</NodeSide>
+				<float name="sidePosition">94</float>
+				<float name="sideOffset">0</float>
+			</Port>
+			<Port ID="336" name="Option 2" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.5.0, Culture=neutral, PublicKeyToken=null">
+				<string name="styleID">GridFunc</string>
+				<Direction name="direction">In</Direction>
+				<ConnectionCount name="maxConnectionCount">Single</ConnectionCount>
+				<NodeSide name="side">Left</NodeSide>
+				<float name="sidePosition">122</float>
+				<float name="sideOffset">0</float>
+			</Port>
+			<Port ID="337" name="Option 3" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.5.0, Culture=neutral, PublicKeyToken=null">
+				<string name="styleID">GridFunc</string>
+				<Direction name="direction">In</Direction>
+				<ConnectionCount name="maxConnectionCount">Single</ConnectionCount>
+				<NodeSide name="side">Left</NodeSide>
+				<float name="sidePosition">150</float>
+				<float name="sideOffset">0</float>
+			</Port>
+			<Port ID="338" name="Option 4" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.5.0, Culture=neutral, PublicKeyToken=null">
+				<string name="styleID">GridFunc</string>
+				<Direction name="direction">In</Direction>
+				<ConnectionCount name="maxConnectionCount">Single</ConnectionCount>
+				<NodeSide name="side">Left</NodeSide>
+				<float name="sidePosition">178</float>
+				<float name="sideOffset">0</float>
+			</Port>
+			<Variable name="Thresholds" refID="37" />
+			<Variable name="Values" refID="38" />
+			<boolean name="Interpolated">true</boolean>
+			<int name="RandSeed">1243349156</int>
+		</Node>
+		<Node name="Add" ID="91" type="gridOperator" pos="6636.8,707.3999">
+			<Port ID="339" name="OutputKnob" dynamic="False" />
+			<Port ID="340" name="Input 0" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.5.0, Culture=neutral, PublicKeyToken=null">
+				<string name="styleID">GridFunc</string>
+				<Direction name="direction">In</Direction>
+				<ConnectionCount name="maxConnectionCount">Single</ConnectionCount>
+				<NodeSide name="side">Left</NodeSide>
+				<float name="sidePosition">66</float>
+				<float name="sideOffset">0</float>
+			</Port>
+			<Port ID="341" name="Input 1" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.5.0, Culture=neutral, PublicKeyToken=null">
+				<string name="styleID">GridFunc</string>
+				<Direction name="direction">In</Direction>
+				<ConnectionCount name="maxConnectionCount">Single</ConnectionCount>
+				<NodeSide name="side">Left</NodeSide>
+				<float name="sidePosition">94</float>
+				<float name="sideOffset">0</float>
+			</Port>
+			<Port ID="342" name="Apply chance" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.5.0, Culture=neutral, PublicKeyToken=null">
+				<string name="styleID">ValueFunc</string>
+				<Direction name="direction">In</Direction>
+				<ConnectionCount name="maxConnectionCount">Single</ConnectionCount>
+				<NodeSide name="side">Left</NodeSide>
+				<float name="sidePosition">38</float>
+				<float name="sideOffset">0</float>
+			</Port>
+			<Variable name="Values" refID="39" />
+			<Operation name="OperationType">Add</Operation>
+			<double name="ApplyChance">0</double>
+			<double name="StackCount">1</double>
+			<double name="Smoothness">0</double>
+			<int name="RandSeed">1130659286</int>
+		</Node>
+		<Node name="Named Output" ID="92" type="outputNamed" pos="7274.799,862.3998">
+			<Port ID="343" name="Value" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.5.0, Culture=neutral, PublicKeyToken=null">
+				<string name="styleID">GridFunc</string>
+				<Direction name="direction">In</Direction>
+				<ConnectionCount name="maxConnectionCount">Single</ConnectionCount>
+				<NodeSide name="side">Left</NodeSide>
+				<float name="sidePosition">38</float>
+				<float name="sideOffset">0</float>
+			</Port>
+			<string name="TypeId">GridFunc</string>
+			<string name="Name">riverDepthPatternOffset</string>
+			<int name="RandSeed">1936019584</int>
+		</Node>
+		<Node name="River Links" ID="93" type="valueRiverLinks" pos="5880.2,372.9999">
+			<Port ID="344" name="InflowAngleOutputKnob" dynamic="False" />
+			<Port ID="345" name="InflowOffsetOutputKnob" dynamic="False" />
+			<Port ID="346" name="InflowWidthOutputKnob" dynamic="False" />
+			<Port ID="347" name="TributaryAngleOutputKnob" dynamic="False" />
+			<Port ID="348" name="TributaryOffsetOutputKnob" dynamic="False" />
+			<Port ID="349" name="TributaryWidthOutputKnob" dynamic="False" />
+			<Port ID="350" name="TertiaryAngleOutputKnob" dynamic="False" />
+			<Port ID="351" name="TertiaryOffsetOutputKnob" dynamic="False" />
+			<Port ID="352" name="TertiaryWidthOutputKnob" dynamic="False" />
+			<Port ID="353" name="OutflowAngleOutputKnob" dynamic="False" />
+			<Port ID="354" name="OutflowWidthOutputKnob" dynamic="False" />
+			<int name="RandSeed">1361333006</int>
+		</Node>
+		<Node name="Select" ID="94" type="valueSelectValue" pos="6214.8,576.5999">
+			<Port ID="355" name="InputKnob" dynamic="False" />
+			<Port ID="356" name="OutputKnob" dynamic="False" />
+			<Port ID="357" name="Option 0" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.5.0, Culture=neutral, PublicKeyToken=null">
+				<string name="styleID">ValueFunc</string>
+				<Direction name="direction">In</Direction>
+				<ConnectionCount name="maxConnectionCount">Single</ConnectionCount>
+				<NodeSide name="side">Left</NodeSide>
+				<float name="sidePosition">66</float>
+				<float name="sideOffset">0</float>
+			</Port>
+			<Port ID="358" name="Option 0" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.5.0, Culture=neutral, PublicKeyToken=null">
+				<string name="styleID">ValueFunc</string>
+				<Direction name="direction">In</Direction>
+				<ConnectionCount name="maxConnectionCount">Single</ConnectionCount>
+				<NodeSide name="side">Left</NodeSide>
+				<float name="sidePosition">94</float>
+				<float name="sideOffset">0</float>
+			</Port>
+			<Port ID="359" name="Option 2" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.5.0, Culture=neutral, PublicKeyToken=null">
+				<string name="styleID">ValueFunc</string>
+				<Direction name="direction">In</Direction>
+				<ConnectionCount name="maxConnectionCount">Single</ConnectionCount>
+				<NodeSide name="side">Left</NodeSide>
+				<float name="sidePosition">122</float>
+				<float name="sideOffset">0</float>
+			</Port>
+			<Port ID="360" name="Option 3" dynamic="True" type="NodeEditorFramework.ValueConnectionKnob, TerrainGraph, Version=1.1.5.0, Culture=neutral, PublicKeyToken=null">
+				<string name="styleID">ValueFunc</string>
+				<Direction name="direction">In</Direction>
+				<ConnectionCount name="maxConnectionCount">Single</ConnectionCount>
+				<NodeSide name="side">Left</NodeSide>
+				<float name="sidePosition">150</float>
+				<float name="sideOffset">0</float>
+			</Port>
+			<Variable name="Thresholds" refID="40" />
+			<Variable name="Values" refID="41" />
+			<boolean name="Interpolated">true</boolean>
+			<int name="RandSeed">1906961700</int>
+		</Node>
+		<Node name="Preview" ID="95" type="gridPreview" pos="7007.2,780.3998">
+			<Port ID="361" name="InputKnob" dynamic="False" />
+			<Port ID="362" name="OutputKnob" dynamic="False" />
+			<string name="PreviewModelId">Default x10</string>
+			<string name="PreviewTransformId">Default</string>
+			<int name="RandSeed">2028459630</int>
+		</Node>
 	</Nodes>
 	<Connections>
 		<Connection port1ID="0" port2ID="47" />
@@ -1451,6 +1741,7 @@
 		<Connection port1ID="10" port2ID="157" />
 		<Connection port1ID="11" port2ID="152" />
 		<Connection port1ID="12" port2ID="158" />
+		<Connection port1ID="12" port2ID="323" />
 		<Connection port1ID="13" port2ID="154" />
 		<Connection port1ID="14" port2ID="159" />
 		<Connection port1ID="15" port2ID="156" />
@@ -1467,7 +1758,7 @@
 		<Connection port1ID="42" port2ID="96" />
 		<Connection port1ID="43" port2ID="78" />
 		<Connection port1ID="44" port2ID="79" />
-		<Connection port1ID="48" port2ID="305" />
+		<Connection port1ID="48" port2ID="306" />
 		<Connection port1ID="49" port2ID="50" />
 		<Connection port1ID="49" port2ID="126" />
 		<Connection port1ID="51" port2ID="57" />
@@ -1489,7 +1780,7 @@
 		<Connection port1ID="99" port2ID="114" />
 		<Connection port1ID="104" port2ID="113" />
 		<Connection port1ID="121" port2ID="131" />
-		<Connection port1ID="125" port2ID="306" />
+		<Connection port1ID="125" port2ID="307" />
 		<Connection port1ID="127" port2ID="130" />
 		<Connection port1ID="137" port2ID="210" />
 		<Connection port1ID="163" port2ID="164" />
@@ -1525,7 +1816,22 @@
 		<Connection port1ID="286" port2ID="290" />
 		<Connection port1ID="291" port2ID="293" />
 		<Connection port1ID="294" port2ID="299" />
-		<Connection port1ID="295" port2ID="307" />
+		<Connection port1ID="295" port2ID="308" />
+		<Connection port1ID="309" port2ID="311" />
+		<Connection port1ID="309" port2ID="314" />
+		<Connection port1ID="310" port2ID="316" />
+		<Connection port1ID="313" port2ID="317" />
+		<Connection port1ID="318" port2ID="319" />
+		<Connection port1ID="320" port2ID="322" />
+		<Connection port1ID="321" port2ID="325" />
+		<Connection port1ID="324" port2ID="332" />
+		<Connection port1ID="326" port2ID="328" />
+		<Connection port1ID="327" port2ID="331" />
+		<Connection port1ID="333" port2ID="341" />
+		<Connection port1ID="339" port2ID="361" />
+		<Connection port1ID="342" port2ID="356" />
+		<Connection port1ID="343" port2ID="362" />
+		<Connection port1ID="354" port2ID="355" />
 	</Connections>
 	<Objects>
 		<Object refID="1" type="System.Collections.Generic.List`1[[GeologicalLandforms.RiverType, GeologicalLandforms, Version=1.6.10.0, Culture=neutral, PublicKeyToken=null]]">
@@ -1741,6 +2047,70 @@
 		<Object refID="32" type="System.Collections.Generic.List`1[[System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]">
 			<ArrayOfDouble xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 				<double>0</double>
+				<double>0</double>
+			</ArrayOfDouble>
+		</Object>
+		<Object refID="33" type="System.Collections.Generic.List`1[[System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]">
+			<ArrayOfDouble xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<double>0</double>
+				<double>2</double>
+			</ArrayOfDouble>
+		</Object>
+		<Object refID="34" type="System.Collections.Generic.List`1[[System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]">
+			<ArrayOfDouble xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<double>0</double>
+				<double>3</double>
+			</ArrayOfDouble>
+		</Object>
+		<Object refID="35" type="System.Collections.Generic.List`1[[System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]">
+			<ArrayOfDouble xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<double>0</double>
+				<double>0</double>
+			</ArrayOfDouble>
+		</Object>
+		<Object refID="36" type="System.Collections.Generic.List`1[[System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]">
+			<ArrayOfDouble xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<double>0</double>
+				<double>1</double>
+			</ArrayOfDouble>
+		</Object>
+		<Object refID="37" type="System.Collections.Generic.List`1[[System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]">
+			<ArrayOfDouble xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<double>-25</double>
+				<double>-7</double>
+				<double>0</double>
+				<double>7</double>
+				<double>25</double>
+			</ArrayOfDouble>
+		</Object>
+		<Object refID="38" type="System.Collections.Generic.List`1[[System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]">
+			<ArrayOfDouble xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<double>0</double>
+				<double>10</double>
+				<double>50</double>
+				<double>10</double>
+				<double>0</double>
+			</ArrayOfDouble>
+		</Object>
+		<Object refID="39" type="System.Collections.Generic.List`1[[System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]">
+			<ArrayOfDouble xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<double>0</double>
+				<double>0</double>
+			</ArrayOfDouble>
+		</Object>
+		<Object refID="40" type="System.Collections.Generic.List`1[[System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]">
+			<ArrayOfDouble xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<double>14</double>
+				<double>30</double>
+				<double>50</double>
+				<double>70</double>
+			</ArrayOfDouble>
+		</Object>
+		<Object refID="41" type="System.Collections.Generic.List`1[[System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]">
+			<ArrayOfDouble xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<double>0.30000001192092896</double>
+				<double>0.20000000298023224</double>
+				<double>0.10000000149011612</double>
 				<double>0</double>
 			</ArrayOfDouble>
 		</Object>
