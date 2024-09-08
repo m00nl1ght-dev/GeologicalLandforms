@@ -42,7 +42,7 @@ internal static class TerrainTabUI
             var landformData = Find.World.LandformData();
             bool ignoreReq = Prefs.DevMode && GeologicalLandformsMod.Settings.IgnoreWorldTileReqInGodMode;
 
-            if (landformData != null && tileInfo.WorldObject is not { HasMap: true })
+            if (landformData != null && (tileInfo.WorldObject is not { HasMap: true } || ignoreReq))
             {
                 rect = listing.GetRect(28f);
 
