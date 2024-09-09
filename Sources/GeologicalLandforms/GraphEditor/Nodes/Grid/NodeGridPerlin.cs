@@ -17,7 +17,7 @@ public class NodeGridPerlin : NodeBase
     public const string ID = "gridPerlin";
     public override string GetID => ID;
 
-    public override string Title => (DynamicSeed ? "Dynamic " : "") + "Perlin Noise";
+    public override string Title => (DynamicSeed ? "Dynamic " : "") + "Perlin Noise" + (MapSizeAdj ? "" : " [-]");
 
     [ValueConnectionKnob("Frequency", Direction.In, ValueFunctionConnection.Id)]
     public ValueConnectionKnob FrequencyKnob;
@@ -44,7 +44,9 @@ public class NodeGridPerlin : NodeBase
     public double Bias = 0.5;
 
     public int Octaves = 6;
+
     public bool DynamicSeed;
+    public bool MapSizeAdj = true;
 
     public override void NodeGUI()
     {
@@ -86,6 +88,23 @@ public class NodeGridPerlin : NodeBase
                 canvas.OnNodeChange(this);
             });
         }
+
+        if (!MapSizeAdj)
+        {
+            menu.AddItem(new GUIContent("Enable map size compensation"), false, () =>
+            {
+                MapSizeAdj = true;
+                canvas.OnNodeChange(this);
+            });
+        }
+        else
+        {
+            menu.AddItem(new GUIContent("Disable map size compensation"), false, () =>
+            {
+                MapSizeAdj = false;
+                canvas.OnNodeChange(this);
+            });
+        }
     }
 
     public override void RefreshPreview()
@@ -122,8 +141,8 @@ public class NodeGridPerlin : NodeBase
             SupplierOrFallback(PersistenceKnob, Persistence),
             SupplierOrFallback(ScaleKnob, Scale),
             SupplierOrFallback(BiasKnob, Bias),
-            Octaves, Landform.MapSpaceToNodeSpaceFactor, CombinedSeed,
-            DynamicSeed, TerrainCanvas.CreateRandomInstance()
+            Octaves, MapSizeAdj ? Landform.MapSpaceToNodeSpaceFactor : 1,
+            CombinedSeed, DynamicSeed, TerrainCanvas.CreateRandomInstance()
         ));
         return true;
     }
@@ -162,13 +181,13 @@ public class NodeGridPerlin : NodeBase
         public IGridFunction<double> Get()
         {
             if (!_dynamicSeed) _random.Reinitialise(_seed);
-            return new GridFunction.Transform<double>(
-                new GridFunction.ScaleWithBias(
-                    new NoiseFunction(
-                        _frequency.Get(), _lacunarity.Get(), _persistence.Get(), _octaves, _random.Next()
-                    ),
-                    _scale.Get(), _bias.Get()), _transformScale
-            );
+
+            return new GridFunction.ScaleWithBias(
+                new NoiseFunction(
+                    _frequency.Get(), _lacunarity.Get(), _persistence.Get(), _octaves, _random.Next()
+                ),
+                _scale.Get(), _bias.Get()
+            ).Scaled(_transformScale);
         }
 
         public void ResetState()

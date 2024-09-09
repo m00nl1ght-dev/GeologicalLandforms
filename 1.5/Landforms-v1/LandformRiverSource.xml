@@ -8,7 +8,7 @@
 			<boolean name="IsCustom">false</boolean>
 			<boolean name="IsExperimental">false</boolean>
 			<boolean name="IsInternal">false</boolean>
-			<int name="RevisionVersion">34</int>
+			<int name="RevisionVersion">35</int>
 			<long name="TimeCreated">1723906599259</long>
 			<boolean name="IsEdited">false</boolean>
 			<string name="DisplayName" />
@@ -340,6 +340,7 @@
 			<double name="Bias">0</double>
 			<int name="Octaves">6</int>
 			<boolean name="DynamicSeed">false</boolean>
+			<boolean name="MapSizeAdj">false</boolean>
 			<int name="RandSeed">496261267</int>
 		</Node>
 		<Node name="Perlin Noise" ID="23" type="gridPerlin" pos="134.6,118.0001">
@@ -356,6 +357,7 @@
 			<double name="Bias">0</double>
 			<int name="Octaves">6</int>
 			<boolean name="DynamicSeed">true</boolean>
+			<boolean name="MapSizeAdj">false</boolean>
 			<int name="RandSeed">1205039546</int>
 		</Node>
 		<Node name="Cache" ID="24" type="gridCache" pos="6325.82,11.00018">
@@ -947,7 +949,7 @@
 			<Port ID="183" name="OutputKnob" dynamic="False" />
 			<double name="TargetX">0</double>
 			<double name="TargetZ">0</double>
-			<double name="Length">500</double>
+			<double name="Length">9999</double>
 			<double name="StepSize">5</double>
 			<int name="RandSeed">2143865119</int>
 		</Node>
@@ -971,7 +973,7 @@
 			<Port ID="194" name="OutputKnob" dynamic="False" />
 			<double name="TargetX">0</double>
 			<double name="TargetZ">0</double>
-			<double name="Length">500</double>
+			<double name="Length">9999</double>
 			<double name="StepSize">5</double>
 			<int name="RandSeed">741341770</int>
 		</Node>
@@ -1421,7 +1423,7 @@
 			<Port ID="294" name="OutputKnob" dynamic="False" />
 			<double name="TargetX">0</double>
 			<double name="TargetZ">0</double>
-			<double name="Length">500</double>
+			<double name="Length">9999</double>
 			<double name="StepSize">5</double>
 			<int name="RandSeed">1899230038</int>
 		</Node>
@@ -1793,6 +1795,7 @@
 			<double name="Bias">0</double>
 			<int name="Octaves">6</int>
 			<boolean name="DynamicSeed">false</boolean>
+			<boolean name="MapSizeAdj">true</boolean>
 			<int name="RandSeed">1905351840</int>
 		</Node>
 		<Node name="Add" ID="95" type="gridOperator" pos="6020.8,515.5998">
@@ -2144,6 +2147,7 @@
 			<double name="Bias">0</double>
 			<int name="Octaves">6</int>
 			<boolean name="DynamicSeed">false</boolean>
+			<boolean name="MapSizeAdj">true</boolean>
 			<int name="RandSeed">1918591012</int>
 		</Node>
 		<Node name="Preview" ID="116" type="gridPreview" pos="6077.4,946.1988">
