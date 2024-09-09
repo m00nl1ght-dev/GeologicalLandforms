@@ -76,6 +76,11 @@ public class LandformGraphEditor : Window
         {
             Landform.GeneratingMapSize = new(Find.GameInitData.mapSize, Find.GameInitData.mapSize);
         }
+
+        if (Landform.GeneratingMapSize.x < 1 || Landform.GeneratingMapSize.z < 1)
+        {
+            Landform.GeneratingMapSize = new IntVec2(250, 250);
+        }
     }
 
     private void CleanUp()

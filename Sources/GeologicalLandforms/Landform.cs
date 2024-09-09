@@ -75,6 +75,7 @@ public class Landform : TerrainCanvas
 
     public override int GridFullSize => GeneratingGridFullSize;
     public override int GridPreviewSize => GeneratingGridPreviewSize;
+    public override int GridPathSize => GeneratingMapSizeMin;
 
     public override string canvasName => Id ?? "Landform";
     public Vector2 ScreenOrigin = new(-960f, -540f + LandformGraphInterface.ToolbarHeight);
