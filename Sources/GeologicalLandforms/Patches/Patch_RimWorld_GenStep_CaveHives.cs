@@ -5,6 +5,7 @@ using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using LunarFramework.Patching;
 using RimWorld;
+using Verse;
 
 namespace GeologicalLandforms.Patches;
 
@@ -28,7 +29,12 @@ internal static class Patch_RimWorld_GenStep_CaveHives
             .Match(OpCodes.Ldc_R4).Remove()
             .Insert(CodeInstruction.Call(Self, nameof(CaveCellsPerHive)))
             .Match(OpCodes.Div).Keep()
-            .Match(OpCodes.Call).Keep();
+            .Match(OpCodes.Call).Keep()
+            .MatchStloc().Keep()
+            .Insert(OpCodes.Ldarg_1)
+            .Insert(OpCodes.Ldarg_0)
+            .Insert(CodeInstruction.LoadField(typeof(GenStep_CaveHives), "rockCells"))
+            .Insert(CodeInstruction.Call(Self, nameof(RemoveWaterCells)));
 
         return TranspilerPattern.Apply(instructions, pattern);
     }
@@ -39,5 +45,10 @@ internal static class Patch_RimWorld_GenStep_CaveHives
 
         double? value = Landform.GetFeature(l => l.OutputScatterers?.GetCaveHives());
         return value.HasValue ? VanillaCaveCellsPerHive / (float) value.Value : VanillaCaveCellsPerHive;
+    }
+
+    private static void RemoveWaterCells(Map map, List<IntVec3> cells)
+    {
+        cells.RemoveAll(c => map.terrainGrid.TerrainAt(c).IsWater);
     }
 }
