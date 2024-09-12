@@ -8,7 +8,7 @@
 			<boolean name="IsCustom">false</boolean>
 			<boolean name="IsExperimental">false</boolean>
 			<boolean name="IsInternal">false</boolean>
-			<int name="RevisionVersion">36</int>
+			<int name="RevisionVersion">37</int>
 			<long name="TimeCreated">1717439537567</long>
 			<boolean name="IsEdited">false</boolean>
 			<string name="DisplayName" />
@@ -186,6 +186,7 @@
 			<double name="Bias">0</double>
 			<int name="Octaves">4</int>
 			<boolean name="DynamicSeed">false</boolean>
+			<boolean name="MapSizeAdj">true</boolean>
 			<int name="RandSeed">10875669</int>
 		</Node>
 		<Node name="Preview" ID="12" type="gridPreview" pos="679.8007,91.99974">
@@ -352,6 +353,7 @@
 			<double name="Bias">0</double>
 			<int name="Octaves">6</int>
 			<boolean name="DynamicSeed">false</boolean>
+			<boolean name="MapSizeAdj">true</boolean>
 			<int name="RandSeed">1668975112</int>
 		</Node>
 		<Node name="Preview" ID="24" type="gridPreview" pos="675.7999,-1208.399">
@@ -724,6 +726,7 @@
 			<double name="Bias">0</double>
 			<int name="Octaves">4</int>
 			<boolean name="DynamicSeed">false</boolean>
+			<boolean name="MapSizeAdj">true</boolean>
 			<int name="RandSeed">1050287688</int>
 		</Node>
 		<Node name="Preview" ID="45" type="gridPreview" pos="678.4002,270.5998">
@@ -772,6 +775,7 @@
 			<double name="Bias">0</double>
 			<int name="Octaves">4</int>
 			<boolean name="DynamicSeed">false</boolean>
+			<boolean name="MapSizeAdj">true</boolean>
 			<int name="RandSeed">24094747</int>
 		</Node>
 		<Node name="Preview" ID="48" type="gridPreview" pos="681.2,-83.19989">
@@ -1577,6 +1581,7 @@
 			<double name="Bias">-1</double>
 			<int name="Octaves">6</int>
 			<boolean name="DynamicSeed">false</boolean>
+			<boolean name="MapSizeAdj">true</boolean>
 			<int name="RandSeed">710306543</int>
 		</Node>
 		<Node name="Preview" ID="92" type="gridPreview" pos="4782.999,-1574.199">
@@ -1801,6 +1806,11 @@
 			<Port ID="378" name="InputAKnob" dynamic="False" />
 			<Port ID="379" name="InputBKnob" dynamic="False" />
 			<Port ID="380" name="OutputKnob" dynamic="False" />
+			<PriorityOptions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Options">
+				<PrioritizeWater>true</PrioritizeWater>
+				<PrioritizeIce>true</PrioritizeIce>
+				<InvertFertility>false</InvertFertility>
+			</PriorityOptions>
 			<int name="RandSeed">1266267943</int>
 		</Node>
 		<Node name="Terrain Input" ID="108" type="inputTerrain" pos="5664.398,-1229">
