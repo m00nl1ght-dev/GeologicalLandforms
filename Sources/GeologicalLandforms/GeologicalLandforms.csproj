@@ -47,6 +47,9 @@
         <Reference Include="UnityEngine.InputLegacyModule" Private="false">
             <HintPath>$(RimWorldPath)\RimWorldWin64_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
         </Reference>
+        <Reference Include="UnityEngine.TextRenderingModule" Private="false">
+            <HintPath>..\..\..\..\RimWorldWin64_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
+        </Reference>
     </ItemGroup>
 
     <PropertyGroup>

@@ -132,11 +132,11 @@ public class NodeUIWorldTileReq : NodeUIBase
 
         layout.Abs(20f);
 
-        LunarGUI.Checkbox(layout, ref AllowSettlements, $"{LabelKeyPrefix}.AllowSettlements".Translate());
+        DoCheckbox(layout.Abs(24f), ref AllowSettlements, $"{LabelKeyPrefix}.AllowSettlements".Translate());
 
         layout.Abs(10f);
 
-        LunarGUI.Checkbox(layout, ref AllowSites, $"{LabelKeyPrefix}.AllowSites".Translate());
+        DoCheckbox(layout.Abs(24f), ref AllowSites, $"{LabelKeyPrefix}.AllowSites".Translate());
 
         _lastLayoutMaxY = layout.OccupiedSpace + 50f;
     }
