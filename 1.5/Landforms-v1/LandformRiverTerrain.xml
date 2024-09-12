@@ -7,7 +7,7 @@
 			<string name="Id">RiverTerrain</string>
 			<boolean name="IsCustom">false</boolean>
 			<boolean name="IsExperimental">false</boolean>
-			<boolean name="IsInternal">false</boolean>
+			<boolean name="IsInternal">true</boolean>
 			<int name="RevisionVersion">37</int>
 			<long name="TimeCreated">1717439537567</long>
 			<boolean name="IsEdited">false</boolean>
