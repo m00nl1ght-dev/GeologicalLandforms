@@ -71,7 +71,8 @@ public class EditorMockTileInfo : IWorldTileInfo
 
         layout.BeginAbs(28f);
         LunarGUI.Label(layout.Rel(0.5f), "Direction");
-        LunarGUI.Dropdown(layout.Rel(-1), TopologyDirection, Rot4.AllRotations, v => onChange(TopologyDirection = v), v => v.ToStringHuman());
+        List<Rot4> rots = [Rot4.North, Rot4.East, Rot4.South, Rot4.West];
+        LunarGUI.Dropdown(layout.Rel(-1), TopologyDirection, rots, v => onChange(TopologyDirection = v), v => v.ToStringHuman());
         layout.End();
     }
 

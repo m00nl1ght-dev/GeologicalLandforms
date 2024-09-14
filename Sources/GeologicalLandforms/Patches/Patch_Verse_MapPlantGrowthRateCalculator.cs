@@ -1,3 +1,5 @@
+#if RW_1_5_OR_GREATER
+
 using System;
 using System.Collections.Generic;
 using HarmonyLib;
@@ -29,3 +31,5 @@ internal static class Patch_Verse_MapPlantGrowthRateCalculator
         return map.Tile < 0 && map.Parent is PocketMapParent { sourceMap.Tile: >= 0 } parent ? parent.sourceMap.Tile : map.Tile;
     }
 }
+
+#endif
