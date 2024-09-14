@@ -1,4 +1,8 @@
 
+v1.6.11
+
+- Fixed incompatibility with Vanilla Factions Expanded Insectoids 2
+
 v1.6.10
 
 - Fixed an error that occured when clicking "Any" or "Any POI" in the landform search
