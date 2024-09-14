@@ -9,7 +9,6 @@ using Verse;
 
 namespace GeologicalLandforms;
 
-[HotSwappable]
 public static class WorldTileUtils
 {
     public static int StableWorldSeed => Patch_RimWorld_World.LastKnownInitialWorldSeed;

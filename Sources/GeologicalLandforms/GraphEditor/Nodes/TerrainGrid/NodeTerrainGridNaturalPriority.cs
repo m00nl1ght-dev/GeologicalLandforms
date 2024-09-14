@@ -8,7 +8,6 @@ using Verse;
 
 namespace GeologicalLandforms.GraphEditor;
 
-[LunarFramework.Utility.HotSwappable]
 [Serializable]
 [Node(false, "Terrain/Grid/Natural Priority", 312)]
 public class NodeTerrainGridNaturalPriority : NodeBase
