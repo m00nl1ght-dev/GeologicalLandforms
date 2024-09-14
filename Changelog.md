@@ -1,4 +1,19 @@
 
+v1.7.0
+
+- Added new landform 'River' (replaces vanilla rivers)
+- Added new landform 'River Confluence'
+- Added new landform 'River Source'
+- Added new landform 'River Delta'
+- Added new landform 'River Island'
+- Added new landform 'Glacier'
+- Added new landform 'Gorge'
+- Reworked world tile requirements UI in the landform editor
+- Added various new nodes for the landform editor
+- Added new condition that checks whether a certain world object is nearby
+- Fixed biome grid errors that could occur during load/save
+- Fixed compatibility issue with Research Reinvented
+
 v1.6.11
 
 - Fixed incompatibility with Vanilla Factions Expanded Insectoids 2
