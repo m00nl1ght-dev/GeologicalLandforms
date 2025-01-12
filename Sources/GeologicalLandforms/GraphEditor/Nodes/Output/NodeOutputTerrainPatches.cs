@@ -1,6 +1,7 @@
 using System;
 using NodeEditorFramework;
 using TerrainGraph;
+using UnityEngine;
 
 namespace GeologicalLandforms.GraphEditor;
 
@@ -18,6 +19,42 @@ public class NodeOutputTerrainPatches : NodeOutputBase
     [ValueConnectionKnob("Offset", Direction.In, GridFunctionConnection.Id)]
     public ValueConnectionKnob OffsetKnob;
 
+    [ValueConnectionKnob("Frequency", Direction.In, ValueFunctionConnection.Id)]
+    public ValueConnectionKnob FrequencyKnob;
+
+    [ValueConnectionKnob("Lacunarity", Direction.In, ValueFunctionConnection.Id)]
+    public ValueConnectionKnob LacunarityKnob;
+
+    [ValueConnectionKnob("Persistence", Direction.In, ValueFunctionConnection.Id)]
+    public ValueConnectionKnob PersistenceKnob;
+
+    public override void NodeGUI()
+    {
+        GUILayout.BeginVertical(BoxStyle);
+
+        GUILayout.BeginHorizontal(BoxStyle);
+        GUILayout.Label("Value offset", DoubleBoxLayout);
+        GUILayout.EndHorizontal();
+        OffsetKnob.SetPosition();
+
+        GUILayout.BeginHorizontal(BoxStyle);
+        GUILayout.Label("Frequency multiplier", DoubleBoxLayout);
+        GUILayout.EndHorizontal();
+        FrequencyKnob.SetPosition();
+
+        GUILayout.BeginHorizontal(BoxStyle);
+        GUILayout.Label("Lacunarity multiplier", DoubleBoxLayout);
+        GUILayout.EndHorizontal();
+        LacunarityKnob.SetPosition();
+
+        GUILayout.BeginHorizontal(BoxStyle);
+        GUILayout.Label("Persistence multiplier", DoubleBoxLayout);
+        GUILayout.EndHorizontal();
+        PersistenceKnob.SetPosition();
+
+        GUILayout.EndVertical();
+    }
+
     public override void OnCreate(bool fromGUI)
     {
         var existing = Landform.OutputTerrainPatches;
@@ -33,5 +70,20 @@ public class NodeOutputTerrainPatches : NodeOutputBase
     public IGridFunction<double> GetOffset()
     {
         return OffsetKnob.GetValue<ISupplier<IGridFunction<double>>>()?.ResetAndGet();
+    }
+
+    public double? GetFrequencyFactor()
+    {
+        return FrequencyKnob.GetValue<ISupplier<double>>()?.ResetAndGet();
+    }
+
+    public double? GetLacunarityFactor()
+    {
+        return LacunarityKnob.GetValue<ISupplier<double>>()?.ResetAndGet();
+    }
+
+    public double? GetPersistenceFactor()
+    {
+        return PersistenceKnob.GetValue<ISupplier<double>>()?.ResetAndGet();
     }
 }
