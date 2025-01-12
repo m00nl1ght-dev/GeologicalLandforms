@@ -1,4 +1,12 @@
 
+v1.7.1
+
+- Fixed noisy/ugly areas and improved overall look of biome transitions
+- Fixed compatibility with the 'Configurable Maps' mod
+- Fixed an issue that caused inaccurate previews in the 'Map Reroll' mod
+- Fixed rivers generating incompletely on very large maps (500x500+)
+- Added new inputs to the 'Terrain Patches' node in the landform editor
+
 v1.7.0
 
 - Added new landform 'River' (replaces vanilla rivers)
