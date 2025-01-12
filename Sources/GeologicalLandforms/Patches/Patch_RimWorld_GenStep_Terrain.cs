@@ -35,7 +35,7 @@ internal static class Patch_RimWorld_GenStep_Terrain
     [HarmonyPriority(Priority.VeryHigh)]
     private static void Generate_Prefix(Map map, GenStepParams parms)
     {
-        Init(map.BiomeGrid());
+        Init(map);
     }
 
     [HarmonyPostfix]
@@ -90,7 +90,7 @@ internal static class Patch_RimWorld_GenStep_Terrain
         return TranspilerPattern.Apply(instructions, findLoc, injectOpt);
     }
 
-    public static void Init(BiomeGrid biomeGrid)
+    public static void Init(Map map)
     {
         CleanUp();
 
@@ -104,7 +104,7 @@ internal static class Patch_RimWorld_GenStep_Terrain
         RiverFunction = Landform.GetFeatureScaled(l => l.OutputWaterFlow?.GetRiverTerrain());
         BiomeFunction = Landform.GetFeatureScaled(l => l.OutputBiomeGrid?.GetBiomeGrid());
 
-        _biomeGrid = biomeGrid;
+        _biomeGrid = map.BiomeGrid();
 
         bool hasBiomeTransition = false;
         if (tile.HasBorderingBiomes())
@@ -124,7 +124,7 @@ internal static class Patch_RimWorld_GenStep_Terrain
 
             if (hasBiomeTransition)
             {
-                BiomeTransition.PostProcessBiomeGrid(_biomeGrid, mapSize);
+                BiomeTransition.PostProcessBiomeGrid(map);
             }
         }
 

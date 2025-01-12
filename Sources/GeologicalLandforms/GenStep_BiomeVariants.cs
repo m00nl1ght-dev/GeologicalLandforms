@@ -117,7 +117,7 @@ public class GenStep_BiomeVariants : GenStep
 
                     if (hasBiomeTransition)
                     {
-                        BiomeTransition.PostProcessBiomeGrid(biomeGrid, mapSize);
+                        BiomeTransition.PostProcessBiomeGrid(map);
                     }
                 }
 

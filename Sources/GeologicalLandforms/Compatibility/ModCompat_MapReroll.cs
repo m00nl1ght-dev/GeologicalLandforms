@@ -20,27 +20,24 @@ internal class ModCompat_MapReroll : ModCompat
     private static Landform _lastEditedLandform;
     private static NodeEditorState _lastEditorState;
 
-    [HarmonyPrefix]
-    [HarmonyPriority(1000)]
-    [HarmonyPatch("MapReroll.MapPreviewGenerator", "GeneratePreviewForSeed")]
-    private static void MapPreviewGenerator_GeneratePreviewForSeed_Prefix(string seed, int mapTile, int mapSize)
+    [HarmonyPostfix]
+    [HarmonyPatch("MapReroll.MapPreviewGenerator", "CreateMapStub")]
+    private static void MapPreviewGenerator_CreateMapStub_Postfix(Map __result)
     {
-        var tileInfo = WorldTileInfo.Get(mapTile);
-        int seedInt = Gen.HashCombineInt(GenText.StableStringHash(seed), mapTile);
+        var biomeGrid = new BiomeGrid(__result);
+        __result.components.Add(biomeGrid);
 
-        Landform.Prepare(tileInfo, new IntVec2(mapSize, mapSize), seedInt);
+        Landform.Prepare(__result);
 
-        var biomeGrid = new BiomeGrid(null, new IntVec3(mapSize, 1, mapSize));
-        biomeGrid.Primary.Set(tileInfo.Biome);
+        biomeGrid.Primary.Set(__result.Biome);
         biomeGrid.Primary.Refresh(null);
 
-        Patch_RimWorld_GenStep_Terrain.Init(biomeGrid);
+        Patch_RimWorld_GenStep_Terrain.Init(__result);
     }
 
-    [HarmonyPostfix]
-    [HarmonyPriority(-10)]
+    [HarmonyFinalizer]
     [HarmonyPatch("MapReroll.MapPreviewGenerator", "GeneratePreviewForSeed")]
-    private static void MapPreviewGenerator_GeneratePreviewForSeed_Postfix()
+    private static void MapPreviewGenerator_GeneratePreviewForSeed_Finalizer()
     {
         Patch_RimWorld_GenStep_Terrain.CleanUp();
         Landform.CleanUp();

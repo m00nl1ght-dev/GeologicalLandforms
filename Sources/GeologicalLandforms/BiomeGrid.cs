@@ -40,18 +40,11 @@ public class BiomeGrid : MapComponent
     private readonly IntVec3 _mapSize;
 
     /// <summary>
-    /// Create a new biome grid for a full map.
-    /// </summary>
-    public BiomeGrid(Map map) : this(map, map.Size) { }
-
-    /// <summary>
     /// Create a new biome grid for a full map or preview.
     /// </summary>
-    /// <param name="map">can be null for previews</param>
-    /// <param name="mapSize">the size of the map or preview</param>
-    public BiomeGrid(Map map, IntVec3 mapSize) : base(map)
+    public BiomeGrid(Map map) : base(map)
     {
-        _mapSize = mapSize;
+        _mapSize = map.Size;
         _grid = new Entry[_mapSize.x * _mapSize.z];
         _entries.Add(new Entry { LoadId = LoadId, CellCount = _mapSize.x * _mapSize.z });
     }
@@ -145,7 +138,6 @@ public class BiomeGrid : MapComponent
 
     public void UpdateOpenGroundFraction()
     {
-        if (map == null) return;
         float total = map.cellIndices.NumGridCells;
         bool caveBiome = Primary.BiomeBase.Properties().applyToCaves;
         bool waterPassable = TerrainDefOf.WaterDeep.passability != Traversability.Impassable;
@@ -181,8 +173,6 @@ public class BiomeGrid : MapComponent
 
     public override void ExposeData()
     {
-        if (map == null) throw new Exception("Preview maps can not be saved");
-
         if (!GeologicalLandformsAPI.LunarAPI.IsInitialized())
         {
             _enabled = false;

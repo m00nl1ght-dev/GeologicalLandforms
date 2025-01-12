@@ -59,23 +59,26 @@ public static class BiomeTransition
         return flag;
     }
 
-    public static void PostProcessBiomeGrid(BiomeGrid biomeGrid, IntVec2 mapSize)
+    public static void PostProcessBiomeGrid(Map map)
     {
-        var enabled = PostProcessBiomeTransitions.Apply(biomeGrid);
+        var biomeGrid = map.BiomeGrid();
+        if (biomeGrid == null) return;
 
+        var enabled = PostProcessBiomeTransitions.Apply(biomeGrid);
         if (!enabled && !DebugBiomeTransitions) return;
 
-        var tempMap = CreateMinimalMap(mapSize);
-        var floodFiller = new FloodFiller(tempMap);
+        var mapSize = map.Size.ToIntVec2;
+        var floodFiller = new FloodFiller(map);
 
         _tpmProcessed = DebugBiomeTransitions ? [] : null;
+
         for (int x = 0; x < mapSize.x; x++)
         for (int z = 0; z < mapSize.z; z++)
         {
             var c = new IntVec3(x, 0, z);
             var cBiome = biomeGrid.BiomeAt(c);
 
-            var cTpm = cBiome.TpmOutputAt(c, tempMap, out var sourceTpm);
+            var cTpm = cBiome.TpmOutputAt(c, map, out var sourceTpm);
             if (cTpm == null || !ShouldPostProcessTpm(sourceTpm, cTpm)) continue;
 
             c.ForEachAdjacent(mapSize, a =>
@@ -87,9 +90,9 @@ public static class BiomeTransition
                     {
                         var pBiome = biomeGrid.BiomeAt(p);
                         if (pBiome == cBiome) return false;
-                        var cpTpm = sourceTpm.PossibleTerrainAt(p, tempMap);
+                        var cpTpm = sourceTpm.PossibleTerrainAt(p, map);
                         if (cpTpm == null) return false;
-                        var ppTpm = pBiome.TpmOutputAt(p, tempMap, out _);
+                        var ppTpm = pBiome.TpmOutputAt(p, map, out _);
                         return ShouldOverride(sourceTpm, cpTpm, ppTpm);
                     }, p =>
                     {
@@ -102,7 +105,7 @@ public static class BiomeTransition
 
         if (_tpmProcessed != null)
         {
-            GeologicalLandformsAPI.Logger.Debug("TPM postprocessor changed biome of " + _tpmProcessed.Count + " tiles.");
+            GeologicalLandformsAPI.Logger.Log("TPM postprocessor changed biome of " + _tpmProcessed.Count + " tiles.");
         }
 
         if (!enabled) biomeGrid.SetBiomes(Patch_RimWorld_GenStep_Terrain.BiomeFunction);
@@ -143,14 +146,6 @@ public static class BiomeTransition
         if (c.z > 0) action(new IntVec3(c.x, c.y, c.z - 1));
         if (c.x < mapSize.x - 1) action(new IntVec3(c.x + 1, c.y, c.z));
         if (c.z < mapSize.z - 1) action(new IntVec3(c.x, c.y, c.z + 1));
-    }
-
-    private static Map CreateMinimalMap(IntVec2 mapSize)
-    {
-        var map = new Map { info = { parent = new MapParent(), Size = new IntVec3(mapSize.x, 1, mapSize.z) } };
-        map.cellIndices = new CellIndices(map);
-        map.floodFiller = new FloodFiller(map);
-        return map;
     }
 
     public static void DrawDebug(DebugCellDrawer drawer)
