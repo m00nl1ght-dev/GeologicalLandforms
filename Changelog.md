@@ -1,4 +1,8 @@
 
+v1.7.2
+
+- Fixed compatibility with the 'BetterLoading' mod
+
 v1.7.1
 
 - Fixed noisy/ugly areas and improved overall look of biome transitions

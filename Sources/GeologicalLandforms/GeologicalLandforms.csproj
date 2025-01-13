@@ -9,7 +9,7 @@
         <RootNamespace>GeologicalLandforms</RootNamespace>
         <AssemblyName>GeologicalLandforms</AssemblyName>
 
-        <Version>1.7.1</Version>
+        <Version>1.7.2</Version>
 
         <Copyright>Copyright © 2024 m00nl1ght &lt;https://github.com/m00nl1ght-dev&gt;</Copyright>
     </PropertyGroup>
