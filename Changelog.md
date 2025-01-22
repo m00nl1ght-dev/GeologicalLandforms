@@ -1,4 +1,8 @@
 
+v1.7.3
+
+- Added Russian translation (submitted by @dodther)
+
 v1.7.2
 
 - Fixed compatibility with the 'BetterLoading' mod
