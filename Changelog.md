@@ -1,4 +1,8 @@
 
+v1.7.3.1
+
+- Updated translation (submitted by @dodther)
+
 v1.7.3
 
 - Added Russian translation (submitted by @dodther)
