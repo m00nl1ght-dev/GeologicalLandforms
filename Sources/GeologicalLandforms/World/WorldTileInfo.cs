@@ -13,6 +13,12 @@ using Verse;
 using static GeologicalLandforms.LandformData;
 using static Verse.RotationDirection;
 
+#if RW_1_6_OR_GREATER
+using static RimWorld.Planet.SurfaceTile;
+#else
+using static RimWorld.Planet.Tile;
+#endif
+
 // ReSharper disable ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
 // ReSharper disable ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
 // ReSharper disable LoopCanBeConvertedToQuery
@@ -48,6 +54,10 @@ public class WorldTileInfo : IWorldTileInfo
     public IRiverData Rivers => GetOrCreateTileLinkData();
     public IRoadData Roads => GetOrCreateTileLinkData();
 
+    #if RW_1_6_OR_GREATER
+    public Landmark Landmark => Tile.Landmark;
+    #endif
+
     public Vector3 PosInWorld => World.grid.GetTileCenter(TileId);
 
     public byte DepthInCaveSystem => World.LandformData()?.GetCaveSystemDepthAt(TileId) ?? 0;
@@ -55,13 +65,23 @@ public class WorldTileInfo : IWorldTileInfo
     public int StableSeed(int salt) => WorldTileUtils.StableSeedForTile(TileId, salt);
 
     internal readonly int TileId;
+
+    #if RW_1_6_OR_GREATER
+    internal readonly SurfaceTile Tile;
+    #else
     internal readonly Tile Tile;
+    #endif
+
     internal readonly World World;
 
     private TileLinkData _tileLinkData;
     private int _cacheVersion;
 
+    #if RW_1_6_OR_GREATER
+    protected WorldTileInfo(int tileId, SurfaceTile tile, World world)
+    #else
     protected WorldTileInfo(int tileId, Tile tile, World world)
+    #endif
     {
         TileId = tileId;
         Tile = tile;
@@ -149,13 +169,22 @@ public class WorldTileInfo : IWorldTileInfo
         {
             InvalidateCache();
             GeologicalLandformsAPI.Logger.Error($"Failed to get info for world tile {tileId}", e);
+
+            #if RW_1_6_OR_GREATER
+            return new WorldTileInfo(tileId, new SurfaceTile { biome = BiomeDefOf.Ocean, elevation = 0f }, Find.World);
+            #else
             return new WorldTileInfo(tileId, new Tile { biome = BiomeDefOf.Ocean, elevation = 0f }, Find.World);
+            #endif
         }
     }
 
     public static void InvalidateCache()
     {
         unchecked { _validCacheVersion++; }
+
+        #if RW_1_6_OR_GREATER
+        TileMutatorsCustomizationCache.Clear();
+        #endif
     }
 
     public static void CreateNewCache()
@@ -378,8 +407,8 @@ public class WorldTileInfo : IWorldTileInfo
         int tileId = info.TileId;
         var tileCenter = grid.GetTileCenter(tileId);
 
-        var nbData = grid.tileIDToNeighbors_values;
-        var nbOffsets = grid.tileIDToNeighbors_offsets;
+        var nbData = grid.ExtNbValues();
+        var nbOffsets = grid.ExtNbOffsets();
 
         var nbOffset = nbOffsets[tileId];
         var nbBound = nbOffsets.IdxBoundFor(nbData, tileId);
@@ -404,7 +433,7 @@ public class WorldTileInfo : IWorldTileInfo
         for (var nbIdx = nbOffset; nbIdx < nbBound; nbIdx++)
         {
             var idx = nbIdx - nbOffset;
-            var nbId = nbData[nbIdx];
+            var nbId = (int) nbData[nbIdx];
             var nbTile = grid[nbId];
 
             // warning: RotateCW and RotateCCW are not reliable and Rot6 indexes may be reversed
@@ -785,10 +814,10 @@ public class WorldTileInfo : IWorldTileInfo
 
             if (riverLinks != null)
             {
-                Tile.RiverLink inflow = default;
-                Tile.RiverLink tributary = default;
-                Tile.RiverLink tertiary = default;
-                Tile.RiverLink outflow = default;
+                RiverLink inflow = default;
+                RiverLink tributary = default;
+                RiverLink tertiary = default;
+                RiverLink outflow = default;
 
                 foreach (var link in riverLinks)
                 {
@@ -852,8 +881,8 @@ public class WorldTileInfo : IWorldTileInfo
 
             if (roadLinks != null)
             {
-                Tile.RoadLink primary = default;
-                Tile.RoadLink secondary = default;
+                RoadLink primary = default;
+                RoadLink secondary = default;
 
                 foreach (var link in roadLinks)
                 {

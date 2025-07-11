@@ -40,6 +40,10 @@ public class PocketMapInfo : IWorldTileInfo
     public IRoadData Roads => new RoadData();
     public Vector3 PosInWorld => Vector3.zero;
 
+    #if RW_1_6_OR_GREATER
+    public Landmark Landmark => Tile.Landmark;
+    #endif
+
     public int StableSeed(int salt) => Gen.HashCombineInt(Tile.GetHashCode(), salt);
 
     internal readonly Tile Tile;

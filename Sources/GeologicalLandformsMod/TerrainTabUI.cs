@@ -13,6 +13,8 @@ internal static class TerrainTabUI
     internal static void DoTerrainTabUI(Listing_Standard listing)
     {
         int tileId = Find.WorldSelector.selectedTile;
+        if (tileId < 0) return;
+
         var tileInfo = WorldTileInfo.Get(tileId);
 
         var rect = listing.GetRect(28f);
@@ -26,10 +28,29 @@ internal static class TerrainTabUI
                     new("GeologicalLandforms.WorldMap.FindLandformAnyPOI".Translate(), () => FindLandform(null, true))
                 };
 
+                #if RW_1_6_OR_GREATER
+
+                var prefix = "GeologicalLandforms.WorldMap.FindLandformPrefix".Translate();
+
+                options.AddRange(LandformManager.LandformsById.Values
+                    .Where(e => !e.IsInternal && GeologicalLandformsMod.IsLandformEnabled(e))
+                    .OrderBy(e => e.TranslatedNameForSelection)
+                    .Select(e => new FloatMenuOption($"{prefix} {e.TranslatedNameForSelection.CapitalizeFirst()}", () => FindLandform(e))));
+
+                options.AddRange(DefDatabase<TileMutatorDef>.AllDefs
+                    .Where(e => !TileMutatorsCustomizationCache.IsTileMutatorDisabled(e))
+                    .Where(e => !GeologicalLandformsSettings.SpecialTileMutatorsHidden.Contains(e.defName))
+                    .OrderBy(e => e.modContentPack.ContentSourceLabel()).ThenBy(e => e.label)
+                    .Select(e => new FloatMenuOption($"({e.modContentPack.ContentSourceLabel().CapitalizeFirst()}) {UserInterfaceUtils.LabelForTileMutator(e, false)}", () => FindTileMutator(e))));
+
+                #else
+
                 options.AddRange(LandformManager.LandformsById.Values
                     .Where(e => !e.IsInternal && GeologicalLandformsMod.IsLandformEnabled(e))
                     .OrderBy(e => e.TranslatedNameForSelection)
                     .Select(e => new FloatMenuOption(e.TranslatedNameForSelection.CapitalizeFirst(), () => FindLandform(e))));
+
+                #endif
 
                 Find.WindowStack.Add(new FloatMenu(options));
             }
@@ -151,8 +172,8 @@ internal static class TerrainTabUI
         HashSet<int> tested = [];
         HashSet<int> pending = [tileId];
 
-        var nbData = grid.tileIDToNeighbors_values;
-        var nbOffsets = grid.tileIDToNeighbors_offsets;
+        var nbData = grid.ExtNbValues();
+        var nbOffsets = grid.ExtNbOffsets();
 
         bool Matches(IWorldTileInfo tileInfo)
         {
@@ -199,4 +220,57 @@ internal static class TerrainTabUI
             .Translate(landform.TranslatedNameForSelection, maxDistance.ToString("F0"));
         Messages.Message(messageFail, MessageTypeDefOf.RejectInput, false);
     }
+
+    #if RW_1_6_OR_GREATER
+
+    private static void FindTileMutator(TileMutatorDef tileMutator)
+    {
+        int tileId = Find.WorldSelector.selectedTile;
+        var grid = Find.WorldGrid;
+
+        HashSet<int> tested = [];
+        HashSet<int> pending = [tileId];
+
+        var nbData = grid.ExtNbValues();
+        var nbOffsets = grid.ExtNbOffsets();
+
+        var maxDistance = GeologicalLandformsMod.Settings.MaxLandformSearchRadius.Value;
+
+        for (int i = 0; i < maxDistance; i++)
+        {
+            var copy = pending.ToList();
+            pending.Clear();
+            foreach (var p in copy)
+            {
+                if (grid[p].Mutators.Contains(tileMutator))
+                {
+                    CameraJumper.TryJumpAndSelect(new GlobalTargetInfo(p));
+                    Find.WorldSelector.selectedTile = p;
+                    float dist = grid.ApproxDistanceInTiles(tileId, p);
+                    var messageSuccess = "GeologicalLandforms.WorldMap.FindLandformSuccess"
+                        .Translate(tileMutator.LabelCap, dist.ToString("F2"));
+                    Messages.Message(messageSuccess, MessageTypeDefOf.SilentInput, false);
+                    return;
+                }
+
+                tested.Add(p);
+
+                var nbOffset = nbOffsets[p];
+                var nbBound = nbOffsets.IdxBoundFor(nbData, p);
+
+                for (int j = nbOffset; j < nbBound; j++)
+                {
+                    var nTile = nbData[j];
+                    if (tested.Contains(nTile)) continue;
+                    pending.Add(nTile);
+                }
+            }
+        }
+
+        var messageFail = "GeologicalLandforms.WorldMap.FindLandformFail"
+            .Translate(tileMutator.LabelCap, maxDistance.ToString("F0"));
+        Messages.Message(messageFail, MessageTypeDefOf.RejectInput, false);
+    }
+
+    #endif
 }

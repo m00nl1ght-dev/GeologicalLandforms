@@ -1,3 +1,5 @@
+#if !RW_1_6_OR_GREATER
+
 using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using LunarFramework.Patching;
@@ -34,3 +36,5 @@ internal static class Patch_RimWorld_GenStep_Caves
         return false;
     }
 }
+
+#endif

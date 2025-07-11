@@ -39,6 +39,10 @@ public interface IWorldTileInfo
     public IRiverData Rivers { get; }
     public IRoadData Roads { get; }
 
+    #if RW_1_6_OR_GREATER
+    public Landmark Landmark { get; }
+    #endif
+
     public Vector3 PosInWorld { get; }
 
     public int StableSeed(int salt);

@@ -1,3 +1,5 @@
+#if !RW_1_6_OR_GREATER
+
 using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using LunarFramework.Patching;
@@ -11,7 +13,7 @@ public class ModCompat_BiomesCore : ModCompat
 {
     public override string TargetAssemblyName => "BiomesCore";
     public override string DisplayName => "Biomes! Core";
-    
+
     [HarmonyPrefix]
     [HarmonyPatch("BiomesCore.MapGeneration.GenStep_Island", "Generate")]
     private static bool GenStep_Island_Prefix() => Landform.GetFeature(lf => lf.OutputFertility?.Get()) == null;
@@ -34,3 +36,5 @@ public class ModCompat_BiomesCore : ModCompat
         return false;
     }
 }
+
+#endif

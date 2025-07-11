@@ -1,4 +1,5 @@
 #if DEBUG
+#if !RW_1_6_OR_GREATER
 
 using System.Collections.Generic;
 using HarmonyLib;
@@ -50,4 +51,5 @@ internal static class Patch_RimWorld_FloatMenuMakerMap
     }
 }
 
+#endif
 #endif

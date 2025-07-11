@@ -66,7 +66,16 @@ public class NodeUIWorldTileReq : NodeUIBase
             }
         }
 
-        return value;
+        #if RW_1_6_OR_GREATER
+
+        if (worldTile.Landmark != null && !Landform.IsLayer)
+        {
+            return 0f;
+        }
+
+        #endif
+
+        return CheckWorldObject(worldTile) ? value : 0f;
     }
 
     public bool CheckWorldObject(IWorldTileInfo worldTile)

@@ -26,9 +26,13 @@ internal static class Patch_Verse_MapPlantGrowthRateCalculator
         return TranspilerPattern.Apply(instructions, pattern);
     }
 
+    #if RW_1_6_OR_GREATER
+    private static PlanetTile TileForMap(Map map)
+    #else
     private static int TileForMap(Map map)
+    #endif
     {
-        return map.Tile < 0 && map.Parent is PocketMapParent { sourceMap.Tile: >= 0 } parent ? parent.sourceMap.Tile : map.Tile;
+        return map.Tile < 0 && map.Parent is PocketMapParent parent && parent.sourceMap.Tile >= 0 ? parent.sourceMap.Tile : map.Tile;
     }
 }
 

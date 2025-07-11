@@ -73,18 +73,24 @@ public class WorldTileGraphicAtlas
     {
         var tileCenter = grid.GetTileCenter(tile);
         var atlasCoords = AtlasCoords(Rand.Range(0, VariantCount));
+
+        #if RW_1_6_OR_GREATER
+        WorldRendererUtility.PrintQuadTangentialToPlanet(tileCenter, tileCenter, grid.AverageTileSize * drawSize, alt, mesh, false, randRotation ? Rand.Range(0f, 360f) : 0f, false);
+        #else
         WorldRendererUtility.PrintQuadTangentialToPlanet(tileCenter, tileCenter, grid.averageTileSize * drawSize, alt, mesh, false, randRotation, false);
+        #endif
+
         WorldRendererUtility.PrintTextureAtlasUVs(atlasCoords.x, atlasCoords.z, atlasSize.x, atlasSize.z, mesh);
     }
 
     private void DrawHex(LayerSubMesh mesh, WorldGrid grid, int tile, float alt, Predicate<IWorldTileInfo> adjTest)
     {
-        var vertData = grid.verts;
-        var vertOffsets = grid.tileIDToVerts_offsets;
+        var vertData = grid.ExtVertValues();
+        var vertOffsets = grid.ExtVertOffsets();
         var vertOffset = vertOffsets[tile];
 
-        var nbData = grid.tileIDToNeighbors_values;
-        var nbOffsets = grid.tileIDToNeighbors_offsets;
+        var nbData = grid.ExtNbValues();
+        var nbOffsets = grid.ExtNbOffsets();
         var nbOffset = nbOffsets[tile];
 
         if (nbOffsets.IdxBoundFor(nbData, tile) - nbOffset != 6) return;
@@ -118,8 +124,8 @@ public class WorldTileGraphicAtlas
 
     private int FindFirstSharedVert(WorldGrid grid, int tile, int nbTile)
     {
-        var vertData = grid.verts;
-        var vertOffsets = grid.tileIDToVerts_offsets;
+        var vertData = grid.ExtVertValues();
+        var vertOffsets = grid.ExtVertOffsets();
         var vertOffset = vertOffsets[tile];
         var nbVertOffset = vertOffsets[nbTile];
         var nbVertBound = vertOffsets.IdxBoundFor(vertData, nbTile);
@@ -151,8 +157,8 @@ public class WorldTileGraphicAtlas
 
         rotationIdx = -1;
 
-        var nbData = grid.tileIDToNeighbors_values;
-        var nbOffset = grid.tileIDToNeighbors_offsets[tile];
+        var nbData = grid.ExtNbValues();
+        var nbOffset = grid.ExtNbOffsets()[tile];
 
         for (int i = 0; i < 6; i++)
         {

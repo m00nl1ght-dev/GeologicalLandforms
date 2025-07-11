@@ -28,15 +28,17 @@ public class BiomeProperties : DefModExtension
     public XmlDynamicValue<List<string>, ICtxTile> overrideBiomeVariants;
 
     public bool isWaterCovered;
-    public bool applyToCaves;
     public bool hasStableCaveRoofs;
     public bool allowSettlementsOnImpassableTerrain;
 
     public WorldTileOverrides worldTileOverrides;
     public WorldTileGraphicAtlas worldTileGraphicAtlas;
 
+    #if !RW_1_6_OR_GREATER
+    public bool applyToCaves;
     public TerrainDef beachTerrain;
     public TerrainDef gravelTerrain;
+    #endif
 
     public List<BiomeVariantLayer> biomeLayers;
 
@@ -200,7 +202,9 @@ public class BiomeProperties : DefModExtension
         {
             "SeaIce", new BiomeProperties
             {
+                #if !RW_1_6_OR_GREATER
                 beachTerrain = TerrainDefOf.Ice
+                #endif
             }
         }
     };

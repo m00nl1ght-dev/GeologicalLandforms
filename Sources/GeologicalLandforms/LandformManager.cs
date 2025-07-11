@@ -254,6 +254,10 @@ public static class LandformManager
                         landform.Manifest.IsInternal = true;
                     }
 
+                    #if RW_1_6_OR_GREATER
+                    landform.InitTileMutatorDef();
+                    #endif
+
                     if (landforms.TryGetValue(landform.Id, out var existing))
                     {
                         landforms[landform.Id] = landform;
@@ -294,6 +298,10 @@ public static class LandformManager
             landform.Manifest.DisplayName = "NewLandform";
             landform.Manifest.IsCustom = true;
             landforms.Add(landform.Id, landform);
+
+            #if RW_1_6_OR_GREATER
+            landform.InitTileMutatorDef();
+            #endif
         }
 
         return landforms;

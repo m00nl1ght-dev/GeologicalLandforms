@@ -40,9 +40,17 @@ internal static class Patch_RimWorld_WorldPathGrid
         if (hilliness == Hilliness.Impassable) __result = ImpassableMovementDifficultyOffset;
     }
 
+    #if RW_1_6_OR_GREATER
+    private static bool ShouldTileBePassable(PlanetTile tile)
+    #else
     private static bool ShouldTileBePassable(int tile)
+    #endif
     {
         var world = Find.World;
+
+        #if RW_1_6_OR_GREATER
+        if (!tile.Layer.IsRootSurface) return true;
+        #endif
 
         if (world.grid[tile].hilliness != Hilliness.Impassable) return true;
 

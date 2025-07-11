@@ -2,6 +2,7 @@ using System;
 using LunarFramework.Utility;
 using MapPreview;
 using NodeEditorFramework;
+using RimWorld;
 using TerrainGraph;
 using UnityEngine;
 using Verse;
@@ -194,5 +195,50 @@ public abstract class NodeInputBase : NodeBase
         }
 
         return default;
+    }
+
+    public class DiscreteFloatGridWrapper : IGridFunction<double>
+    {
+        public readonly MapGenFloatGrid FloatGrid;
+
+        public DiscreteFloatGridWrapper(MapGenFloatGrid floatGrid)
+        {
+            FloatGrid = floatGrid;
+        }
+
+        public double ValueAt(double x, double z)
+        {
+            return FloatGrid[new IntVec3((int) Math.Round(x), 0, (int) Math.Round(z))];
+        }
+    }
+
+    public class DiscreteTerrainGridWrapper : IGridFunction<TerrainDef>
+    {
+        public readonly TerrainGrid TerrainGrid;
+
+        public DiscreteTerrainGridWrapper(TerrainGrid terrainGrid)
+        {
+            TerrainGrid = terrainGrid;
+        }
+
+        public TerrainDef ValueAt(double x, double z)
+        {
+            return TerrainGrid.TerrainAt(new IntVec3((int) Math.Round(x), 0, (int) Math.Round(z)));
+        }
+    }
+
+    public class DiscreteBiomeGridWrapper : IGridFunction<BiomeDef>
+    {
+        public readonly BiomeGrid BiomeGrid;
+
+        public DiscreteBiomeGridWrapper(BiomeGrid biomeGrid)
+        {
+            BiomeGrid = biomeGrid;
+        }
+
+        public BiomeDef ValueAt(double x, double z)
+        {
+            return BiomeGrid.BiomeAt(new IntVec3((int) Math.Round(x), 0, (int) Math.Round(z)));
+        }
     }
 }

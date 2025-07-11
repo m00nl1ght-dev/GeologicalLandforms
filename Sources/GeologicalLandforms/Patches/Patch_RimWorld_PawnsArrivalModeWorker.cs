@@ -13,7 +13,7 @@ internal static class Patch_RimWorld_PawnsArrivalModeWorker
     [HarmonyPriority(Priority.Low)]
     private static void CanUseWith(PawnsArrivalModeWorker __instance, IncidentParms parms, ref bool __result)
     {
-        if (__result && parms.target is { Tile: >= 0 })
+        if (__result && parms.target != null && parms.target.Tile >= 0)
         {
             var tileInfo = WorldTileInfo.Get(parms.target.Tile);
             if (tileInfo.HasLandforms())

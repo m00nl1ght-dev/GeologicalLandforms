@@ -1,11 +1,14 @@
-using System;
 using GeologicalLandforms.GraphEditor;
-using GeologicalLandforms.Patches;
 using HarmonyLib;
 using LunarFramework.Patching;
 using NodeEditorFramework;
 using UnityEngine;
 using Verse;
+
+#if !RW_1_6_OR_GREATER
+using GeologicalLandforms.Patches;
+using System;
+#endif
 
 namespace GeologicalLandforms.Compatibility;
 
@@ -32,16 +35,23 @@ internal class ModCompat_MapReroll : ModCompat
         biomeGrid.Primary.Set(__result.Biome);
         biomeGrid.Primary.Refresh(null);
 
+        #if !RW_1_6_OR_GREATER
         Patch_RimWorld_GenStep_Terrain.Init(__result);
+        #endif
     }
 
     [HarmonyFinalizer]
     [HarmonyPatch("MapReroll.MapPreviewGenerator", "GeneratePreviewForSeed")]
     private static void MapPreviewGenerator_GeneratePreviewForSeed_Finalizer()
     {
+        #if !RW_1_6_OR_GREATER
         Patch_RimWorld_GenStep_Terrain.CleanUp();
+        #endif
+
         Landform.CleanUp();
     }
+
+    #if !RW_1_6_OR_GREATER
 
     [HarmonyPrefix]
     [HarmonyPriority(1000)]
@@ -57,6 +67,8 @@ internal class ModCompat_MapReroll : ModCompat
 
         return false;
     }
+
+    #endif
 
     [HarmonyPostfix]
     [HarmonyPatch("MapReroll.UI.Dialog_MapPreviews", "SetUpTabs")]

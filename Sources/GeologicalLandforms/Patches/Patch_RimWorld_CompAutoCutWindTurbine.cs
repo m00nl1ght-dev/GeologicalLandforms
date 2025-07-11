@@ -1,3 +1,5 @@
+#if !RW_1_6_OR_GREATER
+
 using System.Collections.Generic;
 using System.Reflection.Emit;
 using HarmonyLib;
@@ -45,3 +47,5 @@ internal static class Patch_RimWorld_CompAutoCutWindTurbine
         return null;
     }
 }
+
+#endif

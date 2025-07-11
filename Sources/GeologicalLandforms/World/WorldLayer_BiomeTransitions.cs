@@ -8,7 +8,11 @@ using Verse;
 
 namespace GeologicalLandforms;
 
+#if RW_1_6_OR_GREATER
+public class WorldLayer_BiomeTransitions : WorldDrawLayer
+#else
 public class WorldLayer_BiomeTransitions : WorldLayer
+#endif
 {
     public override IEnumerable Regenerate()
     {
@@ -22,11 +26,11 @@ public class WorldLayer_BiomeTransitions : WorldLayer
         var grid = world.grid;
         int tilesCount = grid.TilesCount;
 
-        var vertData = grid.verts;
-        var vertOffsets = grid.tileIDToVerts_offsets;
+        var vertData = grid.ExtVertValues();
+        var vertOffsets = grid.ExtVertOffsets();
 
-        var nbData = grid.tileIDToNeighbors_values;
-        var nbOffsets = grid.tileIDToNeighbors_offsets;
+        var nbData = grid.ExtNbValues();
+        var nbOffsets = grid.ExtNbOffsets();
 
         var stopwatch = new Stopwatch();
         stopwatch.Start();

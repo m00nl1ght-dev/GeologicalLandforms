@@ -1,6 +1,7 @@
 using System;
 using NodeEditorFramework;
 using TerrainGraph;
+using Verse;
 
 namespace GeologicalLandforms.GraphEditor;
 
@@ -32,6 +33,16 @@ public class NodeInputElevation : NodeInputBase
 
     public override bool Calculate()
     {
+        #if RW_1_6_OR_GREATER
+
+        if (MapGenerator.mapBeingGenerated != null)
+        {
+            Knob.SetValue(Supplier.From(() => Landform.TransformIntoNodeSpace(new DiscreteFloatGridWrapper(MapGenerator.Elevation))));
+            return true;
+        }
+
+        #endif
+
         var supplier = GetFromBelowStack(Landform, l => l.OutputElevation?.InputKnob.GetValue<ISupplier<IGridFunction<double>>>());
         supplier ??= BuildVanillaElevationGridSupplier();
         Knob.SetValue(supplier);

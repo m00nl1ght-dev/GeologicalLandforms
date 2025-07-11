@@ -46,6 +46,10 @@ public class EditorMockTileInfo : IWorldTileInfo
     public IRiverData Rivers { get; set; } = new RiverData();
     public IRoadData Roads { get; set; } = new RoadData();
 
+    #if RW_1_6_OR_GREATER
+    public Landmark Landmark { get; set; }
+    #endif
+
     public Vector3 PosInWorld { get; set; }
 
     public int StableSeed(int salt) => Gen.HashCombineInt(this.GetHashCode(), salt);

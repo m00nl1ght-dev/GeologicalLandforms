@@ -138,8 +138,13 @@ public class BiomeGrid : MapComponent
 
     public void UpdateOpenGroundFraction()
     {
-        float total = map.cellIndices.NumGridCells;
+        #if RW_1_6_OR_GREATER
+        bool caveBiome = Primary.BiomeBase.wildPlantsAreCavePlants;
+        #else
         bool caveBiome = Primary.BiomeBase.Properties().applyToCaves;
+        #endif
+
+        float total = map.cellIndices.NumGridCells;
         bool waterPassable = TerrainDefOf.WaterDeep.passability != Traversability.Impassable;
         float walkable = map.AllCells.Sum(c => GetOpenGroundFractionFor(c, caveBiome, waterPassable));
         OpenGroundFraction = Mathf.Clamp01(walkable / total);
@@ -290,7 +295,10 @@ public class BiomeGrid : MapComponent
         private List<BiomeVariantLayer> _variantLayers = [];
 
         public BiomeDef Biome { get; private set; } = BiomeDefOf.TemperateForest;
+
+        #if !RW_1_6_OR_GREATER
         public bool ApplyToCaves { get; private set; }
+        #endif
 
         internal object LoadId;
 
@@ -310,7 +318,10 @@ public class BiomeGrid : MapComponent
             // We can't apply the variants when called from ExposeData() because the map is not fully loaded yet (and we need the tileId)
             // So in that case tile is null, and we set the plain base biome for now, later Refresh() is called again in FinalizeInit() with the tile
             Biome = HasVariants && tile != null ? BiomeVariantLayer.Apply(tile, _biomeBase, _variantLayers) : BiomeBase;
+
+            #if !RW_1_6_OR_GREATER
             ApplyToCaves = BiomeBase.Properties().applyToCaves || _variantLayers.Any(l => l.applyToCaves);
+            #endif
         }
 
         public void ExposeData()

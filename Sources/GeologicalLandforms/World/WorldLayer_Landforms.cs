@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -8,12 +7,21 @@ using GeologicalLandforms.Defs;
 using GeologicalLandforms.GraphEditor;
 using LunarFramework.Utility;
 using RimWorld.Planet;
+using Unity.Collections;
 using UnityEngine;
 using Verse;
 
+#if !RW_1_6_OR_GREATER
+using System.Collections.Generic;
+#endif
+
 namespace GeologicalLandforms;
 
+#if RW_1_6_OR_GREATER
+public class WorldLayer_Landforms : WorldDrawLayer
+#else
 public class WorldLayer_Landforms : WorldLayer
+#endif
 {
     public override IEnumerable Regenerate()
     {
@@ -24,8 +32,8 @@ public class WorldLayer_Landforms : WorldLayer
         var grid = Find.World.grid;
         int tilesCount = grid.TilesCount;
 
-        var vertData = grid.verts;
-        var vertOffsets = grid.tileIDToVerts_offsets;
+        var vertData = grid.ExtVertValues();
+        var vertOffsets = grid.ExtVertOffsets();
 
         var anyGraphicInBiomes = BiomeProperties.AnyHasTileGraphic;
         var anyGraphicInBiomeVariants = BiomeVariantDef.AnyHasTileGraphic;
@@ -127,7 +135,11 @@ public class WorldLayer_Landforms : WorldLayer
         FinalizeMesh(MeshParts.All);
     }
 
+    #if RW_1_6_OR_GREATER
+    private static void DrawTileSolid(LayerSubMesh subMesh, NativeArray<Vector3> vertData, int vertOffset, int vertBound)
+    #else
     private static void DrawTileSolid(LayerSubMesh subMesh, List<Vector3> vertData, int vertOffset, int vertBound)
+    #endif
     {
         int cVert = 0;
         int count = subMesh.verts.Count;

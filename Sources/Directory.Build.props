@@ -1,6 +1,6 @@
 <Project>
     <PropertyGroup>
-        <RimWorldVersion>1.5</RimWorldVersion>
+        <RimWorldVersion>1.6</RimWorldVersion>
         <RimWorldPath>..\..\..\..</RimWorldPath>
     </PropertyGroup>
 
@@ -14,6 +14,12 @@
         <DebugType>none</DebugType>
         <DebugSymbols>false</DebugSymbols>
         <Optimize>false</Optimize>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(RimWorldVersion)' == '1.6'">
+        <DefineConstants>$(DefineConstants);RW_1_6</DefineConstants>
+        <DefineConstants>$(DefineConstants);RW_1_6_OR_GREATER</DefineConstants>
+        <DefineConstants>$(DefineConstants);RW_1_5_OR_GREATER</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(RimWorldVersion)' == '1.5'">

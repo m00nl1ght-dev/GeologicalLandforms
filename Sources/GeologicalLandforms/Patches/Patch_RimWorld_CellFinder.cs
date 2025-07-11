@@ -1,13 +1,16 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection.Emit;
 using HarmonyLib;
 using LunarFramework.Patching;
 using RimWorld;
-using RimWorld.Planet;
 using RimWorld.QuestGen;
 using Verse;
 using Verse.AI;
+
+#if !RW_1_6_OR_GREATER
+using System.Reflection.Emit;
+using RimWorld.Planet;
+#endif
 
 namespace GeologicalLandforms.Patches;
 
@@ -62,7 +65,11 @@ internal static class Patch_RimWorld_CellFinder
             if (tries > 15) maxDanger = Danger.Deadly;
             intVec3 = EdgeCellIdxToVec(map, cache[Rand.Range(0, cache.Length)]);
         }
+        #if RW_1_6_OR_GREATER
+        while (!RCellFinder.IsGoodDestinationFor(intVec3, pawn, careAboutDanger: true) || !pawn.CanReach(intVec3, PathEndMode.OnCell, maxDanger, mode: mode));
+        #else
         while (!intVec3.Standable(map) || !pawn.CanReach(intVec3, PathEndMode.OnCell, maxDanger, mode: mode));
+        #endif
 
         spot = intVec3;
         __result = true;
@@ -138,6 +145,8 @@ internal static class Patch_RimWorld_CellFinder
         __result = true;
     }
 
+    #if !RW_1_6_OR_GREATER
+
     [HarmonyPrefix]
     [HarmonyPatch(typeof(RCellFinder), "TryFindRandomPawnEntryCell")]
     [HarmonyPriority(Priority.High)]
@@ -176,17 +185,18 @@ internal static class Patch_RimWorld_CellFinder
         return TranspilerPattern.Apply(instructions, pattern);
     }
 
-    [HarmonyTranspiler]
-    [HarmonyPatch(typeof(WalkPathFinder), "TryFindWalkPath")]
-    [HarmonyPriority(Priority.Low)]
-    private static IEnumerable<CodeInstruction> TryFindWalkPath_Transpiler(IEnumerable<CodeInstruction> instructions)
+    private static IntVec3 ConsiderCacheForRandomCell(Map map, IntVec3 pos, int failedTries)
     {
-        var pattern = TranspilerPattern.Build("TryFindWalkPath")
-            .MatchCall(typeof(GridsUtility), "Roofed", [typeof(IntVec3), typeof(Map)]).Remove()
-            .Insert(CodeInstruction.Call(Self, nameof(RoofedAndTileNotImpassable)));
+        if (failedTries < 200) return pos;
+        if (failedTries > 500) throw new Exception("Failed to find valid cell after 500 tries");
 
-        return TranspilerPattern.Apply(instructions, pattern);
+        var cache = GetOrBuildUnroofedCacheForMap(map);
+        if (cache.Length == 0) return pos;
+
+        return cache[Rand.Range(0, cache.Length)];
     }
+
+    #endif
 
     private static bool TryGetRandomUnroofedCellFromCache(Predicate<IntVec3> validator, Map map, out IntVec3 result)
     {
@@ -303,21 +313,5 @@ internal static class Patch_RimWorld_CellFinder
         if (val < s * 3) return new IntVec3(0, 0, val % s);
         if (val < s * 4) return new IntVec3(s - 1, 0, val % s);
         return IntVec3.Invalid;
-    }
-
-    private static IntVec3 ConsiderCacheForRandomCell(Map map, IntVec3 pos, int failedTries)
-    {
-        if (failedTries < 200) return pos;
-        if (failedTries > 500) throw new Exception("Failed to find valid cell after 500 tries");
-
-        var cache = GetOrBuildUnroofedCacheForMap(map);
-        if (cache.Length == 0) return pos;
-
-        return cache[Rand.Range(0, cache.Length)];
-    }
-
-    private static bool RoofedAndTileNotImpassable(IntVec3 pos, Map map)
-    {
-        return pos.Roofed(map) && map.TileInfo.hilliness != Hilliness.Impassable;
     }
 }

@@ -20,7 +20,9 @@ public class GenStep_BiomeVariants : GenStep
 
         if (biomeGrid == null) return;
 
+        #if !RW_1_6_OR_GREATER
         if (props.applyToCaves) biomeGrid.Enabled = true;
+        #endif
 
         var tileInfo = Landform.GeneratingTile;
 
@@ -74,7 +76,9 @@ public class GenStep_BiomeVariants : GenStep
 
         var tile = WorldTileInfo.Get(map, false);
 
+        #if !RW_1_6_OR_GREATER
         if (biomeProps.applyToCaves) biomeGrid.Enabled = true;
+        #endif
 
         var layers = LayersFor(tile, biomeProps);
 

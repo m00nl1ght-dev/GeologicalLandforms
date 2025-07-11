@@ -220,7 +220,11 @@ public class NodeGridPerlin : NodeBase
 
         public double ValueAt(double x, double z)
         {
+            #if RW_1_6_OR_GREATER
+            return Perlin.GetValue(x, 0, z, Frequency, Seed, Lacunarity, Persistence, Octaves, false, false, QualityMode.High);
+            #else
             return Perlin.GetValue(x, 0, z, Frequency, Seed, Lacunarity, Persistence, Octaves, QualityMode.High);
+            #endif
         }
 
         protected bool Equals(NoiseFunction other) =>

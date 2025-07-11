@@ -1,3 +1,5 @@
+#if !RW_1_6_OR_GREATER
+
 using System.Collections.Generic;
 using System.Reflection.Emit;
 using HarmonyLib;
@@ -43,3 +45,5 @@ internal static class Patch_Verse_Command_SetPlantToGrow
         return false;
     }
 }
+
+#endif

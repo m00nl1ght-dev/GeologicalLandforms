@@ -1,7 +1,6 @@
 using System;
 using System.Xml;
 using GeologicalLandforms.GraphEditor;
-using GeologicalLandforms.Patches;
 using LunarFramework.Utility;
 using LunarFramework.XML;
 using RimWorld;
@@ -10,6 +9,10 @@ using UnityEngine;
 using Verse;
 using Verse.Noise;
 using static LunarFramework.XML.XmlDynamicValueSupport;
+
+#if !RW_1_6_OR_GREATER
+using GeologicalLandforms.Patches;
+#endif
 
 namespace GeologicalLandforms;
 
@@ -135,7 +138,11 @@ public static class XmlDynamicValueSetup
         {
             var pos = posFunc(ctx);
             var seed = Gen.HashCombineInt(seedFunc(ctx), seedMask);
+            #if RW_1_6_OR_GREATER
+            return (float) Perlin.GetValue(pos.x, pos.y, pos.z, frequency, seed, lacunarity, persistence, octaves, false, false, quality);
+            #else
             return (float) Perlin.GetValue(pos.x, pos.y, pos.z, frequency, seed, lacunarity, persistence, octaves, quality);
+            #endif
         };
     }
 
@@ -171,6 +178,8 @@ public static class XmlDynamicValueSetup
         var landformData = ctx.World.LandformData();
         if (landformData != null) return landformData.GetCaveSystemDepthAt(ctx.TileId);
 
+        #if !RW_1_6_OR_GREATER
+
         if (Patch_RimWorld_WorldGenStep_Terrain.LastWorld == ctx.World)
         {
             var caveSystems = Patch_RimWorld_WorldGenStep_Terrain.CaveSystems;
@@ -179,6 +188,8 @@ public static class XmlDynamicValueSetup
                 return caveSystems[ctx.TileId];
             }
         }
+
+        #endif
 
         return 0;
     }

@@ -15,7 +15,7 @@ internal static class Patch_RimWorld_WeatherEvent_LightningStrike
 {
     [HarmonyPrefix]
     [HarmonyPatch("FireEvent")]
-    private static bool TestRunInt(Map ___map)
+    private static bool FireEvent(Map ___map)
     {
         return ___map.TileInfo.hilliness != Hilliness.Impassable || Rand.Value < 0.3f;
     }

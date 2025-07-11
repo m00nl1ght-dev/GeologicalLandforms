@@ -2,11 +2,18 @@
 <loadFolders>
     <v1.3>
         <li>1.3</li>
+        <li>/</li>
     </v1.3>
     <v1.4>
         <li>1.4</li>
+        <li>/</li>
     </v1.4>
     <v1.5>
         <li>1.5</li>
+        <li>/</li>
     </v1.5>
+    <v1.6>
+        <li>1.6</li>
+        <li>/</li>
+    </v1.6>
 </loadFolders>

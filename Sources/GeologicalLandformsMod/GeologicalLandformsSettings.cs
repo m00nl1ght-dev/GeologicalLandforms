@@ -32,7 +32,22 @@ public class GeologicalLandformsSettings : LunarModSettings
     public readonly Entry<string> DevQuickTestOverrideLandform = MakeEntry("None");
 
     public readonly Entry<List<string>> DisabledLandforms = MakeEntry(new List<string>());
+    public readonly Entry<List<string>> DisabledTileMutators = MakeEntry(new List<string>());
     public readonly Entry<List<string>> DisabledBiomeVariants = MakeEntry(new List<string>());
+
+    public readonly Entry<List<string>> Odyssey_DisabledLandforms = MakeEntry(Odyssey_DefaultDisabledLandforms);
+    public readonly Entry<List<string>> Odyssey_DisabledTileMutators = MakeEntry(new List<string>());
+    public readonly Entry<List<string>> Odyssey_DisabledBiomeVariants = MakeEntry(new List<string>());
+
+    #if RW_1_6_OR_GREATER
+    public List<string> CurrentlyDisabledLandforms => ModsConfig.OdysseyActive ? Odyssey_DisabledLandforms : DisabledLandforms;
+    public List<string> CurrentlyDisabledBiomeVariants => ModsConfig.OdysseyActive ? Odyssey_DisabledBiomeVariants : DisabledBiomeVariants;
+    public List<string> CurrentlyDisabledTileMutators => ModsConfig.OdysseyActive ? Odyssey_DisabledTileMutators : DisabledTileMutators;
+    #else
+    public List<string> CurrentlyDisabledLandforms => DisabledLandforms;
+    public List<string> CurrentlyDisabledBiomeVariants => DisabledBiomeVariants;
+    public List<string> CurrentlyDisabledTileMutators => DisabledTileMutators;
+    #endif
 
     public readonly Entry<List<string>> BiomesExcludedFromLandforms = MakeEntry(new List<string>());
     public readonly Entry<List<string>> BiomesExcludedFromTransitions = MakeEntry(new List<string>());
@@ -42,8 +57,8 @@ public class GeologicalLandformsSettings : LunarModSettings
     public GeologicalLandformsSettings() : base(GeologicalLandformsMod.LunarAPI)
     {
         MakeTab("Tab.General", DoGeneralSettingsTab);
-        MakeTab("Tab.Landforms", DoLandformsSettingsTab, () => LandformManager.LandformsById.Count > 0);
-        MakeTab("Tab.BiomeConfig", DoBiomeConfigSettingsTab, () => LandformManager.LandformsById.Count > 0);
+        MakeTab("Tab.Landforms", DoLandformsSettingsTab);
+        MakeTab("Tab.BiomeConfig", DoBiomeConfigSettingsTab);
         MakeTab("Tab.BiomeVariants", DoBiomeVariantsSettingsTab, () => DefDatabase<BiomeVariantDef>.DefCount > 0);
         MakeTab("Tab.Debug", DoDebugSettingsTab, () => Prefs.DevMode);
     }
@@ -93,6 +108,71 @@ public class GeologicalLandformsSettings : LunarModSettings
         if (layout.PopChanged()) MapPreviewAPI.NotifyWorldChanged();
     }
 
+    #if RW_1_6_OR_GREATER
+
+    private void DoLandformsSettingsTab(LayoutRect layout)
+    {
+        layout.PushChanged();
+
+        foreach (var group in LandformManager.LandformsById.Values.GroupBy(lf => lf.ModContentPack))
+        {
+            layout.BeginAbs(Text.LineHeight, new LayoutParams { Horizontal = true });
+            LunarGUI.Label(layout.Abs(-1), group.Key.ContentSourceLabel().CapitalizeFirst());
+            layout.End();
+
+            LunarGUI.SeparatorLine(layout, 3f);
+
+            foreach (var landform in group.OrderBy(def => def.TranslatedNameForSelection))
+            {
+                if (landform.Manifest.IsExperimental && !EnableExperimentalLandforms) continue;
+                if (landform.WorldTileReq == null) continue;
+                if (landform.IsInternal && landform.Id != "BiomeTransitions") continue;
+
+                var label = UserInterfaceUtils.LabelForLandform(landform);
+                LunarGUI.ToggleTableRow(layout, landform.Id, true, label, CurrentlyDisabledLandforms);
+            }
+
+            layout.Abs(10f);
+        }
+
+        if (layout.PopChanged())
+        {
+            ApplyExclusions(true, true);
+            TileMutatorsCustomizationCache.RefreshCustomization();
+            MapPreviewAPI.NotifyWorldChanged();
+        }
+
+        layout.PushChanged();
+
+        foreach (var group in DefDatabase<TileMutatorDef>.AllDefs.GroupBy(def => def.modContentPack))
+        {
+            layout.BeginAbs(Text.LineHeight, new LayoutParams { Horizontal = true });
+            LunarGUI.Label(layout.Abs(-1), group.Key.ContentSourceLabel().CapitalizeFirst());
+            layout.End();
+
+            LunarGUI.SeparatorLine(layout, 3f);
+
+            foreach (var def in group.OrderBy(def => def.label))
+            {
+                if (SpecialTileMutatorsHidden.Contains(def.defName)) continue;
+
+                var label = UserInterfaceUtils.LabelForTileMutator(def, true);
+                LunarGUI.ToggleTableRow(layout, def.defName, true, label, CurrentlyDisabledTileMutators);
+            }
+
+            layout.Abs(10f);
+        }
+
+        if (layout.PopChanged())
+        {
+            ApplyExclusions(true, false);
+            TileMutatorsCustomizationCache.RefreshCustomization();
+            MapPreviewAPI.NotifyWorldChanged();
+        }
+    }
+
+    #else
+
     private void DoLandformsSettingsTab(LayoutRect layout)
     {
         layout.PushChanged();
@@ -104,11 +184,13 @@ public class GeologicalLandformsSettings : LunarModSettings
             if (landform.IsInternal) continue;
 
             var label = UserInterfaceUtils.LabelForLandform(landform);
-            LunarGUI.ToggleTableRow(layout, landform.Id, true, label, DisabledLandforms);
+            LunarGUI.ToggleTableRow(layout, landform.Id, true, label, CurrentlyDisabledLandforms);
         }
 
         if (layout.PopChanged()) MapPreviewAPI.NotifyWorldChanged();
     }
+
+    #endif
 
     private void DoBiomeConfigSettingsTab(LayoutRect layout)
     {
@@ -155,7 +237,7 @@ public class GeologicalLandformsSettings : LunarModSettings
         {
             if (biomeVariant.label.NullOrEmpty()) continue;
             var label = UserInterfaceUtils.LabelForBiomeVariant(biomeVariant);
-            LunarGUI.ToggleTableRow(layout, biomeVariant.defName, true, label, DisabledBiomeVariants);
+            LunarGUI.ToggleTableRow(layout, biomeVariant.defName, true, label, CurrentlyDisabledBiomeVariants);
         }
 
         if (layout.PopChanged()) MapPreviewAPI.NotifyWorldChanged();
@@ -267,6 +349,89 @@ public class GeologicalLandformsSettings : LunarModSettings
         LandformManager.ResetAll();
         LandformManager.SaveAllEdited();
         ApplyDefEffects();
+
+        #if RW_1_6_OR_GREATER
+        ApplyExclusions(false, true);
+        TileMutatorsCustomizationCache.RefreshCustomization();
+        #endif
+
         MapPreviewAPI.NotifyWorldChanged();
     }
+
+    private static readonly List<string> Odyssey_DefaultDisabledLandforms = [
+        "Archipelago",
+        "Coast",
+        "Cove",
+        "Cliff",
+        "CliffCorner",
+        "CliffAndCoast",
+        "CoastalIsland",
+        "DryLake",
+        "Fjord",
+        "Lake",
+        "LakeWithIsland",
+        "Oasis",
+        "Peninsula",
+        "Valley",
+    ];
+
+    #if RW_1_6_OR_GREATER
+
+    internal static readonly List<string> SpecialTileMutatorsHidden = [
+        "UndergroundCave"
+    ];
+
+    internal void ApplyExclusions(bool notify, bool fromLandform)
+    {
+        foreach (var exclusion in TileMutatorsCustomizationCache.Exclusions)
+        {
+            if (!CurrentlyDisabledLandforms.Contains(exclusion.Key))
+            {
+                foreach (var mutator in exclusion.Value)
+                {
+                    if (!CurrentlyDisabledTileMutators.Contains(mutator))
+                    {
+                        var def = DefDatabase<TileMutatorDef>.GetNamedSilentFail(mutator);
+                        var landform = LandformManager.FindById(exclusion.Key);
+
+                        if (def != null && landform != null)
+                        {
+                            if (fromLandform)
+                            {
+                                CurrentlyDisabledTileMutators.Add(mutator);
+
+                                if (notify)
+                                {
+                                    var message = "GeologicalLandforms.Settings.Landforms.ExclusionToLandform".Translate(
+                                        landform.TranslatedNameForSelection.CapitalizeFirst(),
+                                        def.LabelCap, def.modContentPack.ContentSourceLabel()
+                                    );
+
+                                    Messages.Message(message, MessageTypeDefOf.CautionInput, false);
+                                }
+                            }
+                            else
+                            {
+                                CurrentlyDisabledLandforms.Add(exclusion.Key);
+
+                                if (notify)
+                                {
+                                    var message = "GeologicalLandforms.Settings.Landforms.ExclusionToMutator".Translate(
+                                        landform.TranslatedNameForSelection.CapitalizeFirst(),
+                                        def.LabelCap, def.modContentPack.ContentSourceLabel()
+                                    );
+
+                                    Messages.Message(message, MessageTypeDefOf.CautionInput, false);
+                                }
+
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    #endif
 }

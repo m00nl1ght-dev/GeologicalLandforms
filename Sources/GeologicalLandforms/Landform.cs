@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MapPreview;
 using NodeEditorFramework;
+using RimWorld;
 using TerrainGraph;
 using TerrainGraph.Util;
 using UnityEngine;
@@ -84,6 +85,10 @@ public class Landform : TerrainCanvas
 
     public bool IsCornerVariant => WorldTileReq?.Topology is Topology.CoastTwoSides or Topology.CliffTwoSides;
 
+    #if RW_1_6_OR_GREATER
+    public TileMutatorDef TileMutatorDef { get; internal set; }
+    #endif
+
     public static void Prepare(Map map)
     {
         var tileInfo = WorldTileInfo.Get(map, false);
@@ -153,12 +158,12 @@ public class Landform : TerrainCanvas
 
     public static IGridFunction<T> TransformIntoMapSpace<T>(IGridFunction<T> gridInNodeSpace)
     {
-        return new GridFunction.Transform<T>(gridInNodeSpace, NodeSpaceToMapSpaceFactor);
+        return gridInNodeSpace == null ? null : new GridFunction.Transform<T>(gridInNodeSpace, NodeSpaceToMapSpaceFactor);
     }
 
     public static IGridFunction<T> TransformIntoNodeSpace<T>(IGridFunction<T> gridInMapSpace)
     {
-        return new GridFunction.Transform<T>(gridInMapSpace, MapSpaceToNodeSpaceFactor);
+        return gridInMapSpace == null ? null : new GridFunction.Transform<T>(gridInMapSpace, MapSpaceToNodeSpaceFactor);
     }
 
     public float GetCommonnessForTile(IWorldTileInfo tile, bool lenient = false)
@@ -258,6 +263,21 @@ public class Landform : TerrainCanvas
     {
         return Id;
     }
+
+    #if RW_1_6_OR_GREATER
+
+    internal void InitTileMutatorDef()
+    {
+        TileMutatorDef = new TileMutatorDef();
+        TileMutatorDef.mutatorWorker = new TileMutatorWorker_Landform(TileMutatorDef, this);
+        TileMutatorDef.defName = Id;
+        TileMutatorDef.label = TranslatedName;
+        TileMutatorDef.genOrder = 250;
+        TileMutatorDef.displayPriority = IsInternal ? -999 : 1;
+        TileMutatorDef.ResolveDefNameHash();
+    }
+
+    #endif
 
     private class MinimalRandom : IRandom
     {

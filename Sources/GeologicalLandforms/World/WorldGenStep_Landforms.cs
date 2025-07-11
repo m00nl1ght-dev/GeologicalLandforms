@@ -11,7 +11,11 @@ public class WorldGenStep_Landforms : WorldGenStep
 {
     public override int SeedPart => 494807164;
 
+    #if RW_1_6_OR_GREATER
+    public override void GenerateFresh(string seed, PlanetLayer layer)
+    #else
     public override void GenerateFresh(string seed)
+    #endif
     {
         if (!GeologicalLandformsAPI.LunarAPI.IsInitialized()) return;
 
@@ -49,7 +53,11 @@ public class WorldGenStep_Landforms : WorldGenStep
         GeologicalLandformsAPI.Logger.Debug("Calculation of initial world tile data took " + stopwatch.ElapsedMilliseconds + " ms.");
     }
 
+    #if RW_1_6_OR_GREATER
+    public override void GenerateFromScribe(string seed, PlanetLayer layer)
+    #else
     public override void GenerateFromScribe(string seed)
+    #endif
     {
         if (!GeologicalLandformsAPI.LunarAPI.IsInitialized()) return;
 

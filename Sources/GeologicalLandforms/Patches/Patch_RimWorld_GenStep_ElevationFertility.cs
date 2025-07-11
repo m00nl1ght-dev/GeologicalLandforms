@@ -1,3 +1,5 @@
+#if !RW_1_6_OR_GREATER
+
 using System.Collections.Generic;
 using System.Reflection.Emit;
 using GeologicalLandforms.GraphEditor;
@@ -83,3 +85,5 @@ internal static class Patch_RimWorld_GenStep_ElevationFertility
         return true;
     }
 }
+
+#endif

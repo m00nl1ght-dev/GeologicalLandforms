@@ -21,7 +21,7 @@ public static class DebugActions
         var world = Find.World;
         var map = Find.CurrentMap;
 
-        if (map is { Tile: >= 0 })
+        if (map != null && map.Tile >= 0)
         {
             var biomeGrid = map.BiomeGrid();
 
@@ -226,8 +226,9 @@ public static class DebugActions
         LunarGUI.Label(layout, Label("BiomeGridDetails.PotentialPlants"));
         LunarGUI.SeparatorLine(layout, 3f);
 
-        foreach (var (plant, commonality) in biome.PlantCommonalities)
+        foreach (var plant in biome.AllWildPlants)
         {
+            var commonality = biome.CommonalityOfPlant(plant);
             LunarGUI.LabelDouble(layout, plant.LabelCap, commonality.ToString("F2"), false);
         }
 
@@ -320,7 +321,11 @@ public static class DebugActions
         WorldTileInfo.CreateNewCache();
         FillWorldTileInfoCache();
 
+        #if RW_1_6_OR_GREATER
+        Find.World.renderer.SetDirty<WorldLayer_Landforms>(Find.WorldGrid.Surface);
+        #else
         Find.World.renderer.SetDirty<WorldLayer_Landforms>();
+        #endif
     }
 
     public static void FillWorldTileInfoCache()

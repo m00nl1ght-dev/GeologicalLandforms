@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Manifest>
+  <Name>Geological Landforms</Name>
+  <PackageId>m00nl1ght.GeologicalLandforms</PackageId>
+  <Authors>m00nl1ght</Authors>
+  <MinGameVersion>1.6</MinGameVersion>
+  <Components>
+    <li>
+      <AssemblyName>MapPreview</AssemblyName>
+    </li>
+    <li>
+      <AssemblyName>TerrainGraph</AssemblyName>
+    </li>
+    <li>
+      <AssemblyName>GeologicalLandforms</AssemblyName>
+      <DependsOn>
+        <li>MapPreview</li>
+        <li>TerrainGraph</li>
+      </DependsOn>
+    </li>
+    <li>
+      <AssemblyName>GeologicalLandformsMod</AssemblyName>
+      <DependsOn>
+        <li>GeologicalLandforms</li>
+      </DependsOn>
+    </li>
+  </Components>
+  <Compatibility>
+    <Lunar>
+      <li>
+        <PackageId>m00nl1ght.MapPreview</PackageId>
+        <MinVersion>1.10.0</MinVersion>
+      </li>
+    </Lunar>
+    <Refuse>
+    </Refuse>
+  </Compatibility>
+</Manifest>

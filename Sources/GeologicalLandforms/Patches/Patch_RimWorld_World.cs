@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using HarmonyLib;
 using LunarFramework.Patching;
 using RimWorld.Planet;
 using Verse;
+
+#if !RW_1_6_OR_GREATER
+using System.Linq;
+#endif
 
 namespace GeologicalLandforms.Patches;
 
@@ -22,6 +25,8 @@ internal static class Patch_RimWorld_World
     {
         LastKnownInitialWorldSeed = ___info.Seed;
 
+        #if !RW_1_6_OR_GREATER
+
         var landformData = __instance.GetComponent<LandformData>();
 
         var lastWorld = Patch_RimWorld_WorldGenStep_Terrain.LastWorld;
@@ -36,6 +41,8 @@ internal static class Patch_RimWorld_World
             Patch_RimWorld_WorldGenStep_Terrain.CaveSystems = null;
             Patch_RimWorld_WorldGenStep_Terrain.LastWorld = null;
         }
+
+        #endif
     }
 
     [HarmonyPrefix]
@@ -44,6 +51,8 @@ internal static class Patch_RimWorld_World
     {
         LastFinalizedWorldRef = new WeakReference(__instance);
     }
+
+    #if !RW_1_6_OR_GREATER
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(World.HasCaves))]
@@ -77,6 +86,8 @@ internal static class Patch_RimWorld_World
         return false;
     }
 
+    #endif
+
     [ThreadStatic]
     private static Tile _rockCacheTile;
 
@@ -87,7 +98,11 @@ internal static class Patch_RimWorld_World
     [HarmonyPatch(nameof(World.NaturalRockTypesIn))]
     [HarmonyPriority(Priority.Last)]
     [PatchExcludedFromConflictCheck]
+    #if RW_1_6_OR_GREATER
+    private static bool NaturalRockTypesIn_Prefix(World __instance, PlanetTile tile, out bool __state)
+    #else
     private static bool NaturalRockTypesIn_Prefix(World __instance, int tile, out bool __state)
+    #endif
     {
         // NaturalRockTypesIn is called many times during map generation, and also while a deep drill is running.
         // It's not like the rock types for a tile ever change, so it's much more efficient to cache this and only calculate once.
@@ -100,7 +115,11 @@ internal static class Patch_RimWorld_World
     [HarmonyPostfix]
     [HarmonyPatch(nameof(World.NaturalRockTypesIn))]
     [HarmonyPriority(Priority.First)]
+    #if RW_1_6_OR_GREATER
+    private static void NaturalRockTypesIn_Postfix(World __instance, PlanetTile tile, ref bool __state, ref IEnumerable<ThingDef> __result)
+    #else
     private static void NaturalRockTypesIn_Postfix(World __instance, int tile, ref bool __state, ref IEnumerable<ThingDef> __result)
+    #endif
     {
         if (__state)
         {

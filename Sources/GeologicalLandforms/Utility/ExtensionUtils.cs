@@ -8,6 +8,7 @@ using GeologicalLandforms.Patches;
 using RimWorld;
 using RimWorld.Planet;
 using TerrainGraph;
+using Unity.Collections;
 using UnityEngine;
 using Verse;
 using Verse.Noise;
@@ -85,6 +86,10 @@ public static class ExtensionUtils
         => tileIdx + 1 < offsets.Count ? offsets[tileIdx + 1] : values.Count;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int IdxBoundFor<T>(this NativeArray<int> offsets, NativeArray<T> values, int tileIdx) where T : struct
+        => tileIdx + 1 < offsets.Length ? offsets[tileIdx + 1] : values.Length;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int MurmurCombine(this int value, int other) => MurmurHash.GetInt((uint) value, (uint) other);
 
     public static bool HasFinishedGenerating(this World world)
@@ -120,11 +125,23 @@ public static class ExtensionUtils
     public static bool HasBiomeVariants(this IWorldTileInfo tile)
         => tile.BiomeVariants?.Count > 0;
 
+    #if RW_1_6_OR_GREATER
+
+    public static SurfaceTile.RiverLink LargestRiverLink(this SurfaceTile tile)
+        => tile.Rivers?.OrderByDescending(r => r.river.WidthOnWorld()).FirstOrDefault() ?? default;
+
+    public static SurfaceTile.RoadLink LargestRoadLink(this SurfaceTile tile)
+        => tile.Roads?.OrderByDescending(r => r.road.WidthOnWorld()).FirstOrDefault() ?? default;
+
+    #else
+
     public static Tile.RiverLink LargestRiverLink(this Tile tile)
         => tile.Rivers?.OrderByDescending(r => r.river.WidthOnWorld()).FirstOrDefault() ?? default;
 
     public static Tile.RoadLink LargestRoadLink(this Tile tile)
         => tile.Roads?.OrderByDescending(r => r.road.WidthOnWorld()).FirstOrDefault() ?? default;
+
+    #endif
 
     public static float WidthOnWorld(this RiverDef riverDef)
         => riverDef?.widthOnWorld ?? 0f;
@@ -154,6 +171,14 @@ public static class ExtensionUtils
         if (range.max < bounds.max && t > 1f - s) return (1f - t) / s;
 
         return 1f;
+    }
+
+    public static string ContentSourceLabel(this ModContentPack mcp)
+    {
+        if (mcp == null) return "unknown";
+        if (mcp.IsCoreMod) return "vanilla";
+        if (mcp.IsOfficialMod) return mcp.Name + " DLC";
+        return mcp.Name;
     }
 
     public static ModuleBase AsModule(this IGridFunction<double> gridFunction)

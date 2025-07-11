@@ -39,11 +39,19 @@ public class ConfigurableBiomeWorker : BiomeWorker
 
     private int _erroredWorldHash = -1;
 
+    #if RW_1_6_OR_GREATER
+    public override float GetScore(BiomeDef biome, Tile tile, PlanetTile planetTile)
+    #else
     public override float GetScore(Tile tile, int tileID)
+    #endif
     {
         try
         {
+            #if RW_1_6_OR_GREATER
+            return ScoreSupplier.Get(new CtxEarlyTile(planetTile.tileId, tile, Find.World));
+            #else
             return ScoreSupplier.Get(new CtxEarlyTile(tileID, tile, Find.World));
+            #endif
         }
         catch (ThreadAbortException) { throw; }
         catch (Exception e)

@@ -1,3 +1,5 @@
+#if !RW_1_6_OR_GREATER
+
 using System;
 using System.Collections.Generic;
 using System.Reflection.Emit;
@@ -132,3 +134,5 @@ internal static class Patch_RimWorld_WildAnimalSpawner
         return TranspilerPattern.Apply(instructions, pattern);
     }
 }
+
+#endif

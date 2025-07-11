@@ -34,13 +34,25 @@ internal static class Patch_RimWorld_TileFinder
         return TranspilerPattern.Apply(instructions, pattern);
     }
 
+    #if RW_1_6_OR_GREATER
+    private static bool CanSettleOnTile(PlanetTile tile)
+    #else
     private static bool CanSettleOnTile(int tile)
+    #endif
     {
         var world = Find.World;
 
         if (world.grid[tile].hilliness != Hilliness.Impassable) return true;
 
         if (QuestGen.Working) return false; // prevent quest sites from spawning on impassable tiles
+
+        #if RW_1_6_OR_GREATER
+
+        // FastTileFinder has async rebuilding which would cause WorldTileInfo.Get to be called off the main thread
+        // But FastTileFinder is only used for quests anyway
+        if (!UnityData.IsInMainThread) return false;
+
+        #endif
 
         if (world.HasFinishedGenerating())
         {

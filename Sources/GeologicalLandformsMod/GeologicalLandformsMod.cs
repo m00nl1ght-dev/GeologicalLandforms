@@ -5,6 +5,7 @@ using LunarFramework;
 using LunarFramework.Logging;
 using LunarFramework.Patching;
 using NodeEditorFramework.Utilities;
+using RimWorld;
 using UnityEngine;
 using Verse;
 
@@ -39,9 +40,18 @@ public class GeologicalLandformsMod : Mod
         GeologicalLandformsAPI.LandformGridSize.AddModifier(0, GridSizeProvider);
         GeologicalLandformsAPI.AnimalDensityFactor.AddModifier(0, AnimalDensityFactorForMap);
         GeologicalLandformsAPI.CellFinderOptimizationEnabled.AddSupplier(0, () => Settings.EnableCellFinderOptimization.Value);
-        GeologicalLandformsAPI.VanillaMountainGenerationEnabled.AddSupplier(0, () => Settings.DisabledLandforms.Value.Contains("Cliff"));
+        GeologicalLandformsAPI.VanillaMountainGenerationEnabled.AddSupplier(0, () => Settings.CurrentlyDisabledLandforms.Contains("Cliff"));
         BiomeTransition.UnidirectionalBiomeTransitions.AddSupplier(0, () => Settings.UnidirectionalBiomeTransitions.Value);
         BiomeTransition.PostProcessBiomeTransitions.AddSupplier(0, () => !Settings.DisableBiomeTransitionPostProcessing.Value);
+
+        #if RW_1_6_OR_GREATER
+
+        GeologicalLandformsAPI.TileMutatorEnabled.AddModifier(0, IsTileMutatorEnabled);
+
+        Settings.ApplyExclusions(false, true);
+        TileMutatorsCustomizationCache.RefreshCustomization();
+
+        #endif
 
         Settings.ApplyDefEffects();
 
@@ -79,15 +89,25 @@ public class GeologicalLandformsMod : Mod
     public static bool IsLandformEnabled(Landform landform, bool baseValue = true)
     {
         if (!Settings.EnableExperimentalLandforms && landform.Manifest.IsExperimental) return false;
-        if (Settings.DisabledLandforms.Value.Contains(landform.Id)) return false;
+        if (Settings.CurrentlyDisabledLandforms.Contains(landform.Id)) return false;
         return baseValue;
     }
 
     public static bool IsBiomeVariantEnabled(BiomeVariantDef biomeVariant, bool baseValue = true)
     {
-        if (Settings.DisabledBiomeVariants.Value.Contains(biomeVariant.defName)) return false;
+        if (Settings.CurrentlyDisabledBiomeVariants.Contains(biomeVariant.defName)) return false;
         return baseValue;
     }
+
+    #if RW_1_6_OR_GREATER
+
+    public static bool IsTileMutatorEnabled(TileMutatorDef tileMutator, bool baseValue = true)
+    {
+        if (Settings.CurrentlyDisabledTileMutators.Contains(tileMutator.defName)) return false;
+        return baseValue;
+    }
+
+    #endif
 
     public GeologicalLandformsMod(ModContentPack content) : base(content)
     {

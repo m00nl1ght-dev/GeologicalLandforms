@@ -7,8 +7,10 @@ using LunarFramework.Utility;
 using MapPreview;
 using NodeEditorFramework;
 using NodeEditorFramework.Utilities;
+using RimWorld;
 using RimWorld.Planet;
 using TerrainGraph;
+using TerrainGraph.Util;
 using Verse;
 
 namespace GeologicalLandforms;
@@ -28,7 +30,7 @@ public static class GeologicalLandformsAPI
     static GeologicalLandformsAPI()
     {
         typeof(XmlDynamicValueSetup).RunClassConstructor();
-        GenTypes.IgnoredNamespaceNames.AddDistinct("GeologicalLandforms.Defs");
+        GenTypes.IgnoredNamespaceNames.AddUnique("GeologicalLandforms.Defs");
     }
 
     private static void Init()
@@ -61,6 +63,11 @@ public static class GeologicalLandformsAPI
 
         WorldGenStep_Landforms.Register();
 
+        #if RW_1_6_OR_GREATER
+        PlanetLayerDefOf.Surface.worldDrawLayers.Add(typeof(WorldLayer_Landforms));
+        PlanetLayerDefOf.Surface.worldDrawLayers.Add(typeof(WorldLayer_BiomeTransitions));
+        #endif
+
         LandformGraphEditor.InitialSetup();
         LandformManager.InitialLoad();
     }
@@ -82,6 +89,10 @@ public static class GeologicalLandformsAPI
     public static readonly ExtensionPoint<BiomeGrid, float> AnimalDensityFactor = new(1f);
 
     public static readonly ExtensionPoint<Landform, bool> LandformEnabled = new(true);
+
+    #if RW_1_6_OR_GREATER
+    public static readonly ExtensionPoint<TileMutatorDef, bool> TileMutatorEnabled = new(true);
+    #endif
 
     public static readonly ExtensionPoint<BiomeVariantDef, bool> BiomeVariantEnabled = new(true);
 

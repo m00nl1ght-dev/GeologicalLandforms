@@ -32,8 +32,8 @@ public class WorldTileTraverser
         _visited.Clear();
         _queue.Clear();
 
-        var nbValues = worldGrid.tileIDToNeighbors_values;
-        var nbOffsets = worldGrid.tileIDToNeighbors_offsets;
+        var nbValues = worldGrid.ExtNbValues();
+        var nbOffsets = worldGrid.ExtNbOffsets();
 
         _visited.Add(rootTile);
         _queue.Enqueue(new QueuedTile(rootTile, 0));
@@ -44,7 +44,7 @@ public class WorldTileTraverser
             var tileId = tile.TileId;
             var nbDist = tile.Distance + 1;
 
-            int nBound = tileId + 1 < nbOffsets.Count ? nbOffsets[tileId + 1] : nbValues.Count;
+            int nBound = tileId + 1 < nbOffsets.Length() ? nbOffsets[tileId + 1] : nbValues.Length();
             for (int nbIdx = nbOffsets[tileId]; nbIdx < nBound; nbIdx++)
             {
                 int nb = nbValues[nbIdx];

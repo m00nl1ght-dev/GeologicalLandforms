@@ -93,9 +93,15 @@ public class NodeTerrainNaturalWater : NodeBase
         {
             Biome = biome;
             CoastType = coastType;
+            #if RW_1_6_OR_GREATER
+            Beach = (coastType == Ocean ? biome.coastalBeachTerrain : biome.lakeBeachTerrain) ?? TerrainDefOf.Sand;
+            Shallow = (coastType == Ocean ? biome.oceanShallowTerrain : biome.waterShallowTerrain) ?? TerrainDefOf.WaterShallow;
+            Deep = (coastType == Ocean ? biome.oceanDeepTerrain : biome.waterDeepTerrain) ?? TerrainDefOf.WaterDeep;
+            #else
             Beach = biome.Properties().beachTerrain ?? TerrainDefOf.Sand;
             Shallow = coastType == Ocean ? TerrainDefOf.WaterOceanShallow : TerrainDefOf.WaterShallow;
             Deep = coastType == Ocean ? TerrainDefOf.WaterOceanDeep : TerrainDefOf.WaterDeep;
+            #endif
         }
     }
 }

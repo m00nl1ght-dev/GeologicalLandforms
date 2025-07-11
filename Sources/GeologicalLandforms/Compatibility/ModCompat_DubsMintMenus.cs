@@ -1,3 +1,5 @@
+#if !RW_1_6_OR_GREATER
+
 using GeologicalLandforms.Patches;
 using HarmonyLib;
 using LunarFramework.Patching;
@@ -22,3 +24,5 @@ internal class ModCompat_DubsMintMenus : ModCompat
         return false;
     }
 }
+
+#endif

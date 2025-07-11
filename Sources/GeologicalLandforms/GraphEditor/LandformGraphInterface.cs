@@ -85,7 +85,11 @@ public class LandformGraphInterface
             {
                 var options = new List<FloatMenuOption>();
 
+                #if RW_1_6_OR_GREATER
+                if (WorldRendererUtility.WorldRendered && WorldTileUtils.SelectedWorldTile is WorldTileInfo selTile)
+                #else
                 if (WorldRendererUtility.WorldRenderedNow && WorldTileUtils.SelectedWorldTile is WorldTileInfo selTile)
+                #endif
                 {
                     options.Add(new FloatMenuOption($"Selected world tile ({selTile.TileId})", () =>
                     {

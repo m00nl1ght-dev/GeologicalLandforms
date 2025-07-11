@@ -33,6 +33,17 @@ public class NodeInputTerrain : NodeInputBase
 
     public override bool Calculate()
     {
+        #if RW_1_6_OR_GREATER
+
+        var terrainGrid = MapGenerator.mapBeingGenerated?.terrainGrid;
+        if (terrainGrid != null)
+        {
+            Knob.SetValue(Supplier.Of(Landform.TransformIntoNodeSpace(new DiscreteTerrainGridWrapper(terrainGrid))));
+            return true;
+        }
+
+        #endif
+
         var supplier = GetFromBelowStack(Landform, l => l.OutputTerrain?.BaseKnob.GetValue<ISupplier<IGridFunction<TerrainDef>>>());
         supplier ??= Supplier.Of(GridFunction.Of<TerrainDef>(null));
         Knob.SetValue(supplier);

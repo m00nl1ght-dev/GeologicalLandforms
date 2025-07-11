@@ -74,6 +74,10 @@ public class BiomeVariantLayer
         def.cachedMaxWildPlantsClusterRadius = null;
         def.cachedLowestWildPlantOrder = null;
 
+        #if RW_1_6_OR_GREATER
+        if (layers.Any(l => l.applyToCaves)) def.wildPlantsAreCavePlants = true;
+        #endif
+
         var wildPlants = def.wildPlants.Select(r => new DynamicBiomePlantRecord(r)).ToList();
         var wildAnimals = def.wildAnimals.Select(r => new DynamicBiomeAnimalRecord(r)).ToList();
         var pollutionWildAnimals = def.pollutionWildAnimals.Select(r => new DynamicBiomeAnimalRecord(r)).ToList();

@@ -1,11 +1,16 @@
 using System;
 using System.Linq;
 using GeologicalLandforms.Patches;
-using LunarFramework.Utility;
 using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
 using Verse;
+
+#if RW_1_6_OR_GREATER
+using static RimWorld.Planet.SurfaceTile;
+#else
+using static RimWorld.Planet.Tile;
+#endif
 
 namespace GeologicalLandforms;
 
@@ -16,7 +21,7 @@ public static class WorldTileUtils
     public static float Longitude(Vector3 pos) => Mathf.Atan2(pos.x, -pos.z) * 57.29578f;
     public static float Latitude(Vector3 pos) => Mathf.Asin(pos.y / 100f) * 57.29578f;
 
-    public static IWorldTileInfo SelectedWorldTile => Find.World?.UI?.selector is { selectedTile: >= 0 } selector
+    public static IWorldTileInfo SelectedWorldTile => Find.World?.UI?.selector is {} selector && selector.selectedTile >= 0
         ? WorldTileInfo.Get(selector.selectedTile) : null;
 
     public static IWorldTileInfo CurrentWorldTile => Find.CurrentMap != null
@@ -38,13 +43,13 @@ public static class WorldTileUtils
         ).Prepend(99999f).Min();
     }
 
-    public static bool IsRiverInflow(WorldGrid grid, int tile, Tile.RiverLink link, int searchLimit = 200)
+    public static bool IsRiverInflow(WorldGrid grid, int tile, RiverLink link, int searchLimit = 200)
     {
         if (searchLimit <= 0) return false;
         if (grid[link.neighbor].WaterCovered) return false;
 
         var linkWidth = link.river.WidthOnWorld();
-        var nextLinks = grid[link.neighbor].potentialRivers;
+        var nextLinks = grid[(int) link.neighbor].potentialRivers;
 
         if (nextLinks != null)
         {

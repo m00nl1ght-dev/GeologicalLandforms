@@ -23,13 +23,21 @@ internal static class Patch_RimWorld_WorldGenStep_Terrain
     internal static float CaveSystemNoiseThreshold = -0.3f;
     internal static float HillinessNoiseOffset = 0f;
 
+    #if !RW_1_6_OR_GREATER
+
     internal static World LastWorld;
     internal static bool[] BiomeTransitions;
     internal static byte[] CaveSystems;
 
+    #endif
+
     [HarmonyPostfix]
+    #if RW_1_6_OR_GREATER
+    [HarmonyPatch("GenerateFresh")]
+    #else
     [HarmonyPatch("GenerateGridIntoWorld")]
-    private static void GenerateGridIntoWorld_Postfix(WorldGenStep_Terrain __instance)
+    #endif
+    private static void GenerateFresh_Postfix(WorldGenStep_Terrain __instance)
     {
         try
         {
@@ -39,7 +47,6 @@ internal static class Patch_RimWorld_WorldGenStep_Terrain
         catch (Exception e)
         {
             GeologicalLandformsAPI.Logger.Error("Failed to calculate extended biome data.", e);
-            BiomeTransitions = null;
         }
     }
 
@@ -60,7 +67,6 @@ internal static class Patch_RimWorld_WorldGenStep_Terrain
         catch (Exception e)
         {
             GeologicalLandformsAPI.Logger.Error("Failed to calculate cave systems.", e);
-            CaveSystems = null;
         }
     }
 
@@ -116,8 +122,12 @@ internal static class Patch_RimWorld_WorldGenStep_Terrain
             if (success) data[tileIdx] = (byte) dist;
         }
 
+        #if RW_1_6_OR_GREATER
+        world.LandformData()?.SetCaveSystems(data);
+        #else
         CaveSystems = data;
         LastWorld = world;
+        #endif
 
         stopwatch.Stop();
         GeologicalLandformsAPI.Logger.Debug("Calculation of cave systems took " + stopwatch.ElapsedMilliseconds + " ms.");
@@ -125,7 +135,12 @@ internal static class Patch_RimWorld_WorldGenStep_Terrain
 
     private static bool InCaveSystemNoiseThreshold(int tileId, Vector3 pos, int seed)
     {
+        #if RW_1_6_OR_GREATER
+        var perlin = Perlin.GetValue(pos.x, pos.y, pos.z, 0.35f, seed, 2f, 0.5f, 6, false, false, QualityMode.Low);
+        #else
         var perlin = Perlin.GetValue(pos.x, pos.y, pos.z, 0.35f, seed, 2f, 0.5f, 6, QualityMode.Low);
+        #endif
+
         return perlin > CaveSystemNoiseThreshold && Rand.ChanceSeeded(0.5f, Gen.HashCombineInt(seed, tileId));
     }
 
@@ -140,8 +155,8 @@ internal static class Patch_RimWorld_WorldGenStep_Terrain
         var stopwatch = new Stopwatch();
         stopwatch.Start();
 
-        var nbData = grid.tileIDToNeighbors_values;
-        var nbOffsets = grid.tileIDToNeighbors_offsets;
+        var nbData = grid.ExtNbValues();
+        var nbOffsets = grid.ExtNbOffsets();
 
         for (int tileIdx = 0; tileIdx < tilesCount; ++tileIdx)
         {
@@ -164,8 +179,12 @@ internal static class Patch_RimWorld_WorldGenStep_Terrain
             }
         }
 
+        #if RW_1_6_OR_GREATER
+        world.LandformData()?.SetBiomeTransitions(data);
+        #else
         BiomeTransitions = data;
         LastWorld = world;
+        #endif
 
         stopwatch.Stop();
         GeologicalLandformsAPI.Logger.Debug("Calculation of extended biome data took " + stopwatch.ElapsedMilliseconds + " ms.");
@@ -185,9 +204,13 @@ internal static class Patch_RimWorld_WorldGenStep_Terrain
         var grid = Find.WorldGrid;
         var pos = Vector3.Lerp(grid.GetTileCenter(min), grid.GetTileCenter(max), 0.5f);
 
+        #if RW_1_6_OR_GREATER
+        var tTileInfo = GenerateTileFor_AtVector3(instance, PlanetTile.Invalid, null, pos);
+        var diff = nBiome.Worker.GetScore(nBiome, tTileInfo, rTile) - biome.Worker.GetScore(biome, tTileInfo, rTile);
+        #else
         var tTileInfo = GenerateTileFor_AtVector3(instance, -1, pos);
-
         var diff = nBiome.Worker.GetScore(tTileInfo, rTile) - biome.Worker.GetScore(tTileInfo, rTile);
+        #endif
 
         Rand.PopState();
 
@@ -196,6 +219,48 @@ internal static class Patch_RimWorld_WorldGenStep_Terrain
 
         return flag;
     }
+
+    #if RW_1_6_OR_GREATER
+
+    [HarmonyPatch("GenerateTileFor")]
+    [HarmonyReversePatch(HarmonyReversePatchType.Snapshot)]
+    [HarmonyPriority(Priority.VeryLow + 1)]
+    private static Tile GenerateTileFor_AtVector3(WorldGenStep_Terrain instance, PlanetTile tile, PlanetLayer layer, Vector3 pos)
+    {
+        IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            var useGivenPos = TranspilerPattern.Build("UseGivenPos")
+                .Match(OpCodes.Ldarg_2).Nop()
+                .Match(OpCodes.Ldarg_1).Remove()
+                .MatchCall(typeof(PlanetLayer), "GetTileCenter", [typeof(PlanetTile)]).Remove()
+                .Insert(OpCodes.Ldarg_3)
+                .MatchStloc().Keep();
+
+            var longLatOf = TranspilerPattern.Build("LongLatOf")
+                .Match(OpCodes.Ldarg_2).Nop()
+                .Match(OpCodes.Ldarg_1).Remove()
+                .MatchCall(typeof(PlanetLayer), "LongLatOf", [typeof(PlanetTile)]).Remove()
+                .Insert(OpCodes.Ldarg_3)
+                .Insert(CodeInstruction.Call(Self, nameof(LongLatOf_Vector3)))
+                .Greedy();
+
+            var skipBiome = TranspilerPattern.Build("SkipBiome")
+                .MatchLdloc().Nop()
+                .Match(OpCodes.Ldarg_0).Remove()
+                .MatchLdloc().Remove()
+                .Match(OpCodes.Ldarg_1).Remove()
+                .Match(OpCodes.Ldarg_2).Remove()
+                .Match(OpCodes.Call).Remove()
+                .MatchCall(typeof(Tile), "set_PrimaryBiome").Remove();
+
+            return TranspilerPattern.Apply(instructions, useGivenPos, longLatOf, skipBiome);
+        }
+
+        _ = Transpiler(null);
+        return null;
+    }
+
+    #else
 
     [HarmonyPatch("GenerateTileFor")]
     [HarmonyReversePatch(HarmonyReversePatchType.Snapshot)]
@@ -233,6 +298,8 @@ internal static class Patch_RimWorld_WorldGenStep_Terrain
         _ = Transpiler(null);
         return null;
     }
+
+    #endif
 
     private static Vector2 LongLatOf_Vector3(Vector3 pos)
     {

@@ -2,6 +2,7 @@ using System;
 using NodeEditorFramework;
 using RimWorld;
 using TerrainGraph;
+using Verse;
 
 namespace GeologicalLandforms.GraphEditor;
 
@@ -33,6 +34,20 @@ public class NodeInputBiomeGrid : NodeInputBase
 
     public override bool Calculate()
     {
+        #if RW_1_6_OR_GREATER
+
+        if (MapGenerator.mapBeingGenerated != null)
+        {
+            var biomeGrid = MapGenerator.mapBeingGenerated.BiomeGrid();
+            if (biomeGrid != null)
+            {
+                Knob.SetValue(Supplier.Of(Landform.TransformIntoNodeSpace(new DiscreteBiomeGridWrapper(biomeGrid))));
+                return true;
+            }
+        }
+
+        #endif
+
         var supplier = GetFromBelowStack(Landform, l => l.OutputBiomeGrid?.BiomeGridKnob.GetValue<ISupplier<IGridFunction<BiomeDef>>>());
         supplier ??= Supplier.Of(GridFunction.Of<BiomeDef>(null));
         Knob.SetValue(supplier);

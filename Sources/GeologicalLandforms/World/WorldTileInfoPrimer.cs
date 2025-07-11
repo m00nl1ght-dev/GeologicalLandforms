@@ -51,7 +51,11 @@ public class WorldTileInfoPrimer : WorldTileInfo
         set => base.Coast = value;
     }
 
+    #if RW_1_6_OR_GREATER
+    public WorldTileInfoPrimer(int tileId, SurfaceTile tile, World world) : base(tileId, tile, world) { }
+    #else
     public WorldTileInfoPrimer(int tileId, Tile tile, World world) : base(tileId, tile, world) { }
+    #endif
 
     public WorldTileInfoPrimer(WorldTileInfo other) : base(other.TileId, other.Tile, other.World)
     {

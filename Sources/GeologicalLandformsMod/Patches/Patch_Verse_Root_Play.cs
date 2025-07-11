@@ -30,7 +30,12 @@ internal static class Patch_Verse_Root_Play
                 var biome = DefDatabase<BiomeDef>.GetNamed(biomeId, false);
                 if (biome != null)
                 {
+                    #if RW_1_6_OR_GREATER
+                    var nbList = new List<PlanetTile>();
+                    #else
                     var nbList = new List<int>();
+                    #endif
+
                     var worldGrid = Find.WorldGrid;
 
                     worldGrid[startingTile].biome = biome;

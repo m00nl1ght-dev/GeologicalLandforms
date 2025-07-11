@@ -72,7 +72,12 @@
         <Publicize Include="Assembly-CSharp:RimWorld.BiomeDef.cachedLowestWildPlantOrder" />
         <Publicize Include="Assembly-CSharp:RimWorld.GameConditionManager.AggregatePlantDensityFactor" />
         <Publicize Include="Assembly-CSharp:RimWorld.GameConditionManager.AggregateAnimalDensityFactor" />
+        <Publicize Include="Assembly-CSharp:RimWorld.RCellFinder.IsGoodDestinationFor" />
         <Publicize Include="Assembly-CSharp:Verse.CellInspectorDrawer.DrawRow" />
         <Publicize Include="Assembly-CSharp:Verse.MapGenerator.data" />
+        <Publicize Include="Assembly-CSharp:Verse.WaterInfo.flowMapPixels" />
+        <Publicize Include="Assembly-CSharp:RimWorld.Planet.WorldSelector.selectedTile" />
+        <Publicize Include="Assembly-CSharp:RimWorld.Planet.Tile.biome" />
+        <Publicize Include="Assembly-CSharp:RimWorld.TileMutatorDef.mutatorWorker" />
     </ItemGroup>
 </Project>

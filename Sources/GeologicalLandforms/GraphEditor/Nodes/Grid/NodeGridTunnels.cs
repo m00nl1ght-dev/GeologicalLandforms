@@ -204,7 +204,11 @@ public class NodeGridTunnels : NodeBase
         }
 
         [ThreadStatic]
+        #if RW_1_6_OR_GREATER
+        private static List<PlanetTile> _tscNeighbors;
+        #else
         private static List<int> _tscNeighbors;
+        #endif
 
         private bool CheckMapSides(WorldTileInfo tileInfo, StructRot4<int> walkable)
         {

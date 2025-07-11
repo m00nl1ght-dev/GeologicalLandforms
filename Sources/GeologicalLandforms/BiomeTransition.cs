@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using GeologicalLandforms.Patches;
 using LunarFramework.Utility;
 using RimWorld;
 using RimWorld.Planet;
@@ -64,8 +63,7 @@ public static class BiomeTransition
         var biomeGrid = map.BiomeGrid();
         if (biomeGrid == null) return;
 
-        var enabled = PostProcessBiomeTransitions.Apply(biomeGrid);
-        if (!enabled && !DebugBiomeTransitions) return;
+        if (!PostProcessBiomeTransitions.Apply(biomeGrid)) return;
 
         var mapSize = map.Size.ToIntVec2;
         var floodFiller = new FloodFiller(map);
@@ -107,8 +105,6 @@ public static class BiomeTransition
         {
             GeologicalLandformsAPI.Logger.Log("TPM postprocessor changed biome of " + _tpmProcessed.Count + " tiles.");
         }
-
-        if (!enabled) biomeGrid.SetBiomes(Patch_RimWorld_GenStep_Terrain.BiomeFunction);
     }
 
     private static bool ShouldPostProcessTpm(TerrainPatchMaker tpm, TerrainDef output)

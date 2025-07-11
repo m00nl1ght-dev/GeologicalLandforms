@@ -1,3 +1,5 @@
+#if !RW_1_6_OR_GREATER
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -384,3 +386,5 @@ internal static class Patch_RimWorld_WildPlantSpawner
         return underCaveRoof && !entry.ApplyToCaves;
     }
 }
+
+#endif
