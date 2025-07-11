@@ -1,4 +1,8 @@
 
+v1.7.4
+
+- Initial support for RimWorld 1.6 (unstable)
+
 v1.7.3.1
 
 - Updated translation (submitted by @dodther)
