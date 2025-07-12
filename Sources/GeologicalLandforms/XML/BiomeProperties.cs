@@ -223,7 +223,12 @@ public class BiomeProperties : DefModExtension
 
         try
         {
+            #if RW_1_6_OR_GREATER
+            var method = AccessTools.Method(biome.workerClass, nameof(BiomeWorker.GetScore), [typeof(BiomeDef), typeof(Tile), typeof(PlanetTile)]);
+            #else
             var method = AccessTools.Method(biome.workerClass, nameof(BiomeWorker.GetScore), [typeof(Tile), typeof(int)]);
+            #endif
+
             if (method == null) throw new Exception("method GetScore not found");
 
             var instructions = PatchProcessor.ReadMethodBody(method);
