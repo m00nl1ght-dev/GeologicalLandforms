@@ -55,7 +55,7 @@ public class TileMutatorWorker_Landform : TileMutatorWorker
 
     public override void GeneratePostElevationFertility(Map map)
     {
-        if (!Landform.GeneratingLandforms.Contains(Landform)) return;
+        if (Landform.GeneratingLandforms == null || !Landform.GeneratingLandforms.Contains(Landform)) return;
 
         var elevationModule = Landform.TransformIntoMapSpace(Landform.OutputElevation?.Get());
         var fertilityModule = Landform.TransformIntoMapSpace(Landform.OutputFertility?.Get());
@@ -112,7 +112,7 @@ public class TileMutatorWorker_Landform : TileMutatorWorker
 
     public override void GeneratePostTerrain(Map map)
     {
-        if (!Landform.GeneratingLandforms.Contains(Landform)) return;
+        if (Landform.GeneratingLandforms == null || !Landform.GeneratingLandforms.Contains(Landform)) return;
 
         var baseFunction = Landform.TransformIntoMapSpace(Landform.OutputTerrain?.GetBase());
         var stoneFunction = Landform.TransformIntoMapSpace(Landform.OutputTerrain?.GetStone());

@@ -15,6 +15,7 @@ namespace GeologicalLandforms.Patches;
 internal static class Patch_RimWorld_Tile
 {
     [HarmonyPostfix]
+    [PatchTargetPotentiallyInlined]
     [HarmonyPatch(nameof(Tile.Mutators), MethodType.Getter)]
     private static void GetMutators_Postfix(Tile __instance, ref IList<TileMutatorDef> __result)
     {
@@ -25,6 +26,7 @@ internal static class Patch_RimWorld_Tile
     }
 
     [HarmonyPostfix]
+    [PatchTargetPotentiallyInlined]
     [HarmonyPatch(nameof(Tile.Biomes), MethodType.Getter)]
     private static void GetBiomes_Postfix(Tile __instance, ref IEnumerable<BiomeDef> __result)
     {
@@ -39,6 +41,7 @@ internal static class Patch_RimWorld_Tile
     }
 
     [HarmonyPostfix]
+    [PatchTargetPotentiallyInlined]
     [HarmonyPatch(nameof(Tile.AnimalDensity), MethodType.Getter)]
     private static void AnimalDensity_Postfix(Tile __instance, ref float __result)
     {
@@ -57,6 +60,7 @@ internal static class Patch_RimWorld_Tile
     }
 
     [HarmonyPostfix]
+    [PatchTargetPotentiallyInlined]
     [HarmonyPatch(nameof(Tile.AllowRoofedEdgeWalkIn), MethodType.Getter)]
     private static void AllowRoofedEdgeWalkIn_Postfix(Tile __instance, ref bool __result)
     {

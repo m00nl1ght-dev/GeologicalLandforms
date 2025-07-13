@@ -14,6 +14,7 @@ namespace GeologicalLandforms.Patches;
 internal static class Patch_Verse_Map
 {
     [HarmonyPrefix]
+    [PatchTargetPotentiallyInlined]
     [HarmonyPatch(nameof(Map.Biomes), MethodType.Getter)]
     private static bool GetBiomes_Prefix(Map __instance, ref IEnumerable<BiomeDef> __result)
     {
