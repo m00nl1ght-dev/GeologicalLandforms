@@ -1,4 +1,12 @@
 
+v1.7.5
+
+- Rivers will now use biome-specific terrain added in 1.6
+- Fixed mountains not generating correctly on river tiles
+- Fixed errors on startup for some mod-added biomes
+- Fixed world generation error after changing planet size
+- Fixed error that sometimes occured when generating maps with caves
+
 v1.7.4
 
 - Initial support for RimWorld 1.6 (unstable)
