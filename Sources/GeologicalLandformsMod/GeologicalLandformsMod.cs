@@ -49,7 +49,7 @@ public class GeologicalLandformsMod : Mod
         GeologicalLandformsAPI.TileMutatorEnabled.AddModifier(0, IsTileMutatorEnabled);
 
         Settings.ApplyExclusions(false, true);
-        TileMutatorsCustomizationCache.RefreshCustomization();
+        TileMutatorsCustomization.RefreshCustomization();
 
         #endif
 

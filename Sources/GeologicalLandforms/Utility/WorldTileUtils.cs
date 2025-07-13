@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using GeologicalLandforms.Patches;
+using LunarFramework.Utility;
 using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
@@ -93,8 +94,8 @@ public static class WorldTileUtils
 
     public static Vector3 RiverPositionForTile(IWorldTileInfo tile, int salt)
     {
-        var x = Rand.RangeSeeded(0.3f, 0.7f, tile.StableSeed(9332 + salt));
-        var z = Rand.RangeSeeded(0.3f, 0.7f, tile.StableSeed(2750 + salt));
+        var x = RandAsync.Range(0.3f, 0.7f, tile.StableSeed(9332 + salt));
+        var z = RandAsync.Range(0.3f, 0.7f, tile.StableSeed(2750 + salt));
         return new Vector3(x, 0f, z);
     }
 

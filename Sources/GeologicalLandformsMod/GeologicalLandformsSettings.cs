@@ -94,17 +94,18 @@ public class GeologicalLandformsSettings : LunarModSettings
 
         layout.Abs(10f);
 
-        layout.PushChanged();
-
         if (LandformManager.LandformsById.Values.Any(lf => lf.Manifest.IsExperimental))
         {
+            layout.PushChanged();
             LunarGUI.Checkbox(layout, ref EnableExperimentalLandforms.Value, Label("EnableExperimentalLandforms"));
+            if (layout.PopChanged()) MapPreviewAPI.NotifyWorldChanged();
         }
 
         LunarGUI.Checkbox(layout, ref EnableGodMode.Value, Label("EnableGodMode"));
         LunarGUI.Checkbox(layout, ref EnableCellFinderOptimization.Value, Label("EnableCellFinderOptimization"));
-        LunarGUI.Checkbox(layout, ref EnableLandformScaling.Value, Label("EnableLandformScaling"));
 
+        layout.PushChanged();
+        LunarGUI.Checkbox(layout, ref EnableLandformScaling.Value, Label("EnableLandformScaling"));
         if (layout.PopChanged()) MapPreviewAPI.NotifyWorldChanged();
     }
 
@@ -138,7 +139,7 @@ public class GeologicalLandformsSettings : LunarModSettings
         if (layout.PopChanged())
         {
             ApplyExclusions(true, true);
-            TileMutatorsCustomizationCache.RefreshCustomization();
+            TileMutatorsCustomization.RefreshCustomization();
             MapPreviewAPI.NotifyWorldChanged();
         }
 
@@ -166,7 +167,7 @@ public class GeologicalLandformsSettings : LunarModSettings
         if (layout.PopChanged())
         {
             ApplyExclusions(true, false);
-            TileMutatorsCustomizationCache.RefreshCustomization();
+            TileMutatorsCustomization.RefreshCustomization();
             MapPreviewAPI.NotifyWorldChanged();
         }
     }
@@ -352,7 +353,7 @@ public class GeologicalLandformsSettings : LunarModSettings
 
         #if RW_1_6_OR_GREATER
         ApplyExclusions(false, true);
-        TileMutatorsCustomizationCache.RefreshCustomization();
+        TileMutatorsCustomization.RefreshCustomization();
         #endif
 
         MapPreviewAPI.NotifyWorldChanged();
@@ -383,7 +384,7 @@ public class GeologicalLandformsSettings : LunarModSettings
 
     internal void ApplyExclusions(bool notify, bool fromLandform)
     {
-        foreach (var exclusion in TileMutatorsCustomizationCache.Exclusions)
+        foreach (var exclusion in TileMutatorsCustomization.Exclusions)
         {
             if (!CurrentlyDisabledLandforms.Contains(exclusion.Key))
             {

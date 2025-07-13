@@ -25,7 +25,11 @@ internal static class Patch_RimWorld_World
     {
         LastKnownInitialWorldSeed = ___info.Seed;
 
-        #if !RW_1_6_OR_GREATER
+        #if RW_1_6_OR_GREATER
+
+        TileMutatorsCustomization.Disable();
+
+        #else
 
         var landformData = __instance.GetComponent<LandformData>();
 
@@ -50,6 +54,10 @@ internal static class Patch_RimWorld_World
     private static void FinalizeInit(World __instance)
     {
         LastFinalizedWorldRef = new WeakReference(__instance);
+
+        #if RW_1_6_OR_GREATER
+        TileMutatorsCustomization.Enable();
+        #endif
     }
 
     #if !RW_1_6_OR_GREATER

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
 using LunarFramework.GUI;
+using LunarFramework.Utility;
 using NodeEditorFramework;
 using RimWorld;
 using UnityEngine;
@@ -141,7 +142,7 @@ public class NodeUIMapIncidents : NodeUIBase
             {
                 if (entry.Value <= 0f) return false;
                 if (entry.Value >= 1f) return true;
-                return Rand.ChanceSeeded(entry.Value, def.shortHash ^ QueueIntervalsPassed);
+                return RandAsync.Chance(entry.Value, def.shortHash ^ QueueIntervalsPassed);
             }
         }
 

@@ -36,7 +36,7 @@ public static class UserInterfaceUtils
 
         #if RW_1_6_OR_GREATER
 
-        if (TileMutatorsCustomizationCache.Exclusions.TryGetValue(landform.Id, out var exclusions) && exclusions.Length > 0)
+        if (TileMutatorsCustomization.Exclusions.TryGetValue(landform.Id, out var exclusions) && exclusions.Length > 0)
         {
             var def = DefDatabase<TileMutatorDef>.GetNamedSilentFail(exclusions[0]);
             if (def is { modContentPack: not null })
@@ -46,10 +46,10 @@ public static class UserInterfaceUtils
             }
         }
 
-        if (TileMutatorsCustomizationCache.MadeObsoleteBy.TryGetValue(landform.Id, out var madeObsoleteBy))
+        if (TileMutatorsCustomization.MadeObsoleteBy.TryGetValue(landform.Id, out var madeObsoleteBy))
         {
             var def = DefDatabase<TileMutatorDef>.GetNamedSilentFail(madeObsoleteBy);
-            if (def is { modContentPack: not null } && !TileMutatorsCustomizationCache.IsTileMutatorDisabled(def))
+            if (def is { modContentPack: not null } && !TileMutatorsCustomization.IsTileMutatorDisabled(def))
             {
                 LabelBuffer.Add("GeologicalLandforms.Settings.Landforms.MadeObsoleteByMutator"
                     .Translate(def.LabelCap, def.modContentPack.ContentSourceLabel()));

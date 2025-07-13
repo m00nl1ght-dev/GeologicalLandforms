@@ -49,13 +49,8 @@ public static class BiomeTransition
         int min = rev ? nTile : tile;
         int max = rev ? tile : nTile;
 
-        Rand.PushState(Gen.HashCombineInt(min, max));
-
-        bool flag = Rand.Bool ^ rev;
-
-        Rand.PopState();
-
-        return flag;
+        bool rand = RandAsync.Value(Gen.HashCombineInt(min, max)) < 0.5f;
+        return rand ^ rev;
     }
 
     public static void PostProcessBiomeGrid(Map map)

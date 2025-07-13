@@ -12,6 +12,10 @@ internal static class Patch_Verse_MemoryUtility
     [HarmonyPatch("ClearAllMapsAndWorld")]
     private static void ClearAllMapsAndWorld()
     {
+        #if RW_1_6_OR_GREATER
+        TileMutatorsCustomization.Disable();
+        #endif
+
         ExtensionUtils.ClearCaches();
         WorldTileInfo.RemoveCache();
     }

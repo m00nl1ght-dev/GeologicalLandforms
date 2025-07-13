@@ -15,11 +15,14 @@ namespace GeologicalLandforms.Patches;
 internal static class Patch_RimWorld_WorldLandmarks
 {
     [HarmonyPostfix]
+    [PatchTargetPotentiallyInlined]
     [HarmonyPatch("get_Item", typeof(PlanetTile))]
     private static void GetItem_Postfix(ref Landmark __result)
     {
-        if (__result != null && TileMutatorsCustomizationCache.IsLandmarkDisabled(__result.def))
+        if (__result != null && TileMutatorsCustomization.Enabled && TileMutatorsCustomization.IsLandmarkDisabled(__result.def))
+        {
             __result = null;
+        }
     }
 }
 

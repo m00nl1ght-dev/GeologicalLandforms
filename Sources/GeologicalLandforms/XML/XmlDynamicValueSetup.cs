@@ -161,7 +161,7 @@ public static class XmlDynamicValueSetup
         return ctx =>
         {
             var seed = Gen.HashCombineInt(seedFunc(ctx), seedMask);
-            return new FloatRange(min, max).RandomInRangeSeeded(seed);
+            return RandAsync.Range(min, max, seed);
         };
     }
 

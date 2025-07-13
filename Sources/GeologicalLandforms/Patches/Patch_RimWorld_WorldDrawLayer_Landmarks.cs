@@ -18,7 +18,7 @@ internal static class Patch_RimWorld_WorldDrawLayer_Landmarks
     [HarmonyPatch("DrawStandard")]
     private static bool DrawStandard_Prefix(Landmark landmark)
     {
-        return !TileMutatorsCustomizationCache.IsLandmarkDisabled(landmark.def);
+        return !TileMutatorsCustomization.IsLandmarkDisabled(landmark.def);
     }
 }
 

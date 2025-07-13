@@ -19,7 +19,7 @@ internal static class Patch_RimWorld_Dialog_WorldSearch
         {
             if (element.tile.Layer.IsRootSurface && element.tile.tileId >= 0)
             {
-                element.mutators = TileMutatorsCustomizationCache.Get(element.tile.tileId, element.mutators) as List<TileMutatorDef>;
+                element.mutators = TileMutatorsCustomization.Get(element.tile.tileId, element.mutators) as List<TileMutatorDef>;
 
                 if (element.landmark != null)
                 {

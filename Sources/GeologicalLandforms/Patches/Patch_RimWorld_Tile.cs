@@ -21,7 +21,7 @@ internal static class Patch_RimWorld_Tile
     {
         if (__instance.Layer.IsRootSurface && __instance.tile.tileId >= 0)
         {
-            __result = TileMutatorsCustomizationCache.Get(__instance.tile.tileId, __result);
+            __result = TileMutatorsCustomization.Get(__instance.tile.tileId, __result);
         }
     }
 
@@ -68,12 +68,36 @@ internal static class Patch_RimWorld_Tile
             __result = true;
     }
 
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(Tile.AddMutator))]
+    private static void AddMutator_Prefix(Tile __instance, TileMutatorDef mutator)
+    {
+        if (__instance.Layer.IsRootSurface && __instance.mutatorsNullable is {} existingList)
+        {
+            if (TileMutatorsCustomization.Enabled)
+            {
+                for (int i = existingList.Count - 1; i >= 0; i--)
+                {
+                    var existing = existingList[i];
+
+                    if (mutator.categories.Any(c => existing.categories.Contains(c)))
+                    {
+                        if (TileMutatorsCustomization.IsTileMutatorDisabled(existing))
+                        {
+                            existingList.Remove(existing);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     [HarmonyPostfix]
     [HarmonyPatch(nameof(Tile.AddMutator))]
     private static void AddMutator_Postfix(Tile __instance)
     {
         if (__instance.Layer.IsRootSurface && __instance.tile.tileId >= 0)
-            TileMutatorsCustomizationCache.Clear(__instance.tile.tileId);
+            TileMutatorsCustomization.TileHasChanged(__instance.tile.tileId);
     }
 
     [HarmonyPostfix]
@@ -81,7 +105,7 @@ internal static class Patch_RimWorld_Tile
     private static void RemoveMutator_Postfix(Tile __instance)
     {
         if (__instance.Layer.IsRootSurface && __instance.tile.tileId >= 0)
-            TileMutatorsCustomizationCache.Clear(__instance.tile.tileId);
+            TileMutatorsCustomization.TileHasChanged(__instance.tile.tileId);
     }
 }
 

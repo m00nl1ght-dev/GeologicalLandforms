@@ -183,7 +183,7 @@ public class WorldTileInfo : IWorldTileInfo
         unchecked { _validCacheVersion++; }
 
         #if RW_1_6_OR_GREATER
-        TileMutatorsCustomizationCache.Clear();
+        TileMutatorsCustomization.ClearCache();
         #endif
     }
 
@@ -257,7 +257,7 @@ public class WorldTileInfo : IWorldTileInfo
                 {
                     for (var i = 0; i < eligible.Count; i++)
                     {
-                        if (Rand.ChanceSeeded(commonness[i], info.StableSeed(eligible[i].IdHash)))
+                        if (RandAsync.Chance(commonness[i], info.StableSeed(eligible[i].IdHash)))
                         {
                             landforms ??= new(2);
                             landforms.Add(eligible[i]);
@@ -267,7 +267,7 @@ public class WorldTileInfo : IWorldTileInfo
                 else
                 {
                     var seed = info.StableSeed(layer.SelectionSeed);
-                    var rand = new FloatRange(0f, Math.Max(1f, commonness.Sum())).RandomInRangeSeeded(seed);
+                    var rand = RandAsync.Range(0f, Math.Max(1f, commonness.Sum()), seed);
 
                     for (var i = 0; i < eligible.Count; i++)
                     {
@@ -531,7 +531,7 @@ public class WorldTileInfo : IWorldTileInfo
         }
 
         info.Topology = Topology.Inland;
-        info.TopologyDirection = new Rot4(Rand.RangeInclusiveSeeded(0, 3, info.StableSeed(0087)));
+        info.TopologyDirection = new Rot4(RandAsync.Range(0, 4, info.StableSeed(0087)));
     }
 
     private static void DetermineCaveTopology(WorldTileInfo info)
@@ -558,7 +558,7 @@ public class WorldTileInfo : IWorldTileInfo
         }
 
         info.Topology = Topology.CaveTunnel;
-        info.TopologyDirection = new Rot4(Rand.RangeInclusiveSeeded(0, 3, info.StableSeed(0087)));
+        info.TopologyDirection = new Rot4(RandAsync.Range(0, 4, info.StableSeed(0087)));
     }
 
     private static void DetermineCoastTopology(WorldTileInfo info)
@@ -671,7 +671,7 @@ public class WorldTileInfo : IWorldTileInfo
         if (waterTiles.Count == 6)
         {
             info.Topology = Topology.CoastAllSides;
-            info.TopologyDirection = new Rot4(Rand.RangeInclusiveSeeded(0, 3, info.StableSeed(0087)));
+            info.TopologyDirection = new Rot4(RandAsync.Range(0, 4, info.StableSeed(0087)));
         }
     }
 
@@ -782,7 +782,7 @@ public class WorldTileInfo : IWorldTileInfo
         if (cliffTiles.Count == 6)
         {
             info.Topology = Topology.CliffAllSides;
-            info.TopologyDirection = new Rot4(Rand.RangeInclusiveSeeded(0, 3, info.StableSeed(0087)));
+            info.TopologyDirection = new Rot4(RandAsync.Range(0, 4, info.StableSeed(0087)));
         }
     }
 

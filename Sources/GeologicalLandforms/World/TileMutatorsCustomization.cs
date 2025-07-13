@@ -3,18 +3,21 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using LunarFramework.Utility;
 using RimWorld;
 using RimWorld.Planet;
 using Verse;
 
 namespace GeologicalLandforms;
 
-public static class TileMutatorsCustomizationCache
+public static class TileMutatorsCustomization
 {
     private static IList<TileMutatorDef>[] _cache;
 
     private static List<TileMutatorDef> _disabledMutators = [];
     private static List<LandmarkDef> _disabledLandmarks = [];
+
+    public static bool Enabled => _cache != null;
 
     public static bool IsTileMutatorDisabled(TileMutatorDef def)
     {
@@ -26,15 +29,36 @@ public static class TileMutatorsCustomizationCache
         return _disabledLandmarks.Contains(def);
     }
 
+    public static void Enable()
+    {
+        _cache = new IList<TileMutatorDef>[Find.WorldGrid.TilesCount];
+    }
+
+    public static void ClearCache()
+    {
+        if (_cache != null && Find.World is {} world)
+        {
+            _cache = new IList<TileMutatorDef>[world.grid.TilesCount];
+        }
+    }
+
+    public static void Disable()
+    {
+        _cache = null;
+    }
+
     public static IList<TileMutatorDef> Get(int tileId, IList<TileMutatorDef> original)
     {
-        _cache ??= new IList<TileMutatorDef>[Find.WorldGrid.TilesCount];
+        var cache = _cache;
+        if (cache == null)
+            return original ?? Array.Empty<TileMutatorDef>();
 
-        var fromCache = _cache[tileId];
-        if (fromCache != null) return fromCache;
+        var fromCache = cache[tileId];
+        if (fromCache != null)
+            return fromCache;
 
         var fresh = BuildFresh(tileId, original);
-        _cache[tileId] = fresh;
+        cache[tileId] = fresh;
         return fresh;
     }
 
@@ -84,7 +108,7 @@ public static class TileMutatorsCustomizationCache
                     }
                     else if (landform.WorldTileReq != null)
                     {
-                        if (Rand.ChanceSeeded(landform.WorldTileReq.CaveChance, tileInfo.StableSeed(8266)))
+                        if (RandAsync.Chance(landform.WorldTileReq.CaveChance, tileInfo.StableSeed(8266)))
                         {
                             mutators.AddUnique(TileMutatorDefOf.Caves);
                         }
@@ -125,21 +149,17 @@ public static class TileMutatorsCustomizationCache
             .Where(lm => lm.mutatorChances.Where(m => m.required).Any(m => _disabledMutators.Contains(m.mutator)))
             .ToList();
 
-        Clear();
+        ClearCache();
 
         Find.World?.grid.Surface.SetDirty<WorldDrawLayer_Landmarks>();
         ExpandableLandmarksUtility.Notify_WorldObjectsChanged();
     }
 
-    public static void Clear(int tileId)
+    public static void TileHasChanged(int tileId)
     {
-        if (_cache != null)
-            _cache[tileId] = null;
-    }
-
-    public static void Clear()
-    {
-        _cache = null;
+        var cache = _cache;
+        if (cache != null)
+            cache[tileId] = null;
     }
 
     public static readonly IReadOnlyDictionary<string, string[]> Exclusions = new Dictionary<string, string[]> {

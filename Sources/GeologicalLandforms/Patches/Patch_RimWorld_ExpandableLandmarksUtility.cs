@@ -34,7 +34,7 @@ internal static class Patch_RimWorld_ExpandableLandmarksUtility
     {
         if (Find.World.landmarks.landmarks.TryGetValue(tile, out var landmark))
         {
-            if (landmark != null && !TileMutatorsCustomizationCache.IsLandmarkDisabled(landmark.def))
+            if (landmark != null && !TileMutatorsCustomization.IsLandmarkDisabled(landmark.def))
             {
                 list.Add(tile);
             }
