@@ -28,6 +28,15 @@ public class NodeTerrainNaturalWater : NodeBase
     [ValueConnectionKnob("Beach", Direction.Out, TerrainFunctionConnection.Id)]
     public ValueConnectionKnob BeachOutputKnob;
 
+    [ValueConnectionKnob("RiverDeep", Direction.Out, TerrainFunctionConnection.Id)]
+    public ValueConnectionKnob RiverDeepOutputKnob;
+
+    [ValueConnectionKnob("RiverShallow", Direction.Out, TerrainFunctionConnection.Id)]
+    public ValueConnectionKnob RiverShallowOutputKnob;
+
+    [ValueConnectionKnob("Riverbank", Direction.Out, TerrainFunctionConnection.Id)]
+    public ValueConnectionKnob RiverbankOutputKnob;
+
     public NodeGridRotateToMapSides.MapSide MapSide;
 
     public override void NodeGUI()
@@ -35,12 +44,12 @@ public class NodeTerrainNaturalWater : NodeBase
         GUILayout.BeginVertical(BoxStyle);
 
         GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Deep", DoubleBoxLayout);
+        GUILayout.Label("Deep Water", DoubleBoxLayout);
         GUILayout.EndHorizontal();
         DeepOutputKnob.SetPosition();
 
         GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Shallow", DoubleBoxLayout);
+        GUILayout.Label("Shallow Water", DoubleBoxLayout);
         GUILayout.EndHorizontal();
         ShallowOutputKnob.SetPosition();
 
@@ -48,6 +57,21 @@ public class NodeTerrainNaturalWater : NodeBase
         GUILayout.Label("Beach", DoubleBoxLayout);
         GUILayout.EndHorizontal();
         BeachOutputKnob.SetPosition();
+
+        GUILayout.BeginHorizontal(BoxStyle);
+        GUILayout.Label("Deep River", DoubleBoxLayout);
+        GUILayout.EndHorizontal();
+        RiverDeepOutputKnob.SetPosition();
+
+        GUILayout.BeginHorizontal(BoxStyle);
+        GUILayout.Label("Shallow River", DoubleBoxLayout);
+        GUILayout.EndHorizontal();
+        RiverShallowOutputKnob.SetPosition();
+
+        GUILayout.BeginHorizontal(BoxStyle);
+        GUILayout.Label("Riverbank", DoubleBoxLayout);
+        GUILayout.EndHorizontal();
+        RiverbankOutputKnob.SetPosition();
 
         GUILayout.BeginHorizontal(BoxStyle);
 
@@ -77,6 +101,9 @@ public class NodeTerrainNaturalWater : NodeBase
         BeachOutputKnob.SetValue<ISupplier<TerrainDef>>(Supplier.Of(data.Beach));
         ShallowOutputKnob.SetValue<ISupplier<TerrainDef>>(Supplier.Of(data.Shallow));
         DeepOutputKnob.SetValue<ISupplier<TerrainDef>>(Supplier.Of(data.Deep));
+        RiverbankOutputKnob.SetValue<ISupplier<TerrainDef>>(Supplier.Of(data.Riverbank));
+        RiverShallowOutputKnob.SetValue<ISupplier<TerrainDef>>(Supplier.Of(data.RiverShallow));
+        RiverDeepOutputKnob.SetValue<ISupplier<TerrainDef>>(Supplier.Of(data.RiverDeep));
         return true;
     }
 
@@ -88,6 +115,9 @@ public class NodeTerrainNaturalWater : NodeBase
         public TerrainDef Beach;
         public TerrainDef Shallow;
         public TerrainDef Deep;
+        public TerrainDef Riverbank;
+        public TerrainDef RiverShallow;
+        public TerrainDef RiverDeep;
 
         public Data(BiomeDef biome, CoastType coastType)
         {
@@ -97,10 +127,16 @@ public class NodeTerrainNaturalWater : NodeBase
             Beach = (coastType == Ocean ? biome.coastalBeachTerrain : biome.lakeBeachTerrain) ?? TerrainDefOf.Sand;
             Shallow = (coastType == Ocean ? biome.oceanShallowTerrain : biome.waterShallowTerrain) ?? TerrainDefOf.WaterShallow;
             Deep = (coastType == Ocean ? biome.oceanDeepTerrain : biome.waterDeepTerrain) ?? TerrainDefOf.WaterDeep;
+            Riverbank = biome.riverbankTerrain ?? TerrainDefOf.Riverbank;
+            RiverShallow = biome.waterMovingShallowTerrain ?? TerrainDefOf.WaterMovingShallow;
+            RiverDeep = biome.waterMovingChestDeepTerrain ?? TerrainDefOf.WaterMovingChestDeep;
             #else
             Beach = biome.Properties().beachTerrain ?? TerrainDefOf.Sand;
             Shallow = coastType == Ocean ? TerrainDefOf.WaterOceanShallow : TerrainDefOf.WaterShallow;
             Deep = coastType == Ocean ? TerrainDefOf.WaterOceanDeep : TerrainDefOf.WaterDeep;
+            Riverbank = TerrainDefOf.Soil;
+            RiverShallow = TerrainDefOf.WaterMovingShallow;
+            RiverDeep = TerrainDefOf.WaterMovingChestDeep;
             #endif
         }
     }

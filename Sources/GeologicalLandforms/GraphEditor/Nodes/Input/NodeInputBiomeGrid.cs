@@ -49,7 +49,7 @@ public class NodeInputBiomeGrid : NodeInputBase
         #endif
 
         var supplier = GetFromBelowStack(Landform, l => l.OutputBiomeGrid?.BiomeGridKnob.GetValue<ISupplier<IGridFunction<BiomeDef>>>());
-        supplier ??= Supplier.Of(GridFunction.Of<BiomeDef>(null));
+        supplier ??= Supplier.Of(GridFunction.Of(Landform.GeneratingTile.Biome));
         Knob.SetValue(supplier);
         return true;
     }
