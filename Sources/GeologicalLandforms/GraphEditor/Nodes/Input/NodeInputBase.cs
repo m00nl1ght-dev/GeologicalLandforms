@@ -200,30 +200,52 @@ public abstract class NodeInputBase : NodeBase
     public class DiscreteFloatGridWrapper : IGridFunction<double>
     {
         public readonly MapGenFloatGrid FloatGrid;
+        public readonly IntVec3 GridSize;
+        public readonly double Fallback;
 
-        public DiscreteFloatGridWrapper(MapGenFloatGrid floatGrid)
+        public DiscreteFloatGridWrapper(MapGenFloatGrid floatGrid, IntVec3 gridSize, double fallback)
         {
             FloatGrid = floatGrid;
+            GridSize = gridSize;
+            Fallback = fallback;
         }
 
         public double ValueAt(double x, double z)
         {
-            return FloatGrid[new IntVec3((int) Math.Round(x), 0, (int) Math.Round(z))];
+            var vec = new IntVec3((int) Math.Round(x), 0, (int) Math.Round(z));
+
+            if (vec.x >= 0 && vec.x < GridSize.x && vec.z >= 0 && vec.z < GridSize.z)
+            {
+                return FloatGrid[vec];
+            }
+
+            return Fallback;
         }
     }
 
     public class DiscreteTerrainGridWrapper : IGridFunction<TerrainDef>
     {
         public readonly TerrainGrid TerrainGrid;
+        public readonly IntVec3 GridSize;
+        public readonly TerrainDef Fallback;
 
-        public DiscreteTerrainGridWrapper(TerrainGrid terrainGrid)
+        public DiscreteTerrainGridWrapper(TerrainGrid terrainGrid, IntVec3 gridSize, TerrainDef fallback)
         {
             TerrainGrid = terrainGrid;
+            GridSize = gridSize;
+            Fallback = fallback;
         }
 
         public TerrainDef ValueAt(double x, double z)
         {
-            return TerrainGrid.TerrainAt(new IntVec3((int) Math.Round(x), 0, (int) Math.Round(z)));
+            var vec = new IntVec3((int) Math.Round(x), 0, (int) Math.Round(z));
+
+            if (vec.x >= 0 && vec.x < GridSize.x && vec.z >= 0 && vec.z < GridSize.z)
+            {
+                return TerrainGrid.TerrainAt(vec);
+            }
+
+            return Fallback;
         }
     }
 
@@ -238,7 +260,14 @@ public abstract class NodeInputBase : NodeBase
 
         public BiomeDef ValueAt(double x, double z)
         {
-            return BiomeGrid.BiomeAt(new IntVec3((int) Math.Round(x), 0, (int) Math.Round(z)));
+            var vec = new IntVec3((int) Math.Round(x), 0, (int) Math.Round(z));
+
+            if (vec.x >= 0 && vec.x < BiomeGrid.Size.x && vec.z >= 0 && vec.z < BiomeGrid.Size.z)
+            {
+                return BiomeGrid.BiomeAt(vec);
+            }
+
+            return BiomeGrid.Primary.Biome;
         }
     }
 }

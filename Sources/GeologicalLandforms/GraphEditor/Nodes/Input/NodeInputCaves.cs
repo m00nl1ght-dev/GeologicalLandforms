@@ -35,9 +35,9 @@ public class NodeInputCaves : NodeInputBase
     {
         #if RW_1_6_OR_GREATER
 
-        if (MapGenerator.mapBeingGenerated != null)
+        if (MapGenerator.mapBeingGenerated is {} map)
         {
-            Knob.SetValue(Supplier.From(() => Landform.TransformIntoNodeSpace(new DiscreteFloatGridWrapper(MapGenerator.Caves))));
+            Knob.SetValue(Supplier.From(() => Landform.TransformIntoNodeSpace(new DiscreteFloatGridWrapper(MapGenerator.Caves, map.Size, 0d))));
             return true;
         }
 

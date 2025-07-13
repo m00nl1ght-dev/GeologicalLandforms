@@ -35,9 +35,9 @@ public class NodeInputFertility : NodeInputBase
     {
         #if RW_1_6_OR_GREATER
 
-        if (MapGenerator.mapBeingGenerated != null)
+        if (MapGenerator.mapBeingGenerated is {} map)
         {
-            Knob.SetValue(Supplier.Of(Landform.TransformIntoNodeSpace(new DiscreteFloatGridWrapper(MapGenerator.Fertility))));
+            Knob.SetValue(Supplier.Of(Landform.TransformIntoNodeSpace(new DiscreteFloatGridWrapper(MapGenerator.Fertility, map.Size, 0d))));
             return true;
         }
 

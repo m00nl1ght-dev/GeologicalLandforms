@@ -15,6 +15,7 @@ public class BiomeGrid : MapComponent
 {
     public IReadOnlyList<Entry> Entries => _entries;
     public Entry Primary => _entries[0];
+    public IntVec3 Size => _mapSize;
 
     public bool Enabled
     {

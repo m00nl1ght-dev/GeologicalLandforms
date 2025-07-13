@@ -35,9 +35,9 @@ public class NodeInputElevation : NodeInputBase
     {
         #if RW_1_6_OR_GREATER
 
-        if (MapGenerator.mapBeingGenerated != null)
+        if (MapGenerator.mapBeingGenerated is {} map)
         {
-            Knob.SetValue(Supplier.From(() => Landform.TransformIntoNodeSpace(new DiscreteFloatGridWrapper(MapGenerator.Elevation))));
+            Knob.SetValue(Supplier.From(() => Landform.TransformIntoNodeSpace(new DiscreteFloatGridWrapper(MapGenerator.Elevation, map.Size, 1d))));
             return true;
         }
 

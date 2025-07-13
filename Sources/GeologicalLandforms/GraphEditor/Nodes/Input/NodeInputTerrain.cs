@@ -35,10 +35,9 @@ public class NodeInputTerrain : NodeInputBase
     {
         #if RW_1_6_OR_GREATER
 
-        var terrainGrid = MapGenerator.mapBeingGenerated?.terrainGrid;
-        if (terrainGrid != null)
+        if (MapGenerator.mapBeingGenerated is { terrainGrid: not null } map)
         {
-            Knob.SetValue(Supplier.Of(Landform.TransformIntoNodeSpace(new DiscreteTerrainGridWrapper(terrainGrid))));
+            Knob.SetValue(Supplier.Of(Landform.TransformIntoNodeSpace(new DiscreteTerrainGridWrapper(map.terrainGrid, map.Size, null))));
             return true;
         }
 
