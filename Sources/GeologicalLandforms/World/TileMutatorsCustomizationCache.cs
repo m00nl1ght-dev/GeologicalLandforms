@@ -64,16 +64,35 @@ public static class TileMutatorsCustomizationCache
             {
                 mutators.Add(landform.TileMutatorDef);
 
-                if (landform.OutputElevation?.InputKnob.connected() == true)
+                if (!landform.IsLayer)
                 {
-                    mutators.Remove(TileMutatorDefOf.Mountain);
-                }
+                    if (landform.OutputElevation?.InputKnob.connected() == true)
+                    {
+                        mutators.Remove(TileMutatorDefOf.Mountain);
+                    }
 
-                if (landform.OutputTerrain?.BaseKnob.connected() == true &&
-                    landform.WorldTileReq?.Topology.IsCoast(true) == true)
-                {
-                    mutators.Remove(TileMutatorDefOf.Coast);
-                    mutators.Remove(TileMutatorDefOf.Lakeshore);
+                    if (landform.OutputTerrain?.BaseKnob.connected() == true &&
+                        landform.WorldTileReq?.Topology.IsCoast(true) == true)
+                    {
+                        mutators.Remove(TileMutatorDefOf.Coast);
+                        mutators.Remove(TileMutatorDefOf.Lakeshore);
+                    }
+
+                    if (landform.OutputCaves?.InputKnob.connected() == true)
+                    {
+                        mutators.Remove(TileMutatorDefOf.Caves);
+                    }
+                    else if (landform.WorldTileReq != null)
+                    {
+                        if (Rand.ChanceSeeded(landform.WorldTileReq.CaveChance, tileInfo.StableSeed(8266)))
+                        {
+                            mutators.AddUnique(TileMutatorDefOf.Caves);
+                        }
+                        else
+                        {
+                            mutators.Remove(TileMutatorDefOf.Caves);
+                        }
+                    }
                 }
 
                 if (landform.OutputWaterFlow?.RiverTerrainKnob.connected() == true)
@@ -89,22 +108,6 @@ public static class TileMutatorsCustomizationCache
                     landform.OutputBiomeGrid?.BiomeTransitionKnob.connected() == true)
                 {
                     mutators.Remove(TileMutatorDefOf.MixedBiome);
-                }
-
-                if (landform.OutputCaves?.InputKnob.connected() == true)
-                {
-                    mutators.Remove(TileMutatorDefOf.Caves);
-                }
-                else if (!landform.IsLayer && landform.WorldTileReq != null)
-                {
-                    if (Rand.ChanceSeeded(landform.WorldTileReq.CaveChance, tileInfo.StableSeed(8266)))
-                    {
-                        mutators.AddUnique(TileMutatorDefOf.Caves);
-                    }
-                    else
-                    {
-                        mutators.Remove(TileMutatorDefOf.Caves);
-                    }
                 }
             }
         }
