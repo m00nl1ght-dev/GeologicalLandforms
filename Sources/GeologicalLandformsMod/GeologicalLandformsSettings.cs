@@ -145,7 +145,9 @@ public class GeologicalLandformsSettings : LunarModSettings
 
         layout.PushChanged();
 
-        foreach (var group in DefDatabase<TileMutatorDef>.AllDefs.GroupBy(def => def.modContentPack))
+        var mutators = DefDatabase<TileMutatorDef>.AllDefs.Where(e => e.Worker is not TileMutatorWorker_Landform);
+
+        foreach (var group in mutators.GroupBy(def => def.modContentPack))
         {
             layout.BeginAbs(Text.LineHeight, new LayoutParams { Horizontal = true });
             LunarGUI.Label(layout.Abs(-1), group.Key.ContentSourceLabel().CapitalizeFirst());

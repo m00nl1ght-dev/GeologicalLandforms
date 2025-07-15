@@ -268,13 +268,26 @@ public class Landform : TerrainCanvas
 
     internal void InitTileMutatorDef()
     {
-        TileMutatorDef = new TileMutatorDef();
-        TileMutatorDef.mutatorWorker = new TileMutatorWorker_Landform(TileMutatorDef, this);
-        TileMutatorDef.defName = Id;
-        TileMutatorDef.label = TranslatedName;
-        TileMutatorDef.genOrder = 250;
-        TileMutatorDef.displayPriority = IsInternal ? -999 : 1;
-        TileMutatorDef.ResolveDefNameHash();
+        var def = DefDatabase<TileMutatorDef>.GetNamedSilentFail($"GL_{Id}");
+
+        if (def is { Worker: TileMutatorWorker_Landform worker })
+        {
+            worker.Landform = this;
+        }
+        else
+        {
+            def = new TileMutatorDef();
+            worker = new TileMutatorWorker_Landform(def) { Landform = this };
+            def.mutatorWorker = worker;
+            def.defName = $"GL_{Id}";
+            def.genOrder = 250 + (LayerConfig?.Priority ?? 0);
+            def.displayPriority = IsInternal ? -999 : 1;
+            def.ResolveDefNameHash();
+        }
+
+        def.label ??= TranslatedName;
+
+        TileMutatorDef = def;
     }
 
     #endif

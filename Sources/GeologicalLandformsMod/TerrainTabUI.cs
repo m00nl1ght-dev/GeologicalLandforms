@@ -38,7 +38,7 @@ internal static class TerrainTabUI
                     .Select(e => new FloatMenuOption($"{prefix} {e.TranslatedNameForSelection.CapitalizeFirst()}", () => FindLandform(e))));
 
                 options.AddRange(DefDatabase<TileMutatorDef>.AllDefs
-                    .Where(e => !TileMutatorsCustomization.IsTileMutatorDisabled(e))
+                    .Where(e => e.Worker is not TileMutatorWorker_Landform && !TileMutatorsCustomization.IsTileMutatorDisabled(e))
                     .Where(e => !GeologicalLandformsSettings.SpecialTileMutatorsHidden.Contains(e.defName))
                     .OrderBy(e => e.modContentPack.ContentSourceLabel()).ThenBy(e => e.label)
                     .Select(e => new FloatMenuOption($"({e.modContentPack.ContentSourceLabel().CapitalizeFirst()}) {UserInterfaceUtils.LabelForTileMutator(e, false)}", () => FindTileMutator(e))));

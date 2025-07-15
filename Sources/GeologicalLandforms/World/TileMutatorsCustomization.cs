@@ -124,7 +124,11 @@ public static class TileMutatorsCustomization
             }
         }
 
-        return mutators != null ? mutators : Array.Empty<TileMutatorDef>();
+        if (mutators == null)
+            return Array.Empty<TileMutatorDef>();
+
+        mutators.SortBy(m => m.genOrder);
+        return mutators;
     }
 
     public static void RefreshCustomization()

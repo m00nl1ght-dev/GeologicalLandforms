@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Defs>
+
+  <TileMutatorDef Name="GL_LandformBase" Abstract="True">
+    <workerClass>GeologicalLandforms.TileMutatorWorker_Landform</workerClass>
+    <displayPriority>1</displayPriority>
+    <genOrder>250</genOrder>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_Archipelago</defName>
+    <categories>
+      <li>Coast</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_Atoll</defName>
+    <categories>
+      <li>Coast</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_Badlands</defName>
+    <categories>
+      <li>Groundwater</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_Caldera</defName>
+    <categories>
+      <li>Mountain</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_Canyon</defName>
+    <categories>
+      <li>Mountain</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_CaveEntrance</defName>
+    <categories>
+      <li>Mountain</li>
+      <li>Caves</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_Cirque</defName>
+    <categories>
+      <li>Mountain</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_Cliff</defName>
+    <categories>
+      <li>Mountain</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_CliffAndCoast</defName>
+    <categories>
+      <li>Coast</li>
+      <li>Mountain</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_CliffCorner</defName>
+    <categories>
+      <li>Mountain</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_Coast</defName>
+    <categories>
+      <li>Coast</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_CoastalIsland</defName>
+    <categories>
+      <li>Coast</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_CoastCorner</defName>
+    <categories>
+      <li>Coast</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_Cove</defName>
+    <categories>
+      <li>Coast</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_CoveWithIsland</defName>
+    <categories>
+      <li>Coast</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_Crater</defName>
+    <categories>
+      <li>Mountain</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_DesertPlateau</defName>
+    <categories>
+      <li>Groundwater</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_DryLake</defName>
+    <categories>
+      <li>Lake</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_Fjord</defName>
+    <categories>
+      <li>Coast</li>
+      <li>Mountain</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_Glacier</defName>
+    <categories>
+      <li>Mountain</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_Gorge</defName>
+    <categories>
+      <li>Mountain</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_IceOasis</defName>
+    <categories>
+      <li>Groundwater</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_Island</defName>
+    <categories>
+      <li>Coast</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_Lake</defName>
+    <categories>
+      <li>Lake</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_LakeWithIsland</defName>
+    <categories>
+      <li>Lake</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_Landbridge</defName>
+    <categories>
+      <li>Coast</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_LoneMountain</defName>
+    <categories>
+      <li>Mountain</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_Oasis</defName>
+    <categories>
+      <li>Groundwater</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_Peninsula</defName>
+    <categories>
+      <li>Coast</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_Rift</defName>
+    <categories>
+      <li>Mountain</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_River</defName>
+    <genOrder>260</genOrder>
+    <categories>
+      <li>River</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_RiverConfluence</defName>
+    <genOrder>260</genOrder>
+    <categories>
+      <li>River</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_RiverDelta</defName>
+    <genOrder>260</genOrder>
+    <categories>
+      <li>River</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_RiverIsland</defName>
+    <genOrder>260</genOrder>
+    <categories>
+      <li>River</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_RiverSource</defName>
+    <genOrder>260</genOrder>
+    <categories>
+      <li>River</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <!-- internal, should not be visible -->
+    <defName>GL_RiverTerrain</defName>
+    <displayPriority>-999</displayPriority>
+    <genOrder>262</genOrder>
+    <categories>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_SecludedCove</defName>
+    <categories>
+      <li>Coast</li>
+      <li>Mountain</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_SecludedValley</defName>
+    <categories>
+      <li>Mountain</li>
+      <li>Caves</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_Sinkhole</defName>
+    <categories>
+      <li>Mountain</li>
+      <li>Caves</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_Skerry</defName>
+    <categories>
+      <li>Coast</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_SurfaceCave</defName>
+    <categories>
+      <li>Mountain</li>
+      <li>Caves</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_SwampHill</defName>
+    <categories>
+      <li>Mountain</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_Tombolo</defName>
+    <categories>
+      <li>Coast</li>
+    </categories>
+  </TileMutatorDef>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_Valley</defName>
+    <categories>
+      <li>Mountain</li>
+    </categories>
+  </TileMutatorDef>
+
+</Defs>

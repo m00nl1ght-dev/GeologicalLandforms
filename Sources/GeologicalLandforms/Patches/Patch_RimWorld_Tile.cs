@@ -70,8 +70,29 @@ internal static class Patch_RimWorld_Tile
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(Tile.AddMutator))]
-    private static void AddMutator_Prefix(Tile __instance, TileMutatorDef mutator)
+    private static bool AddMutator_Prefix(Tile __instance, TileMutatorDef mutator)
     {
+        if (mutator.Worker is TileMutatorWorker_Landform worker)
+        {
+            if (__instance.Layer.IsRootSurface && __instance.tile.tileId >= 0 && worker.Landform != null)
+            {
+                var tileInfo = WorldTileInfo.Get(__instance.tile.tileId);
+                var landforms = tileInfo.Landforms?.Select(lf => lf.Id).ToList() ?? [];
+
+                if (!landforms.Contains(worker.Landform.Id))
+                {
+                    landforms.Add(worker.Landform.Id);
+
+                    Find.World.LandformData()?.Commit(__instance.tile.tileId, new LandformData.TileData(tileInfo)
+                    {
+                        Landforms = landforms
+                    });
+                }
+            }
+
+            return false;
+        }
+
         if (__instance.Layer.IsRootSurface && __instance.mutatorsNullable is {} existingList)
         {
             if (TileMutatorsCustomization.Enabled)
@@ -90,6 +111,36 @@ internal static class Patch_RimWorld_Tile
                 }
             }
         }
+
+        return true;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(Tile.RemoveMutator))]
+    private static bool RemoveMutator_Prefix(Tile __instance, TileMutatorDef mutator)
+    {
+        if (mutator.Worker is TileMutatorWorker_Landform worker)
+        {
+            if (__instance.Layer.IsRootSurface && __instance.tile.tileId >= 0 && worker.Landform != null)
+            {
+                var tileInfo = WorldTileInfo.Get(__instance.tile.tileId);
+                var landforms = tileInfo.Landforms?.Select(lf => lf.Id).ToList() ?? [];
+
+                if (landforms.Contains(worker.Landform.Id))
+                {
+                    landforms.Remove(worker.Landform.Id);
+
+                    Find.World.LandformData()?.Commit(__instance.tile.tileId, new LandformData.TileData(tileInfo)
+                    {
+                        Landforms = landforms
+                    });
+                }
+            }
+
+            return false;
+        }
+
+        return true;
     }
 
     [HarmonyPostfix]

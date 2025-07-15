@@ -15,15 +15,15 @@ namespace GeologicalLandforms;
 
 public class TileMutatorWorker_Landform : TileMutatorWorker
 {
-    public readonly Landform Landform;
+    public Landform Landform;
 
-    public TileMutatorWorker_Landform(TileMutatorDef def, Landform landform) : base(def)
-    {
-        Landform = landform;
-    }
+    public TileMutatorWorker_Landform(TileMutatorDef def) : base(def) {}
 
     public override string GetLabel(PlanetTile tile)
     {
+        if (Landform == null)
+            return "";
+
         if (Landform.IsInternal)
         {
             if (Landform.Id == "BiomeTransitions")
@@ -39,6 +39,12 @@ public class TileMutatorWorker_Landform : TileMutatorWorker
 
     public override string GetDescription(PlanetTile tile)
     {
+        if (Landform == null)
+            return "";
+
+        if (!def.description.NullOrEmpty())
+            return def.description;
+
         if (Landform.IsInternal)
         {
             if (Landform.Id == "BiomeTransitions")
@@ -55,7 +61,7 @@ public class TileMutatorWorker_Landform : TileMutatorWorker
 
     public override void GeneratePostElevationFertility(Map map)
     {
-        if (Landform.GeneratingLandforms == null || !Landform.GeneratingLandforms.Contains(Landform)) return;
+        if (Landform == null || Landform.GeneratingLandforms == null || !Landform.GeneratingLandforms.Contains(Landform)) return;
 
         var elevationModule = Landform.TransformIntoMapSpace(Landform.OutputElevation?.Get());
         var fertilityModule = Landform.TransformIntoMapSpace(Landform.OutputFertility?.Get());
@@ -112,7 +118,7 @@ public class TileMutatorWorker_Landform : TileMutatorWorker
 
     public override void GeneratePostTerrain(Map map)
     {
-        if (Landform.GeneratingLandforms == null || !Landform.GeneratingLandforms.Contains(Landform)) return;
+        if (Landform == null || Landform.GeneratingLandforms == null || !Landform.GeneratingLandforms.Contains(Landform)) return;
 
         var baseFunction = Landform.TransformIntoMapSpace(Landform.OutputTerrain?.GetBase());
         var stoneFunction = Landform.TransformIntoMapSpace(Landform.OutputTerrain?.GetStone());
