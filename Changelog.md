@@ -1,4 +1,9 @@
 
+v1.7.6
+
+- Fixed some Harmony patch conflict errors on startup
+- Internal changes to tile mutators in order to improve mod compatibility
+
 v1.7.5
 
 - Rivers will now use biome-specific terrain added in 1.6
