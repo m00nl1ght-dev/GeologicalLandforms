@@ -96,12 +96,16 @@ public class NodeUIWorldTileReq : NodeUIBase
         LunarGUI.LabelDouble(layout, $"{LabelKeyPrefix}.Commonness".Translate(), Commonness.ToString("F2"));
         LunarGUI.Slider(layout, ref Commonness, 0f, 1f);
 
+        #if !RW_1_6_OR_GREATER
+
         layout.PushEnabled(!Landform.IsLayer);
 
         LunarGUI.LabelDouble(layout, $"{LabelKeyPrefix}.CaveChance".Translate(), CaveChance.ToString("F2"));
         LunarGUI.Slider(layout, ref CaveChance, 0f, 1f);
 
         layout.PopEnabled();
+
+        #endif
 
         for (var i = 0; i < _activeConditions.Count; i++)
         {
