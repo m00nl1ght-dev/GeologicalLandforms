@@ -157,7 +157,10 @@ public static class TileMutatorsCustomization
         { "RiverSource", [ "Headwater" ] },
         { "RiverIsland", [ "RiverIsland" ] },
         { "RiverConfluence", [ "RiverConfluence" ] },
-        { "BiomeTransitions", [ "MixedBiome" ] },
+    };
+
+    public static readonly IReadOnlyDictionary<string, string> ExclusionsAuto = new Dictionary<string, string> {
+        { "BiomeTransitions", "MixedBiome" },
     };
 
     public static readonly IReadOnlyDictionary<string, string> MadeObsoleteBy = new Dictionary<string, string> {

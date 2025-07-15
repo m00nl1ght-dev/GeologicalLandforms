@@ -379,7 +379,8 @@ public class GeologicalLandformsSettings : LunarModSettings
     #if RW_1_6_OR_GREATER
 
     internal static readonly List<string> SpecialTileMutatorsHidden = [
-        "UndergroundCave"
+        "MixedBiome", // auto-disabled when BT present, auto-enabled otherwise
+        "UndergroundCave" // used by quests only
     ];
 
     internal void ApplyExclusions(bool notify, bool fromLandform)
@@ -388,24 +389,24 @@ public class GeologicalLandformsSettings : LunarModSettings
         {
             if (!CurrentlyDisabledLandforms.Contains(exclusion.Key))
             {
-                foreach (var mutator in exclusion.Value)
+                foreach (var mutatorName in exclusion.Value)
                 {
-                    if (!CurrentlyDisabledTileMutators.Contains(mutator))
+                    if (!CurrentlyDisabledTileMutators.Contains(mutatorName))
                     {
-                        var def = DefDatabase<TileMutatorDef>.GetNamedSilentFail(mutator);
+                        var mutator = DefDatabase<TileMutatorDef>.GetNamedSilentFail(mutatorName);
                         var landform = LandformManager.FindById(exclusion.Key);
 
-                        if (def != null && landform != null)
+                        if (mutator != null && landform != null)
                         {
                             if (fromLandform)
                             {
-                                CurrentlyDisabledTileMutators.Add(mutator);
+                                CurrentlyDisabledTileMutators.Add(mutatorName);
 
                                 if (notify)
                                 {
                                     var message = "GeologicalLandforms.Settings.Landforms.ExclusionToLandform".Translate(
                                         landform.TranslatedNameForSelection.CapitalizeFirst(),
-                                        def.LabelCap, def.modContentPack.ContentSourceLabel()
+                                        mutator.LabelCap, mutator.modContentPack.ContentSourceLabel()
                                     );
 
                                     Messages.Message(message, MessageTypeDefOf.CautionInput, false);
@@ -419,7 +420,7 @@ public class GeologicalLandformsSettings : LunarModSettings
                                 {
                                     var message = "GeologicalLandforms.Settings.Landforms.ExclusionToMutator".Translate(
                                         landform.TranslatedNameForSelection.CapitalizeFirst(),
-                                        def.LabelCap, def.modContentPack.ContentSourceLabel()
+                                        mutator.LabelCap, mutator.modContentPack.ContentSourceLabel()
                                     );
 
                                     Messages.Message(message, MessageTypeDefOf.CautionInput, false);
@@ -430,6 +431,21 @@ public class GeologicalLandformsSettings : LunarModSettings
                         }
                     }
                 }
+            }
+        }
+
+        foreach (var exclusion in TileMutatorsCustomization.ExclusionsAuto)
+        {
+            var mutator = DefDatabase<TileMutatorDef>.GetNamedSilentFail(exclusion.Value);
+            var landform = LandformManager.FindById(exclusion.Key);
+
+            if (mutator != null && landform != null && !CurrentlyDisabledLandforms.Contains(landform.Id))
+            {
+                CurrentlyDisabledTileMutators.AddDistinct("MixedBiome");
+            }
+            else
+            {
+                CurrentlyDisabledTileMutators.Remove("MixedBiome");
             }
         }
     }
