@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using LunarFramework.Utility;
 using RimWorld;
 using RimWorld.Planet;
 using Verse;
@@ -104,6 +105,17 @@ public static class TileMutatorsCustomization
                     if (landform.OutputCaves?.InputKnob.connected() == true)
                     {
                         mutators.Remove(TileMutatorDefOf.Caves);
+                    }
+                    else if (landform.WorldTileReq != null)
+                    {
+                        if (RandAsync.Chance(landform.WorldTileReq.CaveChance, tileInfo.StableSeed(8266)))
+                        {
+                            mutators.AddUnique(TileMutatorDefOf.Caves);
+                        }
+                        else
+                        {
+                            mutators.Remove(TileMutatorDefOf.Caves);
+                        }
                     }
                 }
 
