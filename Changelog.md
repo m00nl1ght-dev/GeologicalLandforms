@@ -1,4 +1,8 @@
 
+v1.7.7
+
+- Fixed caves generating incorrectly on some landforms
+
 v1.7.6
 
 - Fixed some Harmony patch conflict errors on startup
