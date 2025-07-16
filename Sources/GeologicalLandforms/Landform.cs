@@ -280,7 +280,7 @@ public class Landform : TerrainCanvas
             worker = new TileMutatorWorker_Landform(def) { Landform = this };
             def.mutatorWorker = worker;
             def.defName = $"GL_{Id}";
-            def.genOrder = 250 + (LayerConfig?.Priority ?? 0);
+            def.genOrder = -120 + (LayerConfig?.Priority ?? 0);
             def.displayPriority = IsInternal ? -999 : 1;
             def.ResolveDefNameHash();
         }
