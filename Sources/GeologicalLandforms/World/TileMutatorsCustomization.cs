@@ -90,7 +90,8 @@ public static class TileMutatorsCustomization
 
                 if (!landform.IsLayer)
                 {
-                    if (landform.OutputElevation?.InputKnob.connected() == true)
+                    if (landform.OutputElevation?.InputKnob.connected() == true ||
+                        tileInfo.Hilliness == Hilliness.Impassable)
                     {
                         mutators.Remove(TileMutatorDefOf.Mountain);
                     }
