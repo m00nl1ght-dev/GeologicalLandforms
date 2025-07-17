@@ -1,4 +1,8 @@
 
+v1.7.7.2
+
+- Technical changes in preparation for Prepare Landing 1.6 update
+
 v1.7.7.1
 
 - Fixed biome worker caching issue
