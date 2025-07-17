@@ -76,6 +76,7 @@
         <Publicize Include="Assembly-CSharp:Verse.CellInspectorDrawer.DrawRow" />
         <Publicize Include="Assembly-CSharp:Verse.MapGenerator.data" />
         <Publicize Include="Assembly-CSharp:Verse.WaterInfo.flowMapPixels" />
+        <Publicize Include="Assembly-CSharp:Verse.LongEventHandler.eventThread" />
         <Publicize Include="Assembly-CSharp:RimWorld.Planet.WorldSelector.selectedTile" />
         <Publicize Include="Assembly-CSharp:RimWorld.Planet.Tile.biome" />
         <Publicize Include="Assembly-CSharp:RimWorld.TileMutatorDef.mutatorWorker" />

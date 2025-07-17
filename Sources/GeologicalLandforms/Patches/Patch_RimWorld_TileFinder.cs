@@ -50,7 +50,7 @@ internal static class Patch_RimWorld_TileFinder
 
         // FastTileFinder has async rebuilding which would cause WorldTileInfo.Get to be called off the main thread
         // But FastTileFinder is only used for quests anyway
-        if (!UnityData.IsInMainThread) return false;
+        if (!CompatUtils.IsMainOrLongEventThread()) return false;
 
         #endif
 

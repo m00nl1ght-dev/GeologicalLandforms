@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using RimWorld.Planet;
 using Unity.Collections;
 using UnityEngine;
+using Verse;
 
 namespace GeologicalLandforms;
 
@@ -29,4 +31,15 @@ public static class CompatUtils
     public static List<int> ExtVertOffsets(this WorldGrid grid) => grid.tileIDToVerts_offsets;
 
     #endif
+
+    public static bool IsMainOrLongEventThread()
+    {
+        if (UnityData.IsInMainThread)
+            return true;
+
+        if (LongEventHandler.eventThread == null)
+            return false;
+
+        return Thread.CurrentThread.ManagedThreadId == LongEventHandler.eventThread.ManagedThreadId;
+    }
 }

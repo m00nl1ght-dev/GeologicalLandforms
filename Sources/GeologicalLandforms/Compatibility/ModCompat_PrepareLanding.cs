@@ -1,3 +1,11 @@
+using System.Linq;
+using HarmonyLib;
+using LunarFramework.Patching;
+using RimWorld;
+using RimWorld.Planet;
+using Verse;
+
+#if !RW_1_6_OR_GREATER
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -5,20 +13,58 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Xml.Linq;
 using GeologicalLandforms.GraphEditor;
-using HarmonyLib;
-using LunarFramework.Patching;
 using UnityEngine;
-using Verse;
+#endif
 
 namespace GeologicalLandforms.Compatibility;
 
 [HarmonyPatch]
 internal class ModCompat_PrepareLanding : ModCompat
 {
-    private static readonly Type Self = typeof(ModCompat_PrepareLanding);
-
     public override string TargetAssemblyName => "PrepareLanding";
     public override string DisplayName => "Prepare Landing";
+
+    #if RW_1_6_OR_GREATER
+
+    [HarmonyPostfix]
+    [HarmonyPatch("PrepareLanding.TabFeatures", "IsFeatureDisabled")]
+    private static void IsFeatureDisabled_Postfix(TileMutatorDef def, ref bool __result)
+    {
+        if (def.Worker is TileMutatorWorker_Landform { Landform: not null } worker)
+        {
+            if (!GeologicalLandformsAPI.LandformEnabled.Apply(worker.Landform))
+            {
+                __result = true;
+            }
+        }
+        else
+        {
+            if (TileMutatorsCustomization.IsTileMutatorDisabled(def))
+            {
+                __result = true;
+            }
+        }
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch("PrepareLanding.WorldTileFilter", "IsViableTile")]
+    private static void IsViableTile_Postfix(int tileId, ref bool __result)
+    {
+        if (__result)
+            return;
+
+        var tile = Find.World.grid[tileId];
+        if (tile.hilliness != Hilliness.Impassable)
+            return;
+
+        var tileInfo = WorldTileInfo.Get(tileId);
+        if (tileInfo.Landforms != null && tileInfo.Landforms.Any(lf => !lf.IsLayer))
+            __result = true;
+    }
+
+    #else
+
+    private static readonly Type Self = typeof(ModCompat_PrepareLanding);
 
     private const string XElementName = "GL_Landform";
 
@@ -170,4 +216,6 @@ internal class ModCompat_PrepareLanding : ModCompat
             parent.Add(new XElement(XElementName, _landformFilter.Id));
         }
     }
+
+    #endif
 }
