@@ -1,4 +1,8 @@
 
+v1.7.7.1
+
+- Fixed biome worker caching issue
+
 v1.7.7
 
 - Fixed caves generating incorrectly on some landforms
