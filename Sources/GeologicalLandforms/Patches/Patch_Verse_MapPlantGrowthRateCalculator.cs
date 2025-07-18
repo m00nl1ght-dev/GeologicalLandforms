@@ -32,7 +32,9 @@ internal static class Patch_Verse_MapPlantGrowthRateCalculator
     private static int TileForMap(Map map)
     #endif
     {
-        return map.Tile < 0 && map.Parent is PocketMapParent parent && parent.sourceMap.Tile >= 0 ? parent.sourceMap.Tile : map.Tile;
+        return map.Tile < 0 && map.Parent is PocketMapParent { sourceMap: not null } parent && parent.sourceMap.Tile >= 0
+            ? parent.sourceMap.Tile
+            : map.Tile;
     }
 }
 

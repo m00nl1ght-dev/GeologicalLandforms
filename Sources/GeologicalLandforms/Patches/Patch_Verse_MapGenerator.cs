@@ -4,7 +4,6 @@ using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using LunarFramework.Patching;
 using MapPreview;
-using RimWorld;
 using Verse;
 
 namespace GeologicalLandforms.Patches;
@@ -29,7 +28,11 @@ internal static class Patch_Verse_MapGenerator
             var indicator = data == null ? "X" : stored ? "L" : "F";
 
             GeologicalLandformsAPI.Logger.Log($"Map generator context: {Landform.GeneratingTile} ({indicator})");
-            data?.CommitDirectly(map.Tile, new LandformData.TileData(Landform.GeneratingTile));
+
+            if (data != null && map.Tile >= 0)
+            {
+                data.CommitDirectly(map.Tile, new LandformData.TileData(Landform.GeneratingTile));
+            }
         }
 
         var biomeGrid = map.BiomeGrid();
