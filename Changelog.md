@@ -1,4 +1,8 @@
 
+v1.7.8
+
+- Fixed compatibility issue with some pocket map mods
+
 v1.7.7.2
 
 - Technical changes in preparation for Prepare Landing 1.6 update
