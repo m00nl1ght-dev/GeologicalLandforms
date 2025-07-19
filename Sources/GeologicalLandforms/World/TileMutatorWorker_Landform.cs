@@ -207,7 +207,7 @@ public class TileMutatorWorker_Landform : TileMutatorWorker
                 if (vector3.magnitude > 9.999999747378752E-05)
                 {
                     vector3 = vector3.normalized / vector3.magnitude;
-                    int index = x * map.Size.x + z;
+                    int index = x * map.Size.z + z;
                     flowMap[index * 2] = vector3.x;
                     flowMap[index * 2 + 1] = vector3.z;
                 }
