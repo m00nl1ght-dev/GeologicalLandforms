@@ -41,7 +41,7 @@ public class NodeInputBiomeGrid : NodeInputBase
             var biomeGrid = MapGenerator.mapBeingGenerated.BiomeGrid();
             if (biomeGrid != null)
             {
-                Knob.SetValue(Supplier.Of(Landform.TransformIntoNodeSpace(new DiscreteBiomeGridWrapper(biomeGrid))));
+                Knob.SetValue(Supplier.From(() => Landform.TransformIntoNodeSpace(new DiscreteBiomeGridWrapper(biomeGrid))));
                 return true;
             }
         }

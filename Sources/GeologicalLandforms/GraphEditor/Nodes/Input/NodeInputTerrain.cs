@@ -37,7 +37,7 @@ public class NodeInputTerrain : NodeInputBase
 
         if (MapGenerator.mapBeingGenerated is { terrainGrid: not null } map)
         {
-            Knob.SetValue(Supplier.Of(Landform.TransformIntoNodeSpace(new DiscreteTerrainGridWrapper(map.terrainGrid, map.Size, null))));
+            Knob.SetValue(Supplier.Of(() => Landform.TransformIntoNodeSpace(new DiscreteTerrainGridWrapper(map.terrainGrid, map.Size, null))));
             return true;
         }
 

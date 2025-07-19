@@ -37,7 +37,7 @@ public class NodeInputFertility : NodeInputBase
 
         if (MapGenerator.mapBeingGenerated is {} map)
         {
-            Knob.SetValue(Supplier.Of(Landform.TransformIntoNodeSpace(new DiscreteFloatGridWrapper(MapGenerator.Fertility, map.Size, 0d))));
+            Knob.SetValue(Supplier.From(() => Landform.TransformIntoNodeSpace(new DiscreteFloatGridWrapper(MapGenerator.Fertility, map.Size, 0d))));
             return true;
         }
 
