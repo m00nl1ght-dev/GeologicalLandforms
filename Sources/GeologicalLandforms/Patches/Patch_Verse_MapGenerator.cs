@@ -4,6 +4,7 @@ using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using LunarFramework.Patching;
 using MapPreview;
+using RimWorld;
 using Verse;
 
 #if DEBUG

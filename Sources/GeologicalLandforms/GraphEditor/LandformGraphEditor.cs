@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using LunarFramework.GUI;
 using MapPreview;
 using NodeEditorFramework;
 using NodeEditorFramework.Utilities;
@@ -39,9 +40,69 @@ public class LandformGraphEditor : Window
             TooltipHandler.TipRegion(rect, new TipSignal(textFunc, textFunc.GetHashCode()) { delay = tdelay });
         };
 
+        NodeBase.ActiveKnobConfigHandler = (node, knob) =>
+        {
+            LunarGUI.OpenGenericWindow(GeologicalLandformsAPI.LunarAPI, new(400, 300), (w, r) => KnobConfigWindow(w, r, node, knob));
+        };
+
         NodeGridPreview.RegisterPreviewModel(new NodeOutputElevation.ElevationPreviewModel(), "Elevation");
 
         NodePathTrace.OnError = exc => GeologicalLandformsAPI.Logger.Error("Error during flow path generation", exc);
+    }
+
+    private static string _editBufferMinValue;
+    private static string _editBufferMaxValue;
+
+    private static void KnobConfigWindow(Window window, LayoutRect layout, NodeBase node, ValueConnectionKnob knob)
+    {
+        var config = node.ConfigurableOverrides.Find(c => c.KnobName == knob.name);
+        var hasConfig = config != null;
+
+        LunarGUI.Checkbox(layout, ref hasConfig, "Expose as configurable override");
+
+        if (hasConfig && config == null)
+        {
+            config = new ConfigurableOverride { KnobName = knob.name };
+            node.ConfigurableOverrides.Add(config);
+        }
+        else if (!hasConfig && config != null)
+        {
+            node.ConfigurableOverrides.Remove(config);
+        }
+
+        if (hasConfig)
+        {
+            layout.Abs(10f);
+
+            layout.BeginAbs(28f);
+            LunarGUI.Label(layout.Rel(0.35f), "Property ID");
+            LunarGUI.TextField(layout, ref config.PropertyId);
+            layout.End();
+
+            layout.BeginAbs(28f);
+            LunarGUI.Label(layout.Rel(0.35f), "Property Label");
+            LunarGUI.TextField(layout, ref config.PropertyLabel);
+            layout.End();
+
+            if (knob.valueType == typeof(ISupplier<double>))
+            {
+                var min = (float) config.MinValue;
+                var max = (float) config.MaxValue;
+
+                layout.BeginAbs(28f);
+                LunarGUI.Label(layout.Rel(0.35f), "Min value");
+                Widgets.TextFieldNumeric(layout.Abs(-1), ref min, ref _editBufferMinValue, float.MinValue, float.MaxValue);
+                layout.End();
+
+                layout.BeginAbs(28f);
+                LunarGUI.Label(layout.Rel(0.35f), "Max value");
+                Widgets.TextFieldNumeric(layout.Abs(-1), ref max, ref _editBufferMaxValue, float.MinValue, float.MaxValue);
+                layout.End();
+
+                config.MinValue = min;
+                config.MaxValue = max;
+            }
+        }
     }
 
     private void Init()
