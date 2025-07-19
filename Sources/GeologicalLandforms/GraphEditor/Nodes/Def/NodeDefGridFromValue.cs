@@ -58,7 +58,7 @@ public abstract class NodeDefGridFromValue<T> : NodeBase where T : Def
 
     public override bool Calculate()
     {
-        OutputKnobRef.SetValue<ISupplier<IGridFunction<T>>>(new NodeGridFromValue.Output<T>(
+        SetOutput(OutputKnobRef, new NodeGridFromValue.Output<T>(
             SupplierOrFallback(InputKnobRef, ConnectionType.FromString(Value))
         ));
         return true;

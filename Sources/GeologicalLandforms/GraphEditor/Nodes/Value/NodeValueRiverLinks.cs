@@ -115,17 +115,17 @@ public class NodeValueRiverLinks : NodeBase
     {
         var riverData = Landform.GeneratingTile.Rivers;
 
-        InflowAngleOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) riverData.RiverInflowAngle));
-        InflowOffsetOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) riverData.RiverInflowOffset));
-        InflowWidthOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) riverData.RiverInflowWidth));
-        TributaryAngleOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) riverData.RiverTributaryAngle));
-        TributaryOffsetOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) riverData.RiverTributaryOffset));
-        TributaryWidthOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) riverData.RiverTributaryWidth));
-        TertiaryAngleOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) riverData.RiverTertiaryAngle));
-        TertiaryOffsetOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) riverData.RiverTertiaryOffset));
-        TertiaryWidthOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) riverData.RiverTertiaryWidth));
-        OutflowAngleOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) riverData.RiverOutflowAngle));
-        OutflowWidthOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) riverData.RiverOutflowWidth));
+        SetOutputValue(InflowAngleOutputKnob, (double) riverData.RiverInflowAngle);
+        SetOutputValue(InflowOffsetOutputKnob, (double) riverData.RiverInflowOffset);
+        SetOutputValue(InflowWidthOutputKnob, (double) riverData.RiverInflowWidth);
+        SetOutputValue(TributaryAngleOutputKnob, (double) riverData.RiverTributaryAngle);
+        SetOutputValue(TributaryOffsetOutputKnob, (double) riverData.RiverTributaryOffset);
+        SetOutputValue(TributaryWidthOutputKnob, (double) riverData.RiverTributaryWidth);
+        SetOutputValue(TertiaryAngleOutputKnob, (double) riverData.RiverTertiaryAngle);
+        SetOutputValue(TertiaryOffsetOutputKnob, (double) riverData.RiverTertiaryOffset);
+        SetOutputValue(TertiaryWidthOutputKnob, (double) riverData.RiverTertiaryWidth);
+        SetOutputValue(OutflowAngleOutputKnob, (double) riverData.RiverOutflowAngle);
+        SetOutputValue(OutflowWidthOutputKnob, (double) riverData.RiverOutflowWidth);
 
         return true;
     }

@@ -84,11 +84,11 @@ public class NodeValueRiversAndRoads : NodeBase
             angle = roadData.RoadPrimaryAngle;
         }
 
-        AngleOutputKnob.SetValue<ISupplier<double>>(Supplier.Of(angle));
-        OffsetOutputKnob.SetValue<ISupplier<double>>(Supplier.Of(offset));
+        SetOutputValue(AngleOutputKnob, angle);
+        SetOutputValue(OffsetOutputKnob, offset);
 
-        RiverWidthOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) Landform.GeneratingTile.MainRiver.WidthOnWorld()));
-        RoadWidthOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) Landform.GeneratingTile.MainRoad.WidthOnWorld()));
+        SetOutputValue(RiverWidthOutputKnob, (double) Landform.GeneratingTile.MainRiver.WidthOnWorld());
+        SetOutputValue(RoadWidthOutputKnob, (double) Landform.GeneratingTile.MainRoad.WidthOnWorld());
 
         return true;
     }

@@ -43,7 +43,7 @@ public abstract class NodeDefGridSelectGrid<T> : NodeSelectBase<string, double> 
             options.Add(SupplierOrFallback(OptionKnobs[i], GridFunction.Of(Values[i])));
         }
 
-        OutputKnobRef.SetValue<ISupplier<IGridFunction<double>>>(new RevOutput(input, options, keys));
+        SetOutput(OutputKnobRef, new RevOutput(input, options, keys));
         return true;
     }
 

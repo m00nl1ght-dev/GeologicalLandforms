@@ -27,7 +27,7 @@ public class NodeValueMapSize : NodeBase
 
     public override bool Calculate()
     {
-        OutputKnob.SetValue<ISupplier<double>>(Supplier.Of<double>(Landform.GeneratingMapSizeMin));
+        SetOutputValue(OutputKnob, (double) Landform.GeneratingMapSizeMin);
         return true;
     }
 }

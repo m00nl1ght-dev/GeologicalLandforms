@@ -37,7 +37,7 @@ public class NodeInputCaves : NodeInputBase
 
         if (MapGenerator.mapBeingGenerated is {} map)
         {
-            Knob.SetValue(Supplier.From(() => Landform.TransformIntoNodeSpace(new DiscreteFloatGridWrapper(MapGenerator.Caves, map.Size, 0d))));
+            SetOutput(Knob, Supplier.From(() => Landform.TransformIntoNodeSpace(new DiscreteFloatGridWrapper(MapGenerator.Caves, map.Size, 0d))));
             return true;
         }
 
@@ -46,17 +46,17 @@ public class NodeInputCaves : NodeInputBase
         var supplier = GetFromBelowStack(Landform, l => l.OutputCaves?.InputKnob.GetValue<ISupplier<IGridFunction<double>>>());
         if (supplier != null)
         {
-            Knob.SetValue(supplier);
+            SetOutput(Knob, supplier);
             return true;
         }
 
         if (!Landform.GeneratingTile.HasCaves)
         {
-            Knob.SetValue(Supplier.Of(GridFunction.Zero));
+            SetOutput(Knob, Supplier.Of(GridFunction.Zero));
             return true;
         }
 
-        Knob.SetValue(BuildVanillaCaveGridSupplier());
+        SetOutput(Knob, BuildVanillaCaveGridSupplier());
         return true;
     }
 }

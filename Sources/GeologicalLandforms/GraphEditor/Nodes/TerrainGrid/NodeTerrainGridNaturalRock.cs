@@ -35,7 +35,7 @@ public class NodeTerrainGridNaturalRock : NodeBase
 
     public override bool Calculate()
     {
-        OutputKnob.SetValue<ISupplier<IGridFunction<TerrainDef>>>(Supplier.Of<IGridFunction<TerrainDef>>(new RockGridFunction()));
+        SetOutput(OutputKnob, Supplier.Of<IGridFunction<TerrainDef>>(new RockGridFunction()));
         return true;
     }
 

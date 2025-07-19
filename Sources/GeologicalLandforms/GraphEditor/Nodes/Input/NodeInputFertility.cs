@@ -37,7 +37,7 @@ public class NodeInputFertility : NodeInputBase
 
         if (MapGenerator.mapBeingGenerated is {} map)
         {
-            Knob.SetValue(Supplier.From(() => Landform.TransformIntoNodeSpace(new DiscreteFloatGridWrapper(MapGenerator.Fertility, map.Size, 0d))));
+            SetOutput(Knob, Supplier.From(() => Landform.TransformIntoNodeSpace(new DiscreteFloatGridWrapper(MapGenerator.Fertility, map.Size, 0d))));
             return true;
         }
 
@@ -45,7 +45,7 @@ public class NodeInputFertility : NodeInputBase
 
         var supplier = GetFromBelowStack(Landform, l => l.OutputFertility?.InputKnob.GetValue<ISupplier<IGridFunction<double>>>());
         supplier ??= BuildVanillaFertilityGridSupplier();
-        Knob.SetValue(supplier);
+        SetOutput(Knob, supplier);
         return true;
     }
 }

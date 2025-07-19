@@ -41,7 +41,7 @@ public class NodeInputBiomeGrid : NodeInputBase
             var biomeGrid = MapGenerator.mapBeingGenerated.BiomeGrid();
             if (biomeGrid != null)
             {
-                Knob.SetValue(Supplier.From(() => Landform.TransformIntoNodeSpace(new DiscreteBiomeGridWrapper(biomeGrid))));
+                SetOutput(Knob, Supplier.From(() => Landform.TransformIntoNodeSpace(new DiscreteBiomeGridWrapper(biomeGrid))));
                 return true;
             }
         }
@@ -50,7 +50,7 @@ public class NodeInputBiomeGrid : NodeInputBase
 
         var supplier = GetFromBelowStack(Landform, l => l.OutputBiomeGrid?.BiomeGridKnob.GetValue<ISupplier<IGridFunction<BiomeDef>>>());
         supplier ??= Supplier.Of(GridFunction.Of(Landform.GeneratingTile.Biome));
-        Knob.SetValue(supplier);
+        SetOutput(Knob, supplier);
         return true;
     }
 }

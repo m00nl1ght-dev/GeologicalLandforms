@@ -135,7 +135,7 @@ public class NodeGridPerlin : NodeBase
 
     public override bool Calculate()
     {
-        OutputKnob.SetValue<ISupplier<IGridFunction<double>>>(new Output(
+        SetOutput(OutputKnob, new Output(
             SupplierOrFallback(FrequencyKnob, Frequency),
             SupplierOrFallback(LacunarityKnob, Lacunarity),
             SupplierOrFallback(PersistenceKnob, Persistence),

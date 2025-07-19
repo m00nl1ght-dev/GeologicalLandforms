@@ -98,12 +98,12 @@ public class NodeTerrainNaturalWater : NodeBase
 
         OnCalculate?.Invoke(data);
 
-        BeachOutputKnob.SetValue<ISupplier<TerrainDef>>(Supplier.Of(data.Beach));
-        ShallowOutputKnob.SetValue<ISupplier<TerrainDef>>(Supplier.Of(data.Shallow));
-        DeepOutputKnob.SetValue<ISupplier<TerrainDef>>(Supplier.Of(data.Deep));
-        RiverbankOutputKnob.SetValue<ISupplier<TerrainDef>>(Supplier.Of(data.Riverbank));
-        RiverShallowOutputKnob.SetValue<ISupplier<TerrainDef>>(Supplier.Of(data.RiverShallow));
-        RiverDeepOutputKnob.SetValue<ISupplier<TerrainDef>>(Supplier.Of(data.RiverDeep));
+        SetOutputValue(BeachOutputKnob, data.Beach);
+        SetOutputValue(ShallowOutputKnob, data.Shallow);
+        SetOutputValue(DeepOutputKnob, data.Deep);
+        SetOutputValue(RiverbankOutputKnob, data.Riverbank);
+        SetOutputValue(RiverShallowOutputKnob, data.RiverShallow);
+        SetOutputValue(RiverDeepOutputKnob, data.RiverDeep);
         return true;
     }
 

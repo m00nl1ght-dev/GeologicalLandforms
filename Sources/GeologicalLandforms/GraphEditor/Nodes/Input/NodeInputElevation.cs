@@ -37,7 +37,7 @@ public class NodeInputElevation : NodeInputBase
 
         if (MapGenerator.mapBeingGenerated is {} map)
         {
-            Knob.SetValue(Supplier.From(() => Landform.TransformIntoNodeSpace(new DiscreteFloatGridWrapper(MapGenerator.Elevation, map.Size, 1d))));
+            SetOutput(Knob, Supplier.From(() => Landform.TransformIntoNodeSpace(new DiscreteFloatGridWrapper(MapGenerator.Elevation, map.Size, 1d))));
             return true;
         }
 
@@ -45,7 +45,7 @@ public class NodeInputElevation : NodeInputBase
 
         var supplier = GetFromBelowStack(Landform, l => l.OutputElevation?.InputKnob.GetValue<ISupplier<IGridFunction<double>>>());
         supplier ??= BuildVanillaElevationGridSupplier();
-        Knob.SetValue(supplier);
+        SetOutput(Knob, supplier);
         return true;
     }
 }

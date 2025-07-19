@@ -77,7 +77,7 @@ public class NodeTerrainFromBiome : NodeBase
     {
         var biome = BiomeFunctionConnection.Instance.FromString(Biome) ?? Landform.GeneratingTile.Biome;
 
-        OutputKnob.SetValue<ISupplier<TerrainDef>>(new Output(
+        SetOutput(OutputKnob, new Output(
             SupplierOrFallback(FertilityKnob, Fertility),
             SupplierOrFallback(BiomeKnob, biome)
         ));

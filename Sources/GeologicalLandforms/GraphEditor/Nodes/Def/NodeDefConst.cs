@@ -42,7 +42,7 @@ public abstract class NodeDefConst<T> : NodeBase where T : Def
 
     public override bool Calculate()
     {
-        OutputKnobRef.SetValue<ISupplier<T>>(Supplier.Of(ConnectionType.FromString(Value)));
+        SetOutput(OutputKnobRef, Supplier.Of(ConnectionType.FromString(Value)));
         return true;
     }
 }

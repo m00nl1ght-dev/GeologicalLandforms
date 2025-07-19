@@ -117,15 +117,15 @@ public class NodeGridTunnels : NodeBase
             MinEdgeCells
         );
 
-        OutputKnob.SetValue<ISupplier<IGridFunction<double>>>(
+        SetOutput(OutputKnob,
             new Supplier.CompoundCached<Result,IGridFunction<double>>(output, t => output.GridToFunc(t.CavesGrid), cache)
         );
 
-        DepthsKnob.SetValue<ISupplier<IGridFunction<double>>>(
+        SetOutput(DepthsKnob,
             new Supplier.CompoundCached<Result,IGridFunction<double>>(output, t => output.GridToFunc(t.DepthGrid), cache)
         );
 
-        OffsetsKnob.SetValue<ISupplier<IGridFunction<double>>>(
+        SetOutput(OffsetsKnob,
             new Supplier.CompoundCached<Result,IGridFunction<double>>(output, t => output.GridToFunc(t.OffsetGrid), cache)
         );
 

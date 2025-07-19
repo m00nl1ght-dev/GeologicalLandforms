@@ -45,7 +45,7 @@ public class NodeInputTerrain : NodeInputBase
 
         var supplier = GetFromBelowStack(Landform, l => l.OutputTerrain?.BaseKnob.GetValue<ISupplier<IGridFunction<TerrainDef>>>());
         supplier ??= Supplier.Of(GridFunction.Of<TerrainDef>(null));
-        Knob.SetValue(supplier);
+        SetOutput(Knob, supplier);
         return true;
     }
 }

@@ -92,14 +92,14 @@ public class NodeValueWorldTile : NodeBase
 
     public override bool Calculate()
     {
-        ElevationOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) Landform.GeneratingTile.Elevation));
-        HillinessOutputKnob.SetValue<ISupplier<double>>(Supplier.Of(GetHillinessFactor(Landform.GeneratingTile.Hilliness)));
-        TemperatureOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) Landform.GeneratingTile.Temperature));
-        RainfallOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) Landform.GeneratingTile.Rainfall));
-        BiomeOutputKnob.SetValue<ISupplier<BiomeDef>>(Supplier.Of(Landform.GeneratingTile.Biome));
-        TopologyValueOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) Landform.GeneratingTile.TopologyValue));
-        TopologyAngleOutputKnob.SetValue<ISupplier<double>>(Supplier.Of(GetTopologyAngle(Landform.GeneratingTile)));
-        CaveSystemDepthValueOutputKnob.SetValue<ISupplier<double>>(Supplier.Of((double) Landform.GeneratingTile.DepthInCaveSystem));
+        SetOutputValue(ElevationOutputKnob, (double) Landform.GeneratingTile.Elevation);
+        SetOutputValue(HillinessOutputKnob, GetHillinessFactor(Landform.GeneratingTile.Hilliness));
+        SetOutputValue(TemperatureOutputKnob, (double) Landform.GeneratingTile.Temperature);
+        SetOutputValue(RainfallOutputKnob, (double) Landform.GeneratingTile.Rainfall);
+        SetOutputValue(BiomeOutputKnob, Landform.GeneratingTile.Biome);
+        SetOutputValue(TopologyValueOutputKnob, (double) Landform.GeneratingTile.TopologyValue);
+        SetOutputValue(TopologyAngleOutputKnob, GetTopologyAngle(Landform.GeneratingTile));
+        SetOutputValue(CaveSystemDepthValueOutputKnob, (double) Landform.GeneratingTile.DepthInCaveSystem);
         return true;
     }
 

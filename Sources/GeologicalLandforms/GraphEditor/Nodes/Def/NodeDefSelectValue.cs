@@ -46,7 +46,7 @@ public abstract class NodeDefSelectValue<T> : NodeSelectBase<string, double> whe
             options.Add(SupplierOrFallback(OptionKnobs[i], Values[i]));
         }
 
-        OutputKnobRef.SetValue<ISupplier<double>>(new RevOutput(input, options, keys));
+        SetOutput(OutputKnobRef, new RevOutput(input, options, keys));
         return true;
     }
 

@@ -94,7 +94,7 @@ public class NodeTerrainGridNaturalPriority : NodeBase
 
     public override bool Calculate()
     {
-        OutputKnob.SetValue<ISupplier<IGridFunction<TerrainDef>>>(new Output(
+        SetOutput(OutputKnob, new Output(
             SupplierOrFallback(InputAKnob, GridFunction.Of<TerrainDef>(null)),
             SupplierOrFallback(InputBKnob, GridFunction.Of<TerrainDef>(null)),
             Options
