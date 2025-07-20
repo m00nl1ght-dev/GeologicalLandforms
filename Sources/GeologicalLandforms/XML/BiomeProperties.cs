@@ -206,6 +206,12 @@ public class BiomeProperties : DefModExtension
                 beachTerrain = TerrainDefOf.Ice
                 #endif
             }
+        },
+        {
+            "Glowforest", new BiomeProperties
+            {
+                allowBiomeTransitions = false
+            }
         }
     };
 

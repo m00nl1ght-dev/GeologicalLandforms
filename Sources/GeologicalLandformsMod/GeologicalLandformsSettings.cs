@@ -213,7 +213,11 @@ public class GeologicalLandformsSettings : LunarModSettings
             var preconfigured = !properties.allowLandforms || !properties.allowBiomeTransitions;
             var label = UserInterfaceUtils.LabelForBiome(biome, preconfigured);
 
+            #if RW_1_6_OR_GREATER
+            if (preconfigured && (biome.Properties().isWaterCovered || !biome.generatesNaturally)) continue;
+            #else
             if (preconfigured && biome.modContentPack is { IsOfficialMod: true }) continue;
+            #endif
 
             var listForLandforms = properties.allowLandforms ? BiomesExcludedFromLandforms.Value : null;
             var listForTransitions = properties.allowBiomeTransitions ? BiomesExcludedFromTransitions.Value : null;
