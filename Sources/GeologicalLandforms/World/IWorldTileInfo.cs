@@ -15,6 +15,8 @@ public interface IWorldTileInfo
     public IReadOnlyList<BorderingBiome> BorderingBiomes { get; }
     public IReadOnlyList<BiomeVariantDef> BiomeVariants { get; }
 
+    public LandformGenOverrides LandformGenOverrides { get; }
+
     public Topology Topology { get; }
     public float TopologyValue { get; }
     public Rot4 TopologyDirection { get; }

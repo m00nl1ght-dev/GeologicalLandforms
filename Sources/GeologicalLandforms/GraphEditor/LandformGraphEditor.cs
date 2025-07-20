@@ -62,7 +62,7 @@ public class LandformGraphEditor : Window
 
         if (hasConfig && config == null)
         {
-            config = new ConfigurableOverride { KnobName = knob.name };
+            config = new ConfigurableOverride { KnobName = knob.name, KnobType = knob.styleID };
             node.ConfigurableOverrides.Add(config);
         }
         else if (!hasConfig && config != null)
@@ -146,6 +146,7 @@ public class LandformGraphEditor : Window
 
     private void CleanUp()
     {
+        Landform.RefreshDerivedData();
         Landform.CleanUpGUI();
         Landform.CleanUp();
 
@@ -158,11 +159,9 @@ public class LandformGraphEditor : Window
 
     public void OpenLandform(Landform landform, NodeEditorState editorState = null)
     {
-        if (HasLoadedLandform)
-        {
-            Landform.CleanUpGUI();
-            Landform.CleanUp();
-        }
+        Landform.RefreshDerivedData();
+        Landform.CleanUpGUI();
+        Landform.CleanUp();
 
         if (landform != null)
         {
@@ -265,8 +264,9 @@ public class LandformGraphEditor : Window
     {
         if (HasLoadedLandform)
         {
-            LandformManager.Delete(Landform);
-            _canvasCache.NewNodeCanvas(typeof(Landform));
+            var landform = Landform;
+            OpenLandform(null);
+            LandformManager.Delete(landform);
         }
     }
 

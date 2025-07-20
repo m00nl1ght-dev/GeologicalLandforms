@@ -254,9 +254,7 @@ public static class LandformManager
                         landform.Manifest.IsInternal = true;
                     }
 
-                    #if RW_1_6_OR_GREATER
-                    landform.InitTileMutatorDef();
-                    #endif
+                    landform.RefreshDerivedData();
 
                     if (landforms.TryGetValue(landform.Id, out var existing))
                     {

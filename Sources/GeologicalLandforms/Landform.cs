@@ -74,6 +74,8 @@ public class Landform : TerrainCanvas
     public List<NodeApplyLayer> ApplyLayers { get; } = [];
     public List<NodeRunGenStep> CustomGenSteps { get; } = [];
 
+    public List<ConfigurableOverride> ConfigurableOverrides { get; private set; } = [];
+
     public override int GridFullSize => GeneratingGridFullSize;
     public override int GridPreviewSize => GeneratingGridPreviewSize;
     public override int GridPathSize => GeneratingMapSizeMin;
@@ -111,11 +113,15 @@ public class Landform : TerrainCanvas
         var landformStack = new List<Landform>();
         GeneratingLandforms = landformStack;
 
+        var overrides = tileInfo.LandformGenOverrides;
+
         foreach (var landform in landforms)
         {
             if (landform.WorldTileReq == null || landform.WorldTileReq.CheckWorldObject(tileInfo))
             {
                 landform.RandSeed = seed;
+                landform.ResetConfigurableOverrides();
+                overrides?.WriteTo(landform);
                 landform.ClearNamedInputs();
                 landform.SetNamedInputs(landformStack);
                 landform.TraverseAll();
@@ -218,6 +224,23 @@ public class Landform : TerrainCanvas
         return new MinimalRandom();
     }
 
+    public void RefreshDerivedData()
+    {
+        ConfigurableOverrides = nodes.OfType<NodeBase>().SelectMany(n => n.ConfigurableOverrides).ToList();
+
+        #if RW_1_6_OR_GREATER
+        InitTileMutatorDef();
+        #endif
+    }
+
+    public void ResetConfigurableOverrides()
+    {
+        foreach (var config in ConfigurableOverrides)
+        {
+            config.Reset();
+        }
+    }
+
     public string TranslatedName =>
         DisplayName?.Length > 0 ? DisplayName :
         Id == null ? "Unknown" :
@@ -268,6 +291,12 @@ public class Landform : TerrainCanvas
 
     internal void InitTileMutatorDef()
     {
+        if (Id.NullOrEmpty())
+        {
+            TileMutatorDef = null;
+            return;
+        }
+
         var def = DefDatabase<TileMutatorDef>.GetNamedSilentFail($"GL_{Id}");
 
         if (def is { Worker: TileMutatorWorker_Landform worker })

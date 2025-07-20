@@ -31,6 +31,8 @@ public class WorldTileInfo : IWorldTileInfo
     public IReadOnlyList<BorderingBiome> BorderingBiomes { get; protected set; }
     public IReadOnlyList<BiomeVariantDef> BiomeVariants { get; protected set; }
 
+    public LandformGenOverrides LandformGenOverrides { get; protected set; }
+
     public Topology Topology { get; protected set; }
     public float TopologyValue { get; protected set; }
     public Rot4 TopologyDirection { get; protected set; }

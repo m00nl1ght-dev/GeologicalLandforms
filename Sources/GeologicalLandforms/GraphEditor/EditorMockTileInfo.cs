@@ -22,6 +22,8 @@ public class EditorMockTileInfo : IWorldTileInfo
     public IReadOnlyList<BiomeVariantDef> BiomeVariants => BiomeVariantsList;
     public List<BiomeVariantDef> BiomeVariantsList { get; set; }
 
+    public LandformGenOverrides LandformGenOverrides { get; set; }
+
     public Topology Topology => Topology.Any;
     public float TopologyValue { get; set; }
     public Rot4 TopologyDirection { get; set; } = Rot4.North;
