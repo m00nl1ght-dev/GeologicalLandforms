@@ -6,6 +6,10 @@ using LunarFramework.Patching;
 using MapPreview;
 using Verse;
 
+#if DEBUG
+using RimWorld;
+#endif
+
 namespace GeologicalLandforms.Patches;
 
 [PatchGroup("Main")]
