@@ -86,32 +86,35 @@ public class TileMutatorWorker_Landform : TileMutatorWorker
             ApplyBuffered(map.Size, c => elevation[c] > 0.7f ? (float) cavesModule.ValueAt(c.x, c.z) : 0f, (c, v) => caves[c] = v);
         }
 
-        var tile = Landform.GeneratingTile;
-        var mapSize = Landform.GeneratingMapSize;
-
-        var biomeFunction = Landform.TransformIntoMapSpace(Landform.OutputBiomeGrid?.GetBiomeGrid());
-
-        var biomeGrid = map.BiomeGrid();
-        var hasBiomeTransition = false;
-
-        if (tile.HasBorderingBiomes())
+        if (map.Biome.Properties().AllowBiomeTransitions)
         {
-            var transition = Landform.OutputBiomeGrid?.ApplyBiomeTransitions(tile, mapSize, biomeFunction);
-            if (transition != null)
+            var tile = Landform.GeneratingTile;
+            var mapSize = Landform.GeneratingMapSize;
+
+            var biomeFunction = Landform.TransformIntoMapSpace(Landform.OutputBiomeGrid?.GetBiomeGrid());
+
+            var biomeGrid = map.BiomeGrid();
+            var hasBiomeTransition = false;
+
+            if (tile.HasBorderingBiomes())
             {
-                biomeFunction = transition;
-                hasBiomeTransition = true;
+                var transition = Landform.OutputBiomeGrid?.ApplyBiomeTransitions(tile, mapSize, biomeFunction);
+                if (transition != null)
+                {
+                    biomeFunction = transition;
+                    hasBiomeTransition = true;
+                }
             }
-        }
 
-        if (biomeGrid != null && biomeFunction != null)
-        {
-            biomeGrid.Enabled = true;
-            biomeGrid.SetBiomes(new GridFunction.Cache<BiomeDef>(map.Size.x, map.Size.z, biomeFunction));
-
-            if (hasBiomeTransition)
+            if (biomeGrid != null && biomeFunction != null)
             {
-                BiomeTransition.PostProcessBiomeGrid(map);
+                biomeGrid.Enabled = true;
+                biomeGrid.SetBiomes(new GridFunction.Cache<BiomeDef>(map.Size.x, map.Size.z, biomeFunction));
+
+                if (hasBiomeTransition)
+                {
+                    BiomeTransition.PostProcessBiomeGrid(map);
+                }
             }
         }
     }
