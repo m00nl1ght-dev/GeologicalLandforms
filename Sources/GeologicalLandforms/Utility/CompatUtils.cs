@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using RimWorld.Planet;
@@ -41,5 +42,15 @@ public static class CompatUtils
             return false;
 
         return Thread.CurrentThread.ManagedThreadId == LongEventHandler.eventThread.ManagedThreadId;
+    }
+
+    public static void CloseAllMapPreviewWindows()
+    {
+        var windows = Find.WindowStack.Windows
+            .Where(w => w.GetType().Assembly.GetName().Name == "MapPreviewMod")
+            .ToList();
+
+        foreach (var window in windows)
+            window.Close();
     }
 }

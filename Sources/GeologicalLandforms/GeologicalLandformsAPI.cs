@@ -99,4 +99,5 @@ public static class GeologicalLandformsAPI
     public static readonly ExtensionPoint<World, WorldTileInfoPrimer> WorldTileInfoHook = new();
 
     public static readonly ExtensionPoint<Listing_Standard, object> TerrainTabUI = new();
+    public static readonly ExtensionPoint<WITab_Terrain, object> TerrainTabPreUI = new();
 }

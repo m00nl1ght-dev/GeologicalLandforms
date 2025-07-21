@@ -96,4 +96,6 @@
   <GeologicalLandforms.WorldMap.SetLandform>Set landform override (god mode)</GeologicalLandforms.WorldMap.SetLandform>
   <GeologicalLandforms.WorldMap.SetLandformAuto>Auto</GeologicalLandforms.WorldMap.SetLandformAuto>
 
+  <GeologicalLandforms.WorldMap.EditTile>Edit world tile.</GeologicalLandforms.WorldMap.EditTile>
+
 </LanguageData>

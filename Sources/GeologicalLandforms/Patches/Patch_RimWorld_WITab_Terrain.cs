@@ -26,10 +26,12 @@ internal static class Patch_RimWorld_WITab_Terrain
     [HarmonyPrefix]
     [HarmonyPatch("FillTab")]
     [HarmonyPriority(Priority.Low)]
-    private static void FillTab_Prefix()
+    private static void FillTab_Prefix(WITab_Terrain __instance)
     {
         _tileId = Find.WorldSelector.selectedTile;
         _tile = _tileId >= 0 ? WorldTileInfo.Get(_tileId) : null;
+
+        GeologicalLandformsAPI.TerrainTabPreUI.Apply(__instance);
     }
 
     #if RW_1_6_OR_GREATER

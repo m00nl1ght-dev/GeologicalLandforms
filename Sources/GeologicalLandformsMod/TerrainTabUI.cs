@@ -2,9 +2,13 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using GeologicalLandforms.GraphEditor;
+using GeologicalLandforms.TileEditor;
+using MapPreview;
 using RimWorld;
 using RimWorld.Planet;
+using UnityEngine;
 using Verse;
+using Verse.Sound;
 
 namespace GeologicalLandforms;
 
@@ -222,6 +226,27 @@ internal static class TerrainTabUI
     }
 
     #if RW_1_6_OR_GREATER
+
+    public static void DoTerrainTabPreUI(WITab_Terrain tab)
+    {
+        var tile = Find.WorldSelector.SelectedTile;
+
+        if (tile.Valid && tile.Layer.IsRootSurface && MapPreviewAPI.IsReadyForPreviewGen)
+        {
+            var btnRect = new Rect(tab.size.x - 50f, 1f, 24f, 24f);
+
+            MouseoverSounds.DoRegion(btnRect);
+            TooltipHandler.TipRegionByKey(btnRect, "GeologicalLandforms.WorldMap.EditTile");
+
+            if (Widgets.ButtonImage(btnRect, TileEditorWindow.IconEditTile, GUI.color))
+            {
+                GeologicalLandformsMod.LunarAPI.LifecycleHooks.DoOnce(() =>
+                {
+                    Find.WindowStack.Add(new TileEditorWindow(tile));
+                });
+            }
+        }
+    }
 
     private static void FindTileMutator(TileMutatorDef tileMutator)
     {

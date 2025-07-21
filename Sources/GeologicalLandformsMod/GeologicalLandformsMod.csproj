@@ -42,6 +42,9 @@
         <Reference Include="UnityEngine.CoreModule" Private="false">
             <HintPath>$(RimWorldPath)\RimWorldWin64_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
         </Reference>
+        <Reference Include="UnityEngine.IMGUIModule" Private="false">
+            <HintPath>$(RimWorldPath)\RimWorldWin64_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
+        </Reference>
         <Reference Include="UnityEngine.TextRenderingModule" Private="false">
             <HintPath>$(RimWorldPath)\RimWorldWin64_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
         </Reference>
@@ -77,6 +80,7 @@
         <Publicize Include="Assembly-CSharp:Verse.MapGenerator.data" />
         <Publicize Include="Assembly-CSharp:Verse.WaterInfo.flowMapPixels" />
         <Publicize Include="Assembly-CSharp:Verse.LongEventHandler.eventThread" />
+        <Publicize Include="Assembly-CSharp:Verse.InspectTabBase.size" />
         <Publicize Include="Assembly-CSharp:RimWorld.Planet.WorldSelector.selectedTile" />
         <Publicize Include="Assembly-CSharp:RimWorld.Planet.Tile.biome" />
         <Publicize Include="Assembly-CSharp:RimWorld.TileMutatorDef.mutatorWorker" />

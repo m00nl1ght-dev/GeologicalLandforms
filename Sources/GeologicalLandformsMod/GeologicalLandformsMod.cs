@@ -47,6 +47,7 @@ public class GeologicalLandformsMod : Mod
         #if RW_1_6_OR_GREATER
 
         GeologicalLandformsAPI.TileMutatorEnabled.AddModifier(0, IsTileMutatorEnabled);
+        GeologicalLandformsAPI.TerrainTabPreUI.AddObserver(0, TerrainTabUI.DoTerrainTabPreUI);
 
         Settings.ApplyExclusions(false, true);
         TileMutatorsCustomization.RefreshCustomization();
