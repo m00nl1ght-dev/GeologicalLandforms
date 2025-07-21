@@ -1,4 +1,13 @@
 
+v1.7.9
+
+- Fixed coastal landforms not using ocean water terrain
+- Fixed River Source not using biome-specific water terrain
+- Fixed 'multi-biome features' toggle not affecting riverbanks
+- Fixed xml loading error when the game does not have file write access
+- Fixed fertility input node not working in 1.6
+- Disabled biome transitions for the Glowforest biome
+
 v1.7.8
 
 - Fixed compatibility issue with some pocket map mods
