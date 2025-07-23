@@ -3,7 +3,6 @@ using System.Globalization;
 using System.Linq;
 using GeologicalLandforms.GraphEditor;
 using GeologicalLandforms.TileEditor;
-using MapPreview;
 using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
@@ -229,9 +228,9 @@ internal static class TerrainTabUI
 
     public static void DoTerrainTabPreUI(WITab_Terrain tab)
     {
-        var tile = Find.WorldSelector.SelectedTile;
+        var tile = tab.SelPlanetTile;
 
-        if (tile.Valid && tile.Layer.IsRootSurface && MapPreviewAPI.IsReadyForPreviewGen)
+        if (TileEditorWindow.CanEditTile(tile))
         {
             var btnRect = new Rect(tab.size.x - 50f, 1f, 24f, 24f);
 

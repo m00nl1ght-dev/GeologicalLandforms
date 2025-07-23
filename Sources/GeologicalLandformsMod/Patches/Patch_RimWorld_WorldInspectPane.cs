@@ -3,7 +3,6 @@
 using GeologicalLandforms.TileEditor;
 using HarmonyLib;
 using LunarFramework.Patching;
-using MapPreview;
 using RimWorld.Planet;
 using UnityEngine;
 using Verse;
@@ -21,7 +20,7 @@ internal static class Patch_RimWorld_WorldInspectPane
     {
         var tile = Find.WorldSelector.SelectedTile;
 
-        if (tile.Valid && tile.Layer.IsRootSurface && MapPreviewAPI.IsReadyForPreviewGen)
+        if (TileEditorWindow.CanEditTile(tile))
         {
             var btnRect = new Rect(rect.width - 72f, 0f, 24f, 24f);
 

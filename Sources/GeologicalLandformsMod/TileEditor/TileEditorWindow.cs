@@ -1,20 +1,26 @@
 #if RW_1_6_OR_GREATER
 
+using System;
 using LunarFramework.GUI;
 using LunarFramework.Patching;
+using LunarFramework.Utility;
 using MapPreview;
 using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
 using Verse;
+using Verse.Sound;
 
 namespace GeologicalLandforms.TileEditor;
 
+[HotSwappable]
 [StaticConstructorOnStartup]
 public class TileEditorWindow : Window
 {
     public static readonly Texture2D IconLoading = ContentFinder<Texture2D>.Get("LoadingIndicatorStaticGL");
     public static readonly Texture2D IconEditTile = ContentFinder<Texture2D>.Get("EditTileIconGL");
+    public static readonly Texture2D IconAddElement = ContentFinder<Texture2D>.Get("AddElementIconGL");
+    public static readonly Texture2D TexHeaderSlant = ContentFinder<Texture2D>.Get("HeaderSlantGL");
 
     private static readonly PatchGroupSubscriber PatchGroupSubscriber = new(typeof(TileEditorWindow));
 
@@ -26,6 +32,16 @@ public class TileEditorWindow : Window
 
     private readonly PreviewWidget _previewWidget = new(MapSizeUtility.MaxMapSize);
 
+    private static readonly Color _colorSectionHeader = new(0.15f, 0.15f, 0.15f);
+    private static readonly Color _colorSectionBackground = new(0.2f, 0.2f, 0.2f);
+
+    public static bool CanEditTile(PlanetTile tile)
+    {
+        if (!tile.Valid || !tile.Layer.IsRootSurface || !MapPreviewAPI.IsReadyForPreviewGen) return false;
+        if (Find.WorldObjects.MapParentAt(tile) is { HasMap: true }) return false;
+        return true;
+    }
+
     public TileEditorWindow(PlanetTile planetTile)
     {
         PlanetTile = planetTile;
@@ -33,9 +49,6 @@ public class TileEditorWindow : Window
         absorbInputAroundWindow = true;
         layer = WindowLayer.SubSuper;
     }
-
-    private static readonly Color _sectionBackground = new(0.2f, 0.2f, 0.2f);
-    private static readonly Color _sectionOutline = new(0.38f, 0.42f, 0.48f);
 
     public override void WindowOnGUI()
     {
@@ -46,41 +59,61 @@ public class TileEditorWindow : Window
     public override void DoWindowContents(Rect rect)
     {
         _layout.BeginRoot(rect, new LayoutParams { Horizontal = true });
+
         _layout.BeginAbs(400f);
-
-        _previewWidget.Draw(_layout.Abs(400f));
-
+        DoSectionFrame("Preview", 400f, () => _previewWidget.Draw(_layout));
         _layout.Abs(Margin);
-
-        _layout.BeginRel(-1);
-        Widgets.DrawBoxSolidWithOutline(_layout, _sectionBackground, _sectionOutline);
-        DoGeneralSection();
-        _layout.End();
-
-        _layout.End();
+        DoSectionFrame("General", 100f, DoGeneralSection, DoGeneralSectionButtons);
         _layout.Abs(Margin);
-        _layout.BeginRel(-1);
-
-        _layout.BeginAbs(250f);
-        Widgets.DrawBoxSolidWithOutline(_layout, _sectionBackground, _sectionOutline);
-        DoFeaturesSection();
-        _layout.End();
-
-        _layout.Abs(Margin);
-
-        _layout.BeginAbs(435f);
-        Widgets.DrawBoxSolidWithOutline(_layout, _sectionBackground, _sectionOutline);
-        DoFeatureConfigSection();
+        DoSectionFrame("Stone types", -1, DoRockTypesSection, DoRockTypesSectionButtons);
         _layout.End();
 
         _layout.Abs(Margin);
 
         _layout.BeginRel(-1);
-        Widgets.DrawBoxSolidWithOutline(_layout, _sectionBackground, _sectionOutline);
-        DoBottomRow();
+        DoSectionFrame("Features", 250f, DoFeaturesSection, DoFeaturesSectionButtons);
+        _layout.Abs(Margin);
+        DoSectionFrame("Feature customization", 400f, DoFeatureConfigSection, DoFeatureConfigSectionButtons);
+        _layout.Abs(Margin);
+        DoSectionFrame(null, -1, DoBottomRow);
         _layout.End();
 
         _layout.End();
+    }
+
+    private void DoSectionFrame(string label, float height, Action content, Action headerButtons = null)
+    {
+        if (label != null)
+        {
+            float marginX = 6f;
+            float marginY = 2f;
+
+            var textSize = Text.CalcSize(label) + new Vector2(2 * marginX, 2 * marginY);
+
+            _layout.BeginAbs(textSize.y, new LayoutParams { Horizontal = true });
+
+            var labelRect = _layout.Abs(textSize.x);
+            GUI.color = _colorSectionHeader;
+            GUI.DrawTexture(labelRect, BaseContent.WhiteTex);
+            GUI.DrawTexture(_layout.Abs(textSize.y), TexHeaderSlant);
+            GUI.color = Color.white;
+            Widgets.Label(labelRect.Moved(marginX, marginY), label);
+
+            if (headerButtons != null)
+            {
+                _layout.BeginRel(-1, new LayoutParams{ Horizontal = true, Reversed = true });
+                headerButtons();
+                _layout.End();
+            }
+
+            _layout.End();
+        }
+
+        _layout.BeginAbs(height);
+
+        Widgets.DrawBoxSolid(_layout, _colorSectionBackground);
+        content();
+
         _layout.End();
     }
 
@@ -89,9 +122,35 @@ public class TileEditorWindow : Window
 
     }
 
+    private void DoGeneralSectionButtons()
+    {
+
+    }
+
+    private void DoRockTypesSection()
+    {
+
+    }
+
+    private void DoRockTypesSectionButtons()
+    {
+        if (DoIconButton(IconAddElement, new Color(0.1f, 0.55f, 0f)))
+        {
+
+        }
+    }
+
     private void DoFeaturesSection()
     {
 
+    }
+
+    private void DoFeaturesSectionButtons()
+    {
+        if (DoIconButton(IconAddElement, new Color(0.1f, 0.55f, 0f)))
+        {
+
+        }
     }
 
     private void DoFeatureConfigSection()
@@ -99,9 +158,28 @@ public class TileEditorWindow : Window
 
     }
 
+    private void DoFeatureConfigSectionButtons()
+    {
+
+    }
+
     private void DoBottomRow()
     {
 
+    }
+
+    private bool DoIconButton(Texture2D icon, Color color, string tooltip = null)
+    {
+        var outerRect = (Rect) _layout;
+        var btnRect = _layout.Abs(outerRect.height);
+
+        if (tooltip != null)
+            TooltipHandler.TipRegionByKey(btnRect, tooltip);
+
+        MouseoverSounds.DoRegion(btnRect);
+        Widgets.DrawBoxSolid(btnRect, _colorSectionHeader);
+
+        return Widgets.ButtonImage(btnRect, icon, color);
     }
 
     private void GeneratePreview()
@@ -160,13 +238,15 @@ public class TileEditorWindow : Window
 
         protected override void DrawGenerated(Rect inRect)
         {
-            GUI.DrawTextureWithTexCoords(inRect.ContractedBy(1f), Texture, TexCoords);
+            GUI.DrawTextureWithTexCoords(inRect, Texture, TexCoords);
         }
 
         protected override void DrawGenerating(Rect inRect)
         {
             DrawPreloader(IconLoading, inRect.center);
         }
+
+        protected override void DrawOutline(Rect rect) {}
     }
 }
 
