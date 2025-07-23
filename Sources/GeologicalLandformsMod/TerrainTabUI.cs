@@ -241,7 +241,7 @@ internal static class TerrainTabUI
             {
                 GeologicalLandformsMod.LunarAPI.LifecycleHooks.DoOnce(() =>
                 {
-                    Find.WindowStack.Add(new TileEditorWindow(tile));
+                    Find.WindowStack.Add(new TileEditorWindow(Find.World, tile));
                 });
             }
         }

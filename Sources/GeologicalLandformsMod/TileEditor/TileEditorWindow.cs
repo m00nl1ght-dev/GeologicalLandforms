@@ -1,6 +1,9 @@
 #if RW_1_6_OR_GREATER
 
 using System;
+using System.Collections;
+using System.Diagnostics;
+using System.Linq;
 using LunarFramework.GUI;
 using LunarFramework.Patching;
 using LunarFramework.Utility;
@@ -9,7 +12,6 @@ using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
 using Verse;
-using Verse.Sound;
 
 namespace GeologicalLandforms.TileEditor;
 
@@ -20,20 +22,30 @@ public class TileEditorWindow : Window
     public static readonly Texture2D IconLoading = ContentFinder<Texture2D>.Get("LoadingIndicatorStaticGL");
     public static readonly Texture2D IconEditTile = ContentFinder<Texture2D>.Get("EditTileIconGL");
     public static readonly Texture2D IconAddElement = ContentFinder<Texture2D>.Get("AddElementIconGL");
+    public static readonly Texture2D IconEditElement = ContentFinder<Texture2D>.Get("EditElementIconGL");
+    public static readonly Texture2D IconRemoveElement = ContentFinder<Texture2D>.Get("RemoveElementIconGL");
+    public static readonly Texture2D IconReset = ContentFinder<Texture2D>.Get("ResetIconGL");
+    public static readonly Texture2D IconReroll = ContentFinder<Texture2D>.Get("RerollIconGL");
     public static readonly Texture2D TexHeaderSlant = ContentFinder<Texture2D>.Get("HeaderSlantGL");
 
     private static readonly PatchGroupSubscriber PatchGroupSubscriber = new(typeof(TileEditorWindow));
 
     public override Vector2 InitialSize => new(1028, 800);
 
-    public readonly PlanetTile PlanetTile;
+    public readonly World World;
+    public readonly PlanetTile Tile;
+    public readonly SurfaceTile TileObj;
 
-    private readonly LayoutRect _layout = new(GeologicalLandformsMod.LunarAPI);
+    private readonly LayoutRect Layout = new(GeologicalLandformsMod.LunarAPI);
 
-    private readonly PreviewWidget _previewWidget = new(MapSizeUtility.MaxMapSize);
+    private readonly MapPreviewWidget PreviewWidget = new(MapSizeUtility.MaxMapSize);
 
-    private static readonly Color _colorSectionHeader = new(0.15f, 0.15f, 0.15f);
-    private static readonly Color _colorSectionBackground = new(0.2f, 0.2f, 0.2f);
+    private static readonly Color ColorSectionHeader = new(0.15f, 0.15f, 0.15f);
+    private static readonly Color ColorSectionBackground = new(0.2f, 0.2f, 0.2f);
+
+    private const int PreviewDebounceTime = 200;
+
+    private string _seasonStringCache;
 
     public static bool CanEditTile(PlanetTile tile)
     {
@@ -42,9 +54,11 @@ public class TileEditorWindow : Window
         return true;
     }
 
-    public TileEditorWindow(PlanetTile planetTile)
+    public TileEditorWindow(World world, PlanetTile tile)
     {
-        PlanetTile = planetTile;
+        Tile = tile;
+        World = world;
+        TileObj = world.grid.Surface[tile];
         forcePause = true;
         absorbInputAroundWindow = true;
         layer = WindowLayer.SubSuper;
@@ -58,73 +72,208 @@ public class TileEditorWindow : Window
 
     public override void DoWindowContents(Rect rect)
     {
-        _layout.BeginRoot(rect, new LayoutParams { Horizontal = true });
+        const float previewSize = 360f;
 
-        _layout.BeginAbs(400f);
-        DoSectionFrame("Preview", 400f, () => _previewWidget.Draw(_layout));
-        _layout.Abs(Margin);
-        DoSectionFrame("General", 100f, DoGeneralSection, DoGeneralSectionButtons);
-        _layout.Abs(Margin);
-        DoSectionFrame("Stone types", -1, DoRockTypesSection, DoRockTypesSectionButtons);
-        _layout.End();
+        using (Layout.Root(rect))
+        {
+            using (Layout.Row())
+            {
+                using (Layout.Col(previewSize))
+                {
+                    DoSectionFrame("Preview", previewSize, () => PreviewWidget.Draw(Layout), DoPreviewSectionButtons, 0f);
+                    Layout.Abs(Margin);
+                    DoSectionFrame("General", 187f, DoGeneralSection, DoGeneralSectionButtons);
+                    Layout.Abs(Margin);
+                    DoSectionFrame("Stone types", -1, DoRockTypesSection, DoRockTypesSectionButtons);
+                }
 
-        _layout.Abs(Margin);
+                Layout.Abs(Margin);
 
-        _layout.BeginRel(-1);
-        DoSectionFrame("Features", 250f, DoFeaturesSection, DoFeaturesSectionButtons);
-        _layout.Abs(Margin);
-        DoSectionFrame("Feature customization", 400f, DoFeatureConfigSection, DoFeatureConfigSectionButtons);
-        _layout.Abs(Margin);
-        DoSectionFrame(null, -1, DoBottomRow);
-        _layout.End();
-
-        _layout.End();
+                using (Layout.Col())
+                {
+                    DoSectionFrame("Features", 250f, DoFeaturesSection, DoFeaturesSectionButtons);
+                    Layout.Abs(Margin);
+                    DoSectionFrame("Feature customization", 380f, DoFeatureConfigSection, DoFeatureConfigSectionButtons);
+                    Layout.Abs(Margin);
+                    DoSectionFrame(null, -1, DoBottomRow);
+                }
+            }
+        }
     }
 
-    private void DoSectionFrame(string label, float height, Action content, Action headerButtons = null)
+    private void DoSectionFrame(string label, float height, Action content, Action headerButtons = null, float margin = -1)
     {
         if (label != null)
         {
             float marginX = 6f;
             float marginY = 2f;
 
-            var textSize = Text.CalcSize(label) + new Vector2(2 * marginX, 2 * marginY);
+            var textSize = new Vector2(Text.CalcSize(label).x + 2 * marginX, 22f + 2 * marginY);
 
-            _layout.BeginAbs(textSize.y, new LayoutParams { Horizontal = true });
-
-            var labelRect = _layout.Abs(textSize.x);
-            GUI.color = _colorSectionHeader;
-            GUI.DrawTexture(labelRect, BaseContent.WhiteTex);
-            GUI.DrawTexture(_layout.Abs(textSize.y), TexHeaderSlant);
-            GUI.color = Color.white;
-            Widgets.Label(labelRect.Moved(marginX, marginY), label);
-
-            if (headerButtons != null)
+            using (Layout.Row(textSize.y))
             {
-                _layout.BeginRel(-1, new LayoutParams{ Horizontal = true, Reversed = true });
-                headerButtons();
-                _layout.End();
-            }
+                var labelRect = Layout.Abs(textSize.x);
+                GUI.color = ColorSectionHeader;
+                GUI.DrawTexture(labelRect, BaseContent.WhiteTex);
+                GUI.DrawTexture(Layout.Abs(textSize.y), TexHeaderSlant);
+                GUI.color = Color.white;
+                Widgets.Label(labelRect.Moved(marginX, marginY), label);
 
-            _layout.End();
+                if (headerButtons != null)
+                {
+                    using (Layout.RowRev())
+                    {
+                        headerButtons();
+                    }
+                }
+            }
         }
 
-        _layout.BeginAbs(height);
+        using (Layout.Col(height))
+        {
+            Widgets.DrawBoxSolid(Layout, ColorSectionBackground);
 
-        Widgets.DrawBoxSolid(_layout, _colorSectionBackground);
-        content();
+            using (Layout.Col(-1, new() { Margin = new(margin < 0 ? Margin / 2.0001f : margin) }))
+            {
+                content();
+            }
+        }
+    }
 
-        _layout.End();
+    private void DoPreviewSectionButtons()
+    {
+        var rerolled = SeedRerollData.IsMapSeedRerolled(World, Tile, out var seed);
+
+        if (DoIconButton(IconReroll, Color.white, 2f))
+        {
+            unchecked { seed += 1; }
+            SeedRerollData.GetFor(World).Commit(Tile, seed, false);
+            GeneratePreviewDebounced();
+        }
+
+        if (rerolled && DoIconButton(IconReset, Color.white, 3f))
+        {
+            SeedRerollData.GetFor(World).Reset(Tile, false);
+            GeneratePreviewDebounced();
+        }
     }
 
     private void DoGeneralSection()
     {
+        using (Layout.Row(24f)) // Biome
+        {
+            Widgets.DrawBoxSolid(Layout, ColorSectionHeader);
 
+            LunarGUI.Label(Layout.Abs(110f).Moved(5f, 2f), "Biome");
+            LunarGUI.Label(Layout.Abs(220f).Moved(5f, 2f), TileObj.biome.LabelCap);
+
+            using (Layout.RowRev())
+            {
+                if (DoIconButton(IconEditElement, Color.white, 2f))
+                {
+
+                }
+            }
+        }
+
+        Layout.Abs(5f);
+
+        using (Layout.Row(24f)) // Hilliness
+        {
+            Widgets.DrawBoxSolid(Layout, ColorSectionHeader);
+
+            LunarGUI.Label(Layout.Abs(110f).Moved(5f, 2f), "Terrain");
+            LunarGUI.Label(Layout.Abs(220f).Moved(5f, 2f), TileObj.hilliness.GetLabelCap());
+
+            using (Layout.RowRev())
+            {
+                if (DoIconButton(IconEditElement, Color.white, 2f))
+                {
+                    var options = typeof(Hilliness).GetEnumValues().Cast<Hilliness>()
+                        .Where(h => h != Hilliness.Undefined && h != Hilliness.Impassable)
+                        .Select(e => new FloatMenuOption(e.GetLabelCap(), () => SetHilliness(e)))
+                        .ToList();
+
+                    Find.WindowStack.Add(new FloatMenu(options));
+
+                    void SetHilliness(Hilliness value)
+                    {
+                        TileObj.hilliness = value;
+                        GeneratePreview();
+                    }
+                }
+            }
+        }
+
+        if (ModsConfig.BiotechActive)
+        {
+            Layout.Abs(5f);
+
+            using (Layout.Row(24f)) // Pollution
+            {
+                Widgets.DrawBoxSolid(Layout, ColorSectionHeader);
+
+                LunarGUI.Label(Layout.Abs(110f).Moved(5f, 2f), "Pollution");
+                LunarGUI.Label(Layout.Abs(70f).Moved(5f, 2f), TileObj.pollution.ToStringPercent());
+                LunarGUI.Slider(Layout.Abs(-1).Moved(-3f, 7f), ref TileObj.pollution, 0f, 1f);
+            }
+        }
+
+        Layout.Abs(5f);
+
+        using (Layout.Row(24f)) // Rainfall
+        {
+            Widgets.DrawBoxSolid(Layout, ColorSectionHeader);
+
+            LunarGUI.Label(Layout.Abs(110f).Moved(5f, 2f), "Rainfall");
+            LunarGUI.Label(Layout.Abs(70f).Moved(5f, 2f), $"{TileObj.rainfall:F0}mm");
+            LunarGUI.Slider(Layout.Abs(-1).Moved(-3f, 7f), ref TileObj.rainfall, 0f, 5000f);
+        }
+
+        Layout.Abs(5f);
+
+        using (Layout.Row(24f)) // Temperature
+        {
+            Widgets.DrawBoxSolid(Layout, ColorSectionHeader);
+
+            Layout.PushChanged();
+
+            LunarGUI.Label(Layout.Abs(110f).Moved(5f, 2f), "Temperature");
+            LunarGUI.Label(Layout.Abs(70f).Moved(5f, 2f), TileObj.temperature.ToStringTemperature());
+            LunarGUI.Slider(Layout.Abs(-1).Moved(-3f, 7f), ref TileObj.temperature, -70f, 70f);
+
+            if (Layout.PopChanged())
+            {
+                _seasonStringCache = null;
+            }
+        }
+
+        Layout.Abs(5f);
+
+        using (Layout.Row(24f)) // Seasons
+        {
+            Widgets.DrawBoxSolid(Layout, ColorSectionHeader);
+
+            if (_seasonStringCache == null)
+            {
+                var tempMin = GenTemperature.MinTemperatureAtTile(Tile).ToStringTemperature();
+                var tempMax = GenTemperature.MaxTemperatureAtTile(Tile).ToStringTemperature();
+                var growing = GenTemperature.TwelfthsInAverageTemperatureRange(Tile, 6f, 42f);
+
+                _seasonStringCache = $"{tempMin} to {tempMax} ({growing.Count * 5}/{60})";
+            }
+
+            LunarGUI.Label(Layout.Abs(110f).Moved(5f, 2f), "Seasons");
+            LunarGUI.Label(Layout.Abs(270f).Moved(5f, 2f), _seasonStringCache);
+        }
     }
 
     private void DoGeneralSectionButtons()
     {
+        if (DoIconButton(IconReset, Color.white, 3f))
+        {
 
+        }
     }
 
     private void DoRockTypesSection()
@@ -134,7 +283,12 @@ public class TileEditorWindow : Window
 
     private void DoRockTypesSectionButtons()
     {
-        if (DoIconButton(IconAddElement, new Color(0.1f, 0.55f, 0f)))
+        if (DoIconButton(IconAddElement, Color.white))
+        {
+
+        }
+
+        if (DoIconButton(IconReset, Color.white, 3f))
         {
 
         }
@@ -147,7 +301,12 @@ public class TileEditorWindow : Window
 
     private void DoFeaturesSectionButtons()
     {
-        if (DoIconButton(IconAddElement, new Color(0.1f, 0.55f, 0f)))
+        if (DoIconButton(IconAddElement, Color.white))
+        {
+
+        }
+
+        if (DoIconButton(IconReset, Color.white, 3f))
         {
 
         }
@@ -160,7 +319,10 @@ public class TileEditorWindow : Window
 
     private void DoFeatureConfigSectionButtons()
     {
+        if (DoIconButton(IconReset, Color.white, 3f))
+        {
 
+        }
     }
 
     private void DoBottomRow()
@@ -168,40 +330,66 @@ public class TileEditorWindow : Window
 
     }
 
-    private bool DoIconButton(Texture2D icon, Color color, string tooltip = null)
+    private bool DoIconButton(Texture2D icon, Color color, float shrink = 0f, string tooltip = null)
     {
-        var outerRect = (Rect) _layout;
-        var btnRect = _layout.Abs(outerRect.height);
+        var outerRect = (Rect) Layout;
+        var btnRect = Layout.Abs(outerRect.height);
 
         if (tooltip != null)
             TooltipHandler.TipRegionByKey(btnRect, tooltip);
 
-        MouseoverSounds.DoRegion(btnRect);
-        Widgets.DrawBoxSolid(btnRect, _colorSectionHeader);
+        Widgets.DrawBoxSolid(btnRect, ColorSectionHeader);
 
-        return Widgets.ButtonImage(btnRect, icon, color);
+        GUI.color = Mouse.IsOver(btnRect) ? GenUI.MouseoverColor : color;
+        GUI.DrawTexture(btnRect.ContractedBy(shrink), icon);
+        GUI.color = Color.white;
+
+        return Widgets.ButtonInvisible(btnRect);
+    }
+
+    private static readonly Stopwatch _debouncer = new();
+
+    private void GeneratePreviewDebounced()
+    {
+        var running = _debouncer.IsRunning;
+
+        _debouncer.Restart();
+
+        if (!running)
+        {
+            GeologicalLandformsMod.LunarAPI.LifecycleHooks.DoEnumerator(Debounce());
+        }
+    }
+
+    private IEnumerator Debounce()
+    {
+        while (_debouncer.IsRunning && _debouncer.ElapsedMilliseconds < PreviewDebounceTime)
+            yield return null;
+
+        _debouncer.Reset();
+
+        GeneratePreview();
     }
 
     private void GeneratePreview()
     {
         MapPreviewGenerator.Instance.ClearQueue();
 
-        var world = Find.World;
-        int seed = SeedRerollData.GetMapSeed(world, PlanetTile);
-        var mapParent = world.worldObjects.MapParentAt(PlanetTile);
-        var mapSize = MapSizeUtility.DetermineMapSize(world, mapParent);
+        int seed = SeedRerollData.GetMapSeed(World, Tile);
+        var mapParent = World.worldObjects.MapParentAt(Tile);
+        var mapSize = MapSizeUtility.DetermineMapSize(World, mapParent);
 
-        var request = new MapPreviewRequest(seed, PlanetTile, mapSize)
+        var request = new MapPreviewRequest(seed, Tile, mapSize)
         {
-            TextureSize = new IntVec2(_previewWidget.Texture.width, _previewWidget.Texture.height),
+            TextureSize = new IntVec2(PreviewWidget.Texture.width, PreviewWidget.Texture.height),
             GeneratorDef = mapParent?.MapGeneratorDef ?? MapGeneratorDefOf.Base_Player,
             UseTrueTerrainColors = true,
             UseMinimalMapComponents = true,
-            ExistingBuffer = _previewWidget.Buffer
+            ExistingBuffer = PreviewWidget.Buffer
         };
 
         MapPreviewGenerator.Instance.QueuePreviewRequest(request);
-        _previewWidget.Await(request);
+        PreviewWidget.Await(request);
     }
 
     public override void PreOpen()
@@ -222,28 +410,41 @@ public class TileEditorWindow : Window
     {
         base.PreClose();
 
-        _previewWidget.Dispose();
+        PreviewWidget.Dispose();
 
         MapPreviewGenerator.Instance.ClearQueue();
 
         MapPreviewAPI.UnsubscribeGenPatches(PatchGroupSubscriber);
 
-        Find.WorldSelector.SelectedTile = PlanetTile;
+        Find.WorldSelector.SelectedTile = Tile;
     }
 
     [StaticConstructorOnStartup]
-    private class PreviewWidget : MapPreviewWidget
+    private class MapPreviewWidget : MapPreview.MapPreviewWidget
     {
-        public PreviewWidget(IntVec2 maxMapSize) : base(maxMapSize) {}
+        public MapPreviewWidget(IntVec2 maxMapSize) : base(maxMapSize) {}
 
         protected override void DrawGenerated(Rect inRect)
         {
+            GUI.color = new Color(1f, 1f, 1f, SpawnInterpolator.value);
             GUI.DrawTextureWithTexCoords(inRect, Texture, TexCoords);
+            GUI.color = Color.white;
         }
 
-        protected override void DrawGenerating(Rect inRect)
+        protected override void DrawGenerating(Rect rect)
         {
-            DrawPreloader(IconLoading, inRect.center);
+            var position = new Rect(
+                rect.center.x - IconLoading.width / 2f,
+                rect.center.y - IconLoading.height / 2f,
+                IconLoading.width,
+                IconLoading.height
+            );
+
+            float a = 1f - (1f + Mathf.Sin(Time.time * 3f)) * 0.4f;
+
+            GUI.color = new Color(1f, 1f, 1f, a);
+            GUI.DrawTexture(position, IconLoading);
+            GUI.color = Color.white;
         }
 
         protected override void DrawOutline(Rect rect) {}

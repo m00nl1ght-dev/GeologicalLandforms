@@ -33,7 +33,7 @@ internal static class Patch_RimWorld_WorldInspectPane
             {
                 GeologicalLandformsMod.LunarAPI.LifecycleHooks.DoOnce(() =>
                 {
-                    Find.WindowStack.Add(new TileEditorWindow(tile));
+                    Find.WindowStack.Add(new TileEditorWindow(Find.World, tile));
                 });
             }
         }
