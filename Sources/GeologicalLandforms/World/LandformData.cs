@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MapPreview;
+using RimWorld;
 using RimWorld.Planet;
 using Verse;
 
@@ -141,6 +142,7 @@ public class LandformData : WorldComponent
         public List<string> BiomeVariants;
 
         #if RW_1_6_OR_GREATER
+        public List<TileMutatorDef> Mutators;
         public Dictionary<ThingDef, float> RockTypes;
         #endif
 
@@ -164,6 +166,7 @@ public class LandformData : WorldComponent
             BiomeVariants = other.BiomeVariants?.ToList();
 
             #if RW_1_6_OR_GREATER
+            Mutators = other.Mutators == null ? null : new List<TileMutatorDef>(other.Mutators);
             RockTypes = other.RockTypes == null ? null : new Dictionary<ThingDef, float>(other.RockTypes);
             #endif
         }
@@ -184,6 +187,7 @@ public class LandformData : WorldComponent
             Scribe_Collections.Look(ref BiomeVariants, "biomeVariants", LookMode.Value);
 
             #if RW_1_6_OR_GREATER
+            Scribe_Collections.Look(ref Mutators, "mutators", LookMode.Def);
             Scribe_Collections.Look(ref RockTypes, "rockTypes", LookMode.Def, LookMode.Value);
             #endif
         }

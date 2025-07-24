@@ -28,7 +28,7 @@ public class TileEditorWindow : Window
 
     private static readonly PatchGroupSubscriber PatchGroupSubscriber = new(typeof(TileEditorWindow));
 
-    public override Vector2 InitialSize => new(1028, 800);
+    public override Vector2 InitialSize => new(800, 800);
 
     public readonly World World;
     public readonly PlanetTile Tile;
@@ -43,6 +43,7 @@ public class TileEditorWindow : Window
     public static readonly Color ColorSectionHeader = new(0.15f, 0.15f, 0.15f);
     public static readonly Color ColorSectionBackground = new(0.2f, 0.2f, 0.2f);
 
+    private readonly TileEditorData _dataOriginal = new();
     private readonly TileEditorData _dataBefore = new();
     private readonly TileEditorData _data = new();
 
@@ -67,6 +68,7 @@ public class TileEditorWindow : Window
 
         TileObj = world.grid.Surface[tile];
 
+        _dataOriginal.ReadOriginal(tile);
         _dataBefore.Read(tile);
         _data.Read(tile);
 
@@ -352,7 +354,7 @@ public class TileEditorWindow : Window
 
         if (DoIconButton(Layout, IconReset, Color.white, 3f))
         {
-            _data.ResetRockTypes(Tile);
+            _data.CopyRockTypes(_dataOriginal);
             PreviewNeedsRefresh();
         }
     }
@@ -371,7 +373,8 @@ public class TileEditorWindow : Window
 
         if (DoIconButton(Layout, IconReset, Color.white, 3f))
         {
-
+            _data.CopyFeatures(_dataOriginal);
+            PreviewNeedsRefresh();
         }
     }
 
@@ -418,7 +421,7 @@ public class TileEditorWindow : Window
             return;
         }
 
-        _data.Apply(Tile);
+        _data.Apply(Tile, _dataOriginal);
 
         MapPreviewGenerator.Instance.ClearQueue();
 
@@ -466,6 +469,8 @@ public class TileEditorWindow : Window
     public override void PreClose()
     {
         base.PreClose();
+
+        _previewNeedsRefresh = false;
 
         PreviewWidget.Dispose();
 

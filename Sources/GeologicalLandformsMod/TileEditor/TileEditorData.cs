@@ -18,10 +18,14 @@ public class TileEditorData
     // Rock Types
     public Dictionary<ThingDef, float> RockTypes = [];
 
+    // Features
+    public List<TileMutatorDef> Features = [];
+
     public void Read(PlanetTile tile)
     {
         ReadGeneral(tile);
         ReadRockTypes(tile);
+        ReadFeatures(tile);
     }
 
     public void ReadGeneral(PlanetTile tile)
@@ -47,23 +51,34 @@ public class TileEditorData
         }
     }
 
-    public void Reset(PlanetTile tile)
+    public void ReadFeatures(PlanetTile tile)
     {
-        ResetGeneral(tile);
-        ResetRockTypes(tile);
+        Features = Find.WorldGrid.Surface[tile].Mutators.ToList();
     }
 
-    public void ResetGeneral(PlanetTile tile)
+    public void ReadOriginal(PlanetTile tile)
+    {
+        ReadOriginalGeneral(tile);
+        ReadOriginalRockTypes(tile);
+        ReadOriginalFeatures(tile);
+    }
+
+    public void ReadOriginalGeneral(PlanetTile tile)
     {
         // TODO
     }
 
-    public void ResetRockTypes(PlanetTile tile)
+    public void ReadOriginalRockTypes(PlanetTile tile)
     {
         RockTypes = WorldTileUtils.OriginalRockTypesFor(tile).ToDictionary(e => e, _ => 0f);
     }
 
-    public void Apply(PlanetTile tile)
+    public void ReadOriginalFeatures(PlanetTile tile)
+    {
+        Features = TileMutatorsCustomization.BuildFresh(tile.tileId, Find.WorldGrid[tile].mutatorsNullable, false).ToList();
+    }
+
+    public void Apply(PlanetTile tile, TileEditorData original)
     {
         var world = Find.World;
         var tileObj = world.grid.Surface[tile];
@@ -76,12 +91,83 @@ public class TileEditorData
 
         var worldData = world.LandformData();
 
-        if (!worldData.TryGet(tile.tileId, out var tileData))
-            tileData = new LandformData.TileData(WorldTileInfo.Get(tile.tileId));
+        if (EqualsRockTypes(original) && EqualsFeatures(original))
+        {
+            worldData.Reset(tile.tileId, false);
+        }
+        else
+        {
+            if (!worldData.TryGet(tile.tileId, out var tileData))
+            {
+                tileData = new LandformData.TileData(WorldTileInfo.Get(tile.tileId));
+            }
 
-        tileData.RockTypes = RockTypes;
+            tileData.RockTypes = RockTypes;
 
-        worldData.Commit(tile.tileId, tileData, false);
+            tileData.Mutators = [];
+            tileData.Landforms = [];
+
+            foreach (var mutator in Features)
+            {
+                if (mutator.Worker is TileMutatorWorker_Landform worker)
+                {
+                    tileData.Landforms.Add(worker.Landform.Id);
+                }
+                else
+                {
+                    tileData.Mutators.Add(mutator);
+                }
+            }
+
+            worldData.Commit(tile.tileId, tileData, false);
+        }
+
+        TileMutatorsCustomization.TileHasChanged(tile.tileId);
         WorldTileInfo.InvalidateCache();
     }
+
+    public void Copy(TileEditorData other)
+    {
+        CopyGeneral(other);
+        CopyRockTypes(other);
+        CopyFeatures(other);
+    }
+
+    public void CopyGeneral(TileEditorData other)
+    {
+        Biome = other.Biome;
+        Hilliness = other.Hilliness;
+        Pollution = other.Pollution;
+        Rainfall = other.Rainfall;
+        Temperature = other.Temperature;
+    }
+
+    public void CopyRockTypes(TileEditorData other)
+    {
+        RockTypes = new Dictionary<ThingDef, float>(other.RockTypes);
+    }
+
+    public void CopyFeatures(TileEditorData other)
+    {
+        Features = new List<TileMutatorDef>(other.Features);
+    }
+
+    public bool Equals(TileEditorData other) =>
+        EqualsGeneral(other) &&
+        EqualsRockTypes(other) &&
+        EqualsFeatures(other);
+
+    public bool EqualsGeneral(TileEditorData other) =>
+        Biome == other.Biome &&
+        Hilliness == other.Hilliness &&
+        Pollution == other.Pollution &&
+        Rainfall == other.Rainfall &&
+        Temperature == other.Temperature;
+
+    public bool EqualsRockTypes(TileEditorData other) =>
+        RockTypes.Count == other.RockTypes.Count &&
+        !RockTypes.Except(other.RockTypes).Any();
+
+    public bool EqualsFeatures(TileEditorData other) =>
+        Features.SequenceEqual(other.Features);
 }

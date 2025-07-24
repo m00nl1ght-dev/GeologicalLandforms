@@ -287,28 +287,34 @@ public class WorldTileInfo : IWorldTileInfo
                     }
                 }
             }
-        }
 
-        if (biomeProps.overrideLandforms != null)
-        {
-            var ids = _tsc_ids;
-            ids.Clear();
-
-            if (landforms != null) ids.AddRange(landforms.Select(lf => lf.Id));
-
-            landforms ??= new(3);
-            landforms.Clear();
-
-            foreach (var id in biomeProps.overrideLandforms.Get(new CtxTile(info), ids))
+            if (biomeProps.overrideLandforms != null)
             {
-                var landform = LandformManager.FindById(id);
-                if (landform != null) landforms.AddDistinct(landform);
+                var ids = _tsc_ids;
+                ids.Clear();
+
+                if (landforms != null) ids.AddRange(landforms.Select(lf => lf.Id));
+
+                landforms ??= new(3);
+                landforms.Clear();
+
+                foreach (var id in biomeProps.overrideLandforms.Get(new CtxTile(info), ids))
+                {
+                    var landform = LandformManager.FindById(id);
+                    if (landform != null) landforms.AddDistinct(landform);
+                }
             }
+
+            #if RW_1_6_OR_GREATER
+            landforms?.RemoveAll(lf => !GeologicalLandformsAPI.LandformEnabled.Apply(lf));
+            #endif
         }
 
         if (landforms != null)
         {
+            #if !RW_1_6_OR_GREATER
             landforms.RemoveAll(lf => !GeologicalLandformsAPI.LandformEnabled.Apply(lf));
+            #endif
 
             foreach (var nodeApplyLayer in landforms.SelectMany(lf => lf.ApplyLayers).ToList())
             {

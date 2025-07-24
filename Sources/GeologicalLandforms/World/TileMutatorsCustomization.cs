@@ -57,14 +57,27 @@ public static class TileMutatorsCustomization
         if (fromCache != null)
             return fromCache;
 
-        var fresh = BuildFresh(tileId, original);
+        var fresh = BuildFresh(tileId, original, true);
         cache[tileId] = fresh;
         return fresh;
     }
 
-    public static IList<TileMutatorDef> BuildFresh(int tileId, IList<TileMutatorDef> original)
+    public static IList<TileMutatorDef> BuildFresh(int tileId, IList<TileMutatorDef> original, bool useWorldData)
     {
+        var worldData = Find.World.LandformData();
         var tileInfo = WorldTileInfo.Get(tileId);
+
+        // check if the tile has been customized using the world tile editor, if so, return the custom list of features
+        if (worldData != null && useWorldData && worldData.TryGet(tileId, out var data) && data.Mutators != null)
+        {
+            var list = new List<TileMutatorDef>(data.Mutators);
+
+            if (tileInfo.Landforms != null)
+                list.AddRange(tileInfo.Landforms.Select(landform => landform.TileMutatorDef));
+
+            list.SortBy(m => m.genOrder);
+            return list;
+        }
 
         List<TileMutatorDef> mutators = null;
 
