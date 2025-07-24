@@ -6,6 +6,7 @@ using LunarFramework.GUI;
 using LunarFramework.Utility;
 using MapPreview;
 using RimWorld;
+using RimWorld.Planet;
 using UnityEngine;
 using Verse;
 
@@ -53,6 +54,10 @@ public class GeologicalLandformsSettings : LunarModSettings
     public readonly Entry<List<string>> BiomesExcludedFromTransitions = MakeEntry(new List<string>());
 
     protected override string TranslationKeyPrefix => "GeologicalLandforms.Settings";
+
+    #if RW_1_6_OR_GREATER
+    private static bool _refreshWorldDrawLayersOnClose;
+    #endif
 
     public GeologicalLandformsSettings() : base(GeologicalLandformsMod.LunarAPI)
     {
@@ -141,6 +146,7 @@ public class GeologicalLandformsSettings : LunarModSettings
             ApplyExclusions(true, true);
             TileMutatorsCustomization.RefreshCustomization();
             MapPreviewAPI.NotifyWorldChanged();
+            _refreshWorldDrawLayersOnClose = true;
         }
 
         layout.PushChanged();
@@ -171,6 +177,7 @@ public class GeologicalLandformsSettings : LunarModSettings
             ApplyExclusions(true, false);
             TileMutatorsCustomization.RefreshCustomization();
             MapPreviewAPI.NotifyWorldChanged();
+            _refreshWorldDrawLayersOnClose = true;
         }
     }
 
@@ -337,6 +344,26 @@ public class GeologicalLandformsSettings : LunarModSettings
         DebugActions.DebugActionsGUI(layout);
     }
 
+    internal void OnWriteSettings()
+    {
+        #if RW_1_6_OR_GREATER
+
+        if (_refreshWorldDrawLayersOnClose)
+        {
+            _refreshWorldDrawLayersOnClose = false;
+
+            if (Find.World is { } world)
+            {
+                world.grid.Surface.SetDirty<WorldDrawLayer_Terrain>();
+                world.grid.Surface.SetDirty<WorldDrawLayer_Landmarks>();
+                world.grid.Surface.SetDirty<WorldLayer_Landforms>();
+                ExpandableLandmarksUtility.Notify_WorldObjectsChanged();
+            }
+        }
+
+        #endif
+    }
+
     public void ApplyDefEffects()
     {
         if (!EnableCellFinderOptimization) GeologicalLandformsMod.Logger.Log("CellFinder optimizations are disabled.");
@@ -360,6 +387,7 @@ public class GeologicalLandformsSettings : LunarModSettings
         #if RW_1_6_OR_GREATER
         ApplyExclusions(false, true);
         TileMutatorsCustomization.RefreshCustomization();
+        _refreshWorldDrawLayersOnClose = true;
         #endif
 
         MapPreviewAPI.NotifyWorldChanged();

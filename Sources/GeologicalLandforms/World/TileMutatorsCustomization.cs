@@ -155,9 +155,6 @@ public static class TileMutatorsCustomization
             .ToList();
 
         ClearCache();
-
-        Find.World?.grid.Surface.SetDirty<WorldDrawLayer_Landmarks>();
-        ExpandableLandmarksUtility.Notify_WorldObjectsChanged();
     }
 
     public static void TileHasChanged(int tileId)

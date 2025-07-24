@@ -120,5 +120,11 @@ public class GeologicalLandformsMod : Mod
         Settings.DoSettingsWindowContents(inRect);
     }
 
+    public override void WriteSettings()
+    {
+        base.WriteSettings();
+        Settings.OnWriteSettings();
+    }
+
     public override string SettingsCategory() => "Geological Landforms";
 }

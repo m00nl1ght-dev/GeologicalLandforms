@@ -8,6 +8,7 @@ using UnityEngine;
 using Verse;
 
 #if RW_1_6_OR_GREATER
+using System.Collections.Generic;
 using static RimWorld.Planet.SurfaceTile;
 #else
 using static RimWorld.Planet.Tile;
@@ -119,4 +120,13 @@ public static class WorldTileUtils
     {
         return (CoastType) Math.Max((int) a, (int) b);
     }
+
+    #if RW_1_6_OR_GREATER
+
+    public static IEnumerable<ThingDef> OriginalRockTypesFor(PlanetTile tile)
+    {
+        return Patch_RimWorld_World.NaturalRockTypesIn_Original(Find.World, tile);
+    }
+
+    #endif
 }

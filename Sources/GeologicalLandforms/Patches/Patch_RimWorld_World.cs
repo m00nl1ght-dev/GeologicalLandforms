@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using HarmonyLib;
 using LunarFramework.Patching;
 using RimWorld.Planet;
@@ -144,24 +145,33 @@ internal static class Patch_RimWorld_World
 
                 if (tile >= 0 || map != null)
                 {
-                    var tileInfo = tile >= 0 ? WorldTileInfo.Get(tile) : WorldTileInfo.Get(map);
-                    var biomeProps = tileInfo.Biome.Properties();
-                    var ctxTile = new CtxTile(tileInfo);
+                    var worldData = __instance.LandformData();
 
-                    var fromBiome = biomeProps.worldTileOverrides?.stoneTypes;
-                    if (fromBiome != null)
+                    if (worldData != null && worldData.TryGet(tile, out var data) && data.RockTypes != null)
                     {
-                        list = fromBiome.Get(ctxTile, list);
+                        list = data.RockTypes.Keys.ToList();
                     }
-
-                    if (tileInfo.HasBiomeVariants())
+                    else
                     {
-                        foreach (var biomeVariant in tileInfo.BiomeVariants)
+                        var tileInfo = tile >= 0 ? WorldTileInfo.Get(tile) : WorldTileInfo.Get(map);
+                        var biomeProps = tileInfo.Biome.Properties();
+                        var ctxTile = new CtxTile(tileInfo);
+
+                        var fromBiome = biomeProps.worldTileOverrides?.stoneTypes;
+                        if (fromBiome != null)
                         {
-                            var fromBiomeVariant = biomeVariant.worldTileOverrides?.stoneTypes;
-                            if (fromBiomeVariant != null)
+                            list = fromBiome.Get(ctxTile, list);
+                        }
+
+                        if (tileInfo.HasBiomeVariants())
+                        {
+                            foreach (var biomeVariant in tileInfo.BiomeVariants)
                             {
-                                list = fromBiomeVariant.Get(ctxTile, list);
+                                var fromBiomeVariant = biomeVariant.worldTileOverrides?.stoneTypes;
+                                if (fromBiomeVariant != null)
+                                {
+                                    list = fromBiomeVariant.Get(ctxTile, list);
+                                }
                             }
                         }
                     }
@@ -182,5 +192,22 @@ internal static class Patch_RimWorld_World
             _rockCacheTile = __instance.grid[tile];
             _rockCacheValue = __result;
         }
+    }
+
+    #if RW_1_6_OR_GREATER
+
+    [HarmonyReversePatch]
+    [HarmonyPatch(nameof(World.NaturalRockTypesIn))]
+    internal static IEnumerable<ThingDef> NaturalRockTypesIn_Original(World instance, PlanetTile tile)
+    {
+        return null;
+    }
+
+    #endif
+
+    internal static void ClearRockCache()
+    {
+        _rockCacheTile = null;
+        _rockCacheValue = null;
     }
 }

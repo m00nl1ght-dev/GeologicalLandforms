@@ -1,5 +1,6 @@
 using GeologicalLandforms.Defs;
 using GeologicalLandforms.GraphEditor;
+using GeologicalLandforms.Patches;
 using LunarFramework;
 using LunarFramework.Logging;
 using LunarFramework.Patching;
@@ -48,6 +49,7 @@ public static class GeologicalLandformsAPI
 
         MapPreviewAPI.OnWorldChanged += WorldTileInfo.InvalidateCache;
         MapPreviewAPI.AddStableSeedCondition(map => WorldTileInfo.Get(map.Tile).HasLandforms());
+        MapPreviewGenerator.OnBeginGenerating += _ => Patch_RimWorld_World.ClearRockCache();
 
         ReflectionUtility.AddSearchableAssembly(typeof(GeologicalLandformsAPI).Assembly);
         ReflectionUtility.AddSearchableAssembly(typeof(TerrainCanvas).Assembly);

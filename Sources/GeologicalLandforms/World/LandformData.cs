@@ -27,10 +27,10 @@ public class LandformData : WorldComponent
         return _tileData.ContainsKey(tileId);
     }
 
-    public void Commit(int tileId, TileData data)
+    public void Commit(int tileId, TileData data, bool notify = true)
     {
         _tileData[tileId] = new TileData(data);
-        MapPreviewAPI.NotifyWorldChanged();
+        if (notify) MapPreviewAPI.NotifyWorldChanged();
     }
 
     public void CommitDirectly(int tileId, TileData data)
@@ -38,16 +38,16 @@ public class LandformData : WorldComponent
         _tileData[tileId] = data;
     }
 
-    public void Reset(int tileId)
+    public void Reset(int tileId, bool notify = true)
     {
         _tileData.Remove(tileId);
-        MapPreviewAPI.NotifyWorldChanged();
+        if (notify) MapPreviewAPI.NotifyWorldChanged();
     }
 
-    public void ResetAll()
+    public void ResetAll(bool notify = true)
     {
         _tileData.Clear();
-        MapPreviewAPI.NotifyWorldChanged();
+        if (notify) MapPreviewAPI.NotifyWorldChanged();
     }
 
     public bool HasBiomeTransitions()
@@ -140,6 +140,10 @@ public class LandformData : WorldComponent
         public List<string> Landforms;
         public List<string> BiomeVariants;
 
+        #if RW_1_6_OR_GREATER
+        public Dictionary<ThingDef, float> RockTypes;
+        #endif
+
         public TileData() { }
 
         public TileData(IWorldTileInfo tileInfo)
@@ -158,6 +162,10 @@ public class LandformData : WorldComponent
             TopologyDirection = other.TopologyDirection;
             Landforms = other.Landforms?.ToList();
             BiomeVariants = other.BiomeVariants?.ToList();
+
+            #if RW_1_6_OR_GREATER
+            RockTypes = other.RockTypes == null ? null : new Dictionary<ThingDef, float>(other.RockTypes);
+            #endif
         }
 
         public void ApplyTopology(WorldTileInfoPrimer primer)
@@ -174,6 +182,10 @@ public class LandformData : WorldComponent
             Scribe_Values.Look(ref TopologyDirection, "topologyDirection", Rot4.North);
             Scribe_Collections.Look(ref Landforms, "landforms", LookMode.Value);
             Scribe_Collections.Look(ref BiomeVariants, "biomeVariants", LookMode.Value);
+
+            #if RW_1_6_OR_GREATER
+            Scribe_Collections.Look(ref RockTypes, "rockTypes", LookMode.Def, LookMode.Value);
+            #endif
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using GeologicalLandforms.Defs;
 using GeologicalLandforms.GraphEditor;
+using GeologicalLandforms.Patches;
 using HarmonyLib;
 using LunarFramework.Utility;
 using RimWorld;
@@ -183,6 +184,8 @@ public class WorldTileInfo : IWorldTileInfo
     public static void InvalidateCache()
     {
         unchecked { _validCacheVersion++; }
+
+        Patch_RimWorld_World.ClearRockCache();
 
         #if RW_1_6_OR_GREATER
         TileMutatorsCustomization.ClearCache();
