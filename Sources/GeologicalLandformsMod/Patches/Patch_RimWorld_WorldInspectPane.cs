@@ -29,7 +29,13 @@ internal static class Patch_RimWorld_WorldInspectPane
             MouseoverSounds.DoRegion(btnRect);
             TooltipHandler.TipRegionByKey(btnRect, "GeologicalLandforms.WorldMap.EditTile");
 
-            if (Widgets.ButtonImage(btnRect, TileEditorWindow.IconEditTile, GUI.color))
+            var color = Color.white;
+
+            #if DEBUG
+            if (Find.World.LandformData().HasData(tile.tileId)) color = new Color(0.5f, 0.5f, 1f);
+            #endif
+
+            if (Widgets.ButtonImage(btnRect, TileEditorWindow.IconEditTile, color))
             {
                 GeologicalLandformsMod.LunarAPI.LifecycleHooks.DoOnce(() =>
                 {

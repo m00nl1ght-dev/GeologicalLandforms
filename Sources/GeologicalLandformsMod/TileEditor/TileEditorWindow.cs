@@ -24,6 +24,8 @@ public class TileEditorWindow : Window
     public static readonly Texture2D IconRemoveElement = ContentFinder<Texture2D>.Get("RemoveElementIconGL");
     public static readonly Texture2D IconReset = ContentFinder<Texture2D>.Get("ResetIconGL");
     public static readonly Texture2D IconReroll = ContentFinder<Texture2D>.Get("RerollIconGL");
+    public static readonly Texture2D IconWarningRed = Resources.Load<Texture2D>("Textures/UI/Widgets/Error");
+    public static readonly Texture2D IconWarningYellow = Resources.Load<Texture2D>("Textures/UI/Widgets/YellowWarning");
     public static readonly Texture2D TexHeaderSlant = ContentFinder<Texture2D>.Get("HeaderSlantGL");
 
     private static readonly PatchGroupSubscriber PatchGroupSubscriber = new(typeof(TileEditorWindow));
@@ -37,6 +39,7 @@ public class TileEditorWindow : Window
     private readonly LayoutRect Layout = new(GeologicalLandformsMod.LunarAPI);
 
     private readonly LayoutRectScrollable LayoutRockTypes = new(GeologicalLandformsMod.LunarAPI);
+    private readonly LayoutRectScrollable LayoutFeatures = new(GeologicalLandformsMod.LunarAPI);
 
     private readonly MapPreviewWidget PreviewWidget = new(MapSizeUtility.MaxMapSize);
 
@@ -184,17 +187,18 @@ public class TileEditorWindow : Window
             {
                 if (DoIconButton(Layout, IconEditElement, Color.white, 2f))
                 {
-                    Find.WindowStack.Add(new DefSelectionWindow<BiomeDef>(SetBiome, BiomeFilter));
+                    Find.WindowStack.Add(new DefSelectionWindow<BiomeDef>(SetBiome, EntryFor));
+
+                    DefSelectionWindow<BiomeDef>.Entry EntryFor(BiomeDef def)
+                    {
+                        if (!def.generatesNaturally || !def.canBuildBase) return null;
+                        return new DefSelectionWindow<BiomeDef>.Entry(def);
+                    }
 
                     void SetBiome(BiomeDef value)
                     {
                         _data.Biome = value;
                         PreviewNeedsRefresh();
-                    }
-
-                    bool BiomeFilter(BiomeDef def)
-                    {
-                        return def.generatesNaturally && def.canBuildBase;
                     }
                 }
             }
@@ -336,23 +340,23 @@ public class TileEditorWindow : Window
     {
         if (DoIconButton(Layout, IconAddElement, Color.white))
         {
-            Find.WindowStack.Add(new DefSelectionWindow<ThingDef>(AddRockType, RockTypeFilter));
+            Find.WindowStack.Add(new DefSelectionWindow<ThingDef>(AddRockType, EntryFor));
+
+            DefSelectionWindow<ThingDef>.Entry EntryFor(ThingDef def)
+            {
+                if (!def.IsNonResourceNaturalRock) return null;
+                if (_data.RockTypes.ContainsKey(def)) return null;
+                return new DefSelectionWindow<ThingDef>.Entry(def);
+            }
 
             void AddRockType(ThingDef value)
             {
                 _data.RockTypes.Add(value, 0f);
                 PreviewNeedsRefresh();
             }
-
-            bool RockTypeFilter(ThingDef def)
-            {
-                if (!def.IsNonResourceNaturalRock) return false;
-                if (_data.RockTypes.ContainsKey(def)) return false;
-                return true;
-            }
         }
 
-        if (DoIconButton(Layout, IconReset, Color.white, 3f))
+        if (!_data.EqualsRockTypes(_dataOriginal) && DoIconButton(Layout, IconReset, Color.white, 3f))
         {
             _data.CopyRockTypes(_dataOriginal);
             PreviewNeedsRefresh();
@@ -361,17 +365,102 @@ public class TileEditorWindow : Window
 
     private void DoFeaturesSection()
     {
+        using (LayoutFeatures.RootScrollable(Layout.Rel(-1), new() { Spacing = 5f }))
+        {
+            foreach (var feature in _data.Features.ToList())
+            {
+                using (LayoutFeatures.Row(24f))
+                {
+                    Widgets.DrawBoxSolid(LayoutFeatures, ColorSectionHeader);
 
+                    LunarGUI.Label(LayoutFeatures.Abs(160f).Moved(5f, 2f), feature.LabelCap);
+
+                    GUI.color = new Color(0.5f, 0.5f, 0.5f);
+                    LunarGUI.Label(LayoutFeatures.Abs(150f).Moved(5f, 2f), feature.modContentPack?.Name ?? "Unknown Source");
+                    GUI.color = Color.white;
+
+                    using (LayoutFeatures.RowRev())
+                    {
+                        if (DoIconButton(LayoutFeatures, IconRemoveElement, Color.red, 2f))
+                        {
+                            _data.Features.Remove(feature);
+                            PreviewNeedsRefresh();
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private void DoFeaturesSectionButtons()
     {
         if (DoIconButton(Layout, IconAddElement, Color.white))
         {
+            Find.WindowStack.Add(new DefSelectionWindow<TileMutatorDef>(AddFeature, EntryFor));
 
+            DefSelectionWindow<TileMutatorDef>.Entry EntryFor(TileMutatorDef def)
+            {
+                if (GeologicalLandformsSettings.SpecialTileMutatorsHidden.Contains(def.defName)) return null;
+                if (def.Worker is TileMutatorWorker_Landform worker && worker.Landform?.WorldTileReq == null) return null;
+
+                var entry = new DefSelectionWindow<TileMutatorDef>.Entry(def)
+                {
+                    Label = UserInterfaceUtils.LabelForTileMutator(def, false)
+                };
+
+                if (_data.Features.Contains(def))
+                {
+                    entry.ProblemMessages.Add("This feature is already present on this tile.");
+                    entry.PreventSelection = true;
+                    return entry;
+                }
+
+                if (def.modContentPack is { IsOfficialMod: true } && def.categories.Contains("River"))
+                {
+                    if (TileObj.Rivers is not { Count: > 0 })
+                    {
+                        entry.ProblemMessages.Add("This feature requires a river on the planet tile.");
+                        entry.PreventSelection = true;
+                        return entry;
+                    }
+
+                    if (def == TileMutatorDefOf.RiverDelta && !Find.World.CoastDirectionAt(Tile).IsValid)
+                    {
+                        entry.ProblemMessages.Add("This feature requires a coastal planet tile.");
+                        entry.PreventSelection = true;
+                        return entry;
+                    }
+                }
+
+                foreach (var existing in _data.Features)
+                {
+                    var overlap1 = def.categories.Intersect(existing.categories).FirstOrDefault();
+                    var overlap2 = def.overrideCategories.Intersect(existing.categories).FirstOrDefault();
+
+                    if (overlap1 != null || overlap2 != null)
+                    {
+                        var exLabel = UserInterfaceUtils.LabelForTileMutator(existing, false);
+                        entry.ProblemMessages.Add($"Replaces existing '{exLabel}' feature.");
+                    }
+                }
+
+                return entry;
+            }
+
+            void AddFeature(TileMutatorDef value)
+            {
+                _data.Features.RemoveAll(f =>
+                    value.categories.Intersect(f.categories).Any() ||
+                    value.overrideCategories.Intersect(f.categories).Any()
+                );
+
+                _data.Features.Add(value);
+                _data.Features.SortBy(m => m.genOrder);
+                PreviewNeedsRefresh();
+            }
         }
 
-        if (DoIconButton(Layout, IconReset, Color.white, 3f))
+        if (!_data.EqualsFeatures(_dataOriginal) && DoIconButton(Layout, IconReset, Color.white, 3f))
         {
             _data.CopyFeatures(_dataOriginal);
             PreviewNeedsRefresh();
@@ -494,6 +583,18 @@ public class TileEditorWindow : Window
         {
             Find.World.grid.Surface.SetDirty<WorldDrawLayer_Hills>();
         }
+    }
+
+    private static readonly string[] McpOrder = [
+        "m00nl1ght.geologicallandforms",
+        "m00nl1ght.geologicallandforms.biometransitions"
+    ];
+
+    internal static int DefMcpSort(ModContentPack mcp)
+    {
+        if (mcp == null) return 99;
+        var idx = Array.IndexOf(McpOrder, mcp.ModMetaData.PackageIdNonUnique);
+        return idx >= 0 ? idx : mcp.IsCoreMod ? 10 : mcp.IsOfficialMod ? 20 : 30;
     }
 
     [StaticConstructorOnStartup]

@@ -12,21 +12,21 @@ public class DefSelectionWindow<T> : Window where T : Def
     public override Vector2 InitialSize => new(500, 400);
 
     private readonly Action<T> _action;
-    private readonly Predicate<T> _filter;
+    private readonly Func<T, Entry> _entryFunc;
 
     private readonly LayoutRect LayoutWindow = new(GeologicalLandformsMod.LunarAPI);
     private readonly LayoutRectScrollable LayoutListing = new(GeologicalLandformsMod.LunarAPI);
 
-    private List<T> _defsCached = [];
+    private List<Entry> _entries = [];
     private string _searchString = "";
 
-    public DefSelectionWindow(Action<T> action, Predicate<T> filter)
+    public DefSelectionWindow(Action<T> action, Func<T, Entry> entryFunc)
     {
         _action = action;
-        _filter = filter ?? (_ => true);
+        _entryFunc = entryFunc;
         absorbInputAroundWindow = true;
         layer = WindowLayer.SubSuper;
-        RefreshDefList();
+        RefreshEntries();
     }
 
     public override void DoWindowContents(Rect rect)
@@ -40,31 +40,50 @@ public class DefSelectionWindow<T> : Window where T : Def
             if (LayoutWindow.PopChanged())
             {
                 _searchString = _searchString.ToLower();
-                RefreshDefList();
+                RefreshEntries();
             }
 
             LayoutWindow.Abs(Margin / 2);
 
             using (LayoutListing.RootScrollable(LayoutWindow.Rel(-1), new() { Spacing = 5f }))
             {
-                foreach (var def in _defsCached)
+                foreach (var entry in _entries)
                 {
-                    using (LayoutListing.Row(24f))
+                    using (LayoutListing.Col(24f + entry.ProblemMessages.Count * 24f))
                     {
                         var color = Mouse.IsOver(LayoutListing) ? TileEditorWindow.ColorSectionBackground : TileEditorWindow.ColorSectionHeader;
 
                         Widgets.DrawBoxSolid(LayoutListing, color);
 
-                        LunarGUI.Label(LayoutListing.Rel(0.5f).Moved(5f, 2f), def.LabelCap);
+                        using (LayoutListing.Row(24f))
+                        {
+                            LunarGUI.Label(LayoutListing.Rel(0.5f).Moved(5f, 2f), entry.Label);
 
-                        GUI.color = new Color(0.5f, 0.5f, 0.5f, 1f);
-                        LunarGUI.Label(LayoutListing.Abs(-1).Moved(5f, 2f), def.modContentPack.Name);
-                        GUI.color = Color.white;
+                            if (entry.SubLabel != null)
+                            {
+                                GUI.color = new Color(0.5f, 0.5f, 0.5f, 1f);
+                                LunarGUI.Label(LayoutListing.Abs(-1).Moved(5f, 2f), entry.SubLabel);
+                                GUI.color = Color.white;
+                            }
+                        }
 
-                        if (Widgets.ButtonInvisible(LayoutListing))
+                        foreach (var problem in entry.ProblemMessages)
+                        {
+                            using (LayoutListing.Row(24f))
+                            {
+                                var icon = entry.PreventSelection ? TileEditorWindow.IconWarningRed : TileEditorWindow.IconWarningYellow;
+                                GUI.DrawTexture(LayoutListing.Abs(24f).ContractedBy(2f).Moved(2f, 0f), icon);
+
+                                GUI.color = entry.PreventSelection ? Color.red : Color.yellow;
+                                LunarGUI.Label(LayoutListing.Rel(-1).Moved(5f, 2f), problem);
+                                GUI.color = Color.white;
+                            }
+                        }
+
+                        if (!entry.PreventSelection && Widgets.ButtonInvisible(LayoutListing))
                         {
                             Close();
-                            _action(def);
+                            _action(entry.Value);
                         }
                     }
                 }
@@ -72,26 +91,40 @@ public class DefSelectionWindow<T> : Window where T : Def
         }
     }
 
-    private void RefreshDefList()
+    private void RefreshEntries()
     {
-        var defs = DefDatabase<T>.AllDefs;
-
-        defs = defs.Where(d => !d.label.NullOrEmpty() && d.modContentPack != null && _filter(d));
+        var entries = DefDatabase<T>.AllDefs.Select(_entryFunc).Where(e => e != null);
 
         if (_searchString.Length > 0)
-            defs = defs.Where(d => d.label.ToLower().Contains(_searchString) || d.modContentPack.Name.ToLower().Contains(_searchString));
+        {
+            entries = entries.Where(d =>
+                d.Label?.ToLower().Contains(_searchString) == true ||
+                d.SubLabel?.ToLower().Contains(_searchString) == true
+            );
+        }
 
-        defs = defs.OrderBy(d => DefMcpSort(d.modContentPack))
-            .ThenBy(d => d.modContentPack.Name)
-            .ThenBy(d => d.label);
+        entries = entries.OrderBy(d => TileEditorWindow.DefMcpSort(d.Value.modContentPack))
+            .ThenBy(d => d.Value.modContentPack?.Name)
+            .ThenBy(d => d.Label);
 
-        _defsCached = defs.ToList();
+        _entries = entries.ToList();
 
         LayoutListing.ResetScroll();
     }
 
-    private static int DefMcpSort(ModContentPack mcp)
+    public class Entry
     {
-        return mcp.IsCoreMod ? 0 : mcp.IsOfficialMod ? 1 : 2;
+        public T Value;
+        public string Label;
+        public string SubLabel;
+        public List<string> ProblemMessages = [];
+        public bool PreventSelection;
+
+        public Entry(T value)
+        {
+            Value = value;
+            Label = value.LabelCap;
+            SubLabel = value.modContentPack?.Name ?? "Unknown Source";
+        }
     }
 }

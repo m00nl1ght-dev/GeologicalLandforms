@@ -116,7 +116,7 @@ public class WorldTileInfo : IWorldTileInfo
         return Get(map.Tile, allowFromCache);
     }
 
-    public static IWorldTileInfo Get(int tileId, bool allowFromCache = true)
+    public static IWorldTileInfo Get(int tileId, bool allowFromCache = true, bool useWorldData = true)
     {
         try
         {
@@ -132,34 +132,9 @@ public class WorldTileInfo : IWorldTileInfo
                 if (match != null && match._cacheVersion == validVersion && match.World == world) return match;
             }
 
-            var info = new WorldTileInfoPrimer(tileId, world.grid[tileId], world);
-            var props = info.Biome.Properties();
+            var info = Build(tileId);
 
-            var worldData = world.LandformData();
-            var tileData = worldData != null && worldData.TryGet(tileId, out var found) ? found : null;
-
-            if (_tsc_waterTiles == null)
-            {
-                _tsc_waterTiles = new(6);
-                _tsc_landTiles = new(6);
-                _tsc_cliffTiles = new(6);
-                _tsc_nonCliffTiles = new(6);
-                _tsc_caveSystemTiles = new(6);
-                _tsc_eligible = new(20);
-                _tsc_commonness = new(20);
-                _tsc_ids = new(5);
-            }
-
-            DetermineTopology(info, worldData, props);
-
-            tileData?.ApplyTopology(info);
-
-            DetermineLandforms(info, tileData, props);
-            DetermineBiomeVariants(info, tileData, props);
-
-            GeologicalLandformsAPI.WorldTileInfoHook.Apply(world, info);
-
-            if (canUseCache)
+            if (canUseCache && useWorldData)
             {
                 info._cacheVersion = validVersion;
                 cache[tileId] = info;
@@ -179,6 +154,45 @@ public class WorldTileInfo : IWorldTileInfo
             return new WorldTileInfo(tileId, new Tile { biome = BiomeDefOf.Ocean, elevation = 0f }, Find.World);
             #endif
         }
+    }
+
+    public static IWorldTileInfo BuildFresh(int tileId, bool useWorldData = true)
+    {
+        return Build(tileId, useWorldData);
+    }
+
+    private static WorldTileInfoPrimer Build(int tileId, bool useWorldData = true)
+    {
+        var world = Find.World;
+
+        var info = new WorldTileInfoPrimer(tileId, world.grid[tileId], world);
+        var props = info.Biome.Properties();
+
+        var worldData = world.LandformData();
+        var tileData = worldData != null && useWorldData && worldData.TryGet(tileId, out var found) ? found : null;
+
+        if (_tsc_waterTiles == null)
+        {
+            _tsc_waterTiles = new(6);
+            _tsc_landTiles = new(6);
+            _tsc_cliffTiles = new(6);
+            _tsc_nonCliffTiles = new(6);
+            _tsc_caveSystemTiles = new(6);
+            _tsc_eligible = new(20);
+            _tsc_commonness = new(20);
+            _tsc_ids = new(5);
+        }
+
+        DetermineTopology(info, worldData, props);
+
+        tileData?.ApplyTopology(info);
+
+        DetermineLandforms(info, tileData, props);
+        DetermineBiomeVariants(info, tileData, props);
+
+        GeologicalLandformsAPI.WorldTileInfoHook.Apply(world, info);
+
+        return info;
     }
 
     public static void InvalidateCache()

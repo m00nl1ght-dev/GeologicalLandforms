@@ -1,11 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
+using LunarFramework.Utility;
 using RimWorld;
 using RimWorld.Planet;
 using Verse;
 
 namespace GeologicalLandforms.TileEditor;
 
+[HotSwappable]
 public class TileEditorData
 {
     // General
@@ -53,7 +55,9 @@ public class TileEditorData
 
     public void ReadFeatures(PlanetTile tile)
     {
-        Features = Find.WorldGrid.Surface[tile].Mutators.ToList();
+        Features = Find.WorldGrid.Surface[tile].Mutators
+            .Where(d => d.Worker is not TileMutatorWorker_Landform lf || lf.Landform?.WorldTileReq != null)
+            .ToList();
     }
 
     public void ReadOriginal(PlanetTile tile)
@@ -75,7 +79,9 @@ public class TileEditorData
 
     public void ReadOriginalFeatures(PlanetTile tile)
     {
-        Features = TileMutatorsCustomization.BuildFresh(tile.tileId, Find.WorldGrid[tile].mutatorsNullable, false).ToList();
+        Features = TileMutatorsCustomization.BuildFresh(tile.tileId, Find.WorldGrid[tile].mutatorsNullable, false)
+            .Where(d => d.Worker is not TileMutatorWorker_Landform lf || lf.Landform?.WorldTileReq != null)
+            .ToList();
     }
 
     public void Apply(PlanetTile tile, TileEditorData original)

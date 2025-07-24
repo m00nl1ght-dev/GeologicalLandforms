@@ -65,7 +65,7 @@ public static class TileMutatorsCustomization
     public static IList<TileMutatorDef> BuildFresh(int tileId, IList<TileMutatorDef> original, bool useWorldData)
     {
         var worldData = Find.World.LandformData();
-        var tileInfo = WorldTileInfo.Get(tileId);
+        var tileInfo = useWorldData ? WorldTileInfo.Get(tileId) : WorldTileInfo.BuildFresh(tileId, false);
 
         // check if the tile has been customized using the world tile editor, if so, return the custom list of features
         if (worldData != null && useWorldData && worldData.TryGet(tileId, out var data) && data.Mutators != null)
@@ -101,7 +101,7 @@ public static class TileMutatorsCustomization
             {
                 mutators.Add(landform.TileMutatorDef);
 
-                if (!landform.IsLayer)
+                if (!landform.IsLayer) // TODO use category logic instead, and use this dynamic approach to set implied categories for custom landforms
                 {
                     if (landform.OutputElevation?.InputKnob.connected() == true ||
                         tileInfo.Hilliness == Hilliness.Impassable)
