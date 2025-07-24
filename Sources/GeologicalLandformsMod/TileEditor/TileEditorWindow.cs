@@ -1,6 +1,7 @@
 #if RW_1_6_OR_GREATER
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using LunarFramework.GUI;
 using LunarFramework.Patching;
@@ -43,8 +44,10 @@ public class TileEditorWindow : Window
 
     private readonly MapPreviewWidget PreviewWidget = new(MapSizeUtility.MaxMapSize);
 
-    public static readonly Color ColorSectionHeader = new(0.15f, 0.15f, 0.15f);
-    public static readonly Color ColorSectionBackground = new(0.2f, 0.2f, 0.2f);
+    public static Color ColorSectionHeader => new(0.15f, 0.15f, 0.15f);
+    public static Color ColorSectionHeaderSel => new(0.3f, 0.3f, 0.3f);
+    public static Color ColorSectionHeaderHov => new(0.25f, 0.25f, 0.25f);
+    public static Color ColorSectionBackground => new(0.2f, 0.2f, 0.2f);
 
     private readonly TileEditorData _dataOriginal = new();
     private readonly TileEditorData _dataBefore = new();
@@ -53,6 +56,7 @@ public class TileEditorWindow : Window
     private MapPreviewRequest _currentPreviewRequest;
     private bool _previewNeedsRefresh;
 
+    private TileMutatorDef _selectedFeature;
     private string _seasonStringCache;
 
     public static bool CanEditTile(PlanetTile tile)
@@ -149,7 +153,7 @@ public class TileEditorWindow : Window
         {
             Widgets.DrawBoxSolid(Layout, ColorSectionBackground);
 
-            using (Layout.Col(-1, new() { Margin = new(margin < 0 ? Margin / 2.0001f : margin), Spacing = 5f }))
+            using (Layout.Col(-1, new() { Margin = new(margin < 0 ? Margin / 2f : margin), Spacing = 5f }))
             {
                 content();
             }
@@ -365,13 +369,25 @@ public class TileEditorWindow : Window
 
     private void DoFeaturesSection()
     {
+        if (!_data.Features.Any())
+        {
+            SectionEmptyLabel("This tile currently has no special features.");
+            return;
+        }
+
         using (LayoutFeatures.RootScrollable(Layout.Rel(-1), new() { Spacing = 5f }))
         {
             foreach (var feature in _data.Features.ToList())
             {
                 using (LayoutFeatures.Row(24f))
                 {
-                    Widgets.DrawBoxSolid(LayoutFeatures, ColorSectionHeader);
+                    var color = feature == _selectedFeature
+                        ? ColorSectionHeaderSel
+                        : Mouse.IsOver(LayoutFeatures)
+                            ? ColorSectionHeaderHov
+                            : ColorSectionHeader;
+
+                    Widgets.DrawBoxSolid(LayoutFeatures, color);
 
                     LunarGUI.Label(LayoutFeatures.Abs(160f).Moved(5f, 2f), feature.LabelCap);
 
@@ -379,12 +395,21 @@ public class TileEditorWindow : Window
                     LunarGUI.Label(LayoutFeatures.Abs(150f).Moved(5f, 2f), feature.modContentPack?.Name ?? "Unknown Source");
                     GUI.color = Color.white;
 
+                    Rect entryRect = LayoutFeatures;
+
                     using (LayoutFeatures.RowRev())
                     {
-                        if (DoIconButton(LayoutFeatures, IconRemoveElement, Color.red, 2f))
+                        if (DoIconButton(LayoutFeatures, IconRemoveElement, Color.red, 2f, null, false))
                         {
+                            if (_selectedFeature == feature)
+                                _selectedFeature = null;
+
                             _data.Features.Remove(feature);
                             PreviewNeedsRefresh();
+                        }
+                        else if (Widgets.ButtonInvisible(entryRect))
+                        {
+                            _selectedFeature = feature;
                         }
                     }
                 }
@@ -410,7 +435,7 @@ public class TileEditorWindow : Window
 
                 if (_data.Features.Contains(def))
                 {
-                    entry.ProblemMessages.Add("This feature is already present on this tile.");
+                    entry.ProblemMessages.Add("Already present on this tile.");
                     entry.PreventSelection = true;
                     return entry;
                 }
@@ -419,18 +444,20 @@ public class TileEditorWindow : Window
                 {
                     if (TileObj.Rivers is not { Count: > 0 })
                     {
-                        entry.ProblemMessages.Add("This feature requires a river on the planet tile.");
+                        entry.ProblemMessages.Add("Requires a river on the planet tile.");
                         entry.PreventSelection = true;
                         return entry;
                     }
 
                     if (def == TileMutatorDefOf.RiverDelta && !Find.World.CoastDirectionAt(Tile).IsValid)
                     {
-                        entry.ProblemMessages.Add("This feature requires a coastal planet tile.");
+                        entry.ProblemMessages.Add("Requires a coastal planet tile.");
                         entry.PreventSelection = true;
                         return entry;
                     }
                 }
+
+                var replaced = new List<string>();
 
                 foreach (var existing in _data.Features)
                 {
@@ -439,9 +466,13 @@ public class TileEditorWindow : Window
 
                     if (overlap1 != null || overlap2 != null)
                     {
-                        var exLabel = UserInterfaceUtils.LabelForTileMutator(existing, false);
-                        entry.ProblemMessages.Add($"Replaces existing '{exLabel}' feature.");
+                        replaced.Add(UserInterfaceUtils.LabelForTileMutator(existing, false));
                     }
+                }
+
+                if (replaced.Count > 0)
+                {
+                    entry.ProblemMessages.Add($"Replaces existing feature:\n{string.Join("\n", replaced)}");
                 }
 
                 return entry;
@@ -456,6 +487,8 @@ public class TileEditorWindow : Window
 
                 _data.Features.Add(value);
                 _data.Features.SortBy(m => m.genOrder);
+                _selectedFeature = value;
+
                 PreviewNeedsRefresh();
             }
         }
@@ -463,13 +496,34 @@ public class TileEditorWindow : Window
         if (!_data.EqualsFeatures(_dataOriginal) && DoIconButton(Layout, IconReset, Color.white, 3f))
         {
             _data.CopyFeatures(_dataOriginal);
+            _selectedFeature = null;
             PreviewNeedsRefresh();
         }
     }
 
     private void DoFeatureConfigSection()
     {
+        if (_selectedFeature == null)
+        {
+            SectionEmptyLabel("Select a feature from the list above to customize.");
+            return;
+        }
 
+        if (_selectedFeature.Worker is not TileMutatorWorker_Landform worker)
+        {
+            SectionEmptyLabel("The selected feature has no customization options.");
+            return;
+        }
+
+        // TODO
+    }
+
+    private void SectionEmptyLabel(string text)
+    {
+        Layout.Rel(0.45f);
+        GUI.color = new Color(0.5f, 0.5f, 0.5f);
+        LunarGUI.LabelCentered(Layout, text);
+        GUI.color = Color.white;
     }
 
     private void DoFeatureConfigSectionButtons()
@@ -485,7 +539,7 @@ public class TileEditorWindow : Window
 
     }
 
-    private bool DoIconButton(LayoutRect layout, Texture2D icon, Color color, float shrink = 0f, string tooltip = null)
+    private bool DoIconButton(LayoutRect layout, Texture2D icon, Color color, float shrink = 0f, string tooltip = null, bool drawBox = true)
     {
         var outerRect = (Rect) layout;
         var btnRect = layout.Abs(outerRect.height);
@@ -493,7 +547,8 @@ public class TileEditorWindow : Window
         if (tooltip != null)
             TooltipHandler.TipRegionByKey(btnRect, tooltip);
 
-        Widgets.DrawBoxSolid(btnRect, ColorSectionHeader);
+        if (drawBox)
+            Widgets.DrawBoxSolid(btnRect, ColorSectionHeader);
 
         GUI.color = Mouse.IsOver(btnRect) ? GenUI.MouseoverColor : color;
         GUI.DrawTexture(btnRect.ContractedBy(shrink), icon);

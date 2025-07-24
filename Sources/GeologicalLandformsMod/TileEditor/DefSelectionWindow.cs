@@ -49,33 +49,30 @@ public class DefSelectionWindow<T> : Window where T : Def
             {
                 foreach (var entry in _entries)
                 {
-                    using (LayoutListing.Col(24f + entry.ProblemMessages.Count * 24f))
+                    using (LayoutListing.Row(24f))
                     {
                         var color = Mouse.IsOver(LayoutListing) ? TileEditorWindow.ColorSectionBackground : TileEditorWindow.ColorSectionHeader;
 
                         Widgets.DrawBoxSolid(LayoutListing, color);
 
-                        using (LayoutListing.Row(24f))
+                        LunarGUI.Label(LayoutListing.Rel(0.5f).Moved(5f, 2f), entry.Label);
+
+                        using (LayoutListing.RowRev())
                         {
-                            LunarGUI.Label(LayoutListing.Rel(0.5f).Moved(5f, 2f), entry.Label);
+                            foreach (var problem in entry.ProblemMessages)
+                            {
+                                var iconRect = LayoutListing.Abs(24f);
+                                var iconTex = entry.PreventSelection ? TileEditorWindow.IconWarningRed : TileEditorWindow.IconWarningYellow;
+
+                                GUI.DrawTexture(iconRect.ContractedBy(2f), iconTex);
+
+                                TooltipHandler.TipRegion(iconRect, problem);
+                            }
 
                             if (entry.SubLabel != null)
                             {
                                 GUI.color = new Color(0.5f, 0.5f, 0.5f, 1f);
                                 LunarGUI.Label(LayoutListing.Abs(-1).Moved(5f, 2f), entry.SubLabel);
-                                GUI.color = Color.white;
-                            }
-                        }
-
-                        foreach (var problem in entry.ProblemMessages)
-                        {
-                            using (LayoutListing.Row(24f))
-                            {
-                                var icon = entry.PreventSelection ? TileEditorWindow.IconWarningRed : TileEditorWindow.IconWarningYellow;
-                                GUI.DrawTexture(LayoutListing.Abs(24f).ContractedBy(2f).Moved(2f, 0f), icon);
-
-                                GUI.color = entry.PreventSelection ? Color.red : Color.yellow;
-                                LunarGUI.Label(LayoutListing.Rel(-1).Moved(5f, 2f), problem);
                                 GUI.color = Color.white;
                             }
                         }
