@@ -322,7 +322,7 @@ public static class DebugActions
         FillWorldTileInfoCache();
 
         #if RW_1_6_OR_GREATER
-        Find.World.renderer.SetDirty<WorldLayer_Landforms>(Find.WorldGrid.Surface);
+        Find.World.grid.Surface.GetLayer<WorldLayer_Landforms>().RegenerateNow();
         #else
         Find.World.renderer.SetDirty<WorldLayer_Landforms>();
         #endif

@@ -354,9 +354,9 @@ public class GeologicalLandformsSettings : LunarModSettings
 
             if (Find.World is { } world)
             {
-                world.grid.Surface.SetDirty<WorldDrawLayer_Terrain>();
-                world.grid.Surface.SetDirty<WorldDrawLayer_Landmarks>();
-                world.grid.Surface.SetDirty<WorldLayer_Landforms>();
+                world.grid.Surface.GetLayer<WorldDrawLayer_Terrain>().RegenerateNow();
+                world.grid.Surface.GetLayer<WorldDrawLayer_Landmarks>().RegenerateNow();
+                world.grid.Surface.GetLayer<WorldLayer_Landforms>().RegenerateNow();
                 ExpandableLandmarksUtility.Notify_WorldObjectsChanged();
             }
         }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using GeologicalLandforms.GraphEditor;
 using LunarFramework.Utility;
 using RimWorld;
 using RimWorld.Planet;
@@ -22,6 +23,10 @@ public class TileEditorData
 
     // Features
     public List<TileMutatorDef> Features = [];
+
+    public IEnumerable<Landform> Landforms => Features
+        .Select(f => f.Worker is TileMutatorWorker_Landform worker ? worker.Landform : null)
+        .Where(f => f != null);
 
     public void Read(PlanetTile tile)
     {
@@ -60,44 +65,51 @@ public class TileEditorData
             .ToList();
     }
 
-    public void ReadOriginal(PlanetTile tile)
+    public void ReadGenerated(PlanetTile tile)
     {
-        ReadOriginalGeneral(tile);
-        ReadOriginalRockTypes(tile);
-        ReadOriginalFeatures(tile);
+        ReadGeneral(tile);
+        ReadGeneratedRockTypes(tile);
+        ReadGeneratedFeatures(tile);
     }
 
-    public void ReadOriginalGeneral(PlanetTile tile)
-    {
-        // TODO
-    }
-
-    public void ReadOriginalRockTypes(PlanetTile tile)
+    public void ReadGeneratedRockTypes(PlanetTile tile)
     {
         RockTypes = WorldTileUtils.OriginalRockTypesFor(tile).ToDictionary(e => e, _ => 0f);
     }
 
-    public void ReadOriginalFeatures(PlanetTile tile)
+    public void ReadGeneratedFeatures(PlanetTile tile)
     {
         Features = TileMutatorsCustomization.BuildFresh(tile.tileId, Find.WorldGrid[tile].mutatorsNullable, false)
             .Where(d => d.Worker is not TileMutatorWorker_Landform lf || lf.Landform?.WorldTileReq != null)
             .ToList();
     }
 
-    public void Apply(PlanetTile tile, TileEditorData original)
+    public static void Apply(PlanetTile tile, TileEditorData custom, TileEditorData generated)
     {
         var world = Find.World;
         var tileObj = world.grid.Surface[tile];
 
-        tileObj.PrimaryBiome = Biome;
-        tileObj.hilliness = Hilliness;
-        tileObj.pollution = Pollution;
-        tileObj.rainfall = Rainfall;
-        tileObj.temperature = Temperature;
+        tileObj.PrimaryBiome = custom.Biome;
+        tileObj.hilliness = custom.Hilliness;
+        tileObj.pollution = custom.Pollution;
+        tileObj.rainfall = custom.Rainfall;
+        tileObj.temperature = custom.Temperature;
+
+        tileObj.hillinessLabelCached = null;
+        tileObj.cachedMaxTemp = null;
+        tileObj.cachedMinTemp = null;
+
+        var hadSameAsGeneratedRockTypes = custom.EqualsRockTypes(generated);
+        var hadSameAsGeneratedFeatures = custom.EqualsFeatures(generated);
+
+        generated.ReadGenerated(tile);
+
+        if (hadSameAsGeneratedRockTypes) custom.CopyRockTypes(generated);
+        if (hadSameAsGeneratedFeatures) custom.CopyFeatures(generated);
 
         var worldData = world.LandformData();
 
-        if (EqualsRockTypes(original) && EqualsFeatures(original))
+        if (hadSameAsGeneratedRockTypes && hadSameAsGeneratedFeatures)
         {
             worldData.Reset(tile.tileId, false);
         }
@@ -108,12 +120,12 @@ public class TileEditorData
                 tileData = new LandformData.TileData(WorldTileInfo.Get(tile.tileId));
             }
 
-            tileData.RockTypes = RockTypes;
+            tileData.RockTypes = custom.RockTypes;
 
             tileData.Mutators = [];
             tileData.Landforms = [];
 
-            foreach (var mutator in Features)
+            foreach (var mutator in custom.Features)
             {
                 if (mutator.Worker is TileMutatorWorker_Landform worker)
                 {

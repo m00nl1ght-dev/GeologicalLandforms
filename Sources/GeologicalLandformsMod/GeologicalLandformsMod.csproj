@@ -16,7 +16,7 @@
 
     <ItemGroup>
         <PackageReference Include="Lib.Harmony" Version="2.3.3" ExcludeAssets="runtime"/>
-        <PackageReference Include="Krafs.Publicizer" Version="2.2.1" PrivateAssets="all">
+        <PackageReference Include="Krafs.Publicizer" Version="2.3.0" PrivateAssets="all">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
     </ItemGroup>
@@ -83,7 +83,9 @@
         <Publicize Include="Assembly-CSharp:Verse.InspectTabBase.size" />
         <Publicize Include="Assembly-CSharp:RimWorld.Planet.WITab.SelPlanetTile" />
         <Publicize Include="Assembly-CSharp:RimWorld.Planet.WorldSelector.selectedTile" />
-        <Publicize Include="Assembly-CSharp:RimWorld.Planet.Tile.biome" />
+        <Publicize Include="Assembly-CSharp:RimWorld.Planet.WorldGenerator.GetSeedPart" />
+        <Publicize Include="Assembly-CSharp" MemberPattern="^RimWorld\.Planet\.WorldGenStep_Terrain\..*" />
+        <Publicize Include="Assembly-CSharp" MemberPattern="^RimWorld\.Planet\.Tile\..*" />
         <Publicize Include="Assembly-CSharp:RimWorld.TileMutatorDef.mutatorWorker" />
         <Publicize Include="Assembly-CSharp:RimWorld.PlanetLayerDef.worldGenSteps" />
         <Publicize Include="Assembly-CSharp:RimWorld.PlanetLayerDef.cachedGenSteps" />
