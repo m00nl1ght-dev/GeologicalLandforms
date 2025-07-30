@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using GeologicalLandforms.GraphEditor;
 using HarmonyLib;
 using LunarFramework.Patching;
@@ -15,7 +16,7 @@ internal static class Patch_RimWorld_GenStep_Scatterer
     [HarmonyPriority(Priority.High)]
     private static void Generate_Prefix(GenStep_Scatterer __instance, ref State __state)
     {
-        if (Landform.AnyGeneratingNonLayer)
+        if (Landform.AnyGenerating && Landform.GeneratingLandforms.Any(lf => lf.IsDefaultLayer)) // TODO better condition
         {
             __state.hasData = true;
 

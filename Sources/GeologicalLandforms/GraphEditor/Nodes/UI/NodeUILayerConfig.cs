@@ -23,7 +23,9 @@ public class NodeUILayerConfig : NodeUIBase
 
     protected override void DoWindowContents(LayoutRect layout)
     {
+        #if !DEBUG
         layout.PushEnabled(Landform.IsCustom);
+        #endif
 
         layout.BeginAbs(28f);
         LunarGUI.Label(layout.Rel(0.3f), "GeologicalLandforms.Settings.Landform.LayerId".Translate());
@@ -37,7 +39,9 @@ public class NodeUILayerConfig : NodeUIBase
         LunarGUI.IntField(layout, ref Priority, ref _priorityEdit, -999, 999);
         layout.End();
 
+        #if !DEBUG
         layout.PopEnabled();
+        #endif
 
         LayerId = LayerId.ToLower();
     }
@@ -52,6 +56,8 @@ public class NodeUILayerConfig : NodeUIBase
         var existing = Landform.LayerConfig;
         if (existing != null && existing != this && canvas.nodes.Contains(existing)) existing.Delete();
         Landform.LayerConfig = this;
+
+        if (fromGUI) LayerId = "default";
     }
 
     protected override void OnDelete()

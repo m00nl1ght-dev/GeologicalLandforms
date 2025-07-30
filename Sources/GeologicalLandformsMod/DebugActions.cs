@@ -359,10 +359,10 @@ public static class DebugActions
                 if (WorldTileUtils.CurrentWorldTile is WorldTileInfo tileInfo)
                 {
                     var landform = Input.GetKey(KeyCode.LeftAlt)
-                        ? tileInfo.Landforms?.LastOrDefault(lf => lf.IsLayer)
+                        ? tileInfo.Landforms?.LastOrDefault(lf => !lf.IsDefaultLayer)
                         : Input.GetKey(KeyCode.LeftShift)
-                            ? tileInfo.Landforms?.FirstOrDefault(lf => lf.IsLayer)
-                            : tileInfo.Landforms?.FirstOrDefault(lf => !lf.IsLayer);
+                            ? tileInfo.Landforms?.FirstOrDefault(lf => !lf.IsDefaultLayer)
+                            : tileInfo.Landforms?.FirstOrDefault(lf => lf.IsDefaultLayer);
 
                     landform ??= tileInfo.Landforms?.FirstOrDefault();
                     if (landform != null) LandformGraphEditor.ActiveEditor?.OpenLandform(landform);

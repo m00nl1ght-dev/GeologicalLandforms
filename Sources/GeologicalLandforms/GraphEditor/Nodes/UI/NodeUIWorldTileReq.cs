@@ -68,7 +68,7 @@ public class NodeUIWorldTileReq : NodeUIBase
 
         #if RW_1_6_OR_GREATER
 
-        if (worldTile.Landmark != null && !Landform.IsLayer)
+        if (worldTile.Landmark != null && Landform.IsDefaultLayer)
         {
             return 0f;
         }
@@ -104,7 +104,7 @@ public class NodeUIWorldTileReq : NodeUIBase
         LunarGUI.LabelDouble(layout, $"{LabelKeyPrefix}.Commonness".Translate(), Commonness.ToString("F2"));
         LunarGUI.Slider(layout, ref Commonness, 0f, 1f);
 
-        layout.PushEnabled(!Landform.IsLayer);
+        layout.PushEnabled(Landform.IsDefaultLayer);
 
         LunarGUI.LabelDouble(layout, $"{LabelKeyPrefix}.CaveChance".Translate(), CaveChance.ToString("F2"));
         LunarGUI.Slider(layout, ref CaveChance, 0f, 1f);

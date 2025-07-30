@@ -25,7 +25,6 @@ public class Landform : TerrainCanvas
     public static IReadOnlyList<Landform> GeneratingLandforms { get; private set; }
 
     public static bool AnyGenerating => GeneratingLandforms is { Count: > 0 };
-    public static bool AnyGeneratingNonLayer => AnyGenerating && GeneratingLandforms.Any(lf => !lf.IsLayer);
 
     public static IntVec2 GeneratingMapSize { get; set; } = new(250, 250);
 
@@ -40,8 +39,9 @@ public class Landform : TerrainCanvas
     public bool IsCustom => Manifest?.IsCustom ?? false;
     public bool IsInternal => Manifest?.IsInternal ?? false;
     public bool IsEdited => Manifest?.IsEdited ?? false;
-    public bool IsLayer => LayerConfig != null;
-    public int Priority => IsLayer ? LayerConfig.Priority : 0;
+    public string LayerId => LayerConfig?.LayerId ?? "default";
+    public bool IsDefaultLayer => LayerId == "default";
+    public int Priority => LayerConfig?.Priority ?? 0;
 
     public string DisplayName => Manifest.DisplayName ?? "";
     public bool DisplayNameHasDirection => Manifest?.DisplayNameHasDirection ?? false;
@@ -86,6 +86,7 @@ public class Landform : TerrainCanvas
     public override IPreviewScheduler PreviewScheduler => LandformPreviewScheduler.Instance;
 
     public bool IsCornerVariant => WorldTileReq?.Topology is Topology.CoastTwoSides or Topology.CliffTwoSides;
+    public bool OpensImpassableMountains => WorldTileReq is { HillinessRequirement.min: > 5 };
 
     #if RW_1_6_OR_GREATER
     public TileMutatorDef TileMutatorDef { get; internal set; }
@@ -193,7 +194,7 @@ public class Landform : TerrainCanvas
         {
             NodeUILandformManifest.ID => !isEditorAction,
             NodeUIWorldTileReq.ID => !isEditorAction || WorldTileReq == null,
-            NodeUILayerConfig.ID => !isEditorAction || (IsCustom && LayerConfig == null),
+            NodeUILayerConfig.ID => !isEditorAction || LayerConfig == null,
             _ => Id != null || !isEditorAction
         };
     }
@@ -307,11 +308,11 @@ public class Landform : TerrainCanvas
             worker = new TileMutatorWorker_Landform(def) { Landform = this };
             def.mutatorWorker = worker;
             def.defName = $"GL_{Id}";
-            def.genOrder = -120 + (LayerConfig?.Priority ?? 0);
             def.displayPriority = IsInternal ? -999 : 1;
             def.ResolveDefNameHash();
         }
 
+        def.genOrder = -120 + Priority;
         def.label ??= TranslatedNameForSelection;
 
         TileMutatorDef = def;

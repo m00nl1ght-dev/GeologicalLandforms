@@ -27,7 +27,7 @@ public class NodeApplyLayer : NodeBase
 
         if (GUILayout.Button(LayerId, GUI.skin.box, FullBoxLayout))
         {
-            var options = LandformManager.LandformsById.Values.Where(lf => lf.IsLayer && lf.WorldTileReq == null);
+            var options = LandformManager.LandformsById.Values.Where(lf => !lf.IsDefaultLayer && lf.WorldTileReq == null);
             Dropdown(options.ToList(), OnLandformSelected, t => t.Id);
         }
 

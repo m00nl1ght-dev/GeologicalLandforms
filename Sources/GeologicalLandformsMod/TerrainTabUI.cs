@@ -190,7 +190,7 @@ internal static class TerrainTabUI
         {
             if (tileInfo.Landforms == null) return false;
             if (landform != null) return tileInfo.Landforms.Contains(landform);
-            return tileInfo.Landforms.Any(l => !l.IsLayer && (!requirePoi || l.IsPointOfInterest()));
+            return tileInfo.Landforms.Any(l => l.IsDefaultLayer && (!requirePoi || l.IsPointOfInterest()));
         }
 
         var maxDistance = GeologicalLandformsMod.Settings.MaxLandformSearchRadius.Value;

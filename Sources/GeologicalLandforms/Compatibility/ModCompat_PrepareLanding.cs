@@ -58,7 +58,7 @@ internal class ModCompat_PrepareLanding : ModCompat
             return;
 
         var tileInfo = WorldTileInfo.Get(tileId);
-        if (tileInfo.Landforms != null && tileInfo.Landforms.Any(lf => !lf.IsLayer))
+        if (tileInfo.Landforms != null && tileInfo.Landforms.Any(lf => lf.OpensImpassableMountains))
             __result = true;
     }
 

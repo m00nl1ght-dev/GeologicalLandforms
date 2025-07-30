@@ -722,7 +722,7 @@ public class TileEditorWindow : Window
         if (_data.Biome.isWaterBiome)
             return "Tile is covered by water.";
 
-        if (_data.Hilliness == Hilliness.Impassable && _data.Landforms.All(lf => lf.IsLayer))
+        if (_data.Hilliness == Hilliness.Impassable && !_data.Landforms.Any(lf => lf.OpensImpassableMountains))
             return "Tile is covered by solid mountain.";
 
         return null;

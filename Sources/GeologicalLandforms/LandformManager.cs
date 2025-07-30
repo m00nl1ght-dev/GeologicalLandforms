@@ -57,7 +57,7 @@ public static class LandformManager
     internal static void RefreshLayers()
     {
         LandformLayers = _landformsById.Values
-            .GroupBy(lf => lf.IsLayer ? lf.LayerConfig.LayerId : null)
+            .GroupBy(lf => lf.LayerId)
             .Select(g => new Layer(g.Key, g.OrderBy(lf => lf.Manifest.TimeCreated).ToArray()))
             .ToArray();
 
@@ -368,7 +368,7 @@ public static class LandformManager
         public Layer(string layerId, IReadOnlyList<Landform> landforms)
         {
             LayerId = layerId;
-            SelectionSeed = layerId == null ? 1754 : GenText.StableStringHash(layerId);
+            SelectionSeed = layerId is null or "default" ? 1754 : GenText.StableStringHash(layerId);
             Landforms = landforms;
         }
     }

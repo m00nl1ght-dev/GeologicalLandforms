@@ -101,7 +101,7 @@ public static class TileMutatorsCustomization
             {
                 mutators.Add(landform.TileMutatorDef);
 
-                if (!landform.IsLayer) // TODO use category logic instead, and use this dynamic approach to set implied categories for custom landforms
+                if (landform.IsDefaultLayer) // TODO use category logic instead, and use this dynamic approach to set implied categories for custom landforms
                 {
                     if (landform.OutputElevation?.InputKnob.connected() == true ||
                         tileInfo.Hilliness == Hilliness.Impassable)

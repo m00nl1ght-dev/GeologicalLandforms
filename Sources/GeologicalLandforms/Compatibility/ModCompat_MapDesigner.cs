@@ -30,7 +30,7 @@ internal class ModCompat_MapDesigner : ModCompat
         _field_beachTerr = Require(AccessTools.Field(_settings.GetType(), "beachTerr"));
 
         GeologicalLandformsAPI.LandformEnabled.AddModifier(99, (lf, val) =>
-            val && (!_overrideGL || !lf.IsLayer || lf.LayerConfig.LayerId != "river"));
+            val && (!_overrideGL || lf.LayerId != "river"));
 
         #if RW_1_6_OR_GREATER
 

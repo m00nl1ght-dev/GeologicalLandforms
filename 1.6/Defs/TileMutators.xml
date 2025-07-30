@@ -5,7 +5,6 @@
   <TileMutatorDef Name="GL_LandformBase" Abstract="True">
     <workerClass>GeologicalLandforms.TileMutatorWorker_Landform</workerClass>
     <displayPriority>1</displayPriority>
-    <genOrder>-120</genOrder>
   </TileMutatorDef>
 
   <TileMutatorDef ParentName="GL_LandformBase">
@@ -223,7 +222,6 @@
 
   <TileMutatorDef ParentName="GL_LandformBase">
     <defName>GL_River</defName>
-    <genOrder>-110</genOrder>
     <categories>
       <li>River</li>
     </categories>
@@ -231,7 +229,6 @@
 
   <TileMutatorDef ParentName="GL_LandformBase">
     <defName>GL_RiverConfluence</defName>
-    <genOrder>-110</genOrder>
     <categories>
       <li>River</li>
     </categories>
@@ -239,7 +236,6 @@
 
   <TileMutatorDef ParentName="GL_LandformBase">
     <defName>GL_RiverDelta</defName>
-    <genOrder>-110</genOrder>
     <categories>
       <li>River</li>
     </categories>
@@ -247,7 +243,6 @@
 
   <TileMutatorDef ParentName="GL_LandformBase">
     <defName>GL_RiverIsland</defName>
-    <genOrder>-110</genOrder>
     <categories>
       <li>River</li>
     </categories>
@@ -255,7 +250,6 @@
 
   <TileMutatorDef ParentName="GL_LandformBase">
     <defName>GL_RiverSource</defName>
-    <genOrder>-110</genOrder>
     <categories>
       <li>River</li>
     </categories>
@@ -265,7 +259,6 @@
     <!-- internal, should not be visible -->
     <defName>GL_RiverTerrain</defName>
     <displayPriority>-999</displayPriority>
-    <genOrder>-108</genOrder>
     <categories>
     </categories>
   </TileMutatorDef>
