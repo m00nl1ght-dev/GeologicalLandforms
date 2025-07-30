@@ -4,6 +4,7 @@ using System.Linq;
 using LunarFramework.GUI;
 using UnityEngine;
 using Verse;
+using static GeologicalLandforms.TileEditor.TileEditorWindow;
 
 namespace GeologicalLandforms.TileEditor;
 
@@ -11,19 +12,23 @@ public class DefSelectionWindow<T> : Window where T : Def
 {
     public override Vector2 InitialSize => new(500, 400);
 
+    public static Func<T, Entry> DefaultEntryFactory = v => new Entry(v);
+
     private readonly Action<T> _action;
-    private readonly Func<T, Entry> _entryFunc;
+    private readonly Func<T, Entry> _entryFactory;
 
     private readonly LayoutRect LayoutWindow = new(GeologicalLandformsMod.LunarAPI);
     private readonly LayoutRectScrollable LayoutListing = new(GeologicalLandformsMod.LunarAPI);
 
     private List<Entry> _entries = [];
     private string _searchString = "";
+    private ProblemType _problemFilter;
 
-    public DefSelectionWindow(Action<T> action, Func<T, Entry> entryFunc)
+    public DefSelectionWindow(Action<T> action, ProblemType initialFilter, Func<T, Entry> entryFactory = null)
     {
         _action = action;
-        _entryFunc = entryFunc;
+        _entryFactory = entryFactory ?? DefaultEntryFactory;
+        _problemFilter = initialFilter;
         absorbInputAroundWindow = true;
         layer = WindowLayer.SubSuper;
         RefreshEntries();
@@ -33,14 +38,44 @@ public class DefSelectionWindow<T> : Window where T : Def
     {
         using (LayoutWindow.Root(rect))
         {
-            LayoutWindow.PushChanged();
-
-            LunarGUI.TextField(LayoutWindow.Abs(28f), ref _searchString);
-
-            if (LayoutWindow.PopChanged())
+            using (LayoutWindow.RowRev(24f))
             {
-                _searchString = _searchString.ToLower();
-                RefreshEntries();
+                var filterIconRect = LayoutWindow.Abs(24f).Moved(4f, 0f);
+
+                GUI.color = _problemFilter switch {
+                    ProblemType.Warning => Color.yellow,
+                    ProblemType.Error => Color.red,
+                    _ => Color.white
+                };
+
+                GUI.DrawTexture(filterIconRect, IconFilter);
+
+                GUI.color = Color.white;
+
+                if (Widgets.ButtonInvisible(filterIconRect))
+                {
+                    _problemFilter = _problemFilter switch {
+                        ProblemType.Warning => ProblemType.Error,
+                        ProblemType.Error => ProblemType.Info,
+                        _ => ProblemType.Warning
+                    };
+
+                    RefreshEntries();
+                }
+
+                LayoutWindow.PushChanged();
+
+                GUI.SetNextControlName("DefWindowSearchField");
+
+                LunarGUI.TextField(LayoutWindow.Abs(-1), ref _searchString);
+
+                GUI.FocusControl("DefWindowSearchField");
+
+                if (LayoutWindow.PopChanged())
+                {
+                    _searchString = _searchString.ToLower();
+                    RefreshEntries();
+                }
             }
 
             LayoutWindow.Abs(Margin / 2);
@@ -51,7 +86,7 @@ public class DefSelectionWindow<T> : Window where T : Def
                 {
                     using (LayoutListing.Row(24f))
                     {
-                        var color = Mouse.IsOver(LayoutListing) ? TileEditorWindow.ColorSectionBackground : TileEditorWindow.ColorSectionHeader;
+                        var color = Mouse.IsOver(LayoutListing) ? ColorSectionBackground : ColorSectionHeader;
 
                         Widgets.DrawBoxSolid(LayoutListing, color);
 
@@ -59,14 +94,11 @@ public class DefSelectionWindow<T> : Window where T : Def
 
                         using (LayoutListing.RowRev())
                         {
-                            foreach (var problem in entry.ProblemMessages)
+                            foreach (var problem in entry.Problems)
                             {
                                 var iconRect = LayoutListing.Abs(24f);
-                                var iconTex = entry.PreventSelection ? TileEditorWindow.IconWarningRed : TileEditorWindow.IconWarningYellow;
-
-                                GUI.DrawTexture(iconRect.ContractedBy(2f), iconTex);
-
-                                TooltipHandler.TipRegion(iconRect, problem);
+                                GUI.DrawTexture(iconRect.ContractedBy(2f), problem.Icon);
+                                TooltipHandler.TipRegion(iconRect, problem.message);
                             }
 
                             if (entry.SubLabel != null)
@@ -90,7 +122,7 @@ public class DefSelectionWindow<T> : Window where T : Def
 
     private void RefreshEntries()
     {
-        var entries = DefDatabase<T>.AllDefs.Select(_entryFunc).Where(e => e != null);
+        var entries = DefDatabase<T>.AllDefs.Select(_entryFactory).Where(e => e != null);
 
         if (_searchString.Length > 0)
         {
@@ -100,7 +132,12 @@ public class DefSelectionWindow<T> : Window where T : Def
             );
         }
 
-        entries = entries.OrderBy(d => TileEditorWindow.DefMcpSort(d.Value.modContentPack))
+        if (_problemFilter != ProblemType.Error)
+        {
+            entries = entries.Where(e => e.Problems.All(p => p.type <= _problemFilter));
+        }
+
+        entries = entries.OrderBy(d => DefMcpSort(d.Value.modContentPack))
             .ThenBy(d => d.Value.modContentPack?.Name)
             .ThenBy(d => d.Label);
 
@@ -114,14 +151,50 @@ public class DefSelectionWindow<T> : Window where T : Def
         public T Value;
         public string Label;
         public string SubLabel;
-        public List<string> ProblemMessages = [];
-        public bool PreventSelection;
+        public List<Problem> Problems = [];
+
+        public bool PreventSelection => Problems.Any(p => p.type == ProblemType.Error);
 
         public Entry(T value)
         {
             Value = value;
             Label = value.LabelCap;
             SubLabel = value.modContentPack?.Name ?? "Unknown Source";
+        }
+
+        public void AddInfo(string message)
+        {
+            Problems.Add(new Problem(ProblemType.Info, message));
+        }
+
+        public void AddWarning(string message)
+        {
+            Problems.Add(new Problem(ProblemType.Warning, message));
+        }
+
+        public void AddError(string message)
+        {
+            Problems.Add(new Problem(ProblemType.Error, message));
+        }
+    }
+
+    public readonly struct Problem
+    {
+        public readonly ProblemType type;
+        public readonly string message;
+
+        public Texture2D Icon => type switch
+        {
+            ProblemType.Info => TexButton.Info,
+            ProblemType.Warning => IconWarningYellow,
+            ProblemType.Error => IconWarningRed,
+            _ => throw new ArgumentOutOfRangeException()
+        };
+
+        public Problem(ProblemType type, string message)
+        {
+            this.type = type;
+            this.message = message;
         }
     }
 }

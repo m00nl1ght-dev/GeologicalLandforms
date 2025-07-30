@@ -33,7 +33,7 @@ internal static class Patch_Verse_MapGenerator
 
             GeologicalLandformsAPI.Logger.Log($"Map generator context: {Landform.GeneratingTile} ({indicator})");
 
-            if (data != null && map.Tile >= 0)
+            if (data != null && map.Tile >= 0 && !data.HasData(map.Tile))
             {
                 data.CommitDirectly(map.Tile, new LandformData.TileData(Landform.GeneratingTile));
             }

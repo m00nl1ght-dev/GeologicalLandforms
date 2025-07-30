@@ -142,6 +142,7 @@ public static class TileMutatorsCustomization
                     mutators.Remove(TileMutatorDefOf.Headwater);
                 }
 
+                // TODO instead XML patch some new category onto MixedBiome from DLC and set it as overrideCategory in BT and local biome landforms
                 if (landform.OutputBiomeGrid?.BiomeGridKnob.connected() == true ||
                     landform.OutputBiomeGrid?.BiomeTransitionKnob.connected() == true)
                 {

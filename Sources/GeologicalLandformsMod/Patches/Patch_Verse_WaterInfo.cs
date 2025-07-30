@@ -18,7 +18,7 @@ internal static class Patch_Verse_WaterInfo
     [HarmonyPatch("DebugDrawRiver")]
     private static void DebugDrawRiver()
     {
-        if (PathTracer.DebugLines != null && !LandformGraphEditor.IsEditorOpen)
+        if (DebugViewSettings.drawRiverDebug && PathTracer.DebugLines != null && !LandformGraphEditor.IsEditorOpen)
         {
             var group = Input.GetKey(KeyCode.Y) ? 1 : Input.GetKey(KeyCode.X) ? 2 : 0;
 

@@ -53,60 +53,17 @@ public class NodeValueRiverLinks : NodeBase
     {
         GUILayout.BeginVertical(BoxStyle);
 
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Inflow Angle", DoubleBoxLayout);
-        GUILayout.EndHorizontal();
-        InflowAngleOutputKnob.SetPosition();
-
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Inflow Offset", DoubleBoxLayout);
-        GUILayout.EndHorizontal();
-        InflowOffsetOutputKnob.SetPosition();
-
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Inflow Width", DoubleBoxLayout);
-        GUILayout.EndHorizontal();
-        InflowWidthOutputKnob.SetPosition();
-
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Tributary Angle", DoubleBoxLayout);
-        GUILayout.EndHorizontal();
-        TributaryAngleOutputKnob.SetPosition();
-
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Tributary Offset", DoubleBoxLayout);
-        GUILayout.EndHorizontal();
-        TributaryOffsetOutputKnob.SetPosition();
-
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Tributary Width", DoubleBoxLayout);
-        GUILayout.EndHorizontal();
-        TributaryWidthOutputKnob.SetPosition();
-
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Tertiary Angle", DoubleBoxLayout);
-        GUILayout.EndHorizontal();
-        TertiaryAngleOutputKnob.SetPosition();
-
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Tertiary Offset", DoubleBoxLayout);
-        GUILayout.EndHorizontal();
-        TertiaryOffsetOutputKnob.SetPosition();
-
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Tertiary Width", DoubleBoxLayout);
-        GUILayout.EndHorizontal();
-        TertiaryWidthOutputKnob.SetPosition();
-
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Outflow Angle", DoubleBoxLayout);
-        GUILayout.EndHorizontal();
-        OutflowAngleOutputKnob.SetPosition();
-
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Outflow Width", DoubleBoxLayout);
-        GUILayout.EndHorizontal();
-        OutflowWidthOutputKnob.SetPosition();
+        KnobLabelDouble(InflowAngleOutputKnob, "Inflow Angle");
+        KnobLabelDouble(InflowOffsetOutputKnob, "Inflow Offset");
+        KnobLabelDouble(InflowWidthOutputKnob, "Inflow Width");
+        KnobLabelDouble(TributaryAngleOutputKnob, "Tributary Angle");
+        KnobLabelDouble(TributaryOffsetOutputKnob, "Tributary Offset");
+        KnobLabelDouble(TributaryWidthOutputKnob, "Tributary Width");
+        KnobLabelDouble(TertiaryAngleOutputKnob, "Tertiary Angle");
+        KnobLabelDouble(TertiaryOffsetOutputKnob, "Tertiary Offset");
+        KnobLabelDouble(TertiaryWidthOutputKnob, "Tertiary Width");
+        KnobLabelDouble(OutflowAngleOutputKnob, "Outflow Angle");
+        KnobLabelDouble(OutflowWidthOutputKnob, "Outflow Width");
 
         GUILayout.EndVertical();
     }

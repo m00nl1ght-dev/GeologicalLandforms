@@ -30,20 +30,9 @@ public class NodeOutputWaterFlow : NodeOutputBase
     {
         GUILayout.BeginVertical(BoxStyle);
 
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label(RiverTerrainKnob.name, BoxLayout);
-        GUILayout.EndHorizontal();
-        RiverTerrainKnob.SetPosition();
-
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label(FlowAlphaKnob.name, BoxLayout);
-        GUILayout.EndHorizontal();
-        FlowAlphaKnob.SetPosition();
-
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label(FlowBetaKnob.name, BoxLayout);
-        GUILayout.EndHorizontal();
-        FlowBetaKnob.SetPosition();
+        KnobLabel(RiverTerrainKnob);
+        KnobLabel(FlowAlphaKnob);
+        KnobLabel(FlowBetaKnob);
 
         GUILayout.EndVertical();
     }

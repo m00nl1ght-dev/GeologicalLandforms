@@ -32,25 +32,10 @@ public class NodeOutputTerrainPatches : NodeOutputBase
     {
         GUILayout.BeginVertical(BoxStyle);
 
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Value offset", DoubleBoxLayout);
-        GUILayout.EndHorizontal();
-        OffsetKnob.SetPosition();
-
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Frequency multiplier", DoubleBoxLayout);
-        GUILayout.EndHorizontal();
-        FrequencyKnob.SetPosition();
-
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Lacunarity multiplier", DoubleBoxLayout);
-        GUILayout.EndHorizontal();
-        LacunarityKnob.SetPosition();
-
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Persistence multiplier", DoubleBoxLayout);
-        GUILayout.EndHorizontal();
-        PersistenceKnob.SetPosition();
+        KnobLabelDouble(OffsetKnob, "Value offset");
+        KnobLabelDouble(FrequencyKnob, "Frequency multiplier");
+        KnobLabelDouble(LacunarityKnob, "Lacunarity multiplier");
+        KnobLabelDouble(PersistenceKnob, "Persistence multiplier");
 
         GUILayout.EndVertical();
     }

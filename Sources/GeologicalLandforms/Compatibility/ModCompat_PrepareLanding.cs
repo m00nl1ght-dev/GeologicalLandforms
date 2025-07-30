@@ -30,9 +30,9 @@ internal class ModCompat_PrepareLanding : ModCompat
     [HarmonyPatch("PrepareLanding.TabFeatures", "IsFeatureDisabled")]
     private static void IsFeatureDisabled_Postfix(TileMutatorDef def, ref bool __result)
     {
-        if (def.Worker is TileMutatorWorker_Landform { Landform: not null } worker)
+        if (def.AsLandform() is {} landform)
         {
-            if (!GeologicalLandformsAPI.LandformEnabled.Apply(worker.Landform))
+            if (!GeologicalLandformsAPI.LandformEnabled.Apply(landform))
             {
                 __result = true;
             }

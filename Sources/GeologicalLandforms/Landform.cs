@@ -113,15 +113,13 @@ public class Landform : TerrainCanvas
         var landformStack = new List<Landform>();
         GeneratingLandforms = landformStack;
 
-        var overrides = tileInfo.LandformGenOverrides;
-
         foreach (var landform in landforms)
         {
             if (landform.WorldTileReq == null || landform.WorldTileReq.CheckWorldObject(tileInfo))
             {
                 landform.RandSeed = seed;
                 landform.ResetConfigurableOverrides();
-                overrides?.WriteTo(landform);
+                tileInfo.PropertiesFor(landform)?.ApplyToLandform(landform);
                 landform.ClearNamedInputs();
                 landform.SetNamedInputs(landformStack);
                 landform.TraverseAll();

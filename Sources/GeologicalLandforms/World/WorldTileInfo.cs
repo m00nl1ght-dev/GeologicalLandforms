@@ -32,8 +32,6 @@ public class WorldTileInfo : IWorldTileInfo
     public IReadOnlyList<BorderingBiome> BorderingBiomes { get; protected set; }
     public IReadOnlyList<BiomeVariantDef> BiomeVariants { get; protected set; }
 
-    public LandformGenOverrides LandformGenOverrides { get; protected set; }
-
     public Topology Topology { get; protected set; }
     public float TopologyValue { get; protected set; }
     public Rot4 TopologyDirection { get; protected set; }
@@ -66,6 +64,12 @@ public class WorldTileInfo : IWorldTileInfo
     public byte DepthInCaveSystem => World.LandformData()?.GetCaveSystemDepthAt(TileId) ?? 0;
 
     public int StableSeed(int salt) => WorldTileUtils.StableSeedForTile(TileId, salt);
+
+    #if RW_1_6_OR_GREATER
+    public TileFeatureProperties PropertiesFor(Landform landform) => World.LandformData()?.PropertiesFor(TileId, landform);
+    #else
+    public TileFeatureProperties PropertiesFor(Landform landform) => null;
+    #endif
 
     internal readonly int TileId;
 

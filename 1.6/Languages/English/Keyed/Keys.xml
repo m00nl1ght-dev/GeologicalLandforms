@@ -12,6 +12,7 @@
   <GeologicalLandforms.Settings.EnableCellFinderOptimization>Enable cell finder optimizations</GeologicalLandforms.Settings.EnableCellFinderOptimization>
   <GeologicalLandforms.Settings.EnableLandformScaling>Scale landforms with map size</GeologicalLandforms.Settings.EnableLandformScaling>
   <GeologicalLandforms.Settings.EnableExperimentalLandforms>Enable experimental landforms</GeologicalLandforms.Settings.EnableExperimentalLandforms>
+  <GeologicalLandforms.Settings.EnableWorldTileEditor>Enable world tile editor</GeologicalLandforms.Settings.EnableWorldTileEditor>
   <GeologicalLandforms.Settings.EnableGodMode>Enable god mode (allows placing landforms manually)</GeologicalLandforms.Settings.EnableGodMode>
   <GeologicalLandforms.Settings.OpenEditor>Open landform editor</GeologicalLandforms.Settings.OpenEditor>
   <GeologicalLandforms.Settings.ResetAll>Reset everything to default</GeologicalLandforms.Settings.ResetAll>

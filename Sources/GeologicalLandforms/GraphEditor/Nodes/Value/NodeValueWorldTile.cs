@@ -47,45 +47,14 @@ public class NodeValueWorldTile : NodeBase
     {
         GUILayout.BeginVertical(BoxStyle);
 
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Biome", DoubleBoxLayout);
-        GUILayout.EndHorizontal();
-        BiomeOutputKnob.SetPosition();
-
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Hilliness", DoubleBoxLayout);
-        GUILayout.EndHorizontal();
-        HillinessOutputKnob.SetPosition();
-
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Elevation", DoubleBoxLayout);
-        GUILayout.EndHorizontal();
-        ElevationOutputKnob.SetPosition();
-
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Temperature", DoubleBoxLayout);
-        GUILayout.EndHorizontal();
-        TemperatureOutputKnob.SetPosition();
-
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Rainfall", DoubleBoxLayout);
-        GUILayout.EndHorizontal();
-        RainfallOutputKnob.SetPosition();
-
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Topo Value", DoubleBoxLayout);
-        GUILayout.EndHorizontal();
-        TopologyValueOutputKnob.SetPosition();
-
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Topo Angle", DoubleBoxLayout);
-        GUILayout.EndHorizontal();
-        TopologyAngleOutputKnob.SetPosition();
-
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Cave Depth", DoubleBoxLayout);
-        GUILayout.EndHorizontal();
-        CaveSystemDepthValueOutputKnob.SetPosition();
+        KnobLabelDouble(BiomeOutputKnob, "Biome");
+        KnobLabelDouble(HillinessOutputKnob, "Hilliness");
+        KnobLabelDouble(ElevationOutputKnob, "Elevation");
+        KnobLabelDouble(TemperatureOutputKnob, "Temperature");
+        KnobLabelDouble(RainfallOutputKnob, "Rainfall");
+        KnobLabelDouble(TopologyValueOutputKnob, "Topo Value");
+        KnobLabelDouble(TopologyAngleOutputKnob, "Topo Angle");
+        KnobLabelDouble(CaveSystemDepthValueOutputKnob, "Cave Depth");
 
         GUILayout.EndVertical();
     }

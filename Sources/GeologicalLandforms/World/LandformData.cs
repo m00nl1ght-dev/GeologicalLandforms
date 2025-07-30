@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using GeologicalLandforms.GraphEditor;
 using MapPreview;
 using RimWorld;
 using RimWorld.Planet;
@@ -89,6 +90,28 @@ public class LandformData : WorldComponent
         _caveSystems[tileId] = depth;
     }
 
+    #if RW_1_6_OR_GREATER
+
+    public TileFeatureProperties PropertiesFor(int tileId, TileMutatorDef mutator)
+    {
+        if (TryGet(tileId, out var data) && data.FeatureProperties is {} properties)
+        {
+            if (properties.TryGetValue(mutator.defName, out var value))
+            {
+                return value;
+            }
+        }
+
+        return null;
+    }
+
+    public TileFeatureProperties PropertiesFor(int tileId, Landform landform)
+    {
+        return landform.TileMutatorDef is {} def ? PropertiesFor(tileId, def) : null;
+    }
+
+    #endif
+
     public override void ExposeData()
     {
         Scribe_Collections.Look(ref _tileData, "tileData", LookMode.Value, LookMode.Deep);
@@ -144,6 +167,7 @@ public class LandformData : WorldComponent
         #if RW_1_6_OR_GREATER
         public List<TileMutatorDef> Mutators;
         public Dictionary<ThingDef, float> RockTypes;
+        public Dictionary<string, TileFeatureProperties> FeatureProperties;
         #endif
 
         public TileData() { }
@@ -168,6 +192,7 @@ public class LandformData : WorldComponent
             #if RW_1_6_OR_GREATER
             Mutators = other.Mutators == null ? null : new List<TileMutatorDef>(other.Mutators);
             RockTypes = other.RockTypes == null ? null : new Dictionary<ThingDef, float>(other.RockTypes);
+            FeatureProperties = other.FeatureProperties?.ToDictionary(e => e.Key, e => new TileFeatureProperties(e.Value));
             #endif
         }
 
@@ -189,6 +214,7 @@ public class LandformData : WorldComponent
             #if RW_1_6_OR_GREATER
             Scribe_Collections.Look(ref Mutators, "mutators", LookMode.Def);
             Scribe_Collections.Look(ref RockTypes, "rockTypes", LookMode.Def, LookMode.Value);
+            Scribe_Collections.Look(ref FeatureProperties, "featureProperties", LookMode.Value, LookMode.Deep);
             #endif
         }
     }

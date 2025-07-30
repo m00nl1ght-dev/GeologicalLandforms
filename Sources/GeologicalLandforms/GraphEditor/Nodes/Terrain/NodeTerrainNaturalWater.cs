@@ -43,35 +43,12 @@ public class NodeTerrainNaturalWater : NodeBase
     {
         GUILayout.BeginVertical(BoxStyle);
 
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Deep Water", DoubleBoxLayout);
-        GUILayout.EndHorizontal();
-        DeepOutputKnob.SetPosition();
-
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Shallow Water", DoubleBoxLayout);
-        GUILayout.EndHorizontal();
-        ShallowOutputKnob.SetPosition();
-
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Beach", DoubleBoxLayout);
-        GUILayout.EndHorizontal();
-        BeachOutputKnob.SetPosition();
-
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Deep River", DoubleBoxLayout);
-        GUILayout.EndHorizontal();
-        RiverDeepOutputKnob.SetPosition();
-
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Shallow River", DoubleBoxLayout);
-        GUILayout.EndHorizontal();
-        RiverShallowOutputKnob.SetPosition();
-
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Riverbank", DoubleBoxLayout);
-        GUILayout.EndHorizontal();
-        RiverbankOutputKnob.SetPosition();
+        KnobLabelDouble(DeepOutputKnob, "Deep Water");
+        KnobLabelDouble(ShallowOutputKnob, "Shallow Water");
+        KnobLabelDouble(BeachOutputKnob, "Beach");
+        KnobLabelDouble(RiverDeepOutputKnob, "Deep River");
+        KnobLabelDouble(RiverShallowOutputKnob, "Shallow River");
+        KnobLabelDouble(RiverbankOutputKnob, "Riverbank");
 
         GUILayout.BeginHorizontal(BoxStyle);
 

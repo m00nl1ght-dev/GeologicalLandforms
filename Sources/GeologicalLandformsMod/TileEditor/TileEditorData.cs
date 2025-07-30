@@ -17,6 +17,7 @@ public class TileEditorData
     public float Pollution;
     public float Rainfall;
     public float Temperature;
+    // TODO add elevation (need to change it when switching biome between ocean / not ocean
 
     // Rock Types
     public Dictionary<ThingDef, float> RockTypes = [];
@@ -24,15 +25,17 @@ public class TileEditorData
     // Features
     public List<TileMutatorDef> Features = [];
 
-    public IEnumerable<Landform> Landforms => Features
-        .Select(f => f.Worker is TileMutatorWorker_Landform worker ? worker.Landform : null)
-        .Where(f => f != null);
+    // Feature Config
+    public Dictionary<string, TileFeatureProperties> FeatureProperties = [];
+
+    public IEnumerable<Landform> Landforms => Features.Select(f => f.AsLandform()).WhereNotNull();
 
     public void Read(PlanetTile tile)
     {
         ReadGeneral(tile);
         ReadRockTypes(tile);
         ReadFeatures(tile);
+        ReadFeatureProperties(tile);
     }
 
     public void ReadGeneral(PlanetTile tile)
@@ -60,9 +63,12 @@ public class TileEditorData
 
     public void ReadFeatures(PlanetTile tile)
     {
-        Features = Find.WorldGrid.Surface[tile].Mutators
-            .Where(d => d.Worker is not TileMutatorWorker_Landform lf || lf.Landform?.WorldTileReq != null)
-            .ToList();
+        Features = Find.WorldGrid.Surface[tile].Mutators.Where(d => d.AsLandform() is not { WorldTileReq: null }).ToList();
+    }
+
+    public void ReadFeatureProperties(PlanetTile tile)
+    {
+        FeatureProperties = Find.World.LandformData().TryGet(tile.tileId, out var data) ? data.FeatureProperties ?? [] : [];
     }
 
     public void ReadGenerated(PlanetTile tile)
@@ -70,6 +76,7 @@ public class TileEditorData
         ReadGeneral(tile);
         ReadGeneratedRockTypes(tile);
         ReadGeneratedFeatures(tile);
+        ReadGeneratedFeatureProperties(tile);
     }
 
     public void ReadGeneratedRockTypes(PlanetTile tile)
@@ -80,8 +87,43 @@ public class TileEditorData
     public void ReadGeneratedFeatures(PlanetTile tile)
     {
         Features = TileMutatorsCustomization.BuildFresh(tile.tileId, Find.WorldGrid[tile].mutatorsNullable, false)
-            .Where(d => d.Worker is not TileMutatorWorker_Landform lf || lf.Landform?.WorldTileReq != null)
+            .Where(d => d.AsLandform() is not { WorldTileReq: null })
             .ToList();
+    }
+
+    public void ReadGeneratedFeatureProperties(PlanetTile tile)
+    {
+        FeatureProperties = [];
+    }
+
+    public bool TryGetFeatureProperty(TileMutatorDef feature, string propertyId, out string value)
+    {
+        if (FeatureProperties.TryGetValue(feature.defName, out var properties))
+            if (properties.Properties.TryGetValue(propertyId, out value))
+                return true;
+
+        value = null;
+        return false;
+    }
+
+    public void SetFeatureProperty(TileMutatorDef feature, string propertyId, string value)
+    {
+        if (FeatureProperties.TryGetValue(feature.defName, out var properties))
+        {
+            properties.Properties[propertyId] = value;
+        }
+        else
+        {
+            FeatureProperties[feature.defName] = new() { Properties = { [propertyId] = value } };
+        }
+    }
+
+    public void ClearFeatureProperty(TileMutatorDef feature, string propertyId)
+    {
+        if (FeatureProperties.TryGetValue(feature.defName, out var properties))
+        {
+            properties.Properties.Remove(propertyId);
+        }
     }
 
     public static void Apply(PlanetTile tile, TileEditorData custom, TileEditorData generated)
@@ -109,7 +151,7 @@ public class TileEditorData
 
         var worldData = world.LandformData();
 
-        if (hadSameAsGeneratedRockTypes && hadSameAsGeneratedFeatures)
+        if (hadSameAsGeneratedRockTypes && hadSameAsGeneratedFeatures && custom.FeatureProperties.Count == 0)
         {
             worldData.Reset(tile.tileId, false);
         }
@@ -121,15 +163,18 @@ public class TileEditorData
             }
 
             tileData.RockTypes = custom.RockTypes;
+            tileData.FeatureProperties = custom.FeatureProperties;
 
             tileData.Mutators = [];
             tileData.Landforms = [];
 
             foreach (var mutator in custom.Features)
             {
-                if (mutator.Worker is TileMutatorWorker_Landform worker)
+                if (mutator.AsLandform() is {} landform)
                 {
-                    tileData.Landforms.Add(worker.Landform.Id);
+                    tileData.Landforms.Add(landform.Id);
+
+                    // TODO set cave system depth if the landform has it as a requirement
                 }
                 else
                 {
@@ -149,6 +194,7 @@ public class TileEditorData
         CopyGeneral(other);
         CopyRockTypes(other);
         CopyFeatures(other);
+        CopyFeatureProperties(other);
     }
 
     public void CopyGeneral(TileEditorData other)
@@ -170,10 +216,16 @@ public class TileEditorData
         Features = new List<TileMutatorDef>(other.Features);
     }
 
+    public void CopyFeatureProperties(TileEditorData other)
+    {
+        FeatureProperties = other.FeatureProperties.ToDictionary(e => e.Key, e => new TileFeatureProperties(e.Value));
+    }
+
     public bool Equals(TileEditorData other) =>
         EqualsGeneral(other) &&
         EqualsRockTypes(other) &&
-        EqualsFeatures(other);
+        EqualsFeatures(other) &&
+        EqualsFeatureProperties(other);
 
     public bool EqualsGeneral(TileEditorData other) =>
         Biome == other.Biome &&
@@ -183,9 +235,11 @@ public class TileEditorData
         Temperature == other.Temperature;
 
     public bool EqualsRockTypes(TileEditorData other) =>
-        RockTypes.Count == other.RockTypes.Count &&
-        !RockTypes.Except(other.RockTypes).Any();
+        RockTypes.DictEquals(other.RockTypes);
 
     public bool EqualsFeatures(TileEditorData other) =>
         Features.SequenceEqual(other.Features);
+
+    public bool EqualsFeatureProperties(TileEditorData other) =>
+        FeatureProperties.DictEquals(other.FeatureProperties);
 }

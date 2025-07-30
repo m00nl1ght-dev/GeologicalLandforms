@@ -28,15 +28,8 @@ public class NodeOutputBiomeGrid : NodeOutputBase
     {
         GUILayout.BeginVertical(BoxStyle);
 
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label(BiomeGridKnob.name, BoxLayout);
-        GUILayout.EndHorizontal();
-        BiomeGridKnob.SetPosition();
-
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label(BiomeTransitionKnob.name, BoxLayout);
-        GUILayout.EndHorizontal();
-        BiomeTransitionKnob.SetPosition();
+        KnobLabel(BiomeGridKnob);
+        KnobLabel(BiomeTransitionKnob);
 
         GUILayout.EndVertical();
     }

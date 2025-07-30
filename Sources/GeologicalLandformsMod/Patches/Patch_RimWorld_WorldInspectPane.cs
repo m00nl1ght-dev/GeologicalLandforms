@@ -18,6 +18,8 @@ internal static class Patch_RimWorld_WorldInspectPane
     [HarmonyPatch(nameof(WorldInspectPane.DoInspectPaneButtons))]
     private static void DoInspectPaneButtons_Postfix(Rect rect, ref float lineEndWidth)
     {
+        if (!GeologicalLandformsMod.Settings.EnableWorldTileEditor) return;
+
         var tile = Find.WorldSelector.SelectedTile;
 
         if (TileEditorWindow.CanEditTile(tile))

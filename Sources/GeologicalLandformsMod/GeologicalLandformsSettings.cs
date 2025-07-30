@@ -20,6 +20,7 @@ public class GeologicalLandformsSettings : LunarModSettings
     public readonly Entry<bool> EnableCellFinderOptimization = MakeEntry(true);
     public readonly Entry<bool> EnableLandformScaling = MakeEntry(true);
     public readonly Entry<bool> EnableExperimentalLandforms = MakeEntry(false);
+    public readonly Entry<bool> EnableWorldTileEditor = MakeEntry(true);
     public readonly Entry<bool> EnableGodMode = MakeEntry(false);
 
     public readonly Entry<bool> IgnoreWorldTileReqInGodMode = MakeEntry(false);
@@ -106,7 +107,12 @@ public class GeologicalLandformsSettings : LunarModSettings
             if (layout.PopChanged()) MapPreviewAPI.NotifyWorldChanged();
         }
 
+        #if RW_1_6_OR_GREATER
+        LunarGUI.Checkbox(layout, ref EnableWorldTileEditor.Value, Label("EnableWorldTileEditor"));
+        #else
         LunarGUI.Checkbox(layout, ref EnableGodMode.Value, Label("EnableGodMode"));
+        #endif
+
         LunarGUI.Checkbox(layout, ref EnableCellFinderOptimization.Value, Label("EnableCellFinderOptimization"));
 
         layout.PushChanged();
@@ -151,7 +157,7 @@ public class GeologicalLandformsSettings : LunarModSettings
 
         layout.PushChanged();
 
-        var mutators = DefDatabase<TileMutatorDef>.AllDefs.Where(e => e.Worker is not TileMutatorWorker_Landform);
+        var mutators = DefDatabase<TileMutatorDef>.AllDefs.Where(e => !e.IsLandform());
 
         foreach (var group in mutators.GroupBy(def => def.modContentPack))
         {
@@ -261,10 +267,14 @@ public class GeologicalLandformsSettings : LunarModSettings
     {
         LunarGUI.Checkbox(layout, ref ShowWorldTileDebugInfo.Value, Label("Debug.ShowWorldTileDebugInfo"));
 
+        #if !RW_1_6_OR_GREATER
+
         if (EnableGodMode)
         {
             LunarGUI.Checkbox(layout, ref IgnoreWorldTileReqInGodMode.Value, Label("Debug.IgnoreWorldTileReqInGodMode"));
         }
+
+        #endif
 
         LunarGUI.Checkbox(layout, ref UnidirectionalBiomeTransitions.Value, Label("Debug.UnidirectionalBiomeTransitions"));
         LunarGUI.Checkbox(layout, ref DisableBiomeTransitionPostProcessing.Value, Label("Debug.DisableBiomeTransitionPostProcessing"));

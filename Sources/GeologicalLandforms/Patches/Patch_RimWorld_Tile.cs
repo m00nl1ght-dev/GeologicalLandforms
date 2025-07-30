@@ -72,27 +72,29 @@ internal static class Patch_RimWorld_Tile
     [HarmonyPatch(nameof(Tile.AddMutator))]
     private static bool AddMutator_Prefix(Tile __instance, TileMutatorDef mutator)
     {
-        if (mutator.Worker is TileMutatorWorker_Landform worker)
+        if (mutator.AsLandform() is {} landform)
         {
-            if (__instance.Layer.IsRootSurface && __instance.tile.tileId >= 0 && worker.Landform != null)
+            if (__instance.Layer.IsRootSurface && __instance.tile.Valid && landform.WorldTileReq != null)
             {
-                var tileInfo = WorldTileInfo.Get(__instance.tile.tileId);
-                var landforms = tileInfo.Landforms?.Select(lf => lf.Id).ToList() ?? [];
-
-                if (!landforms.Contains(worker.Landform.Id))
+                var worldData = Find.World.LandformData();
+                if (worldData != null)
                 {
-                    landforms.Add(worker.Landform.Id);
+                    var tileInfo = WorldTileInfo.Get(__instance.tile);
+                    var tileData = worldData.TryGet(__instance.tile, out var old) ? old : new(tileInfo);
 
-                    Find.World.LandformData()?.Commit(__instance.tile.tileId, new LandformData.TileData(tileInfo)
+                    if (tileData.Landforms == null || !tileData.Landforms.Contains(landform.Id))
                     {
-                        Landforms = landforms
-                    });
+                        tileData.Landforms ??= [];
+                        tileData.Landforms.Add(landform.Id);
+                        worldData.Commit(__instance.tile, tileData);
+                    }
                 }
             }
 
             return false;
         }
 
+        // Pre-emptively remove any conflicting mutators which are disabled in the customization settings
         if (__instance.Layer.IsRootSurface && __instance.mutatorsNullable is {} existingList)
         {
             if (TileMutatorsCustomization.Enabled)
@@ -119,21 +121,21 @@ internal static class Patch_RimWorld_Tile
     [HarmonyPatch(nameof(Tile.RemoveMutator))]
     private static bool RemoveMutator_Prefix(Tile __instance, TileMutatorDef mutator)
     {
-        if (mutator.Worker is TileMutatorWorker_Landform worker)
+        if (mutator.AsLandform() is {} landform)
         {
-            if (__instance.Layer.IsRootSurface && __instance.tile.tileId >= 0 && worker.Landform != null)
+            if (__instance.Layer.IsRootSurface && __instance.tile.tileId >= 0 && landform.WorldTileReq != null)
             {
-                var tileInfo = WorldTileInfo.Get(__instance.tile.tileId);
-                var landforms = tileInfo.Landforms?.Select(lf => lf.Id).ToList() ?? [];
-
-                if (landforms.Contains(worker.Landform.Id))
+                var worldData = Find.World.LandformData();
+                if (worldData != null)
                 {
-                    landforms.Remove(worker.Landform.Id);
+                    var tileInfo = WorldTileInfo.Get(__instance.tile);
+                    var tileData = worldData.TryGet(__instance.tile, out var old) ? old : new(tileInfo);
 
-                    Find.World.LandformData()?.Commit(__instance.tile.tileId, new LandformData.TileData(tileInfo)
+                    if (tileData.Landforms != null && tileData.Landforms.Contains(landform.Id))
                     {
-                        Landforms = landforms
-                    });
+                        tileData.Landforms.Remove(landform.Id);
+                        worldData.Commit(__instance.tile, tileData);
+                    }
                 }
             }
 

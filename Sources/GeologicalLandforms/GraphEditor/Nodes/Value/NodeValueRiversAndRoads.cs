@@ -33,25 +33,10 @@ public class NodeValueRiversAndRoads : NodeBase
     {
         GUILayout.BeginVertical(BoxStyle);
 
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Angle", DoubleBoxLayout);
-        GUILayout.EndHorizontal();
-        AngleOutputKnob.SetPosition();
-
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Offset", DoubleBoxLayout);
-        GUILayout.EndHorizontal();
-        OffsetOutputKnob.SetPosition();
-
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("River Size", DoubleBoxLayout);
-        GUILayout.EndHorizontal();
-        RiverWidthOutputKnob.SetPosition();
-
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Road Size", DoubleBoxLayout);
-        GUILayout.EndHorizontal();
-        RoadWidthOutputKnob.SetPosition();
+        KnobLabelDouble(AngleOutputKnob, "Angle");
+        KnobLabelDouble(OffsetOutputKnob, "Offset");
+        KnobLabelDouble(RiverWidthOutputKnob, "River Size");
+        KnobLabelDouble(RoadWidthOutputKnob, "Road Size");
 
         GUILayout.EndVertical();
     }

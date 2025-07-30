@@ -25,6 +25,7 @@ public class TileEditorWindow : Window
     public static readonly Texture2D IconRemoveElement = ContentFinder<Texture2D>.Get("RemoveElementIconGL");
     public static readonly Texture2D IconReset = ContentFinder<Texture2D>.Get("ResetIconGL");
     public static readonly Texture2D IconReroll = ContentFinder<Texture2D>.Get("RerollIconGL");
+    public static readonly Texture2D IconFilter = ContentFinder<Texture2D>.Get("FilterIconGL");
     public static readonly Texture2D IconLocked = ContentFinder<Texture2D>.Get("UI/Overlays/Locked");
     public static readonly Texture2D IconWarningRed = ContentFinder<Texture2D>.Get("UI/Widgets/Error");
     public static readonly Texture2D IconWarningYellow = ContentFinder<Texture2D>.Get("UI/Widgets/YellowWarning");
@@ -42,6 +43,7 @@ public class TileEditorWindow : Window
 
     private readonly LayoutRectScrollable LayoutRockTypes = new(GeologicalLandformsMod.LunarAPI);
     private readonly LayoutRectScrollable LayoutFeatures = new(GeologicalLandformsMod.LunarAPI);
+    private readonly LayoutRectScrollable LayoutFeatureProperties = new(GeologicalLandformsMod.LunarAPI);
 
     private readonly MapPreviewWidget PreviewWidget = new(MapSizeUtility.MaxMapSize);
 
@@ -58,6 +60,9 @@ public class TileEditorWindow : Window
     private bool _previewNeedsRefresh;
 
     private TileMutatorDef _selectedFeature;
+    private List<TileFeaturePropertyRow> _propertyRows = [];
+    private bool _pendingNaturalPropertyValues = true;
+
     private string _seasonStringCache;
 
     public static bool CanEditTile(PlanetTile tile)
@@ -66,6 +71,29 @@ public class TileEditorWindow : Window
         if (Find.WorldObjects.MapParentAt(tile) is { HasMap: true }) return false;
         if (Find.World.LandformData() == null) return false;
         return true;
+    }
+
+    static TileEditorWindow()
+    {
+        DefSelectionWindow<TerrainDef>.DefaultEntryFactory = def =>
+        {
+            var entry = new DefSelectionWindow<TerrainDef>.Entry(def);
+
+            if (!def.natural)
+                entry.AddWarning("This terrain is not natural, which may cause issues.");
+
+            return entry;
+        };
+
+        DefSelectionWindow<BiomeDef>.DefaultEntryFactory = def =>
+        {
+            var entry = new DefSelectionWindow<BiomeDef>.Entry(def);
+
+            if (!def.generatesNaturally)
+                entry.AddWarning("This biome does not generate naturally, forcing it may cause issues.");
+
+            return entry;
+        };
     }
 
     public TileEditorWindow(World world, PlanetTile tile)
@@ -79,8 +107,10 @@ public class TileEditorWindow : Window
         _dataBefore.Read(tile);
         _data.Read(tile);
 
-        forcePause = true;
         absorbInputAroundWindow = true;
+        closeOnClickedOutside = false;
+        forcePause = true;
+
         layer = WindowLayer.SubSuper;
     }
 
@@ -92,7 +122,14 @@ public class TileEditorWindow : Window
 
     public override void DoWindowContents(Rect rect)
     {
+        Text.Font = GameFont.Small;
+
         const float previewSize = 360f;
+
+        if (Event.current.type == EventType.MouseDown)
+        {
+            GUI.FocusControl(null);
+        }
 
         using (Layout.Root(rect))
         {
@@ -113,7 +150,7 @@ public class TileEditorWindow : Window
                 {
                     DoSectionFrame("Features", 250f, DoFeaturesSection, DoFeaturesSectionButtons);
                     Layout.Abs(Margin);
-                    DoSectionFrame("Feature customization", 380f, DoFeatureConfigSection, DoFeatureConfigSectionButtons);
+                    DoSectionFrame("Feature customization", 380f, DoFeaturePropertiesSection, DoFeaturePropertiesSectionButtons);
                     Layout.Abs(Margin);
                     DoSectionFrame(null, -1, DoBottomRow);
                 }
@@ -205,13 +242,7 @@ public class TileEditorWindow : Window
             {
                 if (DoIconButton(Layout, IconEditElement, Color.white, 2f))
                 {
-                    Find.WindowStack.Add(new DefSelectionWindow<BiomeDef>(SetBiome, EntryFor));
-
-                    DefSelectionWindow<BiomeDef>.Entry EntryFor(BiomeDef def)
-                    {
-                        if (!def.generatesNaturally) return null;
-                        return new DefSelectionWindow<BiomeDef>.Entry(def);
-                    }
+                    Find.WindowStack.Add(new DefSelectionWindow<BiomeDef>(SetBiome, ProblemType.Info));
 
                     void SetBiome(BiomeDef value)
                     {
@@ -229,11 +260,7 @@ public class TileEditorWindow : Window
             var hillinessGiver = _data.Features.FindLast(f => f.hillinessLabel != Hilliness.Undefined);
             var hillinessLabel = hillinessGiver?.hillinessLabel ?? _data.Hilliness;
 
-            var lfImpassable = _data.Features.Find(f =>
-                f.Worker is TileMutatorWorker_Landform worker &&
-                worker.Landform.WorldTileReq.HillinessRequirement.min >= 5
-            );
-
+            var lfImpassable = _data.Features.Find(f => f.AsLandform() is { WorldTileReq.HillinessRequirement.min: >= 5 });
             if (lfImpassable != null && !_data.EqualsFeatures(_dataGenerated))
             {
                 hillinessGiver = lfImpassable;
@@ -325,18 +352,7 @@ public class TileEditorWindow : Window
         }
     }
 
-    private void DoGeneralSectionButtons()
-    {
-        /*
-
-        if (DoIconButton(Layout, IconReset, Color.white, 3f))
-        {
-            _data.ResetGeneral(Tile);
-            PreviewNeedsRefresh();
-        }
-
-        */
-    }
+    private void DoGeneralSectionButtons() {}
 
     private void DoRockTypesSection()
     {
@@ -378,13 +394,21 @@ public class TileEditorWindow : Window
     {
         if (DoIconButton(Layout, IconAddElement, Color.white))
         {
-            Find.WindowStack.Add(new DefSelectionWindow<ThingDef>(AddRockType, EntryFor));
+            Find.WindowStack.Add(new DefSelectionWindow<ThingDef>(AddRockType, ProblemType.Warning, EntryFor));
 
             DefSelectionWindow<ThingDef>.Entry EntryFor(ThingDef def)
             {
                 if (!def.IsNonResourceNaturalRock) return null;
-                if (_data.RockTypes.ContainsKey(def)) return null;
-                return new DefSelectionWindow<ThingDef>.Entry(def);
+
+                var entry = new DefSelectionWindow<ThingDef>.Entry(def);
+
+                if (_data.RockTypes.ContainsKey(def))
+                    entry.AddError("This rock type is already present.");
+
+                if (def.building.biomeSpecific && !_data.Biome.extraRockTypes.NotNullAndContains(def))
+                    entry.AddWarning("This rock type is biome-specific.");
+
+                return entry;
             }
 
             void AddRockType(ThingDef value)
@@ -436,14 +460,14 @@ public class TileEditorWindow : Window
                         if (DoIconButton(LayoutFeatures, IconRemoveElement, Color.red, 2f, null, false))
                         {
                             if (_selectedFeature == feature)
-                                _selectedFeature = null;
+                                SelectFeature(null);
 
                             _data.Features.Remove(feature);
                             PreviewNeedsRefresh();
                         }
                         else if (Widgets.ButtonInvisible(entryRect))
                         {
-                            _selectedFeature = feature;
+                            SelectFeature(feature);
                         }
                     }
                 }
@@ -455,14 +479,14 @@ public class TileEditorWindow : Window
     {
         if (DoIconButton(Layout, IconAddElement, Color.white))
         {
-            Find.WindowStack.Add(new DefSelectionWindow<TileMutatorDef>(AddFeature, EntryFor));
+            Find.WindowStack.Add(new DefSelectionWindow<TileMutatorDef>(AddFeature, ProblemType.Warning, EntryFor));
 
             DefSelectionWindow<TileMutatorDef>.Entry EntryFor(TileMutatorDef def)
             {
                 if (!def.EverValid() || GeologicalLandformsSettings.SpecialTileMutatorsHidden.Contains(def.defName)) return null;
 
-                var landform = def.Worker is TileMutatorWorker_Landform worker ? worker.Landform : null;
-                if (landform != null && landform.WorldTileReq == null) return null;
+                var landform = def.AsLandform();
+                if (landform is { WorldTileReq: null }) return null;
 
                 var entry = new DefSelectionWindow<TileMutatorDef>.Entry(def)
                 {
@@ -470,25 +494,13 @@ public class TileEditorWindow : Window
                 };
 
                 if (_data.Features.Contains(def))
-                {
-                    entry.ProblemMessages.Add("Already present on this tile.");
-                    entry.PreventSelection = true;
-                    return entry;
-                }
+                    entry.AddError("Already present on this tile.");
 
                 if (landform?.WorldTileReq.HillinessRequirement.min >= 5 && _data.Hilliness != Hilliness.Impassable)
-                {
-                    entry.ProblemMessages.Add("Requires a planet tile with Impassable Mountains.");
-                    entry.PreventSelection = true;
-                    return entry;
-                }
+                    entry.AddError("Requires a planet tile with Impassable Mountains.");
 
                 if (landform == null && def.categories.Contains("River") && TileObj.Rivers is not { Count: > 0 })
-                {
-                    entry.ProblemMessages.Add("Requires a river on the planet tile.");
-                    entry.PreventSelection = true;
-                    return entry;
-                }
+                    entry.AddError("Requires a river on the planet tile.");
 
                 if (def.coastSidesRange is { IsValid: true, min: > 0 } || def == TileMutatorDefOf.RiverDelta || def == TileMutatorDefOf.Coast)
                 {
@@ -496,19 +508,11 @@ public class TileEditorWindow : Window
                     World.grid.GetTileNeighbors(Tile, tileNb);
 
                     if (!tileNb.Any(t => World.grid[t].PrimaryBiome.isWaterBiome))
-                    {
-                        entry.ProblemMessages.Add("Requires a coastal planet tile.");
-                        entry.PreventSelection = true;
-                        return entry;
-                    }
+                        entry.AddError("Requires a coastal planet tile.");
                 }
 
                 if (def.Worker != null && !def.Worker.IsValidTile(Tile, Tile.Layer))
-                {
-                    entry.ProblemMessages.Add("Requirements not fulfilled.");
-                    entry.PreventSelection = true;
-                    return entry;
-                }
+                    entry.AddError("Requirements not fulfilled.");
 
                 var replaced = new List<string>();
 
@@ -524,9 +528,7 @@ public class TileEditorWindow : Window
                 }
 
                 if (replaced.Count > 0)
-                {
-                    entry.ProblemMessages.Add($"Replaces existing feature:\n{string.Join("\n", replaced)}");
-                }
+                    entry.AddWarning($"Replaces existing {(replaced.Count > 1 ? "features" : "feature")}:\n{string.Join("\n", replaced)}");
 
                 return entry;
             }
@@ -540,8 +542,8 @@ public class TileEditorWindow : Window
 
                 _data.Features.Add(value);
                 _data.Features.SortBy(m => m.genOrder);
-                _selectedFeature = value;
 
+                SelectFeature(value);
                 PreviewNeedsRefresh();
             }
         }
@@ -549,12 +551,14 @@ public class TileEditorWindow : Window
         if (!_data.EqualsFeatures(_dataGenerated) && DoIconButton(Layout, IconReset, Color.white, 3f))
         {
             _data.CopyFeatures(_dataGenerated);
-            _selectedFeature = null;
+            _data.CopyFeatureProperties(_dataGenerated);
+
+            SelectFeature(null);
             PreviewNeedsRefresh();
         }
     }
 
-    private void DoFeatureConfigSection()
+    private void DoFeaturePropertiesSection()
     {
         if (_selectedFeature == null)
         {
@@ -562,37 +566,71 @@ public class TileEditorWindow : Window
             return;
         }
 
-        if (_selectedFeature.Worker is not TileMutatorWorker_Landform worker)
+        if (_pendingNaturalPropertyValues)
+        {
+            SectionEmptyLabel("Waiting for preview ...");
+            return;
+        }
+
+        if (_propertyRows.Count == 0)
         {
             SectionEmptyLabel("The selected feature has no customization options.");
             return;
         }
 
-        // TODO
-    }
-
-    private void SectionEmptyLabel(string text)
-    {
-        Layout.Rel(0.45f);
-        GUI.color = new Color(0.5f, 0.5f, 0.5f);
-        LunarGUI.LabelCentered(Layout, text);
-        GUI.color = Color.white;
-    }
-
-    private void DoFeatureConfigSectionButtons()
-    {
-        if (DoIconButton(Layout, IconReset, Color.white, 3f))
+        using (LayoutFeatureProperties.RootScrollable(Layout.Rel(-1), new() { Spacing = 5f }))
         {
-
+            foreach (var row in _propertyRows)
+            {
+                row.DoEditorUI(LayoutFeatureProperties, _data, PreviewNeedsRefresh);
+            }
         }
+    }
+
+    private void DoFeaturePropertiesSectionButtons()
+    {
+        if (_selectedFeature != null && _data.FeatureProperties.ContainsKey(_selectedFeature.defName))
+        {
+            if (DoIconButton(Layout, IconReset, Color.white, 3f))
+            {
+                _data.FeatureProperties.Remove(_selectedFeature.defName);
+                _pendingNaturalPropertyValues = true;
+                PreviewNeedsRefresh();
+            }
+        }
+    }
+
+    private void SelectFeature(TileMutatorDef feature)
+    {
+        _selectedFeature = feature;
+        _propertyRows = TileFeaturePropertyRow.SetupRowsForFeature(feature);
     }
 
     private void DoBottomRow()
     {
+        using (Layout.RowRev(-1, new() { Spacing = Margin / 2 }))
+        {
+            using (Layout.Row(80f))
+            {
+                if (DoTextButton(Layout, "Apply"))
+                {
+                    TileEditorData.Apply(Tile, _data, _dataGenerated);
+                    Close();
+                }
+            }
 
+            using (Layout.Row(80f))
+            {
+                if (DoTextButton(Layout, "Cancel"))
+                {
+                    TileEditorData.Apply(Tile, _dataBefore, _dataGenerated);
+                    Close();
+                }
+            }
+        }
     }
 
-    private bool DoIconButton(LayoutRect layout, Texture2D icon, Color color, float shrink = 0f, string tooltip = null, bool drawBox = true)
+    internal static bool DoIconButton(LayoutRect layout, Texture2D icon, Color color, float shrink = 0f, string tooltip = null, bool drawBox = true)
     {
         var outerRect = (Rect) layout;
         var btnRect = layout.Abs(outerRect.height);
@@ -610,9 +648,33 @@ public class TileEditorWindow : Window
         return Widgets.ButtonInvisible(btnRect);
     }
 
+    internal static bool DoTextButton(LayoutRect layout, string text, bool disabled = false, string tooltip = null)
+    {
+        var btnRect = (Rect) layout;
+
+        if (tooltip != null)
+            TooltipHandler.TipRegionByKey(btnRect, tooltip);
+
+        Widgets.DrawBoxSolid(btnRect, Mouse.IsOver(btnRect) ? ColorSectionHeaderHov : ColorSectionHeader);
+
+        if (disabled) GUI.color = new Color(0.5f, 0.5f, 0.5f);
+        LunarGUI.LabelCentered(btnRect.Moved(0f, 3f), text);
+        GUI.color = Color.white;
+
+        return Widgets.ButtonInvisible(btnRect);
+    }
+
+    private void SectionEmptyLabel(string text)
+    {
+        Layout.Rel(0.45f);
+        GUI.color = new Color(0.5f, 0.5f, 0.5f);
+        LunarGUI.LabelCentered(Layout, text);
+        GUI.color = Color.white;
+    }
+
     private void PreviewNeedsRefresh()
     {
-        if (_currentPreviewRequest is { Pending: true })
+        if (_currentPreviewRequest is { Pending: true } && PreviewWidget.Texture != null)
         {
             _previewNeedsRefresh = true;
             return;
@@ -639,12 +701,16 @@ public class TileEditorWindow : Window
 
         PreviewWidget.Await(_currentPreviewRequest);
 
-        _currentPreviewRequest.Promise.Done(r =>
+        _currentPreviewRequest.Promise.Done(_ =>
         {
             if (_previewNeedsRefresh)
             {
                 _previewNeedsRefresh = false;
                 PreviewNeedsRefresh();
+            }
+            else
+            {
+                _pendingNaturalPropertyValues = false;
             }
         });
 
@@ -660,6 +726,18 @@ public class TileEditorWindow : Window
             return "Tile is covered by solid mountain.";
 
         return null;
+    }
+
+    public override void OnAcceptKeyPressed()
+    {
+        TileEditorData.Apply(Tile, _data, _dataGenerated);
+        base.OnAcceptKeyPressed();
+    }
+
+    public override void OnCancelKeyPressed()
+    {
+        TileEditorData.Apply(Tile, _dataBefore, _dataGenerated);
+        base.OnCancelKeyPressed();
     }
 
     public override void PreOpen()
@@ -688,32 +766,38 @@ public class TileEditorWindow : Window
 
         MapPreviewAPI.UnsubscribeGenPatches(PatchGroupSubscriber);
 
-        Find.WorldSelector.SelectedTile = Tile;
-
+        var biomeChange = _data.Biome != _dataBefore.Biome;
+        var hillinessChange = _data.Hilliness != _dataBefore.Hilliness;
+        var temperatureChange = _data.Temperature != _dataBefore.Temperature;
         var featureChange = !_data.EqualsFeatures(_dataBefore);
 
-        if (_data.Temperature != _dataBefore.Temperature)
+        GeologicalLandformsMod.LunarAPI.LifecycleHooks.DoOnce(() =>
         {
-            World.tileTemperatures.ClearCaches();
-        }
+            Find.WorldSelector.SelectedTile = Tile;
 
-        if (featureChange || _data.Biome != _dataBefore.Biome)
-        {
-            World.grid.Surface.GetLayer<WorldDrawLayer_Terrain>().RegenerateNow();
-        }
+            if (temperatureChange)
+            {
+                World.tileTemperatures.ClearCaches();
+            }
 
-        if (_data.Hilliness != _dataBefore.Hilliness)
-        {
-            World.grid.Surface.GetLayer<WorldDrawLayer_Hills>().RegenerateNow();
-            World.pathGrid.RecalculatePerceivedMovementDifficultyAt(Tile, out var recache);
-            if (recache) World.reachability.ClearCache();
-        }
+            if (featureChange || biomeChange)
+            {
+                World.grid.Surface.GetLayer<WorldDrawLayer_Terrain>().RegenerateNow();
+            }
 
-        if (featureChange)
-        {
-            World.grid.Surface.GetLayer<WorldDrawLayer_Landmarks>().RegenerateNow();
-            World.grid.Surface.GetLayer<WorldLayer_Landforms>().RegenerateNow();
-        }
+            if (hillinessChange)
+            {
+                World.grid.Surface.GetLayer<WorldDrawLayer_Hills>().RegenerateNow();
+                World.pathGrid.RecalculatePerceivedMovementDifficultyAt(Tile, out var recache);
+                if (recache) World.reachability.ClearCache();
+            }
+
+            if (featureChange)
+            {
+                World.grid.Surface.GetLayer<WorldDrawLayer_Landmarks>().RegenerateNow();
+                World.grid.Surface.GetLayer<WorldLayer_Landforms>().RegenerateNow();
+            }
+        });
     }
 
     private static readonly string[] McpOrder = [
@@ -731,17 +815,30 @@ public class TileEditorWindow : Window
     [StaticConstructorOnStartup]
     private class MapPreviewWidget : MapPreview.MapPreviewWidget
     {
-        public MapPreviewWidget(IntVec2 maxMapSize) : base(maxMapSize) {}
+        private const float darknessFrac = 0.7f;
 
-        protected override void DrawGenerated(Rect inRect)
+        public MapPreviewWidget(IntVec2 maxMapSize) : base(maxMapSize)
         {
-            GUI.color = new Color(1f, 1f, 1f, SpawnInterpolator.value);
-            GUI.DrawTextureWithTexCoords(inRect, Texture, TexCoords);
+            var array = new Color[Texture.width * Texture.height];
+            for (int i = 0; i < array.Length; i++) array[i] = ColorSectionBackground;
+            Texture.SetPixels(array);
+            Texture.Apply();
+        }
+
+        protected override void DrawGenerated(Rect rect)
+        {
+            var v = darknessFrac + (1f - darknessFrac) * SpawnInterpolator.value;
+            GUI.color = new Color(v, v, v, 1f);
+            GUI.DrawTextureWithTexCoords(rect, Texture, TexCoords);
             GUI.color = Color.white;
         }
 
         protected override void DrawGenerating(Rect rect)
         {
+            GUI.color = new Color(darknessFrac, darknessFrac, darknessFrac, 1f);
+            GUI.DrawTextureWithTexCoords(rect, Texture, TexCoords);
+            GUI.color = Color.white;
+
             var position = new Rect(
                 rect.center.x - IconLoading.width / 2f,
                 rect.center.y - IconLoading.height / 2f,
@@ -757,6 +854,11 @@ public class TileEditorWindow : Window
         }
 
         protected override void DrawOutline(Rect rect) {}
+    }
+
+    public enum ProblemType
+    {
+        Info, Warning, Error
     }
 }
 

@@ -27,12 +27,6 @@ public class WorldTileInfoPrimer : WorldTileInfo
         set => base.BiomeVariants = value;
     }
 
-    public new LandformGenOverrides LandformGenOverrides
-    {
-        get => base.LandformGenOverrides;
-        set => base.LandformGenOverrides = value;
-    }
-
     public new Topology Topology
     {
         get => base.Topology;

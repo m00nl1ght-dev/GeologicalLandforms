@@ -25,10 +25,7 @@ public class NodeTerrainGridNaturalRock : NodeBase
     {
         GUILayout.BeginVertical(BoxStyle);
 
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Rock Grid", DoubleBoxLayout);
-        GUILayout.EndHorizontal();
-        OutputKnob.SetPosition();
+        KnobLabelDouble(OutputKnob, "Rock Grid");
 
         GUILayout.EndVertical();
     }

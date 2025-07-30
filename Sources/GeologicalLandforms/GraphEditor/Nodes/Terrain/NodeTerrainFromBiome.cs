@@ -34,9 +34,7 @@ public class NodeTerrainFromBiome : NodeBase
 
         GUILayout.BeginVertical(BoxStyle);
 
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label(BiomeKnob.name, BoxLayout);
-        GUILayout.FlexibleSpace();
+        KnobLabel(BiomeKnob);
 
         BiomeFunctionConnection.Instance.SelectorUI(this, Biome, !BiomeKnob.connected(), selected =>
         {

@@ -21,10 +21,7 @@ public abstract class NodeInputBase : NodeBase
     {
         GUILayout.BeginVertical(BoxStyle);
 
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label(KnobRef.name, BoxLayout);
-        GUILayout.EndHorizontal();
-        KnobRef.SetPosition();
+        KnobLabel(KnobRef);
 
         GUILayout.EndVertical();
     }

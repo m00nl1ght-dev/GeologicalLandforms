@@ -24,15 +24,8 @@ public class NodeOutputScatterers : NodeOutputBase
     {
         GUILayout.BeginVertical(BoxStyle);
 
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label(MineablesKnob.name, BoxLayout);
-        GUILayout.EndHorizontal();
-        MineablesKnob.SetPosition();
-
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label(CaveHivesKnob.name, BoxLayout);
-        GUILayout.EndHorizontal();
-        CaveHivesKnob.SetPosition();
+        KnobLabel(MineablesKnob);
+        KnobLabel(CaveHivesKnob);
 
         GUILayout.EndVertical();
     }

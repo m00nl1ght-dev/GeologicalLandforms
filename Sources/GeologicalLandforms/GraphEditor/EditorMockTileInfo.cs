@@ -22,7 +22,7 @@ public class EditorMockTileInfo : IWorldTileInfo
     public IReadOnlyList<BiomeVariantDef> BiomeVariants => BiomeVariantsList;
     public List<BiomeVariantDef> BiomeVariantsList { get; set; }
 
-    public LandformGenOverrides LandformGenOverrides { get; set; }
+    public TileFeatureProperties TileFeatureProperties { get; set; }
 
     public Topology Topology => Topology.Any;
     public float TopologyValue { get; set; }
@@ -55,6 +55,8 @@ public class EditorMockTileInfo : IWorldTileInfo
     public Vector3 PosInWorld { get; set; }
 
     public int StableSeed(int salt) => Gen.HashCombineInt(this.GetHashCode(), salt);
+
+    public TileFeatureProperties PropertiesFor(Landform landform) => null;
 
     public void DoEditorGUI(LayoutRect layout, Action<object> onChange)
     {

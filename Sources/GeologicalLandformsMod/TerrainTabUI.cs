@@ -41,7 +41,7 @@ internal static class TerrainTabUI
                     .Select(e => new FloatMenuOption($"{prefix} {e.TranslatedNameForSelection.CapitalizeFirst()}", () => FindLandform(e))));
 
                 options.AddRange(DefDatabase<TileMutatorDef>.AllDefs
-                    .Where(e => e.Worker is not TileMutatorWorker_Landform && !TileMutatorsCustomization.IsTileMutatorDisabled(e))
+                    .Where(e => !e.IsLandform() && !TileMutatorsCustomization.IsTileMutatorDisabled(e))
                     .Where(e => !GeologicalLandformsSettings.SpecialTileMutatorsHidden.Contains(e.defName))
                     .OrderBy(e => e.modContentPack.ContentSourceLabel()).ThenBy(e => e.label)
                     .Select(e => new FloatMenuOption($"({e.modContentPack.ContentSourceLabel().CapitalizeFirst()}) {UserInterfaceUtils.LabelForTileMutator(e, false)}", () => FindTileMutator(e))));
@@ -58,6 +58,8 @@ internal static class TerrainTabUI
                 Find.WindowStack.Add(new FloatMenu(options));
             }
         }
+
+        #if !RW_1_6_OR_GREATER
 
         listing.Gap();
 
@@ -132,6 +134,8 @@ internal static class TerrainTabUI
             listing.Gap();
         }
 
+        #endif
+
         if (Prefs.DevMode && GeologicalLandformsMod.Settings.ShowWorldTileDebugInfo)
         {
             listing.LabelDouble("GeologicalLandforms.WorldMap.Topology".Translate(), tileInfo.Topology.ToString());
@@ -140,6 +144,8 @@ internal static class TerrainTabUI
             listing.LabelDouble("GeologicalLandforms.WorldMap.Swampiness".Translate(), tileInfo.Swampiness.ToString(CultureInfo.InvariantCulture));
         }
     }
+
+    #if !RW_1_6_OR_GREATER
 
     private static void CoerceTileToRequirements(int tileId, LandformData data, Landform landform)
     {
@@ -166,6 +172,8 @@ internal static class TerrainTabUI
             }
         }
     }
+
+    #endif
 
     private static void FindLandform(Landform landform, bool requirePoi = false)
     {
@@ -228,6 +236,8 @@ internal static class TerrainTabUI
 
     public static void DoTerrainTabPreUI(WITab_Terrain tab)
     {
+        if (!GeologicalLandformsMod.Settings.EnableWorldTileEditor) return;
+
         var tile = tab.SelPlanetTile;
 
         if (TileEditorWindow.CanEditTile(tile))

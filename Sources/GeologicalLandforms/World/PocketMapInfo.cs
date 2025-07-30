@@ -17,8 +17,6 @@ public class PocketMapInfo : IWorldTileInfo
     public IReadOnlyList<BiomeVariantDef> BiomeVariants { get; private set; }
     public IReadOnlyList<BorderingBiome> BorderingBiomes => null;
 
-    public LandformGenOverrides LandformGenOverrides => null;
-
     public Topology Topology => default;
     public float TopologyValue => default;
     public Rot4 TopologyDirection => default;
@@ -47,6 +45,8 @@ public class PocketMapInfo : IWorldTileInfo
     #endif
 
     public int StableSeed(int salt) => Gen.HashCombineInt(Tile.GetHashCode(), salt);
+
+    public TileFeatureProperties PropertiesFor(Landform landform) => null;
 
     internal readonly Tile Tile;
 

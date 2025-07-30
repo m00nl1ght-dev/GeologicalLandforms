@@ -42,6 +42,9 @@ public class LandformGraphEditor : Window
 
         NodeBase.ActiveKnobConfigHandler = (node, knob) =>
         {
+            _editBufferMinValue = null;
+            _editBufferMaxValue = null;
+            _editBufferSortOrder = null;
             LunarGUI.OpenGenericWindow(GeologicalLandformsAPI.LunarAPI, new(400, 300), (w, r) => KnobConfigWindow(w, r, node, knob));
         };
 
@@ -52,6 +55,7 @@ public class LandformGraphEditor : Window
 
     private static string _editBufferMinValue;
     private static string _editBufferMaxValue;
+    private static string _editBufferSortOrder;
 
     private static void KnobConfigWindow(Window window, LayoutRect layout, NodeBase node, ValueConnectionKnob knob)
     {
@@ -84,23 +88,22 @@ public class LandformGraphEditor : Window
             LunarGUI.TextField(layout, ref config.PropertyLabel);
             layout.End();
 
+            layout.BeginAbs(28f);
+            LunarGUI.Label(layout.Rel(0.35f), "Sort Order");
+            LunarGUI.IntField(layout, ref config.SortOrder, ref _editBufferSortOrder, -100, 100);
+            layout.End();
+
             if (knob.valueType == typeof(ISupplier<double>))
             {
-                var min = (float) config.MinValue;
-                var max = (float) config.MaxValue;
-
                 layout.BeginAbs(28f);
                 LunarGUI.Label(layout.Rel(0.35f), "Min value");
-                Widgets.TextFieldNumeric(layout.Abs(-1), ref min, ref _editBufferMinValue, float.MinValue, float.MaxValue);
+                LunarGUI.DoubleField(layout.Abs(-1), ref config.MinValue, ref _editBufferMinValue, double.MinValue, double.MaxValue);
                 layout.End();
 
                 layout.BeginAbs(28f);
                 LunarGUI.Label(layout.Rel(0.35f), "Max value");
-                Widgets.TextFieldNumeric(layout.Abs(-1), ref max, ref _editBufferMaxValue, float.MinValue, float.MaxValue);
+                LunarGUI.DoubleField(layout.Abs(-1), ref config.MaxValue, ref _editBufferMaxValue, double.MinValue, double.MaxValue);
                 layout.End();
-
-                config.MinValue = min;
-                config.MaxValue = max;
             }
         }
     }

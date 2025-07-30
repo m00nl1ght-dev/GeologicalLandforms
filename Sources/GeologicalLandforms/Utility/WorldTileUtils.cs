@@ -9,6 +9,7 @@ using Verse;
 
 #if RW_1_6_OR_GREATER
 using System.Collections.Generic;
+using GeologicalLandforms.GraphEditor;
 using static RimWorld.Planet.SurfaceTile;
 #else
 using static RimWorld.Planet.Tile;
@@ -126,6 +127,16 @@ public static class WorldTileUtils
     public static IEnumerable<ThingDef> OriginalRockTypesFor(PlanetTile tile)
     {
         return Patch_RimWorld_World.NaturalRockTypesIn_Original(Find.World, tile);
+    }
+
+    public static bool IsLandform(this TileMutatorDef mutator)
+    {
+        return mutator.Worker is TileMutatorWorker_Landform worker && worker.Landform != null;
+    }
+
+    public static Landform AsLandform(this TileMutatorDef mutator)
+    {
+        return mutator.Worker is TileMutatorWorker_Landform worker ? worker.Landform : null;
     }
 
     #endif

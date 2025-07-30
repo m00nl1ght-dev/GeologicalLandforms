@@ -30,20 +30,9 @@ public class NodeOutputTerrain : NodeOutputBase
     {
         GUILayout.BeginVertical(BoxStyle);
 
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label(BaseKnob.name, BoxLayout);
-        GUILayout.EndHorizontal();
-        BaseKnob.SetPosition();
-
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label(StoneKnob.name, BoxLayout);
-        GUILayout.EndHorizontal();
-        StoneKnob.SetPosition();
-
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label(CaveKnob.name, BoxLayout);
-        GUILayout.EndHorizontal();
-        CaveKnob.SetPosition();
+        KnobLabel(BaseKnob);
+        KnobLabel(StoneKnob);
+        KnobLabel(CaveKnob);
 
         GUILayout.EndVertical();
     }

@@ -52,15 +52,8 @@ public class NodeTerrainGridNaturalPriority : NodeBase
 
         GUILayout.BeginVertical(BoxStyle);
 
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Input A", DoubleBoxLayout);
-        GUILayout.EndHorizontal();
-        InputAKnob.SetPosition();
-
-        GUILayout.BeginHorizontal(BoxStyle);
-        GUILayout.Label("Input B", DoubleBoxLayout);
-        GUILayout.EndHorizontal();
-        InputBKnob.SetPosition();
+        KnobLabelDouble(InputAKnob, "Input A");
+        KnobLabelDouble(InputBKnob, "Input B");
 
         GUILayout.BeginVertical(GUI.skin.box);
 
