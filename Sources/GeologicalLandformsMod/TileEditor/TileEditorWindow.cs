@@ -812,10 +812,11 @@ public class TileEditorWindow : Window
         return idx >= 0 ? idx : mcp.IsCoreMod ? 10 : mcp.IsOfficialMod ? 20 : 30;
     }
 
-    [StaticConstructorOnStartup]
     private class MapPreviewWidget : MapPreview.MapPreviewWidget
     {
-        private const float darknessFrac = 0.7f;
+        private const float darknessFrac = 1f;
+        private const float iconRelSize = 0.5f;
+        private const float iconRelPos = 0.1f;
 
         public MapPreviewWidget(IntVec2 maxMapSize) : base(maxMapSize)
         {
@@ -840,10 +841,10 @@ public class TileEditorWindow : Window
             GUI.color = Color.white;
 
             var position = new Rect(
-                rect.center.x - IconLoading.width / 2f,
-                rect.center.y - IconLoading.height / 2f,
-                IconLoading.width,
-                IconLoading.height
+                rect.x + rect.width * iconRelPos - IconLoading.width / 2f * iconRelSize,
+                rect.y + rect.height * iconRelPos - IconLoading.height / 2f * iconRelSize,
+                IconLoading.width * iconRelSize,
+                IconLoading.height * iconRelSize
             );
 
             float a = 1f - (1f + Mathf.Sin(Time.time * 3f)) * 0.4f;
