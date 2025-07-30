@@ -34,7 +34,7 @@ public abstract class NodeDefGridSelectGrid<T> : NodeSelectBase<string, double> 
     {
         var input = SupplierOrFallback(InputKnobRef, GridFunction.Of(default(T)));
 
-        var keys = Thresholds.Select(ConnectionType.FromString).ToList();
+        var keys = BuildThresholds().Select(ConnectionType.FromString).ToList();
 
         List<ISupplier<IGridFunction<double>>> options = [];
 

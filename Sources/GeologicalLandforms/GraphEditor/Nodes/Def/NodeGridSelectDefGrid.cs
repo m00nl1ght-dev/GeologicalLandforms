@@ -48,7 +48,7 @@ public abstract class NodeGridSelectDefGrid<T> : NodeSelectBase<double, string> 
             options.Add(SupplierOrFallback(OptionKnobs[i], GridFunction.Of(value)));
         }
 
-        SetOutput(OutputKnobRef, new GridOutput<T>(input, options, Thresholds.ToList(), null));
+        SetOutput(OutputKnobRef, new GridOutput<T>(input, options, BuildThresholds(), null));
         return true;
     }
 }

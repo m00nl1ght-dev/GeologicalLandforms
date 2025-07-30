@@ -40,12 +40,12 @@ public class LandformGraphEditor : Window
             TooltipHandler.TipRegion(rect, new TipSignal(textFunc, textFunc.GetHashCode()) { delay = tdelay });
         };
 
-        NodeBase.ActiveKnobConfigHandler = (node, knob) =>
+        NodeBase.ActiveConfigDialogHandler = (node, name, typeId) =>
         {
             _editBufferMinValue = null;
             _editBufferMaxValue = null;
             _editBufferSortOrder = null;
-            LunarGUI.OpenGenericWindow(GeologicalLandformsAPI.LunarAPI, new(400, 300), (w, r) => KnobConfigWindow(w, r, node, knob));
+            LunarGUI.OpenGenericWindow(GeologicalLandformsAPI.LunarAPI, new(400, 300), (w, r) => KnobConfigWindow(w, r, node, name, typeId));
         };
 
         NodeGridPreview.RegisterPreviewModel(new NodeOutputElevation.ElevationPreviewModel(), "Elevation");
@@ -57,16 +57,16 @@ public class LandformGraphEditor : Window
     private static string _editBufferMaxValue;
     private static string _editBufferSortOrder;
 
-    private static void KnobConfigWindow(Window window, LayoutRect layout, NodeBase node, ValueConnectionKnob knob)
+    private static void KnobConfigWindow(Window window, LayoutRect layout, NodeBase node, string name, string typeId)
     {
-        var config = node.ConfigurableOverrides.Find(c => c.KnobName == knob.name);
+        var config = node.ConfigurableOverrides.Find(c => c.KnobName == name);
         var hasConfig = config != null;
 
         LunarGUI.Checkbox(layout, ref hasConfig, "Expose as configurable override");
 
         if (hasConfig && config == null)
         {
-            config = new ConfigurableOverride { KnobName = knob.name, KnobType = knob.styleID };
+            config = new ConfigurableOverride { KnobName = name, KnobType = typeId };
             node.ConfigurableOverrides.Add(config);
         }
         else if (!hasConfig && config != null)
@@ -93,7 +93,7 @@ public class LandformGraphEditor : Window
             LunarGUI.IntField(layout, ref config.SortOrder, ref _editBufferSortOrder, -100, 100);
             layout.End();
 
-            if (knob.valueType == typeof(ISupplier<double>))
+            if (typeId == ValueFunctionConnection.Id)
             {
                 layout.BeginAbs(28f);
                 LunarGUI.Label(layout.Rel(0.35f), "Min value");

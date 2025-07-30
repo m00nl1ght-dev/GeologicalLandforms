@@ -43,7 +43,7 @@ public abstract class NodeValueSelectDef<T> : NodeSelectBase<double, string> whe
             options.Add(SupplierOrFallback(OptionKnobs[i], ConnectionType.FromString(Values[i])));
         }
 
-        SetOutput(OutputKnobRef, new Output<T>(input, options, Thresholds.ToList(), null));
+        SetOutput(OutputKnobRef, new Output<T>(input, options, BuildThresholds(), null));
         return true;
     }
 }

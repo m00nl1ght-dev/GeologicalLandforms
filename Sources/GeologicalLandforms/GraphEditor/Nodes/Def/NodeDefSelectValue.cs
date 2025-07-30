@@ -37,7 +37,7 @@ public abstract class NodeDefSelectValue<T> : NodeSelectBase<string, double> whe
     {
         var input = SupplierOrFallback<T>(InputKnobRef, null);
 
-        var keys = Thresholds.Select(ConnectionType.FromString).ToList();
+        var keys = BuildThresholds().Select(ConnectionType.FromString).ToList();
 
         List<ISupplier<double>> options = [];
 
