@@ -73,6 +73,12 @@ public class NodeUIWorldTileReq : NodeUIBase
             return 0f;
         }
 
+        // Prevent GL river landforms from spawning on tiles with river-related mutators from other mods such as VLE
+        if (Landform.LayerConfig?.LayerId == "river" && worldTile is WorldTileInfo info && info.Tile.mutatorsNullable is {} mutators)
+        {
+            if (mutators.Any(m => m.categories.Contains("River") && m.modContentPack is { IsOfficialMod: false })) return 0f;
+        }
+
         #endif
 
         return CheckWorldObject(worldObject) ? value : 0f;
