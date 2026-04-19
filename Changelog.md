@@ -1,4 +1,8 @@
 
+v1.7.12
+
+- Fixed compatibility with river-related features from Vanilla Landmarks Expanded
+
 v1.7.11
 
 - Added compatibility patch for 'Roads Of The Rim'
