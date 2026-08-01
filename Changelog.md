@@ -1,4 +1,9 @@
 
+v1.7.13
+
+- Fixed compatibility patch for Vanilla Events Expanded v2.x
+- Added option to hide content source labels for map features
+
 v1.7.12
 
 - Fixed compatibility with river-related features from Vanilla Landmarks Expanded
