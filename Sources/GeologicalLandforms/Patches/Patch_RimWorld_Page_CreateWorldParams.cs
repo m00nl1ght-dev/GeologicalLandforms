@@ -30,6 +30,7 @@ internal static class Patch_RimWorld_Page_CreateWorldParams
     [HarmonyTranspiler]
     [HarmonyPatch("DoWindowContents")]
     [HarmonyPriority(Priority.Low)]
+    [PatchExcludedFromConflictCheck]
     private static IEnumerable<CodeInstruction> DoWindowContents_Transpiler(IEnumerable<CodeInstruction> instructions)
     {
         var ldlocPos = new CodeInstruction(OpCodes.Ldloc);
