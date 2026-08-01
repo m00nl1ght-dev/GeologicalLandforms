@@ -1,4 +1,8 @@
 
+v1.7.13.1
+
+- Fix backwards compatibility with previous Map Preview versions
+
 v1.7.13
 
 - Fixed compatibility patch for Vanilla Events Expanded v2.x
