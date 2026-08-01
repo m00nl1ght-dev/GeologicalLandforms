@@ -31,6 +31,7 @@ internal static class TerrainTabUI
                 #if RW_1_6_OR_GREATER
 
                 var prefix = "GeologicalLandforms.WorldMap.FindLandformPrefix".Translate();
+                var mcpLabels = GeologicalLandformsMod.Settings.ShowTileMutatorContentSourceLabel;
 
                 options.AddRange(LandformManager.LandformsById.Values
                     .Where(e => !e.IsInternal && GeologicalLandformsMod.IsLandformEnabled(e))
@@ -41,7 +42,7 @@ internal static class TerrainTabUI
                     .Where(e => e.Worker is not TileMutatorWorker_Landform && !TileMutatorsCustomization.IsTileMutatorDisabled(e))
                     .Where(e => !GeologicalLandformsSettings.SpecialTileMutatorsHidden.Contains(e.defName))
                     .OrderBy(e => e.modContentPack.ContentSourceLabel()).ThenBy(e => e.label)
-                    .Select(e => new FloatMenuOption($"({e.modContentPack.ContentSourceLabel().CapitalizeFirst()}) {UserInterfaceUtils.LabelForTileMutator(e, false)}", () => FindTileMutator(e))));
+                    .Select(e => new FloatMenuOption(UserInterfaceUtils.LabelForTileMutator(e, mcpLabels), () => FindTileMutator(e))));
 
                 #else
 

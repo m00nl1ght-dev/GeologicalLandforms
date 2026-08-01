@@ -87,14 +87,21 @@ public static class UserInterfaceUtils
         { "Cove", "(cove)" },
     };
 
-    public static string LabelForTileMutator(TileMutatorDef def, bool extraInfo)
+    public static string LabelForTileMutator(TileMutatorDef def, bool withMcpPrefix)
     {
+        var label = def.LabelCap;
+
         if (MutatorSuffixes.TryGetValue(def.defName, out var suffix))
         {
-            return def.LabelCap + " " + suffix;
+            label = $"{label} {suffix}";
         }
 
-        return def.LabelCap;
+        if (withMcpPrefix)
+        {
+            label = $"({def.modContentPack.ContentSourceLabel().CapitalizeFirst()}) {label}";
+        }
+
+        return label;
     }
 
     #endif

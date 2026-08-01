@@ -25,6 +25,7 @@ public class GeologicalLandformsSettings : LunarModSettings
     public readonly Entry<bool> ShowWorldTileDebugInfo = MakeEntry(false);
     public readonly Entry<bool> UnidirectionalBiomeTransitions = MakeEntry(false);
     public readonly Entry<bool> DisableBiomeTransitionPostProcessing = MakeEntry(false);
+    public readonly Entry<bool> ShowTileMutatorContentSourceLabel = MakeEntry(true);
 
     public readonly Entry<bool> DevQuickTestOverrideEnabled = MakeEntry(false);
     public readonly Entry<int> DevQuickTestOverrideMapSize = MakeEntry(150);
@@ -103,6 +104,7 @@ public class GeologicalLandformsSettings : LunarModSettings
 
         LunarGUI.Checkbox(layout, ref EnableGodMode.Value, Label("EnableGodMode"));
         LunarGUI.Checkbox(layout, ref EnableCellFinderOptimization.Value, Label("EnableCellFinderOptimization"));
+        LunarGUI.Checkbox(layout, ref ShowTileMutatorContentSourceLabel.Value, Label("ShowTileMutatorContentSourceLabel"));
 
         layout.PushChanged();
         LunarGUI.Checkbox(layout, ref EnableLandformScaling.Value, Label("EnableLandformScaling"));
@@ -159,7 +161,7 @@ public class GeologicalLandformsSettings : LunarModSettings
             {
                 if (SpecialTileMutatorsHidden.Contains(def.defName)) continue;
 
-                var label = UserInterfaceUtils.LabelForTileMutator(def, true);
+                var label = UserInterfaceUtils.LabelForTileMutator(def, false);
                 LunarGUI.ToggleTableRow(layout, def.defName, true, label, CurrentlyDisabledTileMutators);
             }
 
