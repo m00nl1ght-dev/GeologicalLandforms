@@ -81,5 +81,6 @@
         <Publicize Include="Assembly-CSharp:RimWorld.TileMutatorDef.mutatorWorker" />
         <Publicize Include="Assembly-CSharp:RimWorld.PlanetLayerDef.worldGenSteps" />
         <Publicize Include="Assembly-CSharp:RimWorld.PlanetLayerDef.cachedGenSteps" />
+        <Publicize Include="Assembly-CSharp:RimWorld.Page_SelectStartingSite.CanDoNext" />
     </ItemGroup>
 </Project>

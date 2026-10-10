@@ -5,8 +5,14 @@ using System.Reflection.Emit;
 using HarmonyLib;
 using LunarFramework.Patching;
 using RimWorld.Planet;
-using RimWorld.QuestGen;
 using Verse;
+
+#if RW_1_6_OR_GREATER
+using RimWorld;
+using System.Reflection;
+#else
+using RimWorld.QuestGen;
+#endif
 
 namespace GeologicalLandforms.Patches;
 
@@ -44,13 +50,15 @@ internal static class Patch_RimWorld_TileFinder
 
         if (world.grid[tile].hilliness != Hilliness.Impassable) return true;
 
-        if (QuestGen.Working) return false; // prevent quest sites from spawning on impassable tiles
-
         #if RW_1_6_OR_GREATER
 
-        // FastTileFinder has async rebuilding which would cause WorldTileInfo.Get to be called off the main thread
-        // But FastTileFinder is only used for quests anyway
-        if (!CompatUtils.IsMainOrLongEventThread()) return false;
+        // keep vanilla behavior unless player is actively selecting a tile to settle/land on
+        if (!PlayerSelectingTileContext.Inside) return false;
+
+        #else
+
+        // old 1.5 check, prevents quest sites from spawning on impassable tiles
+        if (QuestGen.Working) return false;
 
         #endif
 
@@ -63,4 +71,43 @@ internal static class Patch_RimWorld_TileFinder
 
         return false;
     }
+
+    #if RW_1_6_OR_GREATER
+
+    /// <summary>
+    /// Keeps track of whether IsValidTileForNewSettlement runs in the context of the player selecting a world tile to settle, camp or land on.
+    /// </summary>
+    [PatchGroup("Main")]
+    [HarmonyPatch]
+    internal static class PlayerSelectingTileContext
+    {
+        public static bool Inside => ctxDepth > 0;
+
+        [ThreadStatic]
+        private static int ctxDepth;
+
+        [HarmonyTargetMethods]
+        private static IEnumerable<MethodInfo> TargetMethods()
+        {
+            yield return AccessTools.Method(typeof(TilePicker), nameof(TilePicker.TileSelectorOnGUI));
+            yield return AccessTools.Method(typeof(Page_SelectStartingSite), nameof(Page_SelectStartingSite.CanDoNext));
+            yield return AccessTools.Method(typeof(SettleInEmptyTileUtility), nameof(SettleInEmptyTileUtility.SettleCommand));
+            yield return AccessTools.EnumeratorMoveNext(AccessTools.Method(typeof(Camp), nameof(Camp.GetGizmos)));
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPriority(900)]
+        private static void Prefix()
+        {
+            ctxDepth++;
+        }
+
+        [HarmonyFinalizer]
+        private static void Finalizer()
+        {
+            if (ctxDepth > 0) ctxDepth--;
+        }
+    }
+
+    #endif
 }
