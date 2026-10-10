@@ -18,7 +18,7 @@ public class ModCompat_RocketMan : ModCompat
 
     protected override bool OnApply()
     {
-        var baseType = AccessTools.TypeByName("RocketMan.Optimizations.WorldReachability_Patch");
+        var baseType = TargetAssembly.GetType("RocketMan.Optimizations.WorldReachability_Patch");
         var nestedType = baseType?.GetNestedType("WorldReachability_CanReach_Patch");
         _targetMethod = AccessTools.Method(nestedType, "Prefix");
         return _targetMethod != null;
