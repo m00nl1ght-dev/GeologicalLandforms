@@ -1,4 +1,9 @@
 
+v1.7.14
+
+- Startup performance improvements (submitted by mrbeverage)
+- Fixed inconsistent conditions for settlements and quest sites on impassable tiles
+
 v1.7.13.1
 
 - Fix backwards compatibility with previous Map Preview versions
