@@ -1,6 +1,6 @@
 <Project>
     <PropertyGroup>
-        <RimWorldVersion>1.6</RimWorldVersion>
+        <RimWorldVersion>1.7</RimWorldVersion>
         <RimWorldPath>..\..\..\..</RimWorldPath>
     </PropertyGroup>
 
@@ -16,18 +16,29 @@
         <Optimize>false</Optimize>
     </PropertyGroup>
 
+    <PropertyGroup Condition="'$(RimWorldVersion)' == '1.7'">
+        <WaylithEngine>true</WaylithEngine>
+        <DefineConstants>$(DefineConstants);RW_1_7</DefineConstants>
+        <DefineConstants>$(DefineConstants);RW_1_7_OR_GREATER</DefineConstants>
+        <DefineConstants>$(DefineConstants);RW_1_6_OR_GREATER</DefineConstants>
+        <DefineConstants>$(DefineConstants);RW_1_5_OR_GREATER</DefineConstants>
+    </PropertyGroup>
+
     <PropertyGroup Condition="'$(RimWorldVersion)' == '1.6'">
+        <WaylithEngine>false</WaylithEngine>
         <DefineConstants>$(DefineConstants);RW_1_6</DefineConstants>
         <DefineConstants>$(DefineConstants);RW_1_6_OR_GREATER</DefineConstants>
         <DefineConstants>$(DefineConstants);RW_1_5_OR_GREATER</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(RimWorldVersion)' == '1.5'">
+        <WaylithEngine>false</WaylithEngine>
         <DefineConstants>$(DefineConstants);RW_1_5</DefineConstants>
         <DefineConstants>$(DefineConstants);RW_1_5_OR_GREATER</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(RimWorldVersion)' == '1.4'">
+        <WaylithEngine>false</WaylithEngine>
         <DefineConstants>$(DefineConstants);RW_1_4</DefineConstants>
     </PropertyGroup>
 

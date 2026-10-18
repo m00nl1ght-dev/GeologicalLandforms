@@ -1,0 +1,39 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "GeologicalLandforms/1.7.14": {
+        "dependencies": {
+          "TerrainGraph": "1.2.3"
+        },
+        "runtime": {
+          "GeologicalLandforms.dll": {}
+        }
+      },
+      "TerrainGraph/1.2.3": {
+        "runtime": {
+          "TerrainGraph.dll": {
+            "assemblyVersion": "1.2.3.0",
+            "fileVersion": "1.2.3.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "GeologicalLandforms/1.7.14": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "TerrainGraph/1.2.3": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

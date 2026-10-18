@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Defs>
+
+  <TileMutatorDef ParentName="GL_LandformBase">
+    <defName>GL_BiomeTransitions</defName>
+    <displayPriority>-1</displayPriority>
+    <genOrder>240</genOrder>
+    <categories>
+    </categories>
+  </TileMutatorDef>
+
+</Defs>
