@@ -1,4 +1,9 @@
 
+v1.8.0
+
+- Support for RimWorld 1.7
+- The landform editor is not available in 1.7 for now
+
 v1.7.14
 
 - Startup performance improvements (submitted by mrbeverage)
