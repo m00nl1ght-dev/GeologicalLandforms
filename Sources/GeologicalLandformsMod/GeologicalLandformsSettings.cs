@@ -70,7 +70,29 @@ public class GeologicalLandformsSettings : LunarModSettings
 
         if (LunarGUI.Button(layout, Label("OpenEditor")))
         {
+            #if RW_1_7_OR_GREATER
+
+            if (Input.GetKey(KeyCode.LeftShift) && Input.GetKey(KeyCode.LeftControl))
+            {
+                Find.WindowStack.Add(new LandformGraphEditor());
+            }
+            else
+            {
+                Find.WindowStack.Add(new Dialog_MessageBox(
+                    "The landform editor is currently not available for version 1.7 of RimWorld. " +
+                    "Existing custom landforms will still work, but to edit them, you need to use version 1.6 of the game. " +
+                    "Sorry for the inconvenience.\n\nUnfortunately the landform editor heavily relies on the Unity engine, " +
+                    "and since version 1.7 the game is no longer using this engine. The editor needs significant changes " +
+                    "to make it work with the new engine, which will take some time. There will be an announcement " +
+                    "on the Geological Landforms workshop page once the editor is compatible with 1.7 and the new engine."
+                ));
+            }
+
+            #else
+
             Find.WindowStack.Add(new LandformGraphEditor());
+
+            #endif
         }
 
         if (LunarGUI.Button(layout, Label("OpenDataDir")))
