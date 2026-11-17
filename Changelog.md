@@ -1,4 +1,8 @@
 
+v1.8.1
+
+- Fixed compatibility with Harmony 3.0
+
 v1.8.0
 
 - Support for RimWorld 1.7

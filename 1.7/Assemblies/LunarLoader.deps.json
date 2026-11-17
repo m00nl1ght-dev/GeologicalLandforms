@@ -6,7 +6,7 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v10.0": {
-      "LunarLoader/1.2.1": {
+      "LunarLoader/1.2.2": {
         "runtime": {
           "LunarLoader.dll": {}
         }
@@ -14,7 +14,7 @@
     }
   },
   "libraries": {
-    "LunarLoader/1.2.1": {
+    "LunarLoader/1.2.2": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

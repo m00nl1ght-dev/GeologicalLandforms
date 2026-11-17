@@ -6,7 +6,7 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v10.0": {
-      "GeologicalLandformsMod/1.8.0": {
+      "GeologicalLandformsMod/1.8.1": {
         "dependencies": {
           "GeologicalLandforms": "1.8.0",
           "TerrainGraph": "1.2.4"
@@ -21,8 +21,8 @@
         },
         "runtime": {
           "GeologicalLandforms.dll": {
-            "assemblyVersion": "1.8.0.0",
-            "fileVersion": "1.8.0.0"
+            "assemblyVersion": "1.8.1.0",
+            "fileVersion": "1.8.1.0"
           }
         }
       },
@@ -37,7 +37,7 @@
     }
   },
   "libraries": {
-    "GeologicalLandformsMod/1.8.0": {
+    "GeologicalLandformsMod/1.8.1": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
